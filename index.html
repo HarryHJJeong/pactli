@@ -1,0 +1,1698 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<script>/* PC/Mobile view — applied before first paint */(function(){try{var v=JSON.parse(localStorage.getItem('pactli_view')||'"auto"');var small=Math.min(screen.width,screen.height)<760;var m=v==='mobile'||(v==='auto'&&(small||innerWidth<760));if(m)document.documentElement.classList.add('mob');if(v==='pc'&&small)document.querySelector('meta[name=viewport]').content='width=1280';}catch(e){}})();</script>
+<title>Pactli</title>
+<meta name="description" content="AI 상대와 음성으로 진행하는 비즈니스 영어 회의·협상 시뮬레이션">
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 430 430%22%3E%3Crect width=%22430%22 height=%22430%22 rx=%2295%22 fill=%22%23F8F7F2%22/%3E%3Cg fill=%22none%22 stroke=%22%2306452C%22 stroke-width=%2248%22 stroke-linecap=%22round%22 stroke-linejoin=%22round%22%3E%3Cpath d=%22M128 140 V340%22/%3E%3Cpath d=%22M128 168 C128 128 162 110 200 110 C252 110 282 146 282 192 C282 238 252 274 200 274 C162 274 128 256 128 220%22/%3E%3C/g%3E%3Ccircle cx=%22340%22 cy=%22300%22 r=%2228%22 fill=%22%238ED000%22/%3E%3C/svg%3E">
+<meta name="theme-color" content="#293e36">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Noto+Sans+KR:wght@400;500;700;900&display=swap">
+<style>
+:root{
+  /* Worqend palette */
+  --bg:#faf8f3; --bg2:#ffffff; --panel:#fffefb; --panel2:#f0f4eb; --line:#eae6dd; --line2:#dbe3dd;
+  --ink:#252b29; --ink2:#3b4440; --muted:#7b807c; --dim:#9aa19c;
+  --green:#455d50; --deep:#293e36; --hero:#354f42; --soft:#f0f4eb; --accent:#d4e8ad; --lime:#c7e48b;
+  --gold:#455d50; --gold2:#c7e48b; --goldsoft:#f0f4eb; --navy:#293e36; --brown:#354f42;
+  --ok:#2f6a45; --warn:#8a572c; --bad:#a13d32;
+  --sh:0 3px 18px rgba(37,43,41,.025);
+  --serif:Inter,Pretendard,'Noto Sans KR',system-ui,-apple-system,sans-serif; --sans:Inter,Pretendard,'Noto Sans KR',system-ui,-apple-system,sans-serif;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%}
+body{background:var(--bg);color:var(--ink);font-family:var(--sans);font-size:15px;line-height:1.55;-webkit-font-smoothing:antialiased}
+button{font-family:inherit;cursor:pointer;border:none;background:none;color:inherit}
+input,textarea,select{font-family:inherit;font-size:14px;color:var(--ink);background:var(--bg2);border:1px solid var(--line);border-radius:10px;padding:11px 13px;width:100%;outline:none;transition:border .2s,box-shadow .2s}
+input:focus,textarea:focus,select:focus{border-color:var(--gold2);box-shadow:0 0 0 3px rgba(127,160,139,.15)}
+textarea{resize:vertical;min-height:84px}
+label{display:block;font-size:11.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin-bottom:7px;font-weight:600}
+.screen{display:none;min-height:100vh}
+.screen.on{display:block}
+.wrap{max-width:1160px;margin:0 auto;padding:0 28px}
+
+.top{display:flex;align-items:center;justify-content:space-between;padding:24px 0}
+.brand{display:flex;align-items:baseline;gap:12px;cursor:pointer}
+.brand b{font-family:var(--serif);font-size:30px;font-weight:700;letter-spacing:.01em;color:var(--navy)}
+.brand b i{color:var(--gold2);font-style:normal}
+.brand span{font-size:10.5px;letter-spacing:.26em;text-transform:uppercase;color:var(--dim)}
+.nav{display:flex;gap:6px}
+.nav button{padding:9px 14px;border-radius:999px;font-size:13px;color:var(--muted);transition:.2s;font-weight:500}
+.nav button:hover{color:var(--navy);background:var(--panel)}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;padding:12px 22px;border-radius:999px;font-weight:600;font-size:14px;transition:.2s}
+.btn.gold{background:var(--navy);color:#ffffff;box-shadow:0 6px 18px rgba(37,43,41,.18)}
+.btn.gold:hover{background:#3a5246;transform:translateY(-1px)}
+.btn.ghost{border:1px solid var(--line2);color:var(--ink);background:var(--panel)}
+.btn.ghost:hover{border-color:var(--gold2);color:var(--gold)}
+.btn.danger{border:1px solid #f0c4bd;color:var(--bad);background:#ffffff}
+.btn.danger:hover{background:#fdecea}
+.btn:disabled{opacity:.4;pointer-events:none}
+.eyebrow{font-size:11px;letter-spacing:.28em;text-transform:uppercase;color:var(--gold);margin-bottom:16px;font-weight:600}
+
+.hero{padding:52px 0 40px;display:grid;grid-template-columns:1.2fr .8fr;gap:48px;align-items:end;border-bottom:1px solid var(--line)}
+.hero h1{font-family:var(--serif);font-weight:600;font-size:clamp(40px,5.6vw,68px);line-height:1.02;letter-spacing:-.01em;color:var(--navy)}
+.hero h1 em{color:var(--gold);font-style:italic;font-weight:500}
+.hero p{color:var(--muted);font-size:16px;max-width:420px}
+.steps{display:flex;gap:22px;margin-top:22px;font-size:12px;color:var(--dim);letter-spacing:.06em}
+.steps b{color:var(--gold);font-family:var(--serif);font-size:19px;margin-right:6px}
+
+.section-h{display:flex;justify-content:space-between;align-items:center;margin:40px 0 18px}
+.section-h h2{font-family:var(--serif);font-weight:600;font-size:30px;color:var(--navy)}
+.section-h span{font-size:12px;color:var(--dim);letter-spacing:.1em;text-transform:uppercase}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:16px}
+.card{position:relative;background:var(--panel);border:1px solid var(--line);border-radius:18px;padding:24px;cursor:pointer;transition:.25s;overflow:hidden;min-height:232px;display:flex;flex-direction:column;box-shadow:var(--sh)}
+.card:hover{border-color:var(--gold2);transform:translateY(-3px);box-shadow:0 2px 4px rgba(37,43,41,.05),0 18px 40px rgba(37,43,41,.1)}
+.card .tag{font-size:10.5px;letter-spacing:.2em;text-transform:uppercase;color:var(--gold);margin-bottom:14px;font-weight:600}
+.card h3{font-family:var(--serif);font-weight:700;font-size:25px;line-height:1.08;margin-bottom:10px;color:var(--navy)}
+.card p{color:var(--muted);font-size:13.5px;flex:1}
+.card .who{display:flex;margin-top:18px;align-items:center}
+.card .who .av{width:30px;height:30px;font-size:11px;margin-right:-6px;border:2px solid var(--panel)}
+.card .who small{margin-left:16px;color:var(--dim);font-size:12px}
+.card.featured{background:linear-gradient(160deg,#f3f8ec 0%,#FFFFFF 70%);border-color:#c3dba5}
+.card.mine{background:linear-gradient(160deg,#f6f8f5 0%,#FFFFFF 70%)}
+.card .num{position:absolute;right:18px;top:10px;font-family:var(--serif);font-size:54px;color:rgba(69,93,80,.12);font-weight:700}
+.card .del{position:absolute;right:14px;bottom:14px;width:28px;height:28px;border-radius:50%;border:1px solid var(--line);color:var(--dim);font-size:15px;z-index:2;line-height:1;background:var(--panel)}
+.card .del:hover{color:var(--bad);border-color:var(--bad)}
+.av{width:44px;height:44px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;font-weight:700;font-size:15px;color:#365e51;flex-shrink:0}
+.scsel{width:auto;min-width:250px;border-radius:999px;padding:9px 16px;background:var(--panel);font-size:13px;cursor:pointer;box-shadow:var(--sh)}
+
+.drop{border:1.5px dashed var(--line2);border-radius:18px;padding:36px 24px;text-align:center;background:rgba(255,255,255,.6);transition:.2s;cursor:pointer;margin:20px 0 60px}
+.drop.over{border-color:var(--gold2);background:var(--goldsoft)}
+.drop h3{font-family:var(--serif);font-weight:600;font-size:27px;margin-bottom:6px;color:var(--navy)}
+.drop p{color:var(--muted);font-size:13.5px;max-width:580px;margin:0 auto}
+.drop .fmt{display:flex;gap:8px;justify-content:center;margin:16px 0 18px;flex-wrap:wrap}
+.drop .fmt span{font-size:11px;letter-spacing:.12em;border:1px solid var(--line2);padding:4px 10px;border-radius:999px;color:var(--gold);background:var(--panel);font-weight:600}
+
+.setup{display:grid;grid-template-columns:1fr 380px;gap:24px;padding:16px 0 60px}
+.pane{background:var(--panel);border:1px solid var(--line);border-radius:20px;padding:28px;box-shadow:var(--sh)}
+.pane h2{font-family:var(--serif);font-weight:700;font-size:36px;line-height:1.08;margin-bottom:8px;color:var(--navy)}
+.pane .lead{color:var(--muted);margin-bottom:24px}
+.row{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:18px}
+.field{margin-bottom:20px}
+.seg{display:flex;flex-wrap:wrap;background:var(--bg2);border:1px solid var(--line);border-radius:12px;padding:4px;gap:4px}
+.seg button{flex:1;min-width:90px;white-space:nowrap;padding:9px 6px;border-radius:9px;font-size:13px;color:var(--muted);transition:.2s;font-weight:500}
+.seg button.on{background:var(--navy);color:#ffffff}
+.hint{font-size:12.5px;color:var(--dim);margin-top:7px}
+.brief{font-size:13.5px;color:var(--ink2);background:var(--bg2);border-left:3px solid var(--gold2);padding:14px 16px;border-radius:0 10px 10px 0;margin-bottom:22px;white-space:pre-wrap}
+.mandate{font-size:13px;background:var(--goldsoft);border:1px solid #ead5af;border-radius:10px;padding:12px 14px;margin-bottom:22px;color:#76572d;white-space:pre-wrap}
+.mandate b{display:block;font-size:10.5px;letter-spacing:.18em;color:var(--gold);margin-bottom:5px}
+.goals li{list-style:none;padding:9px 0 9px 26px;position:relative;font-size:13.5px;border-bottom:1px solid var(--line);color:var(--ink2)}
+.goals li:last-child{border:none}
+.goals li:before{content:'';position:absolute;left:4px;top:15px;width:8px;height:8px;border:1.5px solid var(--gold2);transform:rotate(45deg)}
+.persona{display:flex;gap:14px;padding:14px 0;border-bottom:1px solid var(--line)}
+.persona:last-child{border:none}
+.persona b{display:block;font-size:14.5px}
+.persona small{color:var(--gold);font-size:12px}
+.docbox{white-space:pre-wrap;font-size:12.5px;line-height:1.65;background:var(--bg2);border:1px solid var(--line);border-radius:10px;padding:14px;max-height:340px;overflow-y:auto;color:var(--ink2)}
+.attach{display:flex;align-items:center;gap:12px;flex-wrap:wrap;font-size:13px;color:var(--muted)}
+.attach .fname{color:var(--gold);font-weight:600}
+.attach a{color:var(--bad);cursor:pointer;font-size:12px}
+.warnbar{background:#fff7e8;border:1px solid #ead5af;color:#76572d;padding:12px 16px;border-radius:12px;font-size:13px;margin-bottom:18px;display:none}
+
+#room{height:100vh;display:none;flex-direction:column}
+#room.on{display:flex}
+.rbar{display:flex;align-items:center;gap:18px;padding:14px 24px;border-bottom:1px solid var(--line);background:rgba(255,255,255,.85);backdrop-filter:blur(8px)}
+.rbar .t{flex:1;min-width:0}
+.rbar .t b{font-family:var(--serif);font-size:22px;font-weight:700;display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:var(--navy)}
+.rbar .t small{color:var(--dim);font-size:12px}
+.rec{display:inline-flex;align-items:center;gap:7px;font-size:11.5px;color:var(--bad);letter-spacing:.12em;font-weight:700}
+.rec:before{content:'';width:8px;height:8px;border-radius:50%;background:var(--bad);animation:blink 1.4s infinite}
+@keyframes blink{50%{opacity:.25}}
+.timer{font-variant-numeric:tabular-nums;font-size:15px;min-width:110px;text-align:right;font-weight:600}
+.timer small{color:var(--dim);font-weight:400}
+.tprog{height:3px;background:var(--line)}
+.tprog i{display:block;height:100%;width:0;background:linear-gradient(90deg,var(--gold2),var(--gold));transition:width 1s linear}
+.rbody{flex:1;display:grid;grid-template-columns:1fr 390px;min-height:0}
+.stage{display:flex;flex-direction:column;min-height:0;padding:22px}
+.tiles{flex:1;display:grid;gap:16px;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));align-content:center}
+.tile{position:relative;aspect-ratio:16/10;background:linear-gradient(180deg,#FFFFFF,#fbfaf6);border:1px solid var(--line);border-radius:20px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;transition:.3s;box-shadow:var(--sh)}
+.tile .av{width:84px;height:84px;font-size:28px;font-family:var(--serif);transition:.3s}
+.tile .nm{font-size:14px;font-weight:600}
+.tile .rl{font-size:12px;color:var(--muted);margin-top:-8px;text-align:center;padding:0 10px}
+.tile.speaking{border-color:var(--gold2);box-shadow:0 0 0 3px rgba(127,160,139,.22),0 14px 40px rgba(69,93,80,.18)}
+.tile.speaking .av{box-shadow:0 0 0 5px rgba(127,160,139,.3),0 0 0 12px rgba(127,160,139,.12)}
+.tile.thinking .nm:after{content:' · thinking';color:var(--dim);font-weight:400}
+.wave{position:absolute;bottom:14px;left:16px;display:flex;gap:3px;align-items:flex-end;height:16px;opacity:0;transition:.3s}
+.tile.speaking .wave{opacity:1}
+.wave i{width:3px;background:var(--gold2);border-radius:2px;animation:wv .9s ease-in-out infinite}
+.wave i:nth-child(2){animation-delay:.15s}.wave i:nth-child(3){animation-delay:.3s}.wave i:nth-child(4){animation-delay:.45s}
+@keyframes wv{0%,100%{height:4px}50%{height:16px}}
+.tile.you{background:linear-gradient(180deg,#f3f8ec,#e9f1df)}
+.tile.you .av{background:linear-gradient(135deg,var(--gold2),var(--brown));color:#fff}
+.ctrl{padding-top:18px;display:flex;flex-direction:column;align-items:center;gap:12px}
+.interim{min-height:24px;max-width:720px;text-align:center;color:var(--gold);font-size:16px;font-style:italic}
+.status{font-size:11.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);font-weight:600}
+.cbtns{display:flex;align-items:center;gap:16px}
+.mic{width:76px;height:76px;border-radius:50%;background:var(--navy);color:#c7e48b;display:flex;align-items:center;justify-content:center;transition:.2s;box-shadow:0 0 0 5px rgba(127,160,139,.25),0 10px 28px rgba(37,43,41,.25)}
+.mic svg{width:30px;height:30px}
+.mic:hover{transform:scale(1.04)}
+.mic.live{background:var(--bad);color:#fff;animation:pulse 1.6s infinite}
+@keyframes pulse{0%{box-shadow:0 0 0 0 rgba(161,61,50,.45)}70%{box-shadow:0 0 0 18px rgba(161,61,50,0)}100%{box-shadow:0 0 0 0 rgba(161,61,50,0)}}
+.mic:disabled{opacity:.35;transform:none}
+.round{width:46px;height:46px;border-radius:50%;border:1px solid var(--line2);display:flex;align-items:center;justify-content:center;color:var(--muted);transition:.2s;background:var(--panel)}
+.round:hover{border-color:var(--gold2);color:var(--gold)}
+.round svg{width:18px;height:18px}
+.typebox{display:flex;gap:8px;width:100%;max-width:640px}
+.typebox input{border-radius:999px;padding:11px 18px;background:var(--panel)}
+.side{border-left:1px solid var(--line);display:flex;flex-direction:column;min-height:0;background:var(--panel)}
+.tabs{display:flex;border-bottom:1px solid var(--line)}
+.tabs button{flex:1;padding:14px;font-size:11.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--dim);border-bottom:2px solid transparent;font-weight:600}
+.tabs button.on{color:var(--navy);border-color:var(--gold2)}
+.feed{flex:1;overflow-y:auto;padding:18px}
+.msg{margin-bottom:16px}
+.msg .who{font-size:11.5px;color:var(--muted);margin-bottom:4px;display:flex;gap:8px;align-items:center;font-weight:600}
+.msg .who i{width:7px;height:7px;border-radius:50%;display:inline-block}
+.msg .tx{font-size:14px;color:var(--ink)}
+.msg.me .tx{background:var(--goldsoft);border:1px solid #455d50;padding:10px 13px;border-radius:12px 12px 2px 12px}
+.msg.me .who{justify-content:flex-end}
+.msg.sys .tx{font-size:12px;color:var(--dim);text-align:center;font-style:italic}
+.agenda{padding:20px;overflow-y:auto;flex:1;display:none}
+.agenda.on{display:block}
+
+.rep-head{display:grid;grid-template-columns:auto 1fr auto;gap:32px;align-items:center;padding:28px 0 34px;border-bottom:1px solid var(--line)}
+.ring{width:150px;height:150px;position:relative}
+.ring svg{transform:rotate(-90deg)}
+.ring b{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;font-family:var(--serif);font-size:52px;font-weight:700;line-height:1;color:var(--navy)}
+.ring b small{font-family:var(--sans);font-size:10.5px;letter-spacing:.2em;color:var(--muted);margin-top:6px;font-weight:600}
+.rep-head h1{font-family:var(--serif);font-weight:700;font-size:40px;line-height:1.05;margin-bottom:10px;color:var(--navy)}
+.rep-head p{color:var(--muted);max-width:620px}
+.level{display:inline-block;padding:5px 12px;border:1px solid var(--gold2);color:var(--gold);border-radius:999px;font-size:12px;letter-spacing:.1em;margin-bottom:14px;font-weight:600;background:var(--goldsoft)}
+.kpis{display:grid;grid-template-columns:repeat(5,1fr);gap:12px;margin:26px 0}
+.kpi{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:16px;box-shadow:var(--sh)}
+.kpi small{font-size:10.5px;letter-spacing:.12em;text-transform:uppercase;color:var(--dim);font-weight:600}
+.kpi b{display:block;font-family:var(--serif);font-size:34px;font-weight:700;margin-top:4px;color:var(--navy)}
+.kpi span{font-size:12px;color:var(--muted)}
+.rgrid{display:grid;grid-template-columns:1fr 1fr;gap:18px;padding-bottom:20px}
+.rgrid .pane{padding:24px}
+.rgrid h3{font-family:var(--serif);font-weight:700;font-size:23px;margin-bottom:14px;color:var(--navy)}
+.bar{margin-bottom:14px}
+.bar div{display:flex;justify-content:space-between;font-size:13px;margin-bottom:6px}
+.bar div b{color:var(--gold)}
+.bar i{display:block;height:7px;background:#e6eee7;border-radius:4px;overflow:hidden}
+.bar i u{display:block;height:100%;background:linear-gradient(90deg,var(--gold2),var(--gold));border-radius:4px}
+.gl{display:flex;gap:12px;padding:11px 0;border-bottom:1px solid var(--line);font-size:13.5px}
+.gl:last-child{border:none}
+.dot{width:22px;height:22px;border-radius:50%;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700}
+.dot.y{background:#dff0e4;color:var(--ok)}.dot.p{background:#fff1d6;color:var(--warn)}.dot.n{background:#f8dcd8;color:var(--bad)}
+.gl small{display:block;color:var(--muted);font-size:12.5px;margin-top:2px}
+ul.pts li{list-style:none;padding:9px 0 9px 18px;position:relative;font-size:13.5px;border-bottom:1px solid var(--line)}
+ul.pts li:last-child{border:none}
+ul.pts li:before{content:'—';position:absolute;left:0;color:var(--gold2)}
+.rw{padding:16px 0;border-bottom:1px solid var(--line)}
+.rw:last-child{border:none}
+.rw .o{color:var(--muted);text-decoration:line-through;text-decoration-color:rgba(161,61,50,.55);font-size:13.5px}
+.rw .b{color:var(--ink);font-size:15px;margin:6px 0;display:flex;gap:10px;align-items:flex-start;font-weight:500}
+.rw .b:before{content:'→';color:var(--gold)}
+.rw .w{font-size:12.5px;color:var(--dim)}
+.play{margin-left:auto;flex-shrink:0;width:30px;height:30px;border-radius:50%;border:1px solid var(--line2);display:flex;align-items:center;justify-content:center;color:var(--gold);background:var(--panel)}
+.play:hover{border-color:var(--gold2);background:var(--goldsoft)}
+.play svg{width:12px;height:12px}
+.ph{display:flex;gap:14px;padding:12px 0;border-bottom:1px solid var(--line);align-items:center}
+.ph:last-child{border:none}
+.ph b{font-family:var(--serif);font-size:19px;font-weight:700;color:var(--navy)}
+.ph small{display:block;color:var(--muted);font-size:12.5px}
+.full{grid-column:1/-1}
+details summary{cursor:pointer;color:var(--muted);font-size:12.5px;letter-spacing:.1em;font-weight:600}
+.loading{display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:70vh;gap:18px;text-align:center}
+.spin{width:46px;height:46px;border:2px solid var(--line);border-top-color:var(--gold);border-radius:50%;animation:sp 1s linear infinite}
+@keyframes sp{to{transform:rotate(360deg)}}
+.loading h2{font-family:var(--serif);font-weight:600;font-size:32px;color:var(--navy)}
+.loading p{color:var(--muted)}
+
+.hist{display:flex;align-items:center;gap:18px;padding:18px 20px;background:var(--panel);border:1px solid var(--line);border-radius:14px;margin-bottom:10px;cursor:pointer;transition:.2s;box-shadow:var(--sh)}
+.hist:hover{border-color:var(--gold2)}
+.hist .sc{font-family:var(--serif);font-size:32px;font-weight:700;color:var(--gold);width:56px}
+.hist b{display:block}
+.hist small{color:var(--dim);font-size:12px}
+.empty{color:var(--dim);text-align:center;padding:60px 0}
+
+.modal{position:fixed;inset:0;background:#0c1c17a3;backdrop-filter:blur(6px);display:none;align-items:center;justify-content:center;z-index:50;padding:20px}
+.modal.on{display:flex}
+.modal .pane{width:100%;max-width:480px;max-height:90vh;overflow-y:auto}
+.toggle{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:12px 0;border-bottom:1px solid var(--line);font-size:14px}
+.toggle small{display:block;color:var(--dim);font-size:12px}
+.sw{width:44px;height:24px;border-radius:999px;background:var(--line2);position:relative;transition:.2s;flex-shrink:0}
+.sw:after{content:'';position:absolute;left:3px;top:3px;width:18px;height:18px;border-radius:50%;background:#fff;transition:.2s;box-shadow:0 1px 3px rgba(0,0,0,.2)}
+.sw.on{background:var(--navy)}
+.sw.on:after{left:23px;background:#c7e48b}
+.toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(20px);background:var(--navy);color:#ffffff;padding:12px 20px;border-radius:12px;font-size:13.5px;opacity:0;transition:.3s;z-index:80;pointer-events:none;max-width:90vw;box-shadow:0 10px 30px rgba(37,43,41,.25)}
+.toast.on{opacity:1;transform:translateX(-50%) translateY(0)}
+.busy-ov{position:fixed;inset:0;background:rgba(250,248,243,.9);backdrop-filter:blur(5px);z-index:70;display:none;flex-direction:column;align-items:center;justify-content:center;gap:16px;text-align:center;padding:20px}
+.busy-ov.on{display:flex}
+.busy-ov h2{font-family:var(--serif);font-weight:600;font-size:30px;color:var(--navy)}
+.busy-ov p{color:var(--muted);font-size:14px}
+
+/* login */
+.login-wrap{min-height:100vh;display:grid;grid-template-columns:1.1fr .9fr}
+.login-art{background:var(--deep);position:relative;overflow:hidden;color:#ffffff;padding:48px 56px;display:flex;flex-direction:column;justify-content:space-between;gap:40px}
+.login-art .brand b{color:#ffffff}
+.login-art h1{font-family:var(--serif);font-weight:600;font-size:clamp(40px,4.6vw,62px);line-height:1.03;margin-bottom:18px}
+.login-art h1 em{color:var(--gold2);font-style:italic;font-weight:500}
+.login-art p{color:#d5e0d9;max-width:420px}
+.login-art small{color:#a9c3b6;font-size:12px;letter-spacing:.08em}
+.login-form{display:flex;flex-direction:column;justify-content:center;padding:48px 64px;max-width:520px;width:100%;margin:0 auto}
+.login-form h2{font-family:var(--serif);font-weight:700;font-size:40px;color:var(--navy);margin-bottom:6px}
+.login-form .lead{color:var(--muted);margin-bottom:28px}
+.lgerr{color:var(--bad);font-size:13px;min-height:20px;margin:-6px 0 12px}
+/* nav user */
+.uchip{display:flex;align-items:center;gap:8px;padding:4px 12px 4px 4px;border:1px solid var(--line);border-radius:999px;background:var(--panel);font-size:13px;font-weight:600;margin-left:6px}
+.uchip .av{width:28px;height:28px;font-size:11px;background:linear-gradient(135deg,var(--gold2),var(--brown));color:#fff}
+/* admin */
+.tblw{overflow-x:auto;background:var(--panel);border:1px solid var(--line);border-radius:16px;box-shadow:var(--sh)}
+.tbl{width:100%;border-collapse:collapse;font-size:13.5px}
+.tbl th{text-align:left;font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--dim);font-weight:600;padding:14px 16px;border-bottom:1px solid var(--line);background:var(--bg2);white-space:nowrap}
+.tbl td{padding:13px 16px;border-bottom:1px solid var(--line);vertical-align:middle}
+.tbl tr:last-child td{border-bottom:none}
+.tbl tbody tr:hover td{background:#f6f8f4}
+.tbl td small{display:block;color:var(--dim);font-size:12px}
+.tbl .sc{font-family:var(--serif);font-size:22px;font-weight:700;color:var(--gold)}
+.pill{display:inline-block;padding:3px 10px;border-radius:999px;font-size:11.5px;font-weight:600;background:#eef1ec;color:var(--dim)}
+.pill.on{background:#dff0e4;color:var(--ok)}
+.lnk{color:var(--gold);font-weight:600;font-size:13px}
+.lnk:hover{text-decoration:underline}
+.admbar{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:14px}
+input[readonly]{background:#eef1ec;color:var(--muted)}
+
+
+
+/* ===== Worqend tone & manner ===== */
+body{font-size:14px;line-height:1.6}
+h1,h2,h3,.kpi b,.ring b,.hist .sc,.tbl .sc,.rbar .t b,.ph b{font-family:var(--sans)!important;letter-spacing:-.04em}
+em{font-style:normal}
+.brand{align-items:baseline;gap:10px}
+.brand b{font-size:29px;font-weight:900;letter-spacing:-.075em;text-transform:lowercase;color:var(--ink)}
+.brand b i{color:var(--lime);font-style:normal}
+.brand span{font-size:10px;letter-spacing:.08em;color:var(--muted);font-weight:700}
+.eyebrow{color:var(--green);font-weight:800;letter-spacing:.12em;font-size:10px}
+label{font-size:12px;letter-spacing:0;text-transform:none;font-weight:700;color:#5e6d66}
+input,textarea,select{background:#fff;border:1px solid #dbe3dd;border-radius:10px;padding:10px 11px}
+input:focus,textarea:focus,select:focus{border-color:#638a73;box-shadow:none}
+.btn{border-radius:10px;padding:10px 16px;font-weight:650;border:1px solid var(--line)}
+.btn.gold{background:var(--green);border-color:var(--green);color:#fff;box-shadow:none}
+.btn.gold:hover{background:#3a5246;transform:none}
+.btn.ghost{background:#fff;border-color:var(--line);color:var(--ink)}
+.btn.ghost:hover{border-color:#cfd8cf;color:var(--ink)}
+.btn.danger{background:#fff;border-color:var(--line);color:var(--bad)}
+.nav button{border-radius:10px;font-weight:600}
+.nav button:hover{background:#f0f4eb;color:var(--ink)}
+/* seg (Worqend) */
+.seg{background:#efece4;border:none;border-radius:11px;padding:3px}
+.seg button{border-radius:8px;font-weight:700;color:var(--muted)}
+.seg button.on{background:#fff;color:var(--ink);box-shadow:0 1px 4px rgba(37,43,41,.12)}
+/* hero card */
+.hero{background:var(--hero);color:#fff;border-radius:18px;padding:40px 40px 36px;margin-top:6px;border:none;position:relative;overflow:hidden}
+.hero:after{content:"";position:absolute;right:3%;bottom:-40px;width:230px;height:196px;background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 532 454'%3E%3Crect x='1.5' y='1.5' width='61' height='61' rx='14' fill='none' stroke='%23bfe29c' stroke-width='3'/%3E%3Crect x='79.5' y='1.5' width='61' height='61' rx='14' fill='none' stroke='%23bfe29c' stroke-width='3'/%3E%3Crect x='157.5' y='1.5' width='61' height='61' rx='14' fill='none' stroke='%23bfe29c' stroke-width='3'/%3E%3Crect x='235.5' y='1.5' width='61' height='61' rx='14' fill='none' stroke='%23bfe29c' stroke-width='3'/%3E%3Crect x='313.5' y='1.5' width='61' height='61' rx='14' fill='none' stroke='%23bfe29c' stroke-width='3'/%3E%3Crect x='390' y='0' width='64' height='64' rx='14' fill='%23bfe29c'/%3E%3Crect x='468' y='0' width='64' height='64' rx='14' fill='%23bfe29c'/%3E%3Crect x='1.5' y='79.5' width='61' height='61' rx='14' fill='none' stroke='%23bfe29c' stroke-width='3'/%3E%3Crect x='79.5' y='79.5' width='61' height='61' rx='14' fill='none' stroke='%23bfe29c' stroke-width='3'/%3E%3Crect x='157.5' y='79.5' width='61' height='61' rx='14' fill='none' stroke='%23bfe29c' stroke-width='3'/%3E%3Crect x='235.5' y='79.5' width='61' height='61' rx='14' fill='none' stroke='%23bfe29c' stroke-width='3'/%3E%3Crect x='313.5' y='79.5' width='61' height='61' rx='14' fill='none' stroke='%23bfe29c' stroke-width='3'/%3E%3Crect x='390' y='78' width='64' height='64' rx='14' fill='%23bfe29c'/%3E%3Crect x='468' y='78' width='64' height='64' rx='14' fill='%23bfe29c'/%3E%3Crect x='1.5' y='157.5' width='61' height='61' rx='14' fill='none' stroke='%23bfe29c' stroke-width='3'/%3E%3Crect x='79.5' y='157.5' width='61' height='61' rx='14' fill='none' stroke='%23bfe29c' stroke-width='3'/%3E%3Crect x='157.5' y='157.5' width='61' height='61' rx='14' fill='none' stroke='%23bfe29c' stroke-width='3'/%3E%3Crect x='235.5' y='157.5' width='61' height='61' rx='14' fill='none' stroke='%23bfe29c' stroke-width='3'/%3E%3Crect x='313.5' y='157.5' width='61' height='61' rx='14' fill='none' stroke='%23bfe29c' stroke-width='3'/%3E%3Crect x='390' y='156' width='64' height='64' rx='14' fill='%23bfe29c'/%3E%3Crect x='468' y='156' width='64' height='64' rx='14' fill='%23bfe29c'/%3E%3Crect x='1.5' y='235.5' width='61' height='61' rx='14' fill='none' stroke='%23bfe29c' stroke-width='3'/%3E%3Crect x='79.5' y='235.5' width='61' height='61' rx='14' fill='none' stroke='%23bfe29c' stroke-width='3'/%3E%3Crect x='157.5' y='235.5' width='61' height='61' rx='14' fill='none' stroke='%23bfe29c' stroke-width='3'/%3E%3Crect x='235.5' y='235.5' width='61' height='61' rx='14' fill='none' stroke='%23bfe29c' stroke-width='3'/%3E%3Crect x='313.5' y='235.5' width='61' height='61' rx='14' fill='none' stroke='%23bfe29c' stroke-width='3'/%3E%3Crect x='390' y='234' width='64' height='64' rx='14' fill='%23bfe29c'/%3E%3Crect x='468' y='234' width='64' height='64' rx='14' fill='%23bfe29c'/%3E%3Crect x='1.5' y='313.5' width='61' height='61' rx='14' fill='none' stroke='%23bfe29c' stroke-width='3'/%3E%3Crect x='79.5' y='313.5' width='61' height='61' rx='14' fill='none' stroke='%23bfe29c' stroke-width='3'/%3E%3Crect x='157.5' y='313.5' width='61' height='61' rx='14' fill='none' stroke='%23bfe29c' stroke-width='3'/%3E%3Crect x='235.5' y='313.5' width='61' height='61' rx='14' fill='none' stroke='%23bfe29c' stroke-width='3'/%3E%3Crect x='313.5' y='313.5' width='61' height='61' rx='14' fill='none' stroke='%23bfe29c' stroke-width='3'/%3E%3Crect x='390' y='312' width='64' height='64' rx='14' fill='%23bfe29c'/%3E%3Crect x='468' y='312' width='64' height='64' rx='14' fill='%23bfe29c'/%3E%3Crect x='1.5' y='391.5' width='61' height='61' rx='14' fill='none' stroke='%23bfe29c' stroke-width='3'/%3E%3Crect x='79.5' y='391.5' width='61' height='61' rx='14' fill='none' stroke='%23bfe29c' stroke-width='3'/%3E%3Crect x='157.5' y='391.5' width='61' height='61' rx='14' fill='none' stroke='%23bfe29c' stroke-width='3'/%3E%3Crect x='235.5' y='391.5' width='61' height='61' rx='14' fill='none' stroke='%23bfe29c' stroke-width='3'/%3E%3Crect x='313.5' y='391.5' width='61' height='61' rx='14' fill='none' stroke='%23bfe29c' stroke-width='3'/%3E%3Crect x='390' y='390' width='64' height='64' rx='14' fill='%23bfe29c'/%3E%3Crect x='468' y='390' width='64' height='64' rx='14' fill='%23bfe29c'/%3E%3C/svg%3E") no-repeat center/contain;opacity:.16;transform:rotate(-8deg);pointer-events:none}
+.hero>*{position:relative;z-index:1}
+.hero .eyebrow{display:inline-flex;background:#4b6c5a;color:#e3f2e5;border-radius:999px;padding:5px 10px;font-size:11px;letter-spacing:.06em}
+.hero h1{color:#fff;font-weight:850;letter-spacing:-.065em;line-height:1.12}
+.hero h1 em{color:var(--lime);font-weight:850;font-style:normal}
+.hero h1{font-size:clamp(36px,4.4vw,54px)}
+.hero p{color:#dce9df;line-height:1.8}
+.steps{color:#a9c3b6}.steps b{color:var(--lime);font-family:var(--sans);font-size:15px;font-weight:800}
+.section-h h2{font-size:22px;font-weight:800;color:var(--ink)}
+/* cards */
+.card{background:var(--panel);border-radius:16px;box-shadow:var(--sh);min-height:210px}
+.card:hover{border-color:#cfd8cf;transform:translateY(-2px);box-shadow:0 8px 24px rgba(37,43,41,.06)}
+.card .tag{display:inline-flex;align-self:flex-start;background:#eaf0df;color:#405d43;border-radius:999px;padding:5px 9px;font-size:11px;letter-spacing:0;text-transform:none;font-weight:700}
+.card h3{font-size:19px;font-weight:800;color:var(--ink);line-height:1.3}
+.card .num{font-family:var(--sans);font-size:40px;font-weight:900;color:rgba(69,93,80,.07);letter-spacing:-.06em}
+.card.featured{background:#f3f8ec;border-color:#c3dba5}
+.av{border-radius:11px;color:#365e51;font-weight:850}
+.drop{background:#fffefb;border-color:#d6e2d4;border-radius:16px}
+.drop.over{background:#f3f8ec;border-color:#9fc29b}
+.drop h3{font-size:20px;font-weight:800}
+.drop .fmt span{border-color:#d6e2d4;background:#f4f8f1;color:#365e51;letter-spacing:.04em}
+.pane{border-radius:16px}
+.pane h2{font-size:30px;font-weight:800;color:var(--ink)}
+.brief{border-left-color:#6a9483;background:#eff5f1;border-radius:0 6px 6px 0;color:var(--ink)}
+.mandate{background:#fff7e8;border-color:#ead5af;color:#76572d}
+.mandate b{color:#8a572c}
+.goals li:before{border-color:#6a9483}
+.persona small{color:var(--green)}
+.scsel{border-radius:10px;box-shadow:none}
+.warnbar{background:#fff7e8;border-color:#ead5af;color:#76572d}
+/* login (Worqend auth) */
+.login-art{padding:clamp(35px,6vw,90px)}
+.login-art:before{content:"";position:absolute;right:-70px;top:9%;width:320px;height:273px;background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 532 454'%3E%3Crect x='1.5' y='1.5' width='61' height='61' rx='14' fill='none' stroke='%23bfe29c' stroke-width='3'/%3E%3Crect x='79.5' y='1.5' width='61' height='61' rx='14' fill='none' stroke='%23bfe29c' stroke-width='3'/%3E%3Crect x='157.5' y='1.5' width='61' height='61' rx='14' fill='none' stroke='%23bfe29c' stroke-width='3'/%3E%3Crect x='235.5' y='1.5' width='61' height='61' rx='14' fill='none' stroke='%23bfe29c' stroke-width='3'/%3E%3Crect x='313.5' y='1.5' width='61' height='61' rx='14' fill='none' stroke='%23bfe29c' stroke-width='3'/%3E%3Crect x='390' y='0' width='64' height='64' rx='14' fill='%23bfe29c'/%3E%3Crect x='468' y='0' width='64' height='64' rx='14' fill='%23bfe29c'/%3E%3Crect x='1.5' y='79.5' width='61' height='61' rx='14' fill='none' stroke='%23bfe29c' stroke-width='3'/%3E%3Crect x='79.5' y='79.5' width='61' height='61' rx='14' fill='none' stroke='%23bfe29c' stroke-width='3'/%3E%3Crect x='157.5' y='79.5' width='61' height='61' rx='14' fill='none' stroke='%23bfe29c' stroke-width='3'/%3E%3Crect x='235.5' y='79.5' width='61' height='61' rx='14' fill='none' stroke='%23bfe29c' stroke-width='3'/%3E%3Crect x='313.5' y='79.5' width='61' height='61' rx='14' fill='none' stroke='%23bfe29c' stroke-width='3'/%3E%3Crect x='390' y='78' width='64' height='64' rx='14' fill='%23bfe29c'/%3E%3Crect x='468' y='78' width='64' height='64' rx='14' fill='%23bfe29c'/%3E%3Crect x='1.5' y='157.5' width='61' height='61' rx='14' fill='none' stroke='%23bfe29c' stroke-width='3'/%3E%3Crect x='79.5' y='157.5' width='61' height='61' rx='14' fill='none' stroke='%23bfe29c' stroke-width='3'/%3E%3Crect x='157.5' y='157.5' width='61' height='61' rx='14' fill='none' stroke='%23bfe29c' stroke-width='3'/%3E%3Crect x='235.5' y='157.5' width='61' height='61' rx='14' fill='none' stroke='%23bfe29c' stroke-width='3'/%3E%3Crect x='313.5' y='157.5' width='61' height='61' rx='14' fill='none' stroke='%23bfe29c' stroke-width='3'/%3E%3Crect x='390' y='156' width='64' height='64' rx='14' fill='%23bfe29c'/%3E%3Crect x='468' y='156' width='64' height='64' rx='14' fill='%23bfe29c'/%3E%3Crect x='1.5' y='235.5' width='61' height='61' rx='14' fill='none' stroke='%23bfe29c' stroke-width='3'/%3E%3Crect x='79.5' y='235.5' width='61' height='61' rx='14' fill='none' stroke='%23bfe29c' stroke-width='3'/%3E%3Crect x='157.5' y='235.5' width='61' height='61' rx='14' fill='none' stroke='%23bfe29c' stroke-width='3'/%3E%3Crect x='235.5' y='235.5' width='61' height='61' rx='14' fill='none' stroke='%23bfe29c' stroke-width='3'/%3E%3Crect x='313.5' y='235.5' width='61' height='61' rx='14' fill='none' stroke='%23bfe29c' stroke-width='3'/%3E%3Crect x='390' y='234' width='64' height='64' rx='14' fill='%23bfe29c'/%3E%3Crect x='468' y='234' width='64' height='64' rx='14' fill='%23bfe29c'/%3E%3Crect x='1.5' y='313.5' width='61' height='61' rx='14' fill='none' stroke='%23bfe29c' stroke-width='3'/%3E%3Crect x='79.5' y='313.5' width='61' height='61' rx='14' fill='none' stroke='%23bfe29c' stroke-width='3'/%3E%3Crect x='157.5' y='313.5' width='61' height='61' rx='14' fill='none' stroke='%23bfe29c' stroke-width='3'/%3E%3Crect x='235.5' y='313.5' width='61' height='61' rx='14' fill='none' stroke='%23bfe29c' stroke-width='3'/%3E%3Crect x='313.5' y='313.5' width='61' height='61' rx='14' fill='none' stroke='%23bfe29c' stroke-width='3'/%3E%3Crect x='390' y='312' width='64' height='64' rx='14' fill='%23bfe29c'/%3E%3Crect x='468' y='312' width='64' height='64' rx='14' fill='%23bfe29c'/%3E%3Crect x='1.5' y='391.5' width='61' height='61' rx='14' fill='none' stroke='%23bfe29c' stroke-width='3'/%3E%3Crect x='79.5' y='391.5' width='61' height='61' rx='14' fill='none' stroke='%23bfe29c' stroke-width='3'/%3E%3Crect x='157.5' y='391.5' width='61' height='61' rx='14' fill='none' stroke='%23bfe29c' stroke-width='3'/%3E%3Crect x='235.5' y='391.5' width='61' height='61' rx='14' fill='none' stroke='%23bfe29c' stroke-width='3'/%3E%3Crect x='313.5' y='391.5' width='61' height='61' rx='14' fill='none' stroke='%23bfe29c' stroke-width='3'/%3E%3Crect x='390' y='390' width='64' height='64' rx='14' fill='%23bfe29c'/%3E%3Crect x='468' y='390' width='64' height='64' rx='14' fill='%23bfe29c'/%3E%3C/svg%3E") no-repeat center/contain;opacity:.13;transform:rotate(-8deg);pointer-events:none}
+.login-art>*{position:relative;z-index:1}
+.login-art .brand b{color:#fff;font-size:30px}
+.login-art .eyebrow{display:inline-flex;background:#4b6c5a;color:#e3f2e5;border-radius:999px;padding:5px 10px;font-size:11px;letter-spacing:.06em;margin-bottom:22px}
+.login-art h1{font-weight:850;letter-spacing:-.065em;line-height:1.15;color:#fff}
+.login-art h1 em{color:var(--lime);font-weight:850;font-style:normal}
+.login-art p{color:#d5e0d9;line-height:1.8;font-size:16px}
+.login-art small{color:#a9c3b6}
+.login-form h2{font-size:28px;font-weight:800;color:var(--ink);letter-spacing:-.03em}
+.login-form .btn{padding:12px}
+/* room */
+#room{background:var(--bg)}
+.rbar{background:rgba(250,248,243,.93);backdrop-filter:saturate(1.4) blur(12px)}
+.rbar .t b{font-size:19px;font-weight:800;color:var(--ink)}
+.rec{color:var(--bad)}
+.tprog i{background:linear-gradient(90deg,#7fa08b,var(--green))}
+.tile{background:var(--panel);border-radius:16px}
+.tile .av{border-radius:22px;font-family:var(--sans);font-weight:850;letter-spacing:-.04em}
+.tile.speaking{border-color:#a9c98f;box-shadow:0 0 0 3px #eef6e5}
+.tile.speaking .av{box-shadow:0 0 0 4px #d4e8ad}
+.tile.you{background:#f3f8ec}
+.tile.you .av{background:var(--green);color:#fff}
+.wave i{background:var(--green)}
+.mic{background:var(--green);color:#fff;box-shadow:0 8px 24px rgba(37,60,50,.3)}
+.mic:hover{background:#3a5246}
+.round{border-radius:12px}
+.interim{color:var(--green)}
+.typebox input{border-radius:10px}
+.tabs button.on{color:var(--ink);border-color:var(--green)}
+.msg.me .tx{background:var(--green);color:#fff;border:none;border-radius:14px 14px 4px 14px}
+.side{background:var(--panel)}
+/* report */
+.level{background:#eaf0df;border:none;color:#405d43;font-weight:700}
+.rep-head h1{font-weight:800;color:var(--ink)}
+.ring b{color:var(--green);font-weight:850}
+.kpi{border-radius:14px}
+.kpi b{font-weight:800;color:var(--ink);font-size:30px}
+.rgrid h3{font-size:16px;font-weight:800;color:var(--ink)}
+.bar i{background:#e6eee7}
+.bar i u{background:#547e65}
+.bar div b{color:var(--green)}
+ul.pts li:before{color:#6a9483}
+.rw .b:before{color:var(--green)}
+.ph b{font-size:15px;font-weight:700;color:var(--ink)}
+.play{border-radius:10px;color:var(--green)}
+.play:hover{background:#f0f4eb;border-color:#cfd8cf}
+/* history / admin / modal / toast */
+.hist{border-radius:14px}.hist:hover{border-color:#cfd8cf;background:#f6f8f4}
+.hist .sc,.tbl .sc{color:var(--green);font-weight:850}
+.tblw{border-radius:14px}
+.tbl th{font-weight:800;color:var(--muted);background:#fbfaf6}
+.pill.on{background:#dff0e4;color:#2f6a45}
+.lnk{color:var(--green)}
+.uchip{border-radius:999px}
+.uchip .av{background:var(--green);color:#fff;border-radius:50%}
+.modal{background:#0c1c17a3}
+.modal .pane{border-radius:18px}
+.modal .pane h2{font-size:24px!important;font-weight:800}
+.sw.on{background:var(--green)}.sw.on:after{background:#fff}
+.toast{background:var(--deep);color:#fff;border-radius:11px}
+.busy-ov h2{font-size:22px;font-weight:800;color:var(--ink)}
+.loading h2{font-size:24px;font-weight:800;color:var(--ink)}
+.spin{border-top-color:var(--green)}
+
+/* ===== PC / Mobile view (html.mob = mobile layout) ===== */
+.viewsw{position:fixed;left:16px;bottom:16px;z-index:40;display:flex;background:var(--panel);border:1px solid var(--line);border-radius:999px;padding:3px;box-shadow:var(--sh)}
+.viewsw button{padding:6px 12px;border-radius:999px;font-size:12px;color:var(--muted);font-weight:600;white-space:nowrap}
+.viewsw button.on{background:var(--green);color:#fff}
+html.inroom .viewsw{display:none}
+html.mob .hero,html.mob .setup,html.mob .rgrid,html.mob .login-wrap{grid-template-columns:1fr}
+html.mob .hero{padding:26px 22px 24px;gap:14px;border-radius:18px;margin-top:4px}
+html.mob .hero h1{font-size:33px}
+html.mob .hero p{font-size:15px}
+html.mob .wrap{padding:0 18px}
+html.mob .top{flex-wrap:wrap;gap:8px;padding:16px 0}
+html.mob .nav{flex-wrap:wrap;gap:2px;align-items:center}
+html.mob .nav button{padding:7px 9px;font-size:12.5px}
+html.mob .uchip{font-size:0;padding:2px;gap:0;margin-left:2px}
+html.mob .brand b{font-size:24px}
+html.mob .brand span{display:none}
+html.mob .section-h{margin:28px 0 14px}
+html.mob .section-h h2{font-size:25px}
+html.mob .grid{grid-template-columns:1fr;gap:12px}
+html.mob .card{min-height:0;padding:20px}
+html.mob .scsel{min-width:0;width:100%}
+html.mob .pane{padding:20px;border-radius:16px}
+html.mob .pane h2{font-size:30px}
+html.mob .row{grid-template-columns:1fr;gap:12px}
+html.mob #segDiff button,html.mob #segLen button{min-width:calc(50% - 4px)}
+html.mob .drop{padding:26px 16px;margin-bottom:80px}
+html.mob .drop h3{font-size:22px}
+/* room: tiles → transcript → controls */
+html.mob #room{height:100dvh}
+html.mob .rbar{padding:10px 14px;gap:10px}
+html.mob .rbar .t b{font-size:17px}
+html.mob .rbar .t small,html.mob .rec{display:none}
+html.mob .rbar .btn{padding:8px 12px;font-size:12.5px}
+html.mob .timer{min-width:0;font-size:13px}
+html.mob .rbody{display:flex;flex-direction:column}
+html.mob .stage{display:contents}
+html.mob .tiles{order:1;flex:0 0 auto;display:flex;gap:8px;padding:10px 12px;overflow-x:auto}
+html.mob .tile{aspect-ratio:auto;flex:1 0 92px;padding:10px 6px;gap:6px;border-radius:14px}
+html.mob .tile .av{width:44px;height:44px;font-size:16px}
+html.mob .tile .nm{font-size:12px;text-align:center}
+html.mob .tile .rl,html.mob .wave{display:none}
+html.mob .tile.speaking .av{box-shadow:0 0 0 3px rgba(127,160,139,.45)}
+html.mob .tile.thinking .nm:after{content:' …'}
+html.mob .side{order:2;flex:1;min-height:0;border-left:none;border-top:1px solid var(--line)}
+html.mob .tabs button{padding:11px}
+html.mob .ctrl{order:3;padding:10px 14px calc(12px + env(safe-area-inset-bottom));gap:8px;background:var(--panel);border-top:1px solid var(--line)}
+html.mob .mic{width:64px;height:64px}
+html.mob .mic svg{width:26px;height:26px}
+html.mob .interim{font-size:14px;min-height:0}
+html.mob .status{font-size:10.5px}
+/* report */
+html.mob .rep-head{grid-template-columns:1fr;text-align:center;justify-items:center;gap:16px;padding:16px 0 26px}
+html.mob .rep-head>div:last-child{text-align:center!important}
+html.mob .rep-head h1{font-size:30px}
+html.mob .kpis{grid-template-columns:repeat(2,1fr);gap:10px}
+html.mob .kpi b{font-size:28px}
+html.mob .rgrid .pane{padding:20px}
+/* login */
+html.mob .login-art{padding:28px 22px;gap:22px}
+html.mob .login-art h1{font-size:33px}
+html.mob .login-art p,html.mob .login-art small{display:none}
+html.mob .login-form{padding:30px 22px}
+/* admin & history */
+html.mob #admTabs{min-width:0!important;width:100%}
+html.mob .tbl{font-size:12.5px}
+html.mob .tbl th,html.mob .tbl td{padding:10px 12px}
+html.mob .hist{padding:14px;gap:12px}
+html.mob .hist .sc{font-size:26px;width:44px}
+html.mob .modal .pane{max-width:410px!important}
+/* mobile view on a large screen → centred phone frame */
+@media (min-width:600px){
+  html.mob{background:#e7e3d9}
+  html.mob body{max-width:430px;margin:0 auto;min-height:100vh;box-shadow:0 0 0 1px var(--line2),0 30px 80px rgba(37,43,41,.18);background-attachment:scroll}
+}
+@media print{
+  body{background:#fff}
+  .top,.noprint{display:none!important}
+  .pane,.kpi{box-shadow:none}
+}
+</style>
+</head>
+<body>
+
+<!-- ============ LOGIN ============ -->
+<section class="screen" id="login">
+  <div class="login-wrap">
+    <div class="login-art">
+      <div class="brand"><b>pactli<i>.</i></b></div>
+      <div>
+        <div class="eyebrow">LIVE VOICE · BUSINESS ENGLISH</div>
+        <h1>Every deal starts<br>with a <em>conversation.</em></h1>
+        <p>Rehearse client meetings, contract reviews and negotiations by voice with AI counterparts — then get a coach's debrief.</p>
+      </div>
+      <small>PACTLI · BUSINESS ENGLISH MEETING ROOM</small>
+    </div>
+    <div class="login-form">
+      <div class="eyebrow">MEMBER ACCESS</div>
+      <h2>Sign in to Pactli</h2>
+      <p class="lead">Use the ID and password from your instructor.</p>
+      <div class="field"><label>ID</label><input id="lgId" autocomplete="username" autocapitalize="off"></div>
+      <div class="field"><label>Password</label><input id="lgPw" type="password" autocomplete="current-password" onkeydown="if(event.key==='Enter')doLogin()"></div>
+      <div class="lgerr" id="lgErr"></div>
+      <button class="btn gold" style="width:100%" id="lgBtn" onclick="doLogin()">Sign in →</button>
+      <div class="hint" id="lgHint" style="margin-top:16px"></div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ ADMIN ============ -->
+<section class="screen" id="admin">
+  <div class="wrap">
+    <div class="top">
+      <div class="brand" onclick="go('home')"><b>pactli<i>.</i></b><span>Admin</span></div>
+      <div class="nav"><button onclick="go('home')">← Home</button></div>
+    </div>
+    <div class="section-h" style="margin-top:8px;gap:16px;flex-wrap:wrap"><h2>Admin</h2>
+      <div class="seg" id="admTabs" style="min-width:330px"><button class="on" data-t="members">Members</button><button data-t="sessions">Sessions</button><button data-t="scenarios">Scenarios</button></div>
+    </div>
+    <div id="admBody" style="padding-bottom:60px"></div>
+  </div>
+</section>
+
+<!-- ============ HOME ============ -->
+<section class="screen" id="home">
+  <div class="wrap">
+    <div class="top">
+      <div class="brand" onclick="go('home')"><b>pactli<i>.</i></b><span>MEETING ROOM</span></div>
+      <div class="nav" id="homeNav"></div>
+    </div>
+    <div class="hero">
+      <div>
+        <div class="eyebrow">Business English · Live Voice Simulation</div>
+        <h1>Walk into the room.<br><em>Speak</em> like you belong.</h1>
+      </div>
+      <div>
+        <p>Run client meetings, contract reviews and tough negotiations by voice with AI counterparts who listen, push back and react to what you actually say. Get a detailed debrief when you leave the room.</p>
+        <div class="steps"><span><b>01</b>Choose</span><span><b>02</b>Speak</span><span><b>03</b>Debrief</span></div>
+      </div>
+    </div>
+    <div class="section-h" style="gap:16px;flex-wrap:wrap"><h2>Choose your meeting</h2>
+      <select class="scsel" id="homeSel" onchange="if(this.value){openSetup(this.value);this.value=''}"></select></div>
+    <div class="grid" id="cards"></div>
+    <div class="drop" id="dropZone" onclick="$('fileIn').click()">
+      <div class="eyebrow" style="margin-bottom:10px">Add scenarios</div>
+      <h3>Drop an Excel or PDF file here</h3>
+      <p>An Excel file in the Pactli template adds scenarios instantly — one row per scenario. Any other Excel, PDF or text file (a contract, term sheet, case brief or meeting notes) is turned into a scenario by AI, with the document attached so you can discuss it clause by clause.</p>
+      <div class="fmt"><span>XLSX</span><span>CSV</span><span>PDF</span><span>TXT</span></div>
+      <button class="btn ghost" onclick="event.stopPropagation();downloadTemplate()">Download Excel template</button>
+      <input type="file" id="fileIn" accept=".xlsx,.xls,.csv,.pdf,.txt,.md" multiple hidden onchange="importFiles(this.files);this.value=''">
+    </div>
+  </div>
+</section>
+
+<!-- ============ SETUP ============ -->
+<section class="screen" id="setup">
+  <div class="wrap">
+    <div class="top">
+      <div class="brand" onclick="go('home')"><b>pactli<i>.</i></b><span>MEETING ROOM</span></div>
+      <div class="nav"><button onclick="go('home')">← All scenarios</button></div>
+    </div>
+    <div class="setup">
+      <div class="pane">
+        <div class="field"><label>Scenario</label><select id="setupSel" onchange="openSetup(this.value)"></select></div>
+        <div class="eyebrow" id="sTag" style="margin-top:26px"></div>
+        <h2 id="sTitle"></h2>
+        <p class="lead" id="sDesc"></p>
+        <div class="warnbar" id="sttWarn">Voice input isn't supported in this browser. Use Chrome or Edge on desktop for speaking, or type your answers instead.</div>
+        <div class="row">
+          <div><label>Your name</label><input id="fName" placeholder="e.g. Jiwoo"></div>
+          <div><label>Your role</label><input id="fRole"></div>
+        </div>
+        <div class="field" id="customWrap" style="display:none">
+          <label>Describe the meeting</label>
+          <textarea id="fCustom" placeholder="e.g. I'm a sales manager meeting a German distributor who wants exclusive rights in Korea. They're demanding a lower margin. I need to keep the margin above 18% and agree on a pilot."></textarea>
+        </div>
+        <div class="field" id="topicWrap" style="display:none">
+          <label>Your presentation — topic &amp; key points</label>
+          <textarea id="fTopic" placeholder="e.g. Proposal to expand our SaaS product into Japan. Market size ₩2.1T, 18-month plan, needs ₩800M budget, break-even in year 2."></textarea>
+          <div class="hint">You'll deliver the presentation by voice first (about 2–3 minutes), then the panel will question you.</div>
+        </div>
+        <div class="field"><label>Difficulty</label>
+          <div class="seg" id="segDiff">
+            <button data-v="easy">Easy · 쉬움</button><button data-v="medium" class="on">Medium · 중간</button><button data-v="hard">Hard · 어려움</button><button data-v="veryhard">Very Hard · 매우 어려움</button>
+          </div>
+          <div class="hint" id="diffHint"></div>
+        </div>
+        <div class="field"><label>Length</label>
+          <div class="seg" id="segLen">
+            <button data-v="5">5 min</button><button data-v="10" class="on">10 min</button><button data-v="15">15 min</button><button data-v="20">20 min</button>
+          </div>
+        </div>
+        <div class="field"><label>Reference document (optional)</label>
+          <div class="attach">
+            <button class="btn ghost" style="padding:9px 16px" onclick="$('docIn').click()">Attach PDF / Excel / TXT</button>
+            <span id="docName"></span>
+            <input type="file" id="docIn" accept=".pdf,.xlsx,.xls,.csv,.txt,.md" hidden onchange="attachDoc(this.files[0]);this.value=''">
+          </div>
+        </div>
+        <div style="display:flex;gap:12px;margin-top:28px;flex-wrap:wrap">
+          <button class="btn gold" onclick="startMeeting()">Enter the meeting →</button>
+          <button class="btn ghost" onclick="testVoice()">Test audio</button>
+        </div>
+      </div>
+      <div>
+        <div class="pane" style="margin-bottom:16px">
+          <label>Brief</label>
+          <div class="brief" id="sBrief"></div>
+          <div id="sMandate"></div>
+          <label>Your objectives</label>
+          <ul class="goals" id="sGoals"></ul>
+        </div>
+        <div class="pane" style="margin-bottom:16px">
+          <label>In the room</label>
+          <div id="sPeople"></div>
+        </div>
+        <div class="pane" id="sDocPane" style="display:none">
+          <label>Document on the table</label>
+          <div class="docbox" id="sDoc"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ ROOM ============ -->
+<section id="room">
+  <div class="rbar">
+    <span class="rec">LIVE</span>
+    <div class="t"><b id="rTitle"></b><small id="rSub"></small></div>
+    <div class="timer" id="rTimer">0:00 <small>/ 10:00</small></div>
+    <button class="btn danger" onclick="endMeeting()">Leave &amp; debrief</button>
+  </div>
+  <div class="tprog"><i id="rProg"></i></div>
+  <div class="rbody">
+    <div class="stage">
+      <div class="tiles" id="tiles"></div>
+      <div class="ctrl">
+        <div class="interim" id="interim"></div>
+        <div class="status" id="status">Connecting…</div>
+        <div class="cbtns">
+          <button class="round" title="Skip voice" onclick="skipSpeech()"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M5 5l9 7-9 7V5zm10 0h3v14h-3z"/></svg></button>
+          <button class="mic" id="mic" onclick="toggleMic()" disabled>
+            <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 15a3 3 0 0 0 3-3V6a3 3 0 0 0-6 0v6a3 3 0 0 0 3 3zm5-3a5 5 0 0 1-10 0H5a7 7 0 0 0 6 6.92V21h2v-2.08A7 7 0 0 0 19 12h-2z"/></svg>
+          </button>
+          <button class="round" title="Hear it again" onclick="repeatLast()"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 5V1L7 6l5 5V7a6 6 0 1 1-6 6H4a8 8 0 1 0 8-8z"/></svg></button>
+        </div>
+        <div class="typebox">
+          <input id="typeIn" placeholder="Or type your reply and press Enter" onkeydown="if(event.key==='Enter'){sendTyped()}">
+          <button class="btn ghost" onclick="sendTyped()">Send</button>
+        </div>
+      </div>
+    </div>
+    <div class="side">
+      <div class="tabs">
+        <button class="on" onclick="sideTab(0,this)">Transcript</button>
+        <button onclick="sideTab(1,this)">Brief &amp; Docs</button>
+      </div>
+      <div class="feed" id="feed"></div>
+      <div class="agenda" id="agenda"></div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ REPORT ============ -->
+<section class="screen" id="report">
+  <div class="wrap">
+    <div class="top">
+      <div class="brand" onclick="go('home')"><b>pactli<i>.</i></b><span>Debrief</span></div>
+      <div class="nav noprint">
+        <button onclick="window.print()">Save PDF</button>
+        <button onclick="openHistory()">History</button>
+        <button onclick="go('home')">New meeting</button>
+      </div>
+    </div>
+    <div id="repBody"></div>
+  </div>
+</section>
+
+<!-- ============ HISTORY ============ -->
+<section class="screen" id="history">
+  <div class="wrap">
+    <div class="top">
+      <div class="brand" onclick="go('home')"><b>pactli<i>.</i></b><span>History</span></div>
+      <div class="nav"><button onclick="go('home')">← Home</button></div>
+    </div>
+    <div class="section-h"><h2>My past meetings</h2><span id="histCount"></span></div>
+    <div id="histList" style="padding-bottom:60px"></div>
+  </div>
+</section>
+
+<!-- ============ SETTINGS ============ -->
+<div class="modal" id="settings" onclick="if(event.target===this)closeSettings()">
+  <div class="pane">
+    <h2 style="font-size:30px;margin-bottom:18px">Settings</h2>
+    <div class="row">
+      <div><label>Speech recognition</label><select id="setLang"><option value="en-US">English (US)</option><option value="en-GB">English (UK)</option><option value="en-AU">English (AU)</option></select></div>
+      <div><label>AI voice speed</label><select id="setRate"><option value="0.85">Slower</option><option value="1">Natural</option><option value="1.12">Faster</option></select></div>
+    </div>
+    <div class="field"><label>Feedback language</label><select id="setFb"><option value="en">English</option><option value="ko">한국어 (explanations in Korean)</option></select></div>
+    <div class="toggle"><div>Auto-send when I stop<small>Off = review the recognised text before sending</small></div><button class="sw" id="setAuto" onclick="this.classList.toggle('on')"></button></div>
+    <div class="toggle"><div>Show AI captions live<small>Turn off for a harder listening challenge</small></div><button class="sw" id="setCap" onclick="this.classList.toggle('on')"></button></div>
+    <div class="toggle"><div>Demo mode<small>Canned replies, no server needed — for previewing the UI</small></div><button class="sw" id="setDemo" onclick="this.classList.toggle('on')"></button></div>
+    <div style="display:flex;gap:10px;margin-top:22px;justify-content:flex-end">
+      <button class="btn ghost" onclick="closeSettings()">Cancel</button>
+      <button class="btn gold" onclick="saveSettings()">Save</button>
+    </div>
+    <div style="border-top:1px solid var(--line);margin-top:24px;padding-top:20px">
+      <label>Change password</label>
+      <div class="row" style="margin-bottom:10px"><input id="pwOld" type="password" placeholder="Current password"><input id="pwNew" type="password" placeholder="New password"></div>
+      <button class="btn ghost" onclick="changePw()">Update password</button>
+    </div>
+  </div>
+</div>
+
+<!-- ============ MEMBER MODAL ============ -->
+<div class="modal" id="memModal" onclick="if(event.target===this)this.classList.remove('on')">
+  <div class="pane" style="max-width:580px">
+    <h2 id="memTitle" style="font-size:30px;margin-bottom:18px">Add member</h2>
+    <div class="row"><div><label>ID</label><input id="mId" autocapitalize="off" placeholder="e.g. jiwoo.kim"></div><div><label>Password</label><input id="mPw"></div></div>
+    <div class="row"><div><label>Name</label><input id="mName"></div><div><label>Email</label><input id="mEmail"></div></div>
+    <div class="row"><div><label>Job title</label><input id="mTitle"></div><div><label>Company</label><input id="mCompany"></div></div>
+    <div class="field"><label>Notes</label><textarea id="mNotes" style="min-height:70px" placeholder="Level, goals, class group…"></textarea></div>
+    <div class="toggle"><div>Active<small>Inactive members can't sign in</small></div><button class="sw" id="mActive" onclick="this.classList.toggle('on')"></button></div>
+    <div class="toggle"><div>Admin<small>Can manage members, see all sessions and share scenarios</small></div><button class="sw" id="mAdmin" onclick="this.classList.toggle('on')"></button></div>
+    <div style="display:flex;gap:10px;margin-top:22px;align-items:center">
+      <button class="btn danger" id="mDel" onclick="delMember()">Delete</button><span style="flex:1"></span>
+      <button class="btn ghost" onclick="$('memModal').classList.remove('on')">Cancel</button>
+      <button class="btn gold" onclick="saveMember()">Save</button>
+    </div>
+  </div>
+</div>
+<div class="busy-ov" id="busy"><div class="spin"></div><h2 id="busyT">Reading your file</h2><p id="busyP"></p></div>
+<div class="viewsw" title="Switch layout"><button data-v="pc" onclick="setView('pc')">🖥 PC</button><button data-v="mobile" onclick="setView('mobile')">📱 Mobile</button></div>
+<div class="toast" id="toast"></div>
+
+<script>
+/* =========================================================
+   DIFFICULTY
+   ========================================================= */
+const DIFF = {
+  easy:{label:'Easy · 쉬움', hint:'Patient, cooperative counterparts. Slower, simpler English. Little pushback.',
+    prompt:'EASY: cooperative and patient. Use simple, common vocabulary and short sentences. Give the learner time and, if they struggle, help with a gentle prompt. Mild or no pushback; accept reasonable points readily.'},
+  medium:{label:'Medium · 중간', hint:'Typical professionals. Natural pace, fair questions and reasonable objections.',
+    prompt:'MEDIUM: a typical professional — fair, natural pace and vocabulary, genuine questions and reasonable objections. Concede when given good reasons.'},
+  hard:{label:'Hard · 어려움', hint:'Skeptical and demanding. Probing follow-ups, firm pushback, business jargon.',
+    prompt:'HARD: demanding and skeptical. Push back firmly, probe vague answers and numbers, use business jargon and idioms. Concede only in exchange for something.'},
+  veryhard:{label:'Very Hard · 매우 어려움', hint:'Senior negotiators. Interruptions, pressure tactics, fast idiomatic English, rare concessions.',
+    prompt:'VERY HARD: seasoned senior negotiators. Interrupt long or vague answers, use pressure tactics (aggressive anchoring, deadlines, "take it or leave it", strategic silence, good-cop/bad-cop between participants), raise unexpected objections, and speak fast with advanced idiomatic English. Concede rarely and only for clear value. Stay professional — never insulting.'}
+};
+const dlabel = d => (DIFF[d]&&DIFF[d].label) || d;
+
+/* =========================================================
+   SCENARIOS — edit freely. Fields:
+   id, tag, title, desc, role, brief, mandate (learner-only, hidden from AI), goals[],
+   personas[{name, role, gender 'm'|'f', color, brief}], doc (reference document, optional),
+   featured, needsTopic, custom
+   ========================================================= */
+const SCENARIOS = [
+  {
+    id:'discovery', tag:'Client Meeting', title:'The Discovery Call', featured:true,
+    desc:'First call with a prospective client. Uncover what they really need before you pitch anything.',
+    role:'Account Executive',
+    brief:'Northwind Logistics, a mid-size freight company, filled in a contact form on your agency\'s website. Their VP of Marketing agreed to a 30-minute intro call. They have used two agencies before and were disappointed both times.',
+    goals:['Build rapport and set a clear agenda','Find out their pain points, budget range and timeline','Learn why previous agencies failed','Agree on a concrete next step'],
+    personas:[{name:'Daniel Brooks',role:'VP Marketing, Northwind Logistics',gender:'m',color:'#e6ede6',
+      brief:'Busy, polite but guarded. Burned by two agencies that over-promised. Has a budget of around $15–20k/month but will not reveal it unless the learner asks well and builds trust. Main pain: leads from the website are low quality. Wants results in one quarter.'}]
+  },
+  {
+    id:'negotiation', tag:'Client Meeting', title:'The Price Push',
+    desc:'Your proposal is on the table. Procurement wants 20% off. Hold your value without losing the deal.',
+    role:'Account Manager',
+    brief:'You sent a $240k annual proposal to Halcyon Retail for a CRM implementation. The Head of Operations likes it; Procurement says a competitor quoted 20% lower. This meeting decides whether you get the contract.',
+    mandate:'You may go down to 10% off — but only in exchange for something (2-year term, upfront payment or reduced scope).',
+    goals:['Defend the value before discussing price','Ask what is behind the 20% request','Trade, don\'t give — any discount must come with something in return','Leave with a clear agreement or next step'],
+    personas:[
+      {name:'Sofia Martinez',role:'Procurement Lead, Halcyon Retail',gender:'f',color:'#f3eee2',
+        brief:'Sharp, numbers-driven negotiator. Opens by asking for 20% off citing a cheaper competitor. Will accept around 8–10% if given something in return (longer contract, upfront payment, reduced scope). Uses silence and "that\'s still too high".'},
+      {name:'James Whitfield',role:'Head of Operations, Halcyon Retail',gender:'m',color:'#e2ecff',
+        brief:'Actually prefers the learner\'s solution and worries the cheaper competitor lacks retail experience. Speaks less, occasionally asks about implementation risk and timeline. Can be won over as an ally.'}]
+  },
+  {
+    id:'contract-review', tag:'Contract', title:'The Contract Review',
+    desc:'Walk through the client\'s draft agreement with their lawyer. Clarify, flag the risks and propose fixes.',
+    role:'Account Director, Brightline Media',
+    brief:'Veritas Health wants to hire your agency, Brightline Media, on a 12-month retainer. Their legal team sent the draft Master Services Agreement below. You are on a call with their Senior Legal Counsel to go through it before anything is signed.',
+    mandate:'Must fix: unlimited liability (§9.2), Net 90 (§3.2), your pre-existing IP (§7.1).\nNice to fix: 15-day termination (§5.3), 24-month healthcare non-compete (§10.1).\nTargets: mutual cap = 12 months\' fees · Net 30–45 · 60-day termination notice.',
+    goals:['Ask clarifying questions about unclear clauses','Flag the clauses that are risky for Brightline and explain why','Propose specific alternative wording or terms','Agree which points go into the next redline'],
+    doc:`MASTER SERVICES AGREEMENT — CLIENT DRAFT v2 (excerpt)
+Between Brightline Media Co., Ltd. ("Agency") and Veritas Health Inc. ("Client")
+
+3.1 Fees. Client shall pay Agency a monthly retainer of USD 28,000.
+3.2 Payment Terms. Invoices are payable within ninety (90) days of receipt.
+3.3 Late Payment. No interest shall accrue on late payments.
+5.1 Term. The initial term is twelve (12) months and renews automatically for successive 12-month terms unless either party gives ninety (90) days' written notice.
+5.3 Termination for Convenience. Client may terminate this Agreement at any time on fifteen (15) days' notice without penalty.
+7.1 Intellectual Property. All work product, including Agency's pre-existing tools, templates and methodologies used in the Services, shall become the exclusive property of Client upon creation.
+9.2 Limitation of Liability. Agency's liability under this Agreement shall be unlimited. Client's aggregate liability shall not exceed the fees paid in the preceding one (1) month.
+10.1 Non-Competition. Agency shall not provide services to any company in the healthcare sector during the Term and for twenty-four (24) months thereafter.
+12.4 Governing Law. This Agreement is governed by the laws of the State of Delaware.`,
+    personas:[{name:'Rebecca Hall',role:'Senior Legal Counsel, Veritas Health',gender:'f',color:'#e8e2fb',
+      brief:'Precise, calm, defends every clause as "our standard policy" at first. Expects the learner to cite clause numbers and give reasons. Hidden flexibility: will move payment to Net 45; accepts a mutual liability cap of 12 months\' fees if the learner explains the risk clearly; will carve out Agency\'s pre-existing IP (Client gets a licence) if asked precisely; can narrow the non-compete to named direct competitors for 12 months; termination notice negotiable to 30–60 days. Will not change governing law.'}]
+  },
+  {
+    id:'contract-negotiation', tag:'Contract', title:'The Redline Round',
+    desc:'Final round on an enterprise licence agreement. Six open issues, two stakeholders, one deadline.',
+    role:'Business Development Manager, Nexora AI',
+    brief:'Your company, Nexora AI, is close to signing an enterprise licence with Atlas Retail Group. After two rounds of redlines, six issues are still open (see the document). This meeting is meant to close them.',
+    mandate:'Walk-away: USD 350k/yr. Minimum term: 2 years.\nYou can trade: a longer term or fixed pricing for a lower fee; quarterly payment if the term is 3 years.\nSLA: 99.9% is OK only if credits are capped at 20%.\nLiability: keep the 12-month cap; a data-breach super-cap of up to 3× annual fees is acceptable — never unlimited.',
+    goals:['Agree the order of the issues and keep the meeting structured','Package trades instead of conceding issue by issue','Protect your walk-away points (fee, term, liability)','Summarise every agreed point clearly before closing'],
+    doc:`ENTERPRISE LICENSE AGREEMENT — OPEN ISSUES LIST (Round 3)
+Vendor: Nexora AI Inc. | Customer: Atlas Retail Group
+
+1. Annual fee (§4.1) — Vendor: USD 420,000/yr | Customer redline: USD 300,000/yr
+2. Term (§5.1) — Vendor: 3 years | Customer: 1 year + renewal option
+3. Payment (§4.3) — Vendor: annual, upfront | Customer: quarterly in arrears, Net 60
+4. Service level (§8.2) — Vendor: 99.5% uptime, credits capped at 10% of monthly fee | Customer: 99.9%, uncapped credits + right to terminate
+5. Liability cap (§11.1) — Vendor: 12 months' fees | Customer: unlimited for data breaches
+6. Price increases (§4.5) — Vendor: up to 7% per year | Customer: fixed for the whole term`,
+    personas:[
+      {name:'Mark Sullivan',role:'VP Procurement, Atlas Retail',gender:'m',color:'#e2ecff',
+        brief:'Aggressive anchor-setter. Pushes the $300k figure and the 1-year term, mentions "our board meets Friday" as pressure. Hidden flexibility: would accept $360–380k for a 3-year deal with fixed pricing; quarterly payment matters a lot to him (cash flow). Likes clear package proposals.'},
+      {name:'Hannah Lee',role:'CISO, Atlas Retail',gender:'f',color:'#f3eee2',
+        brief:'Cares only about data breach liability and uptime. Opens wanting unlimited breach liability. Hidden flexibility: a 2–3× super-cap plus proof of security certifications (ISO 27001/SOC 2) is acceptable; wants 99.9% uptime but accepts capped credits around 20%.'}]
+  },
+  {
+    id:'mg-negotiation', tag:'Licensing', title:'The Minimum Guarantee',
+    desc:'Negotiate the MG, royalty and advance on a brand licence for Korea — with numbers to back you up.',
+    role:'Licensing Director, Hanbit Contents',
+    brief:'Hanbit Contents wants to license the US outdoor brand Driftwood Outdoors for apparel, bags and camping goods in Korea. The licensor sent the term sheet below. Their Minimum Guarantee is far above what your sales forecast supports.',
+    mandate:'Your forecast (net sales): Y1 $1.6M · Y2 $2.4M · Y3 $3.2M → at 12% = $864k royalties over 3 years.\nTargets: total MG ≤ $650k (stretch max $720k) with a low Year 1 · MG cross-collateralised across years (no annual shortfall payments) · advance ≤ $100k, fully recoupable · royalty 10–11% or tiered · approvals within 10 business days · renewal option if MG is met.',
+    goals:['Clarify how the MG, advance and shortfall payments work','Use your sales forecast to justify a lower MG','Negotiate MG level and structure (ramp-up, cross-collateralisation)','Balance royalty, advance and approval terms','Summarise the agreed deal terms'],
+    doc:`LICENSE TERM SHEET — LICENSOR DRAFT
+Licensor: Driftwood Outdoors LLC | Licensee: Hanbit Contents Co., Ltd.
+Territory: Republic of Korea
+Licensed categories: apparel, bags, camping accessories
+Term: 3 years (Jan 2027 – Dec 2029)
+Royalty: 12% of net sales
+Advance: USD 150,000 payable on signing, recoupable against royalties
+Minimum Guarantee (MG): USD 900,000 over the term — Year 1 $250,000 / Year 2 $300,000 / Year 3 $350,000. Payable regardless of sales; any shortfall is due within 30 days after the end of each contract year.
+Marketing commitment: 3% of net sales
+Product approvals: Licensor approval of all products within 30 business days
+Renewal: at Licensor's sole discretion`,
+    personas:[
+      {name:'Karen Whitmore',role:'VP Global Licensing, Driftwood Outdoors',gender:'f',color:'#dff0e4',
+        brief:'Experienced, confident licensing executive. Anchors on the $900k MG and says "our partners in Japan and Taiwan accepted similar terms." Hidden flexibility: can go to $700–750k total MG with a lower Year 1 ramp; will accept cross-collateralisation if the advance stays at $150k or the royalty stays at 12%; won\'t go below 11% royalty unless the MG goes up; offers a renewal option if the licensee reaches 110% of MG. Approval time negotiable to 15 business days.'},
+      {name:'Ben Torres',role:'Finance Director, Driftwood Outdoors',gender:'m',color:'#e6ede6',
+        brief:'Analytical. Asks how the licensee built its sales forecast, which distribution channels it has, its marketing plan, and what security it offers (e.g. bank guarantee) for the MG. Pushes back on numbers that sound unsupported.'}]
+  },
+  {
+    id:'escalation', tag:'Client Meeting', title:'The Missed Deadline',
+    desc:'A key deliverable slipped and the client is upset. Own it, calm the room and rebuild trust.',
+    role:'Project Lead',
+    brief:'Your team was supposed to deliver the campaign assets for Lumina Cosmetics\' spring launch last Friday. They are four days late because of an internal approval bottleneck. The launch is in 10 days. The client called an urgent meeting.',
+    goals:['Acknowledge the problem without excuses','Explain what happened briefly and factually','Present a recovery plan with dates','Agree how communication will improve'],
+    personas:[{name:'Priya Nair',role:'Head of Brand, Lumina Cosmetics',gender:'f',color:'#f8dcd8',
+      brief:'Frustrated and under pressure from her own CEO. Starts cold and direct. Gets angrier at vague answers or excuses; softens if the learner takes ownership and gives specific dates. Wants daily updates until launch.'}]
+  },
+  {
+    id:'qa', tag:'Presentation', title:'The Boardroom Q&A',
+    desc:'Present your proposal, then face a panel that wants to poke holes in it.',
+    role:'Project Owner', needsTopic:true,
+    brief:'You are presenting a proposal to two senior leaders who control the budget. They will let you present first, then question you on numbers, risks and execution.',
+    goals:['Deliver a clear, structured presentation','Answer the question asked — directly, then support it','Handle tough or hostile questions calmly','Close by restating your ask'],
+    personas:[
+      {name:'Michael Grant',role:'Chief Financial Officer',gender:'m',color:'#dff0e4',
+        brief:'Skeptical about money. Asks about ROI, cost assumptions, payback period and "what if it doesn\'t work". Interrupts long answers with "So what\'s the short answer?"'},
+      {name:'Emma Clarke',role:'Director of Strategy',gender:'f',color:'#e8e2fb',
+        brief:'Thoughtful. Asks about competition, customer evidence, timeline realism and what resources are needed. Occasionally asks the learner to clarify jargon.'}]
+  },
+  {
+    id:'custom', tag:'Your Own', title:'Build a Scenario',
+    desc:'Describe any meeting you have coming up and rehearse it before the real thing.',
+    role:'', custom:true,
+    brief:'You describe the situation. The AI will create the counterpart and play them realistically.',
+    goals:['Achieve the outcome you described','Communicate clearly and professionally','Handle objections and questions'],
+    personas:[{name:'Alex Morgan',role:'Your counterpart',gender:'f',color:'#e6ede6',brief:'Adapt fully to the learner\'s description.'}]
+  }
+];
+const PCOLORS = ['#e6ede6','#e2ecff','#f3eee2','#dff0e4','#e8e2fb','#f8dcd8'];
+const FILLERS = ['um','uh','erm','er','you know','basically','sort of','kind of','i mean','so yeah'];
+
+/* =========================================================
+   STATE & HELPERS
+   ========================================================= */
+const LS = {
+  get:(k,d)=>{try{const v=localStorage.getItem(k);return v===null?d:JSON.parse(v)}catch(e){return d}},
+  set:(k,v)=>{try{localStorage.setItem(k,JSON.stringify(v));return true}catch(e){toast('Storage is full — delete some custom scenarios.');return false}}
+};
+let settings = Object.assign({lang:'en-US',rate:'1',fb:'en',auto:true,captions:true,demo:false}, LS.get('pactli_settings',{}));
+let S = null, sc = null;
+let cfg = {difficulty:'medium', minutes:10, docText:'', docName:''};
+const $ = id => document.getElementById(id);
+const esc = s => String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const initials = n => String(n||'?').split(' ').map(w=>w[0]).join('').slice(0,2).toUpperCase();
+const fmt = s => `${Math.floor(s/60)}:${String(Math.floor(s%60)).padStart(2,'0')}`;
+function toast(t,ms=2800){const el=$('toast');el.textContent=t;el.classList.add('on');clearTimeout(el._t);el._t=setTimeout(()=>el.classList.remove('on'),ms)}
+function go(id){document.querySelectorAll('.screen,#room').forEach(s=>s.classList.remove('on'));$(id).classList.add('on');window.scrollTo(0,0);document.documentElement.classList.toggle('inroom',id==='room')}
+function busy(on,t,p){$('busy').classList.toggle('on',on); if(t)$('busyT').textContent=t; $('busyP').textContent=p||''}
+const customs = () => LS.get('pactli_custom',[]);
+let shared = [];   // scenarios shared by an admin (stored in the Scenarios sheet)
+const allSc = () => SCENARIOS.concat(shared.map(s=>Object.assign({},s,{shared:true,mine:false})), customs());
+const isAdmin = () => !!(session && session.user && session.user.admin);
+
+/* =========================================================
+   HOME
+   ========================================================= */
+function renderCards(){
+  const list = allSc();
+  $('cards').innerHTML = list.map((s,i)=>`
+    <div class="card ${s.featured?'featured':''} ${s.mine||s.shared?'mine':''}" onclick="openSetup('${s.id}')">
+      <div class="num">${String(i+1).padStart(2,'0')}</div>
+      <div class="tag">${esc(s.tag)}${s.shared?' · Shared':s.mine?' · Added':''}</div>
+      <h3>${esc(s.title)}</h3>
+      <p>${esc(s.desc)}</p>
+      <div class="who">${s.personas.map(p=>`<span class="av" style="background:${p.color}">${initials(p.name)}</span>`).join('')}
+        <small>${s.custom?'Your counterpart':s.personas.length+' participant'+(s.personas.length>1?'s':'')}${s.doc?' · 📄 document':''}</small></div>
+      ${s.mine||(s.shared&&isAdmin())?`<button class="del" title="Delete" onclick="delCustom('${s.id}',event)">×</button>`:''}
+    </div>`).join('');
+  renderSelects();
+}
+function renderSelects(){
+  const list = allSc(), groups = {};
+  list.forEach(s=>{(groups[s.tag]=groups[s.tag]||[]).push(s)});
+  const opts = Object.entries(groups).map(([g,a])=>`<optgroup label="${esc(g)}">${a.map(s=>`<option value="${s.id}">${esc(s.title)}</option>`).join('')}</optgroup>`).join('');
+  $('homeSel').innerHTML = `<option value="">Quick select — ${list.length} scenarios</option>`+opts;
+  $('setupSel').innerHTML = opts;
+  if(sc) $('setupSel').value = sc.id;
+}
+async function delCustom(id,e){
+  e.stopPropagation();
+  const s = allSc().find(x=>x.id===id); if(!s) return;
+  if(!confirm(s.shared?'Delete this shared scenario for all members?':'Delete this scenario?')) return;
+  if(s.shared){ try{ await gas('scenarios.delete',{id}); shared = shared.filter(x=>x.id!==id) }catch(err){ toast(err.message); return } }
+  else LS.set('pactli_custom', customs().filter(x=>x.id!==id));
+  renderCards(); toast('Scenario deleted');
+}
+async function loadShared(){ try{ shared = (await gas('scenarios.list')).scenarios||[] }catch(e){ shared=[] } }
+
+/* =========================================================
+   SETUP
+   ========================================================= */
+function openSetup(id){
+  sc = allSc().find(s=>s.id===id); if(!sc) return;
+  cfg.docText=''; cfg.docName='';
+  $('setupSel').value = sc.id;
+  $('sTag').textContent = sc.tag; $('sTitle').textContent = sc.title; $('sDesc').textContent = sc.desc;
+  $('sBrief').textContent = sc.brief;
+  $('sMandate').innerHTML = sc.mandate?`<div class="mandate"><b>YOUR MANDATE · CONFIDENTIAL</b>${esc(sc.mandate)}</div>`:'';
+  $('sGoals').innerHTML = sc.goals.map(g=>`<li>${esc(g)}</li>`).join('');
+  $('sPeople').innerHTML = sc.personas.map(p=>`
+    <div class="persona"><span class="av" style="background:${p.color}">${initials(p.name)}</span>
+    <div><b>${esc(p.name)}</b><small>${esc(p.role)}</small></div></div>`).join('');
+  $('fName').value = LS.get('pactli_name','') || (session&&session.user.name) || '';
+  $('fRole').value = sc.role||'';
+  $('customWrap').style.display = sc.custom?'block':'none';
+  $('topicWrap').style.display = sc.needsTopic?'block':'none';
+  $('sttWarn').style.display = SR ? 'none':'block';
+  renderDoc();
+  go('setup');
+}
+function renderDoc(){
+  const text = cfg.docText || sc.doc || '';
+  $('sDocPane').style.display = text?'block':'none';
+  $('sDoc').textContent = text.length>8000 ? text.slice(0,8000)+'\n…' : text;
+  $('docName').innerHTML = cfg.docName
+    ? `<span class="fname">📄 ${esc(cfg.docName)}</span> <a onclick="cfg.docText='';cfg.docName='';renderDoc()">remove</a>`
+    : (sc.doc ? 'A sample document is included — attach your own to replace it.' : 'e.g. a real contract or term sheet — both sides will discuss it.');
+}
+async function attachDoc(file){
+  if(!file) return;
+  busy(true,'Reading your document',file.name);
+  try{
+    const {text} = await extractText(file);
+    if(!text.trim()) throw new Error('No readable text found (scanned image PDF?).');
+    cfg.docText = text.slice(0,20000); cfg.docName = file.name; renderDoc(); toast('Document attached');
+  }catch(e){ toast(e.message,4000) }
+  busy(false);
+}
+function bindSeg(id,key,after){
+  $(id).querySelectorAll('button').forEach(b=>b.onclick=()=>{
+    $(id).querySelectorAll('button').forEach(x=>x.classList.remove('on'));b.classList.add('on');
+    cfg[key] = key==='minutes'?+b.dataset.v:b.dataset.v; after&&after();
+  });
+}
+const showDiffHint = ()=>{$('diffHint').textContent = DIFF[cfg.difficulty].hint};
+
+/* =========================================================
+   FILE IMPORT — Excel template, any Excel/PDF/TXT via AI
+   ========================================================= */
+const CDN_XLSX = 'https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js';
+const CDN_PDF = 'https://cdn.jsdelivr.net/npm/pdfjs-dist@3.11.174/build/pdf.min.js';
+const CDN_PDFW = 'https://cdn.jsdelivr.net/npm/pdfjs-dist@3.11.174/build/pdf.worker.min.js';
+const loaded = {};
+function loadScript(src){
+  return loaded[src] || (loaded[src] = new Promise((res,rej)=>{const s=document.createElement('script');s.src=src;s.onload=res;s.onerror=()=>{delete loaded[src];rej(new Error('Could not load a file reader. Check your internet connection.'))};document.head.appendChild(s)}));
+}
+async function extractText(file){
+  const ext = file.name.split('.').pop().toLowerCase();
+  if(ext==='pdf'){
+    await loadScript(CDN_PDF); pdfjsLib.GlobalWorkerOptions.workerSrc = CDN_PDFW;
+    const pdf = await pdfjsLib.getDocument({data:await file.arrayBuffer()}).promise;
+    let out='';
+    for(let i=1;i<=Math.min(pdf.numPages,40);i++){
+      const c = await (await pdf.getPage(i)).getTextContent();
+      out += c.items.map(it=>it.str+(it.hasEOL?'\n':' ')).join('') + '\n\n';
+    }
+    return {text:out.replace(/[ \t]+\n/g,'\n').replace(/\n{3,}/g,'\n\n').trim()};
+  }
+  if(['xlsx','xls','csv'].includes(ext)){
+    await loadScript(CDN_XLSX);
+    const wb = XLSX.read(await file.arrayBuffer());
+    const text = wb.SheetNames.map(n=>`### Sheet: ${n}\n`+XLSX.utils.sheet_to_csv(wb.Sheets[n])).join('\n\n');
+    return {text, wb};
+  }
+  return {text: await file.text()};
+}
+const TPL_HEAD = ['title','category','description','your_role','situation','your_mandate','goals',
+  'p1_name','p1_role','p1_gender','p1_personality','p2_name','p2_role','p2_gender','p2_personality','p3_name','p3_role','p3_gender','p3_personality','document'];
+async function downloadTemplate(){
+  try{ await loadScript(CDN_XLSX) }catch(e){ toast(e.message); return }
+  const ex = ['The Renewal Talk','Client Meeting','Contract ends next month and the client is looking at a competitor.','Account Manager',
+    'Snowpeak Analytics has used your platform for 2 years. Their contract expires in 30 days and a competitor has offered a free migration.',
+    'You can offer up to 5% off for a 2-year renewal. Do not offer free months.',
+    'Find out why they are considering leaving\nRemind them of the results achieved\nSecure a renewal or a follow-up meeting',
+    'Laura Chen','Head of Data, Snowpeak','f','Satisfied overall but annoyed by slow support. Will stay if support improves and price stays flat. Does not mention the support issue unless asked.',
+    '','','','','','','','',''];
+  const guide = [['Column','How to fill it'],
+    ['title','Scenario name shown on the card (required)'],['category','Group name, e.g. Client Meeting, Contract, Licensing'],
+    ['description','One line shown on the card'],['your_role','The learner\'s role'],['situation','The background both sides know'],
+    ['your_mandate','Confidential targets/limits for the learner only — the AI never sees this'],
+    ['goals','One objective per line (Alt+Enter) or separated by ;'],
+    ['pN_name / pN_role','AI participant name and job title (p1 required, p2–p3 optional)'],['pN_gender','m or f (picks the voice)'],
+    ['pN_personality','How they behave, what they want, what they hide unless asked, where they can concede'],
+    ['document','Optional text both sides have on the table (contract clauses, term sheet, figures)'],
+    ['',''],['Tip','One row = one scenario. Drop the file on the Pactli home page to add them.']];
+  const wb = XLSX.utils.book_new();
+  const ws = XLSX.utils.aoa_to_sheet([TPL_HEAD, ex]);
+  ws['!cols'] = TPL_HEAD.map(h=>({wch:/situation|personality|mandate|goals|document/.test(h)?48:18}));
+  XLSX.utils.book_append_sheet(wb, ws, 'Scenarios');
+  const g = XLSX.utils.aoa_to_sheet(guide); g['!cols']=[{wch:22},{wch:90}];
+  XLSX.utils.book_append_sheet(wb, g, 'Guide');
+  XLSX.writeFile(wb, 'pactli-scenario-template.xlsx');
+}
+function fromTemplateRow(r){
+  const v = k => String(r[k]??'').trim();
+  const personas = [1,2,3].filter(n=>v(`p${n}_name`)).map((n,i)=>({name:v(`p${n}_name`),role:v(`p${n}_role`)||'Participant',
+    gender:/^f/i.test(v(`p${n}_gender`))?'f':'m',color:PCOLORS[i%PCOLORS.length],brief:v(`p${n}_personality`)||'A realistic professional.'}));
+  if(!v('title') || !personas.length) return null;
+  return {id:'u'+Date.now()+Math.random().toString(36).slice(2,6), mine:true, tag:v('category')||'Custom', title:v('title'),
+    desc:v('description')||v('situation').slice(0,110), role:v('your_role'), brief:v('situation'), mandate:v('your_mandate'),
+    goals:v('goals').split(/\n|;/).map(s=>s.trim()).filter(Boolean).slice(0,6), personas, doc:v('document')};
+}
+function parseSystem(){
+  return `You design spoken business-English meeting simulations for Korean professionals. Convert the provided material into ONE realistic meeting scenario in which the learner must speak English.
+- If it is a contract, agreement, term sheet, proposal or quotation: create a meeting to review or negotiate it. The AI participants are the counterparty, with realistic positions, priorities and hidden flexibility based on the actual terms. The learner represents the other party.
+- If it is a case, brief, report or meeting notes: build the meeting it implies.
+Write all scenario text in English. Use 1–3 personas. Each persona brief must cover personality, what they want, what they hide unless asked well, and where they can concede. "mandate" is confidential guidance for the learner only (targets, limits, walk-away) — derive it from the material where possible, otherwise leave it empty.
+Return ONLY valid JSON:
+{"title":"max 5 words","tag":"e.g. Contract, Negotiation, Licensing, Client Meeting","desc":"one sentence","role":"learner's role","brief":"2-4 sentences","mandate":"short lines separated by \\n, or empty","goals":["3-5 objectives"],"personas":[{"name":"","role":"","gender":"m|f","brief":""}],"useDocument":true}
+"useDocument" is true when participants should have the source document in front of them during the meeting (contracts, term sheets, proposals, figures).`;
+}
+async function aiScenario(text, fname, basic){
+  const base = {id:'u'+Date.now()+Math.random().toString(36).slice(2,6), mine:true};
+  const fallback = ()=>Object.assign(base,{tag:'Imported',title:fname.replace(/\.[^.]+$/,'').slice(0,40),desc:'Meeting based on your uploaded document.',
+    role:'',brief:'Discuss the attached document with your counterpart.',mandate:'',goals:['Clarify the key points of the document','Raise your concerns and propose changes','Agree on next steps'],
+    personas:[{name:'Alex Morgan',role:'Counterpart',gender:'f',color:PCOLORS[0],brief:'Represents the other side of the attached document. Defends its terms realistically.'}],doc:text.slice(0,20000)});
+  if(basic || settings.demo) return fallback();
+  const raw = await callAI(parseSystem(), [{role:'user',content:`FILE: ${fname}\n\n${text.slice(0,30000)}`}], 'parse');
+  const j = parseJSON(raw);
+  return Object.assign(base,{tag:j.tag||'Imported',title:j.title||fname,desc:j.desc||'',role:j.role||'',brief:j.brief||'',mandate:j.mandate||'',
+    goals:(j.goals||[]).slice(0,6),personas:(j.personas||[]).slice(0,3).map((p,i)=>({name:p.name||'Participant '+(i+1),role:p.role||'',gender:p.gender==='f'?'f':'m',color:PCOLORS[i%PCOLORS.length],brief:p.brief||''})),
+    doc:j.useDocument?text.slice(0,20000):''});
+}
+async function importFiles(files){
+  files = [...files]; if(!files.length) return;
+  const added = [];
+  for(const f of files){
+    busy(true,'Reading your file',f.name);
+    try{
+      const {text, wb} = await extractText(f);
+      if(!text.trim()) throw new Error(`${f.name}: no readable text found (scanned image PDF?).`);
+      let rows = [];
+      if(wb){
+        const json = XLSX.utils.sheet_to_json(wb.Sheets[wb.SheetNames[0]],{defval:''});
+        if(json.length && 'title' in json[0] && 'p1_name' in json[0]) rows = json.map(fromTemplateRow).filter(Boolean);
+      }
+      if(rows.length) added.push(...rows);
+      else {
+        busy(true,'Building a scenario', settings.demo?'Demo mode — creating a basic scenario':'AI is reading '+f.name+'…');
+        try{ added.push(await aiScenario(text,f.name)) }
+        catch(e){ toast('AI conversion failed ('+e.message+'). Added a basic version instead.',5000); added.push(await aiScenario(text,f.name,true)) }
+      }
+    }catch(e){ toast(e.message,4500) }
+  }
+  busy(false);
+  if(!added.length) return;
+  if(isAdmin()){
+    busy(true,'Sharing with members','Saving to the member server…');
+    try{ for(const s of added){ s.mine=false; s.createdBy=session.user.id; await gas('scenarios.save',{scenario:s}); shared.push(s) } }
+    catch(e){ busy(false); toast('Could not share: '+e.message,4500); return }
+    busy(false);
+  } else if(!LS.set('pactli_custom', customs().concat(added))) return;
+  renderCards();
+  toast(`Added ${added.length} scenario${added.length>1?'s':''}${isAdmin()?' — shared with all members':''}`);
+  if(added.length===1) openSetup(added[0].id);
+}
+(()=>{
+  const dz=$('dropZone');
+  ['dragenter','dragover'].forEach(ev=>dz.addEventListener(ev,e=>{e.preventDefault();dz.classList.add('over')}));
+  ['dragleave','drop'].forEach(ev=>dz.addEventListener(ev,e=>{e.preventDefault();dz.classList.remove('over')}));
+  dz.addEventListener('drop',e=>importFiles(e.dataTransfer.files));
+  window.addEventListener('dragover',e=>e.preventDefault()); window.addEventListener('drop',e=>e.preventDefault());
+})();
+
+/* =========================================================
+   SPEECH — TTS (speechSynthesis) & STT (Web Speech API)
+   ========================================================= */
+const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+let voices = [];
+function loadVoices(){voices = speechSynthesis.getVoices().filter(v=>/^en/i.test(v.lang))}
+if('speechSynthesis' in window){loadVoices();speechSynthesis.onvoiceschanged=loadVoices}
+const FEM = /(female|samantha|victoria|karen|moira|tessa|fiona|serena|susan|zira|aria|jenny|libby|sonia|natasha|ava|allison|kate|emma|olivia|google us english$)/i;
+const MAL = /(male|daniel|alex|fred|tom|oliver|george|arthur|david|mark|guy|ryan|thomas|aaron|rishi|james)/i;
+function pickVoice(persona, idx){
+  if(!voices.length) return null;
+  const f = persona.gender==='f';
+  let pool = voices.filter(v=> f ? (FEM.test(v.name) && !/\bmale\b/i.test(v.name)) : (MAL.test(v.name) && !/female/i.test(v.name)));
+  if(!pool.length) pool = voices.filter(v=>!(f?MAL:FEM).test(v.name));
+  if(!pool.length) pool = voices;
+  const prefer = pool.filter(v=>/natural|online|google|premium|enhanced/i.test(v.name));
+  const list = prefer.length?prefer:pool;
+  return list[idx % list.length];
+}
+function chunk(text){
+  return (text.match(/[^.!?]+[.!?]*\s*/g)||[text]).reduce((a,s)=>{if(a.length&&(a[a.length-1]+s).length<160)a[a.length-1]+=s;else a.push(s);return a},[]).map(s=>s.trim()).filter(Boolean);
+}
+function speak(text, persona, idx){
+  return new Promise(resolve=>{
+    if(!('speechSynthesis' in window)){resolve();return}
+    const parts = chunk(text); let i=0; const v = pickVoice(persona,idx);
+    const next=()=>{
+      if(S && S.skip){resolve();return}
+      if(i>=parts.length){resolve();return}
+      const u = new SpeechSynthesisUtterance(parts[i++]);
+      if(v) u.voice=v; u.lang = v?v.lang:'en-US';
+      const diffRate = S && S.difficulty==='easy' ? .9 : S && S.difficulty==='veryhard' ? 1.08 : 1;
+      u.rate = +settings.rate * diffRate; u.pitch = persona.gender==='m'?0.92:1.05;
+      u.onend=next; u.onerror=next; speechSynthesis.speak(u);
+    };
+    next();
+  });
+}
+function testVoice(){
+  speechSynthesis.cancel();
+  const p = sc.personas[0];
+  speak(`Hi, I'm ${p.name}. If you can hear me clearly, you're all set.`, p, 0);
+}
+
+let rec=null, recBuf='', recOn=false, recStart=0, sendOnEnd=false;
+function initRec(){
+  if(!SR) return null;
+  const r = new SR(); r.lang = settings.lang; r.continuous = true; r.interimResults = true;
+  r.onresult = e=>{
+    let interim='';
+    for(let i=e.resultIndex;i<e.results.length;i++){
+      const t=e.results[i][0].transcript;
+      if(e.results[i].isFinal) recBuf += t+' '; else interim += t;
+    }
+    $('interim').textContent = (recBuf+interim).trim();
+  };
+  r.onerror = e=>{ if(e.error==='not-allowed'){toast('Microphone blocked — allow mic access in your browser.',4000);stopMic(false)} };
+  r.onend = ()=>{
+    if(recOn){ try{r.start()}catch(e){} return }
+    const text = recBuf.trim(); const dur=(Date.now()-recStart)/1000;
+    if(sendOnEnd && text){
+      if(settings.auto) userSays(text, dur);
+      else { $('typeIn').value=text; $('typeIn').focus(); S.pendingDur=dur; setStatus('Review and press Enter to send'); }
+    } else if(sendOnEnd && !text){ setStatus('Didn\'t catch that — tap to try again'); }
+    $('interim').textContent=''; recBuf='';
+  };
+  return r;
+}
+function toggleMic(){ recOn ? stopMic(true) : startMic() }
+function startMic(){
+  if(!S || S.busy) return;
+  if(!rec){ toast('Voice input needs Chrome or Edge. You can type instead.',3500); return }
+  speechSynthesis.cancel();
+  recBuf=''; recOn=true; recStart=Date.now(); sendOnEnd=false;
+  try{ rec.lang=settings.lang; rec.start() }catch(e){}
+  $('mic').classList.add('live'); setTile('you','speaking'); setStatus('Listening… tap to finish');
+}
+function stopMic(send){
+  recOn=false; sendOnEnd=send; $('mic').classList.remove('live'); setTile('you','');
+  try{ rec.stop() }catch(e){}
+}
+document.addEventListener('keydown',e=>{
+  if(!$('room').classList.contains('on')) return;
+  if(e.code==='Space' && document.activeElement.tagName!=='INPUT'){ e.preventDefault(); if(!e.repeat && !$('mic').disabled) toggleMic(); }
+});
+
+/* =========================================================
+   API
+   ========================================================= */
+async function callAI(system, messages, mode){
+  const r = await fetch('/api/chat',{method:'POST',headers:{'content-type':'application/json','x-auth-token':(session&&session.token)||''},body:JSON.stringify({system,messages,mode})});
+  let data={}; try{data=await r.json()}catch(e){}
+  if(r.status===401 && data.auth){ logout(); throw new Error(data.error) }
+  if(!r.ok) throw new Error(data.error || `Server error (${r.status})`);
+  return data.text||'';
+}
+function parseJSON(t){
+  const a=t.indexOf('{'), b=t.lastIndexOf('}');
+  if(a<0||b<=a) throw new Error('Unexpected AI response');
+  return JSON.parse(t.slice(a,b+1));
+}
+
+function meetingSystem(){
+  const ps = S.personas.map(p=>`- ${p.name} — ${p.role}. ${p.brief}`).join('\n');
+  return `You are running a live, spoken business-English meeting simulation. A non-native English-speaking professional (the learner) is practising by voice. Their speech is transcribed by speech recognition, so expect small transcription errors.
+
+SCENARIO: ${S.title}
+${S.brief}
+${S.custom?`LEARNER'S DESCRIPTION OF THE MEETING: ${S.custom}\nInvent a realistic name/role for the counterpart if useful, but you MUST use the speaker name "${S.personas[0].name}" in your JSON.`:''}
+${S.topic?`LEARNER'S PRESENTATION TOPIC: ${S.topic}\nFlow: open briefly and invite the learner to present. Let them present without interrupting (respond only with a short acknowledgement like "Please go on" if their turn seems unfinished). Once they finish, the panel asks questions one at a time, mixing both panelists.`:''}
+${S.doc?`REFERENCE DOCUMENT — everyone in the meeting has a copy. Base your positions on its actual terms, refer to clause numbers and figures, and notice if the learner misquotes it:\n"""\n${S.doc.slice(0,15000)}\n"""`:''}
+
+PARTICIPANTS YOU PLAY:
+${ps}
+
+LEARNER: ${S.name}, ${S.role}.
+LEARNER'S OBJECTIVES (do not reveal): ${S.goals.join('; ')}
+DIFFICULTY — ${DIFF[S.difficulty].prompt}
+
+RULES
+- This is spoken audio. Each turn is 1–3 short sentences (max ~45 words), natural spoken English with contractions. No markdown, lists, emojis or stage directions.
+- Only speak as the participants above. Never write lines for the learner. Never act as a teacher and never correct their English during the meeting.
+- Usually one speaker per response; occasionally a second participant adds a short line when natural.
+- React specifically to what the learner just said. Ask follow-up questions. Don't volunteer hidden information or concessions unless the learner earns them by asking well or offering something.
+- If the learner's message is garbled or unclear, ask them to clarify, as a real person would.
+- Each learner message starts with [elapsed mm:ss / limit mm:ss]. After about 85% of the limit, steer toward wrapping up: summarise what was agreed, confirm next steps, and close. Set "end": true only on your final goodbye turn.
+
+OUTPUT: ONLY valid JSON, nothing else:
+{"turns":[{"speaker":"<exact participant name>","text":"<what they say>"}],"end":false}`;
+}
+
+const DEMO_LINES = [
+  "Thanks for that. Could you walk me through how that would actually work in practice?",
+  "Okay, I see. What kind of timeline are we realistically looking at?",
+  "That's fair. But how would we measure whether this is working?",
+  "Alright. Let's agree on next steps — could you send me a short summary by Friday? Thanks for your time today."
+];
+
+/* =========================================================
+   MEETING FLOW
+   ========================================================= */
+function startMeeting(){
+  const name = $('fName').value.trim() || 'Guest';
+  LS.set('pactli_name', $('fName').value.trim());
+  if(sc.custom && !$('fCustom').value.trim()){ toast('Describe the meeting first.'); return }
+  if(sc.needsTopic && !$('fTopic').value.trim()){ toast('Add your presentation topic first.'); return }
+  S = {
+    scenarioId:sc.id, title:sc.title, tag:sc.tag, brief:sc.brief, goals:sc.goals, mandate:sc.mandate||'',
+    personas:sc.personas, name, role:$('fRole').value.trim()||sc.role||'Participant',
+    difficulty:cfg.difficulty, minutes:cfg.minutes, doc:cfg.docText||sc.doc||'', docName:cfg.docName,
+    custom:sc.custom?$('fCustom').value.trim():'', topic:sc.needsTopic?$('fTopic').value.trim():'',
+    messages:[], log:[], userTurns:[], start:0, timer:null, busy:false, ended:false, skip:false, lastAI:null, demoI:0
+  };
+  if(!rec) rec = initRec();
+  $('rTitle').textContent = S.title; $('rSub').textContent = `${S.tag} · ${dlabel(S.difficulty)} · you are ${S.role}`;
+  $('tiles').innerHTML = S.personas.map((p,i)=>`
+    <div class="tile" id="tile-${i}"><span class="av" style="background:${p.color}">${initials(p.name)}</span>
+      <div class="nm">${esc(p.name)}</div><div class="rl">${esc(p.role)}</div><div class="wave"><i></i><i></i><i></i><i></i></div></div>`).join('') +
+    `<div class="tile you" id="tile-you"><span class="av">${initials(S.name)}</span><div class="nm">${esc(S.name)} (you)</div><div class="rl">${esc(S.role)}</div><div class="wave"><i></i><i></i><i></i><i></i></div></div>`;
+  $('feed').innerHTML=''; $('typeIn').value='';
+  $('agenda').innerHTML = `<label>Brief</label><div class="brief">${esc(S.brief)}${S.custom?'\n\n'+esc(S.custom):''}${S.topic?'\n\nYour topic: '+esc(S.topic):''}</div>`+
+    (S.mandate?`<div class="mandate"><b>YOUR MANDATE · CONFIDENTIAL</b>${esc(S.mandate)}</div>`:'')+
+    `<label>Your objectives</label><ul class="goals" style="margin-bottom:22px">${S.goals.map(g=>`<li>${esc(g)}</li>`).join('')}</ul>`+
+    (S.doc?`<label>Document${S.docName?' · '+esc(S.docName):''}</label><div class="docbox" style="max-height:none">${esc(S.doc)}</div>`:'');
+  go('room');
+  S.start = Date.now();
+  S.timer = setInterval(tick,1000); tick();
+  addLog('sys','Meeting started');
+  aiTurn('[The meeting is starting now. Open the meeting naturally.]');
+}
+function tick(){
+  if(!S) return;
+  const el=(Date.now()-S.start)/1000, lim=S.minutes*60;
+  $('rTimer').innerHTML = `${fmt(el)} <small>/ ${fmt(lim)}</small>`;
+  $('rProg').style.width = Math.min(100,el/lim*100)+'%';
+  $('rTimer').style.color = el>lim?'var(--bad)':el>lim*.85?'var(--warn)':'';
+}
+function stamp(){const el=(Date.now()-S.start)/1000;return `[elapsed ${fmt(el)} / limit ${fmt(S.minutes*60)}]`}
+function setStatus(t){$('status').textContent=t}
+function setTile(i,cls){const t=$('tile-'+i); if(!t) return; t.classList.remove('speaking','thinking'); if(cls) t.classList.add(cls)}
+function addLog(kind, text, persona){
+  const f=$('feed'); const d=document.createElement('div');
+  if(kind==='sys'){ d.className='msg sys'; d.innerHTML=`<div class="tx">${esc(text)}</div>` }
+  else if(kind==='me'){ d.className='msg me'; d.innerHTML=`<div class="who">${esc(S.name)}</div><div class="tx">${esc(text)}</div>` }
+  else { d.className='msg'; d.innerHTML=`<div class="who"><i style="background:${persona.color}"></i>${esc(persona.name)}</div><div class="tx">${settings.captions?esc(text):'<span style="color:var(--dim)">(captions hidden)</span>'}</div>` }
+  f.appendChild(d); f.scrollTop=f.scrollHeight;
+  if(kind!=='sys') S.log.push({speaker: kind==='me'?S.name:persona.name, me:kind==='me', text, t:Math.round((Date.now()-S.start)/1000)});
+}
+function sideTab(i,btn){
+  document.querySelectorAll('.tabs button').forEach(b=>b.classList.remove('on'));btn.classList.add('on');
+  $('feed').style.display=i?'none':'block'; $('agenda').classList.toggle('on',!!i);
+}
+
+async function aiTurn(userContent){
+  S.busy=true; $('mic').disabled=true;
+  S.personas.forEach((_,i)=>setTile(i,'thinking')); setStatus('…');
+  S.messages.push({role:'user',content:userContent});
+  let out;
+  try{
+    if(settings.demo){
+      await new Promise(r=>setTimeout(r,700));
+      const line = S.demoI===0 ? `Hi ${S.name}, thanks for making the time. Shall we get started?` : DEMO_LINES[Math.min(S.demoI-1,DEMO_LINES.length-1)];
+      out = {turns:[{speaker:S.personas[S.demoI%S.personas.length].name,text:line}],end:S.demoI>=DEMO_LINES.length};
+      S.demoI++;
+    } else {
+      const raw = await callAI(meetingSystem(), S.messages, 'chat');
+      try{ out = parseJSON(raw) }catch(e){ out = {turns:[{speaker:S.personas[0].name,text:raw.replace(/[{}"]/g,'').trim()}],end:false} }
+    }
+    S.messages.push({role:'assistant',content:JSON.stringify(out)});
+  }catch(err){
+    S.messages.pop(); S.personas.forEach((_,i)=>setTile(i,''));
+    addLog('sys','Connection problem: '+err.message);
+    toast(err.message,4500); S.busy=false; $('mic').disabled=false; setStatus('Tap the mic to try again');
+    return;
+  }
+  S.personas.forEach((_,i)=>setTile(i,''));
+  S.lastAI = out.turns||[];
+  S.skip=false;
+  for(const t of S.lastAI){
+    const idx = personaIdx(t.speaker), p=S.personas[idx];
+    addLog('ai', t.text, p);
+    setTile(idx,'speaking'); setStatus(`${p.name.split(' ')[0]} is speaking`);
+    await speak(t.text,p,idx);
+    setTile(idx,'');
+    if(S.ended) return;
+  }
+  S.busy=false;
+  if(out.end){
+    addLog('sys','The meeting has been closed.');
+    setStatus('Meeting closed — preparing your debrief…');
+    setTimeout(()=>endMeeting(true),1800);
+    return;
+  }
+  $('mic').disabled=false; setStatus(rec?'Your turn — tap the mic or press Space':'Your turn — type your reply');
+}
+function personaIdx(name){
+  const n=String(name||'').toLowerCase();
+  let i = S.personas.findIndex(p=>p.name.toLowerCase()===n);
+  if(i<0) i = S.personas.findIndex(p=>n.includes(p.name.split(' ')[0].toLowerCase()));
+  return i<0?0:i;
+}
+function userSays(text, dur){
+  if(!S || S.busy || S.ended) return;
+  const words = text.split(/\s+/).filter(Boolean).length;
+  S.userTurns.push({text, words, dur: dur||0});
+  addLog('me', text);
+  aiTurn(`${stamp()} ${S.name}: ${text}`);
+}
+function sendTyped(){
+  const v=$('typeIn').value.trim(); if(!v) return;
+  $('typeIn').value=''; const d=S.pendingDur||0; S.pendingDur=0; userSays(v,d);
+}
+function skipSpeech(){ if(S){S.skip=true} speechSynthesis.cancel() }
+function repeatLast(){
+  if(!S||!S.lastAI||S.busy||recOn) return;
+  (async()=>{ S.busy=true; S.skip=false; $('mic').disabled=true;
+    for(const t of S.lastAI){ const idx=personaIdx(t.speaker); setTile(idx,'speaking'); await speak(t.text,S.personas[idx],idx); setTile(idx,'') }
+    S.busy=false; $('mic').disabled=false; })();
+}
+
+/* =========================================================
+   DEBRIEF
+   ========================================================= */
+function localMetrics(){
+  const me = S.log.filter(l=>l.me), them = S.log.filter(l=>!l.me);
+  const wc = a=>a.reduce((n,l)=>n+l.text.split(/\s+/).filter(Boolean).length,0);
+  const myW=wc(me), theirW=wc(them);
+  const timed = S.userTurns.filter(t=>t.dur>2);
+  const wpm = timed.length? Math.round(timed.reduce((n,t)=>n+t.words,0)/(timed.reduce((n,t)=>n+t.dur,0)/60)) : null;
+  const all = ' '+me.map(l=>l.text.toLowerCase()).join(' ')+' ';
+  const fillers = {}; let fTotal=0;
+  FILLERS.forEach(f=>{const m=all.match(new RegExp('\\b'+f.replace(' ','\\s+')+'\\b','g')); if(m){fillers[f]=m.length;fTotal+=m.length}});
+  const longest = me.reduce((m,l)=>Math.max(m,l.text.split(/\s+/).length),0);
+  return { turns:me.length, myWords:myW, share: myW+theirW? Math.round(myW/(myW+theirW)*100):0, wpm, fillers, fTotal,
+    avgLen: me.length?Math.round(myW/me.length):0, longest, duration: Math.round((Date.now()-S.start)/1000) };
+}
+function reportSystem(){
+  const lang = settings.fb==='ko' ? 'Write "headline", "summary", "note", "why", "use", strengths and improvements in natural Korean (한국어). Keep all English example sentences ("original", "better", "phrase") in English.' : 'Write everything in English.';
+  return `You are an expert business-English communication coach for Korean professionals. Assess a learner's performance in a simulated spoken meeting. The transcript comes from speech recognition, so ignore obvious transcription glitches, punctuation and capitalisation; judge vocabulary, grammar, structure, tone, persuasion, negotiation and meeting skills. If a confidential mandate is given, also judge how well the learner protected it (did they concede too much, too early, or for nothing?). If a document is given, check whether the learner referred to it accurately.
+${lang}
+Be specific and quote the learner's real words. Be honest but encouraging. Scores 0–100 (60 = gets the job done with clear issues, 80 = strong professional, 90+ = near-native executive level). Account for difficulty: performing well at a harder level deserves credit.
+
+Return ONLY valid JSON:
+{"overall":0,"level":"CEFR estimate e.g. B2+","headline":"one-line verdict, max 12 words","summary":"2-3 sentences",
+"scores":{"Fluency & flow":0,"Grammar & accuracy":0,"Vocabulary & register":0,"Clarity & structure":0,"Persuasion & negotiation":0,"Listening & responsiveness":0},
+"goals":[{"goal":"<objective text>","status":"met|partial|missed","note":"short evidence"}],
+"strengths":["3 specific points"],"improvements":["3 specific, actionable points"],
+"rewrites":[{"original":"learner's exact words","better":"more natural, professional version","why":"short reason"}],
+"phrases":[{"phrase":"useful expression for this kind of meeting","use":"when/how to use it"}]}
+Give 4–6 rewrites (the most impactful), 4–5 phrases. If the learner said very little, say so and score accordingly.`;
+}
+async function endMeeting(auto){
+  if(!S || S.ended) return;
+  if(!auto && S.log.filter(l=>l.me).length===0){ if(!confirm('You haven\'t spoken yet. Leave without a debrief?')) return; cleanup(); S.ended=true; go('home'); return }
+  S.ended=true; cleanup();
+  const m = localMetrics();
+  $('repBody').innerHTML = `<div class="loading"><div class="spin"></div><h2>Preparing your debrief</h2><p>Reviewing ${m.turns} of your turns against the meeting objectives…</p></div>`;
+  go('report');
+  let fb;
+  try{
+    if(settings.demo) fb = demoFeedback();
+    else {
+      const transcript = S.log.map(l=>`${l.me?'LEARNER ('+S.name+')':l.speaker}: ${l.text}`).join('\n');
+      const raw = await callAI(reportSystem(), [{role:'user',content:
+        `SCENARIO: ${S.title} — ${S.brief}\n${S.custom?'LEARNER DESCRIPTION: '+S.custom+'\n':''}${S.topic?'PRESENTATION TOPIC: '+S.topic+'\n':''}LEARNER ROLE: ${S.role}\nDIFFICULTY: ${dlabel(S.difficulty)}\n${S.mandate?'LEARNER\'S CONFIDENTIAL MANDATE:\n'+S.mandate+'\n':''}OBJECTIVES:\n${S.goals.map(g=>'- '+g).join('\n')}\n${S.doc?'\nDOCUMENT (excerpt):\n'+S.doc.slice(0,6000)+'\n':''}\nTRANSCRIPT:\n${transcript}`}], 'report');
+      fb = parseJSON(raw);
+    }
+  }catch(err){
+    $('repBody').innerHTML = `<div class="loading"><h2>Couldn't create the debrief</h2><p>${esc(err.message)}</p><div style="display:flex;gap:10px"><button class="btn gold" onclick="retryReport()">Try again</button><button class="btn ghost" onclick="go('home')">Home</button></div></div>`;
+    return;
+  }
+  const record = {id:Date.now(), date:new Date().toISOString(), title:S.title, tag:S.tag, difficulty:S.difficulty, name:S.name, role:S.role, metrics:m, fb, log:S.log};
+  renderReport(record);
+  gas('reports.save',{record}).catch(e=>toast('Could not save to your history: '+e.message,4500));
+}
+function retryReport(){ if(S){ S.ended=false; endMeeting(true) } }
+function cleanup(){ clearInterval(S.timer); speechSynthesis.cancel(); if(recOn) stopMic(false) }
+
+function demoFeedback(){
+  const me = S.log.filter(l=>l.me);
+  return {overall:72,level:'B2+ (demo)',headline:'Demo report — connect the API for real feedback',summary:'This is sample output shown in demo mode. With the server connected, this section analyses your actual words against the meeting objectives.',
+    scores:{'Fluency & flow':74,'Grammar & accuracy':70,'Vocabulary & register':68,'Clarity & structure':75,'Persuasion & negotiation':66,'Listening & responsiveness':78},
+    goals:S.goals.map((g,i)=>({goal:g,status:['met','partial','missed'][i%3],note:'Sample evaluation.'})),
+    strengths:['Kept answers short and on topic','Polite, professional tone','Responded directly to questions'],
+    improvements:['Ask more open questions to uncover needs','Signpost your structure ("First… second…")','Confirm next steps with a specific date'],
+    rewrites:(me.slice(0,3).map(l=>({original:l.text,better:'(An improved version would appear here.)',why:'Demo mode'}))).concat([{original:'I will check and tell you.',better:'Let me look into that and get back to you by end of day tomorrow.',why:'Adds ownership and a concrete timeframe.'}]),
+    phrases:[{phrase:'To make sure we\'re on the same page…',use:'Summarising before moving on'},{phrase:'What would success look like for you?',use:'Uncovering real goals'},{phrase:'If we were able to…, would you be in a position to…?',use:'Conditional trading in negotiation'}]};
+}
+
+function renderReport(r){
+  const f=r.fb, m=r.metrics, C=2*Math.PI*66, off=C*(1-(f.overall||0)/100);
+  const st = s=>s==='met'?['y','✓']:s==='partial'?['p','~']:['n','✕'];
+  const fillTxt = m.fTotal? Object.entries(m.fillers).sort((a,b)=>b[1]-a[1]).slice(0,3).map(([k,v])=>`"${k}" ×${v}`).join(', ') : 'None detected';
+  const playBtn = t=>`<button class="play" onclick='sayBack(${JSON.stringify(t).replace(/'/g,"&#39;")})' title="Listen"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg></button>`;
+  $('repBody').innerHTML = `
+  <div class="rep-head">
+    <div class="ring"><svg width="150" height="150"><circle cx="75" cy="75" r="66" fill="none" stroke="#e6eee7" stroke-width="7"/><circle cx="75" cy="75" r="66" fill="none" stroke="url(#g)" stroke-width="7" stroke-linecap="round" stroke-dasharray="${C}" stroke-dashoffset="${off}"/><defs><linearGradient id="g"><stop offset="0" stop-color="#7fa08b"/><stop offset="1" stop-color="#455d50"/></linearGradient></defs></svg><b>${f.overall??'–'}<small>OVERALL</small></b></div>
+    <div><span class="level">${esc(f.level||'')}</span><h1>${esc(f.headline||r.title)}</h1><p>${esc(f.summary||'')}</p></div>
+    <div style="text-align:right;color:var(--dim);font-size:12.5px;line-height:1.8">${esc(r.title)}<br>${esc(dlabel(r.difficulty))} · ${new Date(r.date).toLocaleString()}<br>${esc(r.name)} · ${esc(r.role)}</div>
+  </div>
+  <div class="kpis">
+    <div class="kpi"><small>Duration</small><b>${fmt(m.duration)}</b><span>${m.turns} turns</span></div>
+    <div class="kpi"><small>Speaking share</small><b>${m.share}%</b><span>${m.share<30?'Speak up more':m.share>65?'Leave room for them':'Good balance'}</span></div>
+    <div class="kpi"><small>Pace</small><b>${m.wpm??'–'}</b><span>${m.wpm?(m.wpm<100?'wpm · a bit slow':m.wpm>170?'wpm · a bit fast':'wpm · comfortable'):'voice only'}</span></div>
+    <div class="kpi"><small>Avg. turn</small><b>${m.avgLen}</b><span>words · longest ${m.longest}</span></div>
+    <div class="kpi"><small>Fillers</small><b>${m.fTotal}</b><span>${esc(fillTxt)}</span></div>
+  </div>
+  <div class="rgrid">
+    <div class="pane"><h3>Skill breakdown</h3>${Object.entries(f.scores||{}).map(([k,v])=>`<div class="bar"><div><span>${esc(k)}</span><b>${v}</b></div><i><u style="width:${v}%"></u></i></div>`).join('')}</div>
+    <div class="pane"><h3>Objectives</h3>${(f.goals||[]).map(g=>{const [c,i]=st(g.status);return `<div class="gl"><span class="dot ${c}">${i}</span><div>${esc(g.goal)}<small>${esc(g.note)}</small></div></div>`}).join('')}</div>
+    <div class="pane"><h3>What worked</h3><ul class="pts">${(f.strengths||[]).map(s=>`<li>${esc(s)}</li>`).join('')}</ul></div>
+    <div class="pane"><h3>Focus next time</h3><ul class="pts">${(f.improvements||[]).map(s=>`<li>${esc(s)}</li>`).join('')}</ul></div>
+    <div class="pane full"><h3>Say it better</h3>${(f.rewrites||[]).map(w=>`<div class="rw"><div class="o">${esc(w.original)}</div><div class="b"><span>${esc(w.better)}</span>${playBtn(w.better)}</div><div class="w">${esc(w.why)}</div></div>`).join('')}</div>
+    <div class="pane full"><h3>Phrases to keep</h3>${(f.phrases||[]).map(p=>`<div class="ph"><div style="flex:1"><b>${esc(p.phrase)}</b><small>${esc(p.use)}</small></div>${playBtn(p.phrase)}</div>`).join('')}</div>
+    <div class="pane full"><details><summary>FULL TRANSCRIPT</summary><div style="margin-top:16px">${(r.log||[]).map(l=>`<div class="msg ${l.me?'me':''}"><div class="who">${esc(l.speaker)} · ${fmt(l.t)}</div><div class="tx">${esc(l.text)}</div></div>`).join('')}</div></details></div>
+  </div>
+  <div class="noprint" style="display:flex;gap:12px;padding:10px 0 60px">
+    <button class="btn gold" onclick="go('home')">Start another meeting</button>
+    <button class="btn ghost" onclick="window.print()">Save as PDF</button>
+  </div>`;
+}
+function sayBack(t){ speechSynthesis.cancel(); speak(t,{gender:'f'},0) }
+
+/* =========================================================
+   HISTORY & SETTINGS
+   ========================================================= */
+async function openHistory(){
+  go('history'); $('histCount').textContent=''; $('histList').innerHTML='<div class="empty">Loading…</div>';
+  try{
+    const h=(await gas('reports.list',{})).reports||[];
+    $('histCount').textContent = h.length+' session'+(h.length===1?'':'s');
+    $('histList').innerHTML = h.length? h.map(r=>`<div class="hist" onclick="showHist('${esc(r.rowId)}')"><div class="sc">${r.overall??'–'}</div><div style="flex:1"><b>${esc(r.scenario)}</b><small>${new Date(r.date).toLocaleDateString()} · ${esc(dlabel(r.difficulty))} · ${fmt(r.duration||0)} · ${esc(r.level||'')}</small></div><span style="color:var(--gold)">→</span></div>`).join('') : '<div class="empty">No meetings yet. Your debriefs will appear here.</div>';
+  }catch(e){ $('histList').innerHTML=`<div class="empty">${esc(e.message)}</div>` }
+}
+async function showHist(rowId){
+  busy(true,'Opening report');
+  try{ const {record}=await gas('reports.get',{rowId}); renderReport(record); go('report') }catch(e){ toast(e.message) }
+  busy(false);
+}
+function openSettings(){
+  $('setLang').value=settings.lang; $('setRate').value=settings.rate; $('setFb').value=settings.fb;
+  $('setAuto').classList.toggle('on',settings.auto); $('setCap').classList.toggle('on',settings.captions); $('setDemo').classList.toggle('on',settings.demo);
+  $('settings').classList.add('on');
+}
+function closeSettings(){ $('settings').classList.remove('on') }
+function saveSettings(){
+  settings = {lang:$('setLang').value, rate:$('setRate').value, fb:$('setFb').value,
+    auto:$('setAuto').classList.contains('on'), captions:$('setCap').classList.contains('on'), demo:$('setDemo').classList.contains('on')};
+  LS.set('pactli_settings',settings); closeSettings(); toast('Settings saved');
+}
+
+/* =========================================================
+   MEMBERS — login, session, admin (Google Apps Script backend)
+   Paste the Apps Script Web app URL (…/exec) below. Leave empty for local preview mode.
+   ========================================================= */
+const GAS_URL = 'https://script.google.com/macros/s/AKfycbxFTc8xL1ahqo52pkU2wijwpi1WsktqsPC926lnXzdBke5BnEzkF4zCtKkIXDxgNVjz/exec';
+
+let session = LS.get('pactli_session', null);
+const authed = () => !!(session && session.token && session.exp > Date.now());
+
+async function gas(action, data={}){
+  if(!GAS_URL) return localGas(action, data);
+  let r;
+  try{ r = await fetch(GAS_URL,{method:'POST',body:JSON.stringify(Object.assign({action, token:(session&&session.token)||''}, data))}) }
+  catch(e){ throw new Error('Cannot reach the member server. Check your connection.') }
+  const j = await r.json().catch(()=>({error:'Unexpected response from the member server.'}));
+  if(j.error==='AUTH'){ logout(); throw new Error('Your session has expired. Please sign in again.') }
+  if(j.error) throw new Error(j.error);
+  return j;
+}
+
+/* Local preview backend — same actions as Code.gs, stored in this browser only. Not secure; for previewing. */
+function localGas(action, d){
+  const db = LS.get('pactli_localdb', null) || {users:[{id:'harry',password:'changeme',name:'Harry',title:'Director',company:'',email:'',notes:'',admin:true,active:true,created:new Date().toISOString(),lastLogin:''}],reports:[],scenarios:[]};
+  const save = ()=>LS.set('pactli_localdb', db);
+  const pub = u=>{const {password,...x}=u; return x};
+  if(action==='login'){
+    const u = db.users.find(x=>x.id===String(d.id||'').trim().toLowerCase() && x.password===d.password);
+    if(!u) throw new Error('Wrong ID or password.');
+    if(!u.active) throw new Error('This account is inactive. Please contact your instructor.');
+    u.lastLogin = new Date().toISOString(); save();
+    return {token:'local', exp:Date.now()+7*864e5, user:pub(u)};
+  }
+  const me = session && db.users.find(u=>u.id===session.user.id);
+  if(!me || !me.active){ logout(); throw new Error('Please sign in again.') }
+  const need = ()=>{ if(!me.admin) throw new Error('Admin only.') };
+  switch(action){
+    case 'password.change':
+      if(me.password!==d.old) throw new Error('Current password is wrong.');
+      if(String(d.new||'').length<4) throw new Error('New password must be at least 4 characters.');
+      me.password=d.new; save(); return {ok:true};
+    case 'users.list': need();
+      return {users: db.users.map(u=>{const rs=db.reports.filter(r=>r.userId===u.id); return Object.assign(pub(u),{sessions:rs.length, avg:rs.length?Math.round(rs.reduce((n,r)=>n+(+r.overall||0),0)/rs.length):null})})};
+    case 'users.save': { need();
+      const u=d.user, id=String(u.id||'').trim().toLowerCase();
+      if(!/^[a-z0-9._-]{2,30}$/.test(id)) throw new Error('ID must be 2–30 characters: letters, numbers, . _ -');
+      let x=db.users.find(v=>v.id===id);
+      if(d.isNew){ if(x) throw new Error('That ID already exists.'); if(!d.password) throw new Error('Set a password for the new member.'); x={id,created:new Date().toISOString(),lastLogin:''}; db.users.push(x) }
+      else if(!x) throw new Error('Member not found.');
+      Object.assign(x,{name:u.name,title:u.title,company:u.company,email:u.email,notes:u.notes,admin:!!u.admin,active:!!u.active});
+      if(d.password) x.password=d.password; save(); return {ok:true}; }
+    case 'users.delete': need();
+      if(d.id===me.id) throw new Error("You can't delete your own account.");
+      db.users=db.users.filter(u=>u.id!==d.id); save(); return {ok:true};
+    case 'reports.save': { const r=d.record;
+      db.reports.unshift({rowId:'r'+Date.now(),date:r.date,userId:me.id,name:me.name,scenario:r.title,difficulty:r.difficulty,overall:r.fb&&r.fb.overall,level:r.fb&&r.fb.level,duration:r.metrics.duration,json:r});
+      db.reports=db.reports.slice(0,60); save(); return {ok:true}; }
+    case 'reports.list': {
+      const all=d.all&&me.admin;
+      return {reports: db.reports.filter(r=>all||r.userId===me.id).map(({json,...r})=>r)}; }
+    case 'reports.get': {
+      const r=db.reports.find(x=>x.rowId===d.rowId);
+      if(!r||(r.userId!==me.id&&!me.admin)) throw new Error('Report not found.');
+      return {record:r.json}; }
+    case 'scenarios.list': return {scenarios:db.scenarios};
+    case 'scenarios.save': need(); db.scenarios=db.scenarios.filter(s=>s.id!==d.scenario.id).concat([d.scenario]); save(); return {ok:true};
+    case 'scenarios.delete': need(); db.scenarios=db.scenarios.filter(s=>s.id!==d.id); save(); return {ok:true};
+  }
+  throw new Error('Unknown action.');
+}
+
+async function doLogin(){
+  const id=$('lgId').value.trim(), pw=$('lgPw').value;
+  $('lgErr').textContent='';
+  if(!id||!pw){ $('lgErr').textContent='Enter your ID and password.'; return }
+  $('lgBtn').disabled=true; $('lgBtn').textContent='Signing in…';
+  try{
+    const r = await gas('login',{id,password:pw});
+    session = {token:r.token, exp:r.exp, user:r.user}; LS.set('pactli_session', session);
+    $('lgPw').value='';
+    await afterLogin();
+  }catch(e){ $('lgErr').textContent=e.message }
+  $('lgBtn').disabled=false; $('lgBtn').textContent='Sign in →';
+}
+async function afterLogin(){
+  renderNav(); renderCards(); go('home');
+  await loadShared(); renderCards();
+}
+function logout(){
+  if(S && !S.ended){ S.ended=true; try{cleanup()}catch(e){} }
+  session=null; LS.set('pactli_session', null); shared=[];
+  go('login');
+}
+function renderNav(){
+  const u = session.user;
+  $('homeNav').innerHTML = `<button onclick="openHistory()">History</button>${u.admin?'<button onclick="openAdmin()">Admin</button>':''}<button onclick="openSettings()">Settings</button>
+    <span class="uchip"><span class="av">${initials(u.name||u.id)}</span>${esc(u.name||u.id)}</span><button onclick="logout()">Log out</button>`;
+}
+async function changePw(){
+  const o=$('pwOld').value, n=$('pwNew').value;
+  if(!o||!n){ toast('Enter your current and new password.'); return }
+  try{ await gas('password.change',{old:o,new:n}); $('pwOld').value=$('pwNew').value=''; toast('Password updated') }catch(e){ toast(e.message) }
+}
+
+/* ---------- admin ---------- */
+let admTab='members', admUsers=[], admReports=[], admFilter='', editing=null;
+function initAdminTabs(){
+  $('admTabs').querySelectorAll('button').forEach(b=>b.onclick=()=>{
+    $('admTabs').querySelectorAll('button').forEach(x=>x.classList.remove('on')); b.classList.add('on');
+    admTab=b.dataset.t; renderAdmin();
+  });
+}
+function openAdmin(){ if(!isAdmin()) return; go('admin'); renderAdmin() }
+async function renderAdmin(){
+  const b=$('admBody'); b.innerHTML='<div class="empty">Loading…</div>';
+  try{
+    if(admTab==='members'){
+      admUsers=(await gas('users.list')).users||[];
+      b.innerHTML = `<div class="admbar"><span class="hint">${admUsers.length} member${admUsers.length===1?'':'s'} · click a row to edit</span><button class="btn gold" onclick="editMember()">+ Add member</button></div>
+      <div class="tblw"><table class="tbl"><thead><tr><th>Member</th><th>Title · Company</th><th>Sessions</th><th>Avg score</th><th>Last sign-in</th><th>Status</th></tr></thead><tbody>
+      ${admUsers.map((u,i)=>`<tr style="cursor:pointer" onclick="editMember(${i})"><td><b>${esc(u.name||u.id)}</b><small>${esc(u.id)}${u.admin?' · admin':''}</small></td>
+        <td>${esc([u.title,u.company].filter(Boolean).join(' · '))||'<span style="color:var(--dim)">–</span>'}</td><td>${u.sessions||0}</td>
+        <td>${u.avg!=null?`<span class="sc">${u.avg}</span>`:'–'}</td><td>${u.lastLogin?new Date(u.lastLogin).toLocaleDateString():'–'}</td>
+        <td><span class="pill ${u.active?'on':''}">${u.active?'Active':'Inactive'}</span></td></tr>`).join('')}</tbody></table></div>`;
+    } else if(admTab==='sessions'){
+      admReports=(await gas('reports.list',{all:true})).reports||[];
+      drawSessions();
+    } else {
+      await loadShared(); renderCards();
+      b.innerHTML = `<div class="admbar"><span class="hint">Files an admin drops on the home page are shared with every member. Members' own uploads stay private to their browser.</span><button class="btn gold" onclick="go('home');setTimeout(()=>$('dropZone').scrollIntoView({behavior:'smooth'}),100)">+ Add scenarios</button></div>
+      ${shared.length?`<div class="tblw"><table class="tbl"><thead><tr><th>Scenario</th><th>Category</th><th>Participants</th><th>Document</th><th></th></tr></thead><tbody>
+      ${shared.map(s=>`<tr><td><b>${esc(s.title)}</b><small>${esc(s.desc||'')}</small></td><td>${esc(s.tag)}</td><td>${(s.personas||[]).map(p=>esc(p.name)).join(', ')}</td><td>${s.doc?'📄 Yes':'–'}</td>
+        <td style="white-space:nowrap"><button class="lnk" onclick="openSetup('${s.id}')">Open</button> &nbsp; <button class="lnk" style="color:var(--bad)" onclick="delCustom('${s.id}',event).then(renderAdmin)">Delete</button></td></tr>`).join('')}</tbody></table></div>`
+      :'<div class="empty">No shared scenarios yet.</div>'}`;
+    }
+  }catch(e){ b.innerHTML=`<div class="empty">${esc(e.message)}</div>` }
+}
+function drawSessions(){
+  const people=[...new Map(admReports.map(r=>[r.userId,r.name||r.userId])).entries()];
+  const list=admReports.filter(r=>!admFilter||r.userId===admFilter);
+  $('admBody').innerHTML = `<div class="admbar"><span class="hint">${list.length} session${list.length===1?'':'s'} · click to open the debrief</span>
+    <select class="scsel" onchange="admFilter=this.value;drawSessions()"><option value="">All members</option>${people.map(([id,n])=>`<option value="${esc(id)}" ${admFilter===id?'selected':''}>${esc(n)} (${esc(id)})</option>`).join('')}</select></div>
+    ${list.length?`<div class="tblw"><table class="tbl"><thead><tr><th>Date</th><th>Member</th><th>Scenario</th><th>Difficulty</th><th>Length</th><th>Level</th><th>Score</th></tr></thead><tbody>
+    ${list.map(r=>`<tr style="cursor:pointer" onclick="showHist('${esc(r.rowId)}')"><td>${new Date(r.date).toLocaleString([], {dateStyle:'medium',timeStyle:'short'})}</td><td><b>${esc(r.name||r.userId)}</b><small>${esc(r.userId)}</small></td>
+      <td>${esc(r.scenario)}</td><td>${esc(dlabel(r.difficulty))}</td><td>${fmt(r.duration||0)}</td><td>${esc(r.level||'')}</td><td><span class="sc">${r.overall??'–'}</span></td></tr>`).join('')}</tbody></table></div>`
+    :'<div class="empty">No sessions yet.</div>'}`;
+}
+function editMember(i){
+  const u = i==null ? null : admUsers[i]; editing = u;
+  $('memTitle').textContent = u?'Edit member':'Add member';
+  $('mId').value = u?u.id:''; $('mId').readOnly = !!u;
+  $('mPw').value=''; $('mPw').placeholder = u?'Leave blank to keep current':'Required';
+  $('mName').value=u?.name||''; $('mEmail').value=u?.email||''; $('mTitle').value=u?.title||''; $('mCompany').value=u?.company||''; $('mNotes').value=u?.notes||'';
+  $('mActive').classList.toggle('on', u?!!u.active:true); $('mAdmin').classList.toggle('on', !!u?.admin);
+  $('mDel').style.display = u && u.id!==session.user.id ? '' : 'none';
+  $('memModal').classList.add('on');
+}
+async function saveMember(){
+  const user={id:$('mId').value.trim(),name:$('mName').value.trim(),email:$('mEmail').value.trim(),title:$('mTitle').value.trim(),company:$('mCompany').value.trim(),notes:$('mNotes').value.trim(),
+    active:$('mActive').classList.contains('on'),admin:$('mAdmin').classList.contains('on')};
+  try{
+    await gas('users.save',{user,password:$('mPw').value,isNew:!editing});
+    $('memModal').classList.remove('on'); toast(editing?'Member updated':'Member added');
+    if(editing && editing.id===session.user.id){ session.user=Object.assign(session.user,user); LS.set('pactli_session',session); renderNav() }
+    renderAdmin();
+  }catch(e){ toast(e.message,4000) }
+}
+async function delMember(){
+  if(!editing || !confirm(`Delete ${editing.name||editing.id}? Their past session records stay in the sheet.`)) return;
+  try{ await gas('users.delete',{id:editing.id}); $('memModal').classList.remove('on'); toast('Member deleted'); renderAdmin() }catch(e){ toast(e.message) }
+}
+
+/* ---------- PC / Mobile view ---------- */
+function applyView(){
+  const pref = LS.get('pactli_view','auto');
+  const small = Math.min(screen.width,screen.height) < 760;
+  const mob = pref==='mobile' || (pref==='auto' && (small || innerWidth<760));
+  document.documentElement.classList.toggle('mob', mob);
+  document.querySelector('meta[name=viewport]').content = (pref==='pc' && small) ? 'width=1280' : 'width=device-width,initial-scale=1';
+  document.querySelectorAll('.viewsw button').forEach(b=>b.classList.toggle('on', b.dataset.v===(mob?'mobile':'pc')));
+}
+function setView(v){ LS.set('pactli_view', v); applyView(); toast(v==='mobile'?'Mobile view':'PC view',1500) }
+addEventListener('resize',()=>{ if(LS.get('pactli_view','auto')==='auto') applyView() });
+
+/* init */
+applyView(); bindSeg('segDiff','difficulty',showDiffHint); bindSeg('segLen','minutes'); showDiffHint(); initAdminTabs();
+$('lgHint').textContent = GAS_URL ? '' : 'Preview mode (no member server connected): sign in with  harry / changeme';
+if(authed()){ afterLogin(true) } else { go('login') }
+if(location.protocol==='file:' && !settings.demo){ settings.demo=true; setTimeout(()=>toast('Opened as a local file — demo mode is on. Deploy to Vercel for live AI.',4500),600) }
+</script>
+</body>
+</html>
