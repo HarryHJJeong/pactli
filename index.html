@@ -400,6 +400,37 @@ ul.pts li:before{color:#6a9483}
 .loading h2{font-size:24px;font-weight:800;color:var(--ink)}
 .spin{border-top-color:var(--green)}
 
+/* ===== App shell: PC sidebar · Mobile bottom tab bar (Worqend) ===== */
+#sidebar,#tabbar{display:none}
+html.shell:not(.mob) body{padding-left:262px}
+html.shell:not(.mob) #sidebar{display:flex}
+#sidebar{position:fixed;left:0;top:0;bottom:0;width:262px;background:var(--deep);color:#fff;padding:26px 16px;flex-direction:column;z-index:30;overflow:auto}
+#sidebar .logo{font-size:29px;font-weight:900;letter-spacing:-.075em;padding:0 10px;color:#fff;cursor:pointer;line-height:1.2}
+#sidebar .logo i{color:var(--lime);font-style:normal}
+#sidebar .sublogo{color:#a9c3b6;font-size:10px;letter-spacing:.08em;padding:6px 10px 16px;font-weight:700}
+#sidebar .nav-group{font-size:10px;letter-spacing:.12em;color:#8eab9c;padding:14px 12px 6px;text-transform:uppercase;font-weight:800}
+#sidebar .ni{background:transparent;color:#c9d9d0;border:0;text-align:left;border-radius:10px;padding:10px 12px;font-weight:550;display:flex;align-items:center;gap:10px;width:100%;font-size:14px;margin-bottom:2px}
+#sidebar .ni .ico{width:16px;text-align:center;opacity:.85}
+#sidebar .ni.active,#sidebar .ni:hover{background:#496655;color:#fff}
+#sidebar .sidebar-foot{margin-top:auto;border-top:1px solid #456153;padding-top:16px;color:#c9d9d0;font-size:12px}
+#sidebar .sidebar-foot strong{display:block;color:#fff;margin-bottom:3px;font-size:14px}
+#sidebar .sbtns{display:flex;gap:6px;margin-top:12px;flex-wrap:wrap}
+#sidebar .sbtns button{background:transparent;border:1px solid #6b887a;border-radius:8px;color:#fff;padding:7px 10px;font-size:12px}
+#sidebar .sbtns button:hover{background:#35503f}
+html.shell #homeNav{display:none}
+html.shell:not(.mob) .screen .top .brand{display:none}
+.top .nav{margin-left:auto}
+html.shell .viewsw{display:none}
+html.shell.mob #tabbar{display:grid}
+#tabbar{position:fixed;left:0;right:0;bottom:0;z-index:30;background:var(--deep);grid-template-columns:repeat(var(--tabs,3),1fr);gap:4px;padding:6px 6px calc(6px + env(safe-area-inset-bottom));border-radius:18px 18px 0 0;box-shadow:0 -6px 24px rgba(20,35,29,.15)}
+#tabbar button{color:#a9c3b6;display:flex;flex-direction:column;align-items:center;gap:3px;padding:8px 0;border-radius:12px;font-size:11px;font-weight:650}
+#tabbar .ico{font-size:18px;line-height:1}
+#tabbar button.active{color:#fff;background:#496655}
+html.shell.mob .screen{padding-bottom:calc(84px + env(safe-area-inset-bottom))}
+html.shell.mob .drop{margin-bottom:30px!important}
+html.shell.mob .toast{bottom:calc(92px + env(safe-area-inset-bottom))}
+@media (min-width:600px){ html.mob #tabbar{left:50%;right:auto;width:430px;transform:translateX(-50%)} }
+
 /* ===== PC / Mobile view (html.mob = mobile layout) ===== */
 .viewsw{position:fixed;left:16px;bottom:16px;z-index:40;display:flex;background:var(--panel);border:1px solid var(--line);border-radius:999px;padding:3px;box-shadow:var(--sh)}
 .viewsw button{padding:6px 12px;border-radius:999px;font-size:12px;color:var(--muted);font-weight:600;white-space:nowrap}
@@ -711,6 +742,11 @@ html.mob .modal .pane{max-width:410px!important}
       <div class="row" style="margin-bottom:10px"><input id="pwOld" type="password" placeholder="Current password"><input id="pwNew" type="password" placeholder="New password"></div>
       <button class="btn ghost" onclick="changePw()">Update password</button>
     </div>
+    <div style="border-top:1px solid var(--line);margin-top:24px;padding-top:20px;display:flex;gap:10px;align-items:center;flex-wrap:wrap">
+      <label style="margin:0;flex:1">Layout</label>
+      <div class="seg"><button data-v="pc" onclick="setView('pc');syncViewSeg()">🖥 PC</button><button data-v="mobile" onclick="setView('mobile');syncViewSeg()">📱 Mobile</button></div>
+      <button class="btn danger" onclick="closeSettings();logout()">Sign out</button>
+    </div>
   </div>
 </div>
 
@@ -732,6 +768,17 @@ html.mob .modal .pane{max-width:410px!important}
   </div>
 </div>
 <div class="busy-ov" id="busy"><div class="spin"></div><h2 id="busyT">Reading your file</h2><p id="busyP"></p></div>
+<!-- ============ APP SHELL ============ -->
+<aside id="sidebar">
+  <div class="logo" onclick="go('home')">pactli<i>.</i></div>
+  <div class="sublogo">MEETING ROOM</div>
+  <div id="sideNav"></div>
+  <div class="sidebar-foot">
+    <strong id="sideName"></strong><div id="sideRole"></div>
+    <div class="sbtns"><button onclick="setView('mobile')">📱 Mobile</button><button onclick="logout()">Sign out</button></div>
+  </div>
+</aside>
+<nav id="tabbar"></nav>
 <div class="viewsw" title="Switch layout"><button data-v="pc" onclick="setView('pc')">🖥 PC</button><button data-v="mobile" onclick="setView('mobile')">📱 Mobile</button></div>
 <div class="toast" id="toast"></div>
 
@@ -896,7 +943,13 @@ const esc = s => String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>
 const initials = n => String(n||'?').split(' ').map(w=>w[0]).join('').slice(0,2).toUpperCase();
 const fmt = s => `${Math.floor(s/60)}:${String(Math.floor(s%60)).padStart(2,'0')}`;
 function toast(t,ms=2800){const el=$('toast');el.textContent=t;el.classList.add('on');clearTimeout(el._t);el._t=setTimeout(()=>el.classList.remove('on'),ms)}
-function go(id){document.querySelectorAll('.screen,#room').forEach(s=>s.classList.remove('on'));$(id).classList.add('on');window.scrollTo(0,0);document.documentElement.classList.toggle('inroom',id==='room')}
+function go(id){
+  document.querySelectorAll('.screen,#room').forEach(s=>s.classList.remove('on'));$(id).classList.add('on');window.scrollTo(0,0);
+  const H=document.documentElement; H.classList.toggle('inroom',id==='room');
+  H.classList.toggle('shell', typeof authed==='function' && authed() && id!=='login' && id!=='room');
+  const tab = {home:'home',setup:'home',history:'history',report:'history',admin:'admin'}[id];
+  document.querySelectorAll('[data-tab]').forEach(b=>b.classList.toggle('active', b.dataset.tab===tab));
+}
 function busy(on,t,p){$('busy').classList.toggle('on',on); if(t)$('busyT').textContent=t; $('busyP').textContent=p||''}
 const customs = () => LS.get('pactli_custom',[]);
 let shared = [];   // scenarios shared by an admin (stored in the Scenarios sheet)
@@ -1496,8 +1549,10 @@ async function showHist(rowId){
 function openSettings(){
   $('setLang').value=settings.lang; $('setRate').value=settings.rate; $('setFb').value=settings.fb;
   $('setAuto').classList.toggle('on',settings.auto); $('setCap').classList.toggle('on',settings.captions); $('setDemo').classList.toggle('on',settings.demo);
+  syncViewSeg();
   $('settings').classList.add('on');
 }
+function syncViewSeg(){ const m=document.documentElement.classList.contains('mob'); document.querySelectorAll('#settings .seg [data-v]').forEach(b=>b.classList.toggle('on', b.dataset.v===(m?'mobile':'pc'))) }
 function closeSettings(){ $('settings').classList.remove('on') }
 function saveSettings(){
   settings = {lang:$('setLang').value, rate:$('setRate').value, fb:$('setFb').value,
@@ -1599,6 +1654,15 @@ function logout(){
 }
 function renderNav(){
   const u = session.user;
+  const items = [['home','◎','Meetings',"go('home')"],['history','▤','History','openHistory()']].concat(u.admin?[['admin','☷','Admin','openAdmin()']]:[]);
+  $('sideNav').innerHTML = '<div class="nav-group">Practice</div>'+items.slice(0,2).map(([t,i,l,f])=>`<button class="ni" data-tab="${t}" onclick="${f}"><span class="ico">${i}</span>${l}</button>`).join('')
+    + (u.admin?'<div class="nav-group">Director</div>'+items.slice(2).map(([t,i,l,f])=>`<button class="ni" data-tab="${t}" onclick="${f}"><span class="ico">${i}</span>${l}</button>`).join(''):'')
+    + '<div class="nav-group">Account</div><button class="ni" onclick="openSettings()"><span class="ico">⚙</span>Settings</button>';
+  $('sideName').textContent = u.name||u.id;
+  $('sideRole').textContent = [u.title,u.company].filter(Boolean).join(' · ') || (u.admin?'Admin':'Member');
+  const tabs = items.concat([['settings','⚙','Settings','openSettings()']]);
+  $('tabbar').style.setProperty('--tabs', tabs.length);
+  $('tabbar').innerHTML = tabs.map(([t,i,l,f])=>`<button data-tab="${t}" onclick="${f}"><span class="ico">${i}</span>${l}</button>`).join('');
   $('homeNav').innerHTML = `<button onclick="openHistory()">History</button>${u.admin?'<button onclick="openAdmin()">Admin</button>':''}<button onclick="openSettings()">Settings</button>
     <span class="uchip"><span class="av">${initials(u.name||u.id)}</span>${esc(u.name||u.id)}</span><button onclick="logout()">Log out</button>`;
 }
