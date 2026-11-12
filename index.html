@@ -400,6 +400,11 @@ ul.pts li:before{color:#6a9483}
 .loading h2{font-size:24px;font-weight:800;color:var(--ink)}
 .spin{border-top-color:var(--green)}
 
+/* delete buttons */
+.delbtn{border:1px solid var(--line);background:#fff;color:var(--bad);border-radius:8px;padding:6px 10px;font-size:12px;font-weight:650;flex-shrink:0;opacity:.75;transition:.15s}
+.delbtn:hover{opacity:1;border-color:#f0c4bd;background:#fdecea}
+.hist .chev{color:var(--green);flex-shrink:0}
+html.mob .hist .chev{display:none}
 /* ===== App shell: PC sidebar · Mobile bottom tab bar (Worqend) ===== */
 #sidebar,#tabbar{display:none}
 html.shell:not(.mob) body{padding-left:262px}
@@ -703,6 +708,7 @@ html.mob .modal .pane{max-width:410px!important}
         <button onclick="window.print()">Save PDF</button>
         <button onclick="openHistory()">History</button>
         <button onclick="go('home')">New meeting</button>
+        <button id="repDel" style="display:none;color:var(--bad)" onclick="curReport&&delReport(curReport.rowId,curReport.from)">Delete</button>
       </div>
     </div>
     <div id="repBody"></div>
@@ -1991,8 +1997,8 @@ async function endMeeting(auto){
     return;
   }
   const record = {id:Date.now(), date:new Date().toISOString(), title:S.title, tag:S.tag, difficulty:S.difficulty, name:S.name, role:S.role, metrics:m, fb, log:S.log};
-  renderReport(record);
-  gas('reports.save',{record}).catch(e=>toast('Could not save to your history: '+e.message,4500));
+  curReport=null; renderReport(record); showDelBtn();
+  gas('reports.save',{record}).then(r=>{ if(r&&r.rowId){ curReport={rowId:r.rowId,from:'history'}; showDelBtn() } }).catch(e=>toast('Could not save to your history: '+e.message,4500));
 }
 function retryReport(){ if(S){ S.ended=false; endMeeting(true) } }
 function cleanup(){ clearInterval(S.timer); speechSynthesis.cancel(); if(recOn) stopMic(false) }
@@ -2039,13 +2045,25 @@ async function openHistory(){
   try{
     const h=(await gas('reports.list',{})).reports||[];
     $('histCount').textContent = h.length+' session'+(h.length===1?'':'s');
-    $('histList').innerHTML = h.length? h.map(r=>`<div class="hist" onclick="showHist('${esc(r.rowId)}')"><div class="sc">${r.overall??'–'}</div><div style="flex:1"><b>${esc(r.scenario)}</b><small>${new Date(r.date).toLocaleDateString()} · ${esc(dlabel(r.difficulty))} · ${fmt(r.duration||0)} · ${esc(r.level||'')}</small></div><span style="color:var(--gold)">→</span></div>`).join('') : '<div class="empty">No meetings yet. Your debriefs will appear here.</div>';
+    $('histList').innerHTML = h.length? h.map(r=>`<div class="hist" onclick="showHist('${esc(r.rowId)}','history')"><div class="sc">${r.overall??'–'}</div><div style="flex:1;min-width:0"><b>${esc(r.scenario)}</b><small>${new Date(r.date).toLocaleDateString()} · ${esc(dlabel(r.difficulty))} · ${fmt(r.duration||0)} · ${esc(r.level||'')}</small></div><button class="delbtn" title="Delete" onclick="event.stopPropagation();delReport('${esc(r.rowId)}','history')">Delete</button><span class="chev">→</span></div>`).join('') : '<div class="empty">No meetings yet. Your debriefs will appear here.</div>';
   }catch(e){ $('histList').innerHTML=`<div class="empty">${esc(e.message)}</div>` }
 }
-async function showHist(rowId){
+let curReport=null;
+async function showHist(rowId, from){
   busy(true,'Opening report');
-  try{ const {record}=await gas('reports.get',{rowId}); renderReport(record); go('report') }catch(e){ toast(e.message) }
+  try{ const {record}=await gas('reports.get',{rowId}); curReport={rowId, from:from||'history'}; renderReport(record); go('report'); showDelBtn() }catch(e){ toast(e.message) }
   busy(false);
+}
+function showDelBtn(){ const b=$('repDel'); if(b) b.style.display = curReport ? '' : 'none' }
+async function delReport(rowId, from){
+  if(!confirm('Delete this meeting report? This can\'t be undone.')) return;
+  busy(true,'Deleting');
+  try{
+    await gas('reports.delete',{rowId}); toast('Report deleted');
+    if(curReport && curReport.rowId===rowId) curReport=null;
+    busy(false);
+    if(from==='admin'){ admReports=admReports.filter(r=>r.rowId!==rowId); go('admin'); drawSessions() } else openHistory();
+  }catch(e){ busy(false); toast(e.message,4000) }
 }
 function openSettings(){
   $('setLang').value=settings.lang; $('setRate').value=settings.rate; $('setFb').value=settings.fb;
@@ -2115,8 +2133,13 @@ function localGas(action, d){
       if(d.id===me.id) throw new Error("You can't delete your own account.");
       db.users=db.users.filter(u=>u.id!==d.id); save(); return {ok:true};
     case 'reports.save': { const r=d.record;
-      db.reports.unshift({rowId:'r'+Date.now(),date:r.date,userId:me.id,name:me.name,scenario:r.title,difficulty:r.difficulty,overall:r.fb&&r.fb.overall,level:r.fb&&r.fb.level,duration:r.metrics.duration,json:r});
-      db.reports=db.reports.slice(0,60); save(); return {ok:true}; }
+      const rowId='r'+Date.now(); db.reports.unshift({rowId,date:r.date,userId:me.id,name:me.name,scenario:r.title,difficulty:r.difficulty,overall:r.fb&&r.fb.overall,level:r.fb&&r.fb.level,duration:r.metrics.duration,json:r});
+      db.reports=db.reports.slice(0,60); save(); return {ok:true,rowId}; }
+    case 'reports.delete': {
+      const ids=[].concat(d.rowIds||d.rowId||[]); const rs=db.reports.filter(r=>ids.includes(r.rowId));
+      if(!rs.length) throw new Error('Report not found.');
+      if(rs.some(r=>r.userId!==me.id&&!me.admin)) throw new Error('You can only delete your own reports.');
+      db.reports=db.reports.filter(r=>!ids.includes(r.rowId)); save(); return {ok:true,deleted:rs.length}; }
     case 'reports.list': {
       const all=d.all&&me.admin;
       return {reports: db.reports.filter(r=>all||r.userId===me.id).map(({json,...r})=>r)}; }
@@ -2211,9 +2234,9 @@ function drawSessions(){
   const list=admReports.filter(r=>!admFilter||r.userId===admFilter);
   $('admBody').innerHTML = `<div class="admbar"><span class="hint">${list.length} session${list.length===1?'':'s'} · click to open the debrief</span>
     <select class="scsel" onchange="admFilter=this.value;drawSessions()"><option value="">All members</option>${people.map(([id,n])=>`<option value="${esc(id)}" ${admFilter===id?'selected':''}>${esc(n)} (${esc(id)})</option>`).join('')}</select></div>
-    ${list.length?`<div class="tblw"><table class="tbl"><thead><tr><th>Date</th><th>Member</th><th>Scenario</th><th>Difficulty</th><th>Length</th><th>Level</th><th>Score</th></tr></thead><tbody>
-    ${list.map(r=>`<tr style="cursor:pointer" onclick="showHist('${esc(r.rowId)}')"><td>${new Date(r.date).toLocaleString([], {dateStyle:'medium',timeStyle:'short'})}</td><td><b>${esc(r.name||r.userId)}</b><small>${esc(r.userId)}</small></td>
-      <td>${esc(r.scenario)}</td><td>${esc(dlabel(r.difficulty))}</td><td>${fmt(r.duration||0)}</td><td>${esc(r.level||'')}</td><td><span class="sc">${r.overall??'–'}</span></td></tr>`).join('')}</tbody></table></div>`
+    ${list.length?`<div class="tblw"><table class="tbl"><thead><tr><th>Date</th><th>Member</th><th>Scenario</th><th>Difficulty</th><th>Length</th><th>Level</th><th>Score</th><th></th></tr></thead><tbody>
+    ${list.map(r=>`<tr style="cursor:pointer" onclick="showHist('${esc(r.rowId)}','admin')"><td>${new Date(r.date).toLocaleString([], {dateStyle:'medium',timeStyle:'short'})}</td><td><b>${esc(r.name||r.userId)}</b><small>${esc(r.userId)}</small></td>
+      <td>${esc(r.scenario)}</td><td>${esc(dlabel(r.difficulty))}</td><td>${fmt(r.duration||0)}</td><td>${esc(r.level||'')}</td><td><span class="sc">${r.overall??'–'}</span></td><td><button class="delbtn" onclick="event.stopPropagation();delReport('${esc(r.rowId)}','admin')">Delete</button></td></tr>`).join('')}</tbody></table></div>`
     :'<div class="empty">No sessions yet.</div>'}`;
 }
 function editMember(i){
