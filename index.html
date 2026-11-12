@@ -1200,7 +1200,9 @@ function speak(text, persona, idx){
       if(v) u.voice=v; u.lang = v?v.lang:'en-US';
       const diffRate = S && S.difficulty==='easy' ? .9 : S && S.difficulty==='veryhard' ? 1.08 : 1;
       u.rate = +settings.rate * diffRate; u.pitch = persona.gender==='m'?0.92:1.05;
-      u.onend=next; u.onerror=next; speechSynthesis.speak(u);
+      let done=false; const go=()=>{ if(done) return; done=true; clearTimeout(wd); next() };
+      const wd=setTimeout(go, 2500 + u.text.length*95/(u.rate||1)); // Chrome sometimes never fires onend
+      u.onend=go; u.onerror=go; speechSynthesis.speak(u);
     };
     next();
   });
@@ -1211,42 +1213,104 @@ function testVoice(){
   speak(`Hi, I'm ${p.name}. If you can hear me clearly, you're all set.`, p, 0);
 }
 
-let rec=null, recBuf='', recOn=false, recStart=0, sendOnEnd=false;
+/* ---------- Speech recognition (robust) ----------
+   · Desktop Chrome/Edge: one continuous session; the transcript is rebuilt from scratch on every event (no duplicates).
+   · Android / iOS: continuous mode repeats earlier words, so we use short single-utterance sessions,
+     restart them while the mic is on, and merge each session's final text with overlap removal.
+   · 'no-speech' / 'aborted' restarts are throttled so the mic never flickers in a loop.        */
+const IS_MOBILE_UA = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
+let rec=null, recOn=false, recStart=0, sendOnEnd=false, recCommitted='', recSession='', recRestarts=0, recFinTimer=null, recDone=true;
+function mergeSpeech(a,b){
+  a=(a||'').trim(); b=(b||'').trim();
+  if(!a) return b; if(!b) return a;
+  const A=a.toLowerCase(), B=b.toLowerCase();
+  if(B.startsWith(A)) return b;            // new chunk already contains the old one
+  if(A.endsWith(B) || A.includes(B)) return a;
+  const aw=a.split(/\s+/), bw=b.split(/\s+/);  // remove word overlap: "...how are" + "are you" → "...how are you"
+  for(let k=Math.min(aw.length,bw.length,8);k>0;k--){
+    if(aw.slice(-k).join(' ').toLowerCase()===bw.slice(0,k).join(' ').toLowerCase()) return aw.concat(bw.slice(k)).join(' ');
+  }
+  return a+' '+b;
+}
+function dedupeWords(t){ // "the the" / "I want I want to" → single
+  const w=t.split(/\s+/); const out=[];
+  for(let i=0;i<w.length;i++){
+    if(out.length && out[out.length-1].toLowerCase()===w[i].toLowerCase() && !/^(very|no|bye|so)$/i.test(w[i])) continue;
+    out.push(w[i]);
+  }
+  for(let n=4;n>=2;n--){ // repeated n-grams
+    for(let i=0;i+2*n<=out.length;i++){
+      if(out.slice(i,i+n).join(' ').toLowerCase()===out.slice(i+n,i+2*n).join(' ').toLowerCase()){ out.splice(i+n,n); i--; }
+    }
+  }
+  return out.join(' ');
+}
+function cleanSpeech(t){
+  t = dedupeWords(String(t||'').replace(/\s+/g,' ').trim());
+  if(!t) return '';
+  t = t.replace(/\bi\b/g,'I').replace(/\bi'(m|ll|d|ve)\b/gi,(m,x)=>"I'"+x.toLowerCase());
+  t = t.charAt(0).toUpperCase()+t.slice(1);
+  if(!/[.!?]$/.test(t)) t += /^(what|how|why|when|where|who|which|could|can|would|do|does|did|is|are|will|shall|may|have|has)\b/i.test(t) ? '?' : '.';
+  return t;
+}
 function initRec(){
   if(!SR) return null;
-  const r = new SR(); r.lang = settings.lang; r.continuous = true; r.interimResults = true;
+  const r = new SR();
+  r.lang = settings.lang; r.interimResults = true; r.maxAlternatives = 1;
+  r.continuous = !IS_MOBILE_UA;
   r.onresult = e=>{
-    let interim='';
-    for(let i=e.resultIndex;i<e.results.length;i++){
+    let fin='', interim='';
+    for(let i=0;i<e.results.length;i++){
       const t=e.results[i][0].transcript;
-      if(e.results[i].isFinal) recBuf += t+' '; else interim += t;
+      if(e.results[i].isFinal) fin = IS_MOBILE_UA ? mergeSpeech(fin,t) : (fin+' '+t);
+      else interim += ' '+t;
     }
-    $('interim').textContent = (recBuf+interim).trim();
+    recSession = fin.trim();
+    recRestarts = 0;
+    const live = mergeSpeech(mergeSpeech(recCommitted, recSession), interim.trim());
+    $('interim').textContent = dedupeWords(live);
   };
-  r.onerror = e=>{ if(e.error==='not-allowed'){toast('Microphone blocked — allow mic access in your browser.',4000);stopMic(false)} };
+  r.onerror = e=>{
+    if(e.error==='not-allowed'||e.error==='service-not-allowed'){ toast('Microphone blocked — allow microphone access for this site.',4500); stopMic(false) }
+    else if(e.error==='audio-capture'){ toast('No microphone found.',3500); stopMic(false) }
+    else if(e.error==='network'){ toast('Speech recognition needs an internet connection.',3500); stopMic(true) }
+    // 'no-speech' and 'aborted' are handled by onend
+  };
   r.onend = ()=>{
-    if(recOn){ try{r.start()}catch(e){} return }
-    const text = recBuf.trim(); const dur=(Date.now()-recStart)/1000;
-    if(sendOnEnd && text){
-      if(settings.auto) userSays(text, dur);
-      else { $('typeIn').value=text; $('typeIn').focus(); S.pendingDur=dur; setStatus('Review and press Enter to send'); }
-    } else if(sendOnEnd && !text){ setStatus('Didn\'t catch that — tap to try again'); }
-    $('interim').textContent=''; recBuf='';
+    recCommitted = mergeSpeech(recCommitted, recSession); recSession='';
+    if(recOn){
+      recRestarts++;
+      if(recRestarts>6){ stopMic(true); return }           // nothing heard for a long time → finish
+      setTimeout(()=>{ if(recOn){ try{ r.start() }catch(err){} } }, recRestarts>1?350:60);
+      return;
+    }
+    finishSpeech();
   };
   return r;
 }
+function finishSpeech(){
+  if(recDone) return; recDone=true; clearTimeout(recFinTimer);
+  const text = cleanSpeech(recCommitted); const dur=(Date.now()-recStart)/1000;
+  recCommitted=''; recSession=''; $('interim').textContent='';
+  if(!sendOnEnd || !S || S.ended) return;
+  if(!text){ setStatus('Didn\'t catch that — tap the mic and try again'); return }
+  if(settings.auto) userSays(text, dur);
+  else { $('typeIn').value=text; $('typeIn').focus(); S.pendingDur=dur; setStatus('Check the text, then press Enter to send'); }
+}
 function toggleMic(){ recOn ? stopMic(true) : startMic() }
 function startMic(){
-  if(!S || S.busy) return;
-  if(!rec){ toast('Voice input needs Chrome or Edge. You can type instead.',3500); return }
-  speechSynthesis.cancel();
-  recBuf=''; recOn=true; recStart=Date.now(); sendOnEnd=false;
-  try{ rec.lang=settings.lang; rec.start() }catch(e){}
-  $('mic').classList.add('live'); setTile('you','speaking'); setStatus('Listening… tap to finish');
+  if(!S || S.busy || S.ended) return;
+  if(!rec){ toast('Voice input needs Chrome or Edge (or Safari on iPhone). You can type instead.',3800); return }
+  speechSynthesis.cancel(); S.skip=true;
+  recCommitted=''; recSession=''; recRestarts=0; recOn=true; recDone=false; recStart=Date.now(); sendOnEnd=false;
+  try{ rec.lang=settings.lang; rec.start() }catch(e){ try{ rec.abort() }catch(_){} setTimeout(()=>{ try{ rec.start() }catch(_){} },250) }
+  $('mic').classList.add('live'); setTile('you','speaking'); setStatus('Listening… tap again when you finish');
 }
 function stopMic(send){
+  if(!recOn && recDone) return;
   recOn=false; sendOnEnd=send; $('mic').classList.remove('live'); setTile('you','');
   try{ rec.stop() }catch(e){}
+  clearTimeout(recFinTimer); recFinTimer=setTimeout(finishSpeech, 1500); // some browsers never fire onend
 }
 document.addEventListener('keydown',e=>{
   if(!$('room').classList.contains('on')) return;
@@ -1298,12 +1362,462 @@ OUTPUT: ONLY valid JSON, nothing else:
 {"turns":[{"speaker":"<exact participant name>","text":"<what they say>"}],"end":false}`;
 }
 
-const DEMO_LINES = [
-  "Thanks for that. Could you walk me through how that would actually work in practice?",
-  "Okay, I see. What kind of timeline are we realistically looking at?",
-  "That's fair. But how would we measure whether this is working?",
-  "Alright. Let's agree on next steps — could you send me a short summary by Friday? Thanks for your time today."
+/* =========================================================
+   DEMO ENGINE — rule-based counterparts (no AI API)
+   Each scenario has: opening, topics (keyword → reply, some guarded until you ask well),
+   special() for numbers/negotiation logic, probes (questions they ask to keep the meeting moving),
+   pressure line (Very Hard), closing, objective checks and phrases for the debrief.
+   ========================================================= */
+const rnd = a => a[Math.floor(Math.random()*a.length)];
+const NEED = {easy:1, medium:2, hard:2, veryhard:3};
+const W2N = {zero:0,one:1,two:2,three:3,four:4,five:5,six:6,seven:7,eight:8,nine:9,ten:10,eleven:11,twelve:12,thirteen:13,fourteen:14,fifteen:15,sixteen:16,seventeen:17,eighteen:18,nineteen:19,twenty:20,thirty:30,forty:40,fifty:50,sixty:60,seventy:70,eighty:80,ninety:90};
+const L = (en,ko) => settings.fb==='ko' ? ko : en;
+const kUSD = m => `${Math.round(m/1000)} thousand dollars`;
+
+function normText(t){
+  let s = ' '+String(t).toLowerCase().replace(/,(?=\d{3})/g,'').replace(/[“”]/g,'"').replace(/[‘’]/g,"'")+' ';
+  s = s.replace(/\b(twenty|thirty|forty|fifty|sixty|seventy|eighty|ninety)[ -](one|two|three|four|five|six|seven|eight|nine)\b/g,(m,a,b)=>String(W2N[a]+W2N[b]));
+  s = s.replace(/\b(zero|one|two|three|four|five|six|seven|eight|nine|ten|eleven|twelve|thirteen|fourteen|fifteen|sixteen|seventeen|eighteen|nineteen|twenty|thirty|forty|fifty|sixty|seventy|eighty|ninety)\b(?! (year|years|month|months|day|days|week|weeks|of|time|times)\b)/g,m=>String(W2N[m]));
+  s = s.replace(/(\d+) hundred (and )?(\d+)?/g,(m,a,_,b)=>String(+a*100+(b?+b:0)));
+  s = s.replace(/(\d) point (\d)/g,'$1.$2').replace(/\bper ?cent\b/g,'%').replace(/(\d)\s+%/g,'$1%');
+  return s;
+}
+function extractNums(low){
+  const out={pct:[],money:[],plain:[]}; const re=/(\$)?\s?(\d+(?:\.\d+)?)\s*(%|k\b|thousand|grand|m\b|mil\b|million)?/g; let m;
+  while((m=re.exec(low))){
+    let v=parseFloat(m[2]); const u=m[3]||'';
+    if(u==='%'){ out.pct.push(v); continue }
+    if(/^(k|thousand|grand)/.test(u)) v*=1e3; else if(/^(m|mil|million)/.test(u)) v*=1e6;
+    if(m[1]||u||v>=1000) out.money.push(v); else out.plain.push(v);
+  }
+  return out;
+}
+function analyze(t){
+  const low = normText(t), n = t.trim().split(/\s+/).filter(Boolean).length, has = re => re.test(low);
+  return { t, low, n, nums: extractNums(low),
+    q: /\?\s*$/.test(t.trim()) || has(/^\s*(what|how|why|when|where|who|which|could|can|would|do|does|did|is there|are there|is it|are you|have you|may i|shall we)\b/),
+    open: has(/\b(what|how|why|tell me|walk me through|could you (explain|describe|share|tell)|can you (explain|describe|share|tell))\b/),
+    greet: has(/\b(hi|hello|good (morning|afternoon|evening)|nice to (meet|see)|thanks? (you )?for (having|joining|your time|making|meeting|coming))\b/),
+    agenda: has(/\b(agenda|today (i|we)('d| would)? like|i'?d like to (start|begin|discuss|cover|go through)|purpose of|goal (of|for) (this|today)|cover today|start (with|by)|first(ly)?,? (i|let|we))\b/),
+    empathy: has(/\b(sorry|apolog|i (completely |totally )?understand|i hear you|that must|i appreciate|fair point|i see your point|makes sense|i get (it|that))\b/),
+    excuse: has(/\b(not (our|my) fault|it wasn'?t (our|my) fault|because (the|our) (system|manager|client|vendor|other team)|(they|your team) didn'?t|blame)\b/),
+    propose: has(/\b(we (can|could|will|would|are willing|'d be (happy|willing)|propose|suggest|recommend|offer|'d like to (propose|suggest|offer))|i (propose|suggest|recommend|can offer|'d suggest|'d propose)|how about|what if|let'?s|we'?re (willing|able|happy|prepared) to|our offer|counter|could we|can we|would you (accept|consider|agree)|would it be possible|is it possible)\b/),
+    cond: has(/\b(if (you|we)|in exchange|in return|provided (that)?|on (the )?condition|as long as|only if)\b/),
+    reason: has(/\b(because|since|so that|the reason|that'?s why|due to|data|evidence|for example|for instance|our (forecast|numbers|data|results|experience|research)|based on|risk|according to)\b/),
+    nextstep: has(/\b(next steps?|follow[ -]?up|send (you|it|over|the|a)|by (monday|tuesday|wednesday|thursday|friday|tomorrow|next week|the end of)|schedule|set up a|recap\w*|summar\w*|to sum up|wrap up|in writing)\b/),
+    summary: has(/\b(summar\w*|recap\w*|to sum up|so we('ve| have)? agreed|let me confirm|just to confirm|so to clarify|to confirm,? we)\b/),
+    bye: has(/\b(thank you for your time|thanks for your time|talk (to you )?soon|have a (good|great|nice)|good ?bye|bye|see you|speak soon)\b/),
+    yes: has(/^\s*(yes|yeah|yep|sure|of course|absolutely|definitely|okay|ok|right|correct|exactly|i agree|agreed|deal)\b/),
+    no: has(/^\s*(no|nope|not really|i don'?t think so|unfortunately)\b/),
+    signpost: has(/\b(first(ly)?|second(ly)?|third|finally|to summarize|in other words|the main point|my point is|let me clarify|on the other hand|in addition|moreover|for example)\b/)
+  };
+}
+function demoInit(){ S.demo = {turn:0, used:new Set(), asked:{}, revealed:{}, push:{}, agreed:{}, flags:{}, probeI:0, closing:false, anger:0, rapport:0, phase:0, qI:0, lastQP:0, lastP:0, proposals:0, intents:[], clar:0} }
+const line = (p,t) => ({p,t});
+function fresh(key, arr){ const st=S.demo, pool=arr.filter(x=>!st.used.has(key+'|'+x)), x=rnd(pool.length?pool:arr); st.used.add(key+'|'+x); return x }
+const fillT = t => t.replace(/\{name\}/g, (S.name||'').split(' ')[0]||'there');
+const D = () => DEMO[S.scenarioId] || DEMO.generic;
+function probe(){
+  const list=D().probes||DEMO.generic.probes, st=S.demo;
+  for(let k=0;k<list.length;k++){ const i=(st.probeI+k)%list.length, pr=list[i]; if(st.used.has('probe|'+i)) continue; if(pr[2] && (st.flags[pr[2]]||st.agreed[pr[2]])){ st.used.add('probe|'+i); continue } st.used.add('probe|'+i); st.probeI=i+1; return pr }
+  return null;
+}
+function handleTopic(tp, a){
+  const st=S.demo, n=(st.asked[tp.id]=(st.asked[tp.id]||0)+1); st.flags[tp.id]=true;
+  if(tp.say){ const x=fresh(tp.id, tp.say); return Array.isArray(x) ? x.map(([p,t])=>line(p,t)) : [line(tp.p||0,x)] }
+  if(st.revealed[tp.id]) return [line(tp.reveal[0][0], fresh('again'+tp.id, tp.again || ["I think I've covered that one.","As I said, that's really the main point.","I don't have much to add to what I said."]))];
+  const need=NEED[S.difficulty], effort=a.reason||a.cond||a.propose||a.open;
+  const unlock = tp.unlock ? tp.unlock(a,st,n) : (n>=need+1 || (effort && n>=need) || (a.open && st.rapport>=2) || S.difficulty==='easy');
+  if(unlock){ st.revealed[tp.id]=true; tp.onReveal&&tp.onReveal(st); return tp.reveal.map(([p,t])=>line(p,t)) }
+  return [line(tp.p||0, fresh(tp.id, tp.guard))];
+}
+function generic(a){
+  const st=S.demo, p=S.personas.length>1 ? st.turn%S.personas.length : 0;
+  if(st.turn===1 && a.greet) return [line(0, fresh('greet',["Likewise — good to see you.","Thanks for making the time.","Good to meet you too."]))];
+  if(a.n<=4 && (a.yes||a.no)) return [line(st.lastP, fresh('short',["Could you say a bit more about that?","Okay — can you expand on that?","Why do you say that?"]))];
+  if(a.summary) return [line(0, fresh('sum',["Yes, that's a fair summary.","That matches my understanding.","Right — that's where we are."]))];
+  if(a.nextstep) return [line(0, fresh('ns',["That sounds like a sensible next step.","Okay, let's do that.","Good — please put that in writing."]))];
+  if(a.empathy) return [line(st.lastP, fresh('emp',["I appreciate that.","Thank you, that helps.","Okay, I appreciate you saying that."]))];
+  if(a.propose) return [line(p, fresh('prop', a.reason||a.cond ? ["That's an interesting idea. What would it look like in practice?","Okay, that could work. What would you need from us?","I like the direction. Can you be more specific?"] : ["That's a start, but why should we agree to that?","Hmm. What's in it for us?","I'm not convinced yet. Can you explain the reasoning?"]))];
+  if(a.q) return [line(p, fresh('q',["Good question. Honestly, it depends on what you can offer us.","I'd rather hear your view on that first.","That's still being discussed internally, to be honest.","Let me be honest — that hasn't been decided yet."]))];
+  if(a.n>25 && !a.reason) return [line(p, fresh('long',["Okay. And what's the main point you want me to take away?","I follow — but what does that mean for us?"]))];
+  return [line(p, fresh('stmt',["Okay, I see.","Right, that's useful context.","Understood.","Okay — noted."]))];
+}
+const ACK = {warm:["Thanks, that's helpful.","Great.","I appreciate that.","Okay, good."], neutral:["Okay.","Right.","I see.","Fair enough.","Got it."], cold:["Hmm.","Okay…","Right.","I hear you."]};
+function compose(lines, a){
+  const st=S.demo, tone = {easy:'warm',medium:'neutral'}[S.difficulty]||'cold';
+  if(a && a.n>70 && /hard/.test(S.difficulty) && !st.closing && S.scenarioId!=='qa') lines.unshift(line(lines[0]?lines[0].p:0, S.difficulty==='veryhard'?"Let me stop you there.":"Sorry to cut in —"));
+  else if(a && lines.length && Math.random()<.45 && !a.greet && !/^(okay|ok|right|hmm|well|look|so|thanks|thank|great|good|sorry|fair|i see|let me|that|we already|like i|as i|again)/i.test(lines[0].t)) lines[0].t = fresh('ack',ACK[tone])+' '+lines[0].t;
+  if(S.scenarioId==='escalation' && st.anger>=2 && lines[0] && !/^look/i.test(lines[0].t)) lines[0].t='Look, '+lines[0].t.charAt(0).toLowerCase()+lines[0].t.slice(1);
+  if(a && !st.closing && !st.endNow && !lines.some(l=>/\?\s*$/.test(l.t))){ const pr=probe(); if(pr) lines.push(line(pr[0],pr[1])) }
+  if(S.difficulty==='veryhard' && D().pressure && st.turn>=3 && !st.used.has('pressure') && !st.closing){ st.used.add('pressure'); lines.push(line(D().pressure[0],D().pressure[1])) }
+  const turns=[]; lines.forEach(l=>{ const p=Math.min(l.p,S.personas.length-1), last=turns[turns.length-1]; if(last&&last.p===p) last.text+=' '+l.t; else turns.push({p,text:l.t}) });
+  const out = turns.slice(0,2); if(out.length) st.lastP = out[out.length-1].p;
+  return out.map(x=>({speaker:S.personas[x.p].name, text:fillT(x.text)}));
+}
+function demoOpen(){
+  demoInit();
+  const d=D(); let o = d.opening;
+  if(!o) o = S.doc ? [[0,"Hi {name}, thanks for joining. I've got the document in front of me. Where would you like to start?"]] : S.custom ? [[0,"Hi {name}, thanks for making the time. So — let's get into it. What did you want to discuss today?"]] : [[0,"Hi {name}, thanks for making the time. Shall we get started?"]];
+  S.demo.lastP = o[o.length-1][0];
+  return {turns: compose(o.map(([p,t])=>line(p,t)), null), end:false};
+}
+function demoReply(text){
+  const st=S.demo, d=D(), a=analyze(text); st.turn++; st.intents.push(a);
+  if(a.greet||a.empathy||a.open||a.agenda) st.rapport++;
+  if(a.agenda) st.flags.agenda=true;
+  if(a.propose) st.proposals++;
+  if(a.nextstep) st.flags.next=true;
+  if(a.summary) st.flags.summary=true;
+  const closeOut = () => ({turns: compose((d.closing||[[0,"Thanks, {name}. Good meeting — let's follow up as discussed. Talk soon."]]).map(([p,t])=>line(p,t)), null), end:true});
+  if(st.closing) return closeOut();
+  if(a.bye && st.turn>=3){ st.closing=true; return closeOut() }
+  const el=(Date.now()-S.start)/1000, lim=S.minutes*60;
+  if(el>lim*.85 || st.turn>=26){ st.closing=true; return {turns:compose([line(0, fresh('wrap',["We're almost out of time. Could you sum up where we've landed and what happens next?","I'm conscious of the time. Can you recap what we've agreed and the next steps?"]))],a), end:false} }
+  if(a.n<3 && !a.yes && !a.no && !a.greet && !a.bye && !a.nums.pct.length && !a.nums.money.length && !a.nums.plain.length){ st.clar++; return {turns:compose([line(st.lastP, fresh('clar',["Sorry, I didn't quite catch that. Could you say that again?","Sorry — could you repeat that?","I'm not sure I followed. Could you rephrase that?"]))],a), end:false} }
+  if(a.summary && st.turn>=3 && !(S.scenarioId==='qa' && st.phase===0)){
+    st.closing=true;
+    const ok=[line(0, fresh('sumok',["Yes, that's a fair summary.","That matches my understanding.","Right — that's where we've landed."]))];
+    return {turns:compose(ok.concat((d.closing||[[0,"Thanks, {name}. Let's follow up as discussed."]]).map(([p,t])=>line(p,t))),null), end:true};
+  }
+  let lines = d.special ? d.special(a) : null;
+  if(!lines){ const tp=(d.topics||[]).find(t=>t.keys.test(a.low)); if(tp) lines=handleTopic(tp,a) }
+  if(!lines && a.nextstep && d.onNext && st.turn>=3){ lines=d.onNext.map(([p,t])=>line(p,t)); if(a.summary||st.turn>=6) st.closing=true }
+  if(!lines) lines=generic(a);
+  if(st.endNow) return {turns:compose(lines.concat((d.closing||[]).map(([p,t])=>line(p,t))),null), end:true};
+  return {turns:compose(lines,a), end:false};
+}
+
+/* ---------- scenario scripts ---------- */
+const DEMO = {
+generic:{
+  probes:[[0,"Could you tell me a bit more about that?"],[0,"What would that mean for us in practice?"],[0,"What timeline do you have in mind?"],[0,"How does that compare with the alternatives?"],[0,"What are the main risks, in your view?"],[0,"What do you need from us to move forward?"]],
+  phrases:[["Let me make sure I understand your main concern.","Checking understanding"],["The key reason is…","Supporting your point"],["Would you be open to…?","Proposing politely"],["To sum up, we've agreed to…","Summarising"],["As a next step, I'll…","Closing with an action"]]
+},
+discovery:{
+  opening:[[0,"Hi {name}, Daniel here. Thanks for setting this up. I've got about thirty minutes, so — where would you like to start?"]],
+  topics:[
+    {id:'pitch',keys:/\bwe (offer|provide|specialize|specialise|help|have worked|work with|can (help|deliver|improve|increase|boost))|\bour (agency|team|clients|approach|case stud|experience|process|services)/,p:0,guard:["Everyone says that. What would you do differently from the last two agencies?","With respect, I've heard that before. What makes you different?"],reveal:[[0,"Okay, that's more concrete. I like that."]],unlock:(a,st,n)=>a.reason||a.nums.money.length||a.nums.pct.length||n>=3},
+    {id:'previous',keys:/previous|before|last agenc|other agenc|\bpast\b|went wrong|didn'?t work|why did|disappoint|former agenc/,p:0,guard:["We've worked with a couple of agencies. Let's just say it didn't work out.","I'd rather not go into too much detail about the last agencies."],again:["I think I've covered that — they over-promised and under-communicated.","Long story short: big promises, poor reporting."],reveal:[[0,"Okay — the first one promised a hundred qualified leads a month and delivered maybe ten. The second was fine on creative, but I got one report a quarter and had no idea what was happening in between."]]},
+    {id:'budget',keys:/budget|spend|invest|how much|cost|price range|money|afford/,p:0,guard:["We're still working that out. I'd rather hear what you'd recommend first.","I'm not going to put a number on the table this early, to be honest."],again:["Like I said, fifteen to twenty thousand a month, depending on results."],reveal:[[0,"Alright, since you asked — realistically we can spend somewhere between fifteen and twenty thousand dollars a month, if we see results."]]},
+    {id:'pain',keys:/challenge|problem|pain|issue|struggl|frustrat|not working|biggest|difficult|concern|why (are|did) you (looking|reach)/,p:0,say:["Honestly? We get plenty of traffic to the website, but most of the leads are junk — students, job seekers, even competitors.","The main problem is lead quality. Our sales team spends half their week calling people who were never going to buy."]},
+    {id:'timeline',keys:/timeline|time ?frame|how soon|deadline|by when|when (do|would|are) you|start date|quarter|urgent/,p:0,say:["My CEO wants to see better lead quality by the end of next quarter. So ideally we'd start within a month.","We need to move fast. If we could kick off in the next four weeks, that would be ideal."]},
+    {id:'goals',keys:/success|goal|kpi|measure|look like|objective|target|ideal|outcome/,p:0,say:["Success for me is simple — sales tells me the leads are worth calling. Forty qualified leads a month would make me very happy."]},
+    {id:'decision',keys:/decision|decide|who else|stakeholder|sign.?off|approv|process|involved/,p:0,say:["I make the recommendation, but our CFO, Karen, signs off on anything over ten thousand a month."]},
+    {id:'audience',keys:/customer|audience|target market|who do you sell|your clients|buyer|industry|market/,p:0,say:["We sell freight and warehousing services to mid-size manufacturers — mostly operations and supply chain managers."]},
+    {id:'report',keys:/report|update|communicat|dashboard|weekly|transparen|check.?in/,p:0,say:["That's actually a big deal for me. Regular updates would be a huge change from what we had.","Weekly reporting? That would already put you ahead of the last two agencies."]}
+  ],
+  probes:[[0,"So, what do you need to know from me?"],[0,"How would you usually work with a company like ours?"],[0,"What would the first ninety days look like?"],[0,"Do you have any experience in logistics or B2B?"],[0,"How would you report results to me?"],[0,"What would you need from my team?"]],
+  onNext:[[0,"That works for me. Send me a short proposal by Friday and I'll share it with Karen."]],
+  closing:[[0,"Great. Thanks, {name} — this was more useful than I expected. I'll look out for your proposal. Talk soon."]],
+  goals:[st=>st.flags.agenda?'met':st.rapport>=1?'partial':'missed', st=>{const k=['pain','budget','timeline'].filter(x=>st.flags[x]).length+(st.revealed.budget?0.5:0);return k>=3?'met':k>=1?'partial':'missed'}, st=>st.revealed.previous?'met':st.flags.previous?'partial':'missed', st=>st.flags.next?'met':'missed'],
+  phrases:[["What would success look like for you?","Uncovering the client's real goals"],["Could you walk me through what happened with your previous agencies?","Exploring past pain points"],["Do you have a budget range in mind?","Asking about money politely"],["Who else will be involved in the decision?","Mapping stakeholders"],["As a next step, I'll send you a proposal by Friday.","Closing with a concrete action"]]
+},
+negotiation:{
+  opening:[[0,"Thanks for coming in, {name}. I'll be direct — we like your proposal, but your competitor came in twenty percent lower. We need you to get closer to their number."],[1,"And just so you know, from the operations side, we really liked your implementation plan."]],
+  special(a){
+    const st=S.demo, low=a.low;
+    if(/value|roi|return on|experience|track record|case stud|results|quality|support|risk|reliab|expertise|proven/.test(low) && !st.flags.offered) st.flags.valueFirst=true;
+    const trade=/two.year|2.year|multi.year|three.year|3.year|longer (term|contract)|upfront|up front|prepay|in advance|reduc\w* (the )?scope|phase|reference|case study|referral|annual payment|pay (in full|the full)/.test(low);
+    if(trade) st.flags.trade=true;
+    let d=null;
+    const pcts=a.nums.pct.filter(x=>x>0&&x<=40 && !(x===20 && /(you|your|their|competitor).{0,25}20%|20%.{0,20}(lower|cheaper|ask)/.test(low)));
+    if(pcts.length) d=Math.max(...pcts);
+    else { const m=a.nums.money.find(x=>x>=120000&&x<=260000); if(m) d=Math.round((240000-m)/2400) }
+    if(d===null){
+      if(trade && !st.agreed.price) return [line(0,"Okay, that's interesting. And what discount would that get us?")];
+      if(/(can'?t|cannot|won'?t|not (able|possible)|no) .{0,25}(discount|lower|reduce|move|go down|price)|price is (fixed|final)/.test(low)){
+        st.push.refuse=(st.push.refuse||0)+1;
+        return S.difficulty==='easy' ? [line(1,"I understand. Sofia, maybe we should look at the value rather than just the price?")]
+          : [line(0, st.push.refuse>1?"Then I don't think we can move forward. The gap is forty-eight thousand dollars.":"Then help me understand why we should pay forty-eight thousand dollars more.")];
+      }
+      return null;
+    }
+    if(st.agreed.price) return [line(0,`We already agreed on ${st.agreed.price} percent. Let's not reopen it.`)];
+    st.flags.offered=true; st.push.price=(st.push.price||0)+1; const need=NEED[S.difficulty];
+    if(d<=0) return [line(0,"So no movement at all? That's going to be very hard to sell internally.")];
+    if(d>=15){ st.agreed.price=d; st.flags.overgave=true; return [line(0,`${d} percent? Well — I'm certainly not going to say no to that.`),line(1,"Great. Then let's talk about implementation dates.")] }
+    if(trade||st.flags.trade){
+      if(d>=8 || st.push.price>=need+1){ st.agreed.price=d; st.flags.traded=true; return [line(0,`${d} percent, in exchange for that commitment… James, can we live with that?`),line(1,"Yes, I think we can. I'd call that a deal in principle.")] }
+      return [line(0,`If we're committing to that, I'd need at least ${S.difficulty==='easy'?8:12} percent.`)];
+    }
+    if(d>=10){ st.agreed.price=d; st.flags.gaveFree=true; return [line(0,`${d} percent. Okay — I'll take that. Honestly, I'm a little surprised you didn't ask for anything in return.`)] }
+    return [line(0, fresh('lowoffer',[`${d} percent doesn't get us anywhere near their number.`,`That's still too high. Can you do better than ${d} percent?`,`Honestly, ${d} percent won't convince my director.`]))];
+  },
+  topics:[
+    {id:'competitor',keys:/competitor|which (vendor|company)|who (is|are) (they|the other)|cheaper|lower quote|their (quote|offer|price|proposal)|compar/,p:0,guard:["I can't share their name. But their quote was around a hundred and ninety-two thousand."],reveal:[[0,"I can't share their name."],[1,"To be fair, Sofia, they've never done a retail rollout. That does worry me."]]},
+    {id:'value',keys:/value|roi|return on|experience|retail|track record|case stud|results|quality|support|risk|reliab|expertise|proven/,p:1,say:[[[1,"That's my point, Sofia. A failed rollout would cost us far more than the difference."],[0,"Value is great, James, but my job is the number."]],[[1,"That matches what I've seen. Your retail references were strong."]]]},
+    {id:'implement',keys:/implement|rollout|roll.out|go.live|launch|timeline|schedule/,p:1,say:["Our main concern is timing — we need to be live before the holiday season.","If implementation slips, it costs us a lot more than the price difference."]},
+    {id:'terms',keys:/payment|terms|instal|monthly|quarterly/,p:0,say:["Payment terms could be part of the conversation. What did you have in mind?"]}
+  ],
+  probes:[[0,"So, what can you do on price?"],[0,"What's your best number?"],[1,"How long would implementation take?"],[1,"What happens if the rollout slips?"],[0,"Is there any flexibility on payment terms?"]],
+  pressure:[0,"And I'll be honest — their contract is already on my desk."],
+  onNext:[[0,"Fine. Put the revised offer in writing and I'll take it to my director."]],
+  closing:[[0,"Okay. I'll confirm everything in writing tomorrow."],[1,"Thanks, {name}. Good meeting."]],
+  goals:[st=>st.flags.value&&(!st.flags.offered||st.flags.valueFirst)?'met':st.flags.value?'partial':'missed', st=>st.revealed.competitor?'met':st.flags.competitor?'partial':'missed', st=>st.flags.traded?'met':(st.flags.gaveFree||st.flags.overgave)?'missed':st.flags.offered?'partial':'missed', st=>st.agreed.price&&st.flags.next?'met':st.agreed.price||st.flags.next?'partial':'missed'],
+  phrases:[["Before we talk numbers, can I explain where the extra value comes from?","Defending value first"],["What's driving the 20% request?","Uncovering the real reason"],["If you could commit to two years, we could look at 8%.","Trading, not giving"],["That's as far as we can go on price.","Holding a firm line"],["Let me confirm what we've agreed.","Summarising the deal"]]
+},
+escalation:{
+  opening:[[0,"{name}. I'll be honest — I'm not happy. The assets were due last Friday, and I found out they were late from my own team, not from you. The launch is in ten days. What happened?"]],
+  special(a){
+    const st=S.demo, low=a.low;
+    if(a.excuse && !a.empathy){ st.anger++; st.flags.excused=true; return [line(0, fresh('exc',["I don't need excuses. I need to know what you're going to do about it.","Honestly, I don't care whose fault it was. What's the plan?"]))] }
+    if(/as soon as possible|\basap\b|\bsoon\b|we('ll| will) try|hopefully|we('ll| will) do our best/.test(low)){ st.anger++; st.flags.vague=true; return [line(0, fresh('asap',["'As soon as possible' isn't a date. When, exactly?","I need a date, not 'soon'."]))] }
+    const dated=/\b(monday|tuesday|wednesday|thursday|friday|saturday|sunday|tomorrow|today|tonight|end of (the )?day|\beod\b|\d+(st|nd|rd|th)\b|by \d|in \d+ days?|within \d+|\d+ ?(am|pm))/.test(low);
+    if(dated && !/update|report|daily|every day|check.?in|call you/.test(low) && /deliver|send|ready|finish|complet|final|files|assets|first|draft|batch|get you|have (it|them)/.test(low)){
+      const first=!st.flags.plan; st.flags.plan=true; st.anger=Math.max(0,st.anger-1);
+      return [line(0, first?"Okay — that's the first concrete thing I've heard today. Can you guarantee it?":"Okay, that's specific. And what if something slips again?")];
+    }
+    if(a.empathy && /sorry|apolog|take (full )?responsib|our mistake|we dropped the ball|my fault/.test(low) && !st.flags.apologized){
+      st.flags.apologized=true; st.anger=Math.max(0,st.anger-1);
+      return [line(0, st.anger>1?"Okay. I appreciate the apology, but I need more than that.":"Thank you. I appreciate you owning it. So what actually happened?")];
+    }
+    return null;
+  },
+  topics:[
+    {id:'cause',keys:/approval|bottleneck|internal|our (team|process|side)|sign.?off|review (took|process)|resource|sick|delay(ed)? (because|due)/,p:0,say:["So it was an internal approval issue. Why didn't anyone tell me?","Okay. But why did I have to find out from my own team?"]},
+    {id:'guarantee',keys:/guarantee|promise|commit|confident|i assure|i can confirm|you have my word|definitely/,p:0,say:["Okay. I'm going to hold you to that.","Good. Because if we miss this launch, it's my job on the line."]},
+    {id:'comm',keys:/update|daily|report|call|communicat|point of contact|check.?in|whatsapp|slack|email you|let you know/,p:0,say:["Daily updates until launch — yes, that's exactly what I need. Who will send them?","Good. I want to hear about problems from you first, not from my team."]},
+    {id:'prevent',keys:/prevent|won'?t happen again|never happen|process change|lesson|going forward|in future|from now on/,p:0,say:["Good. I'll hold you to that.","I appreciate that. What exactly will change?"]},
+    {id:'comp',keys:/discount|credit|free|compensat|refund|no charge|waive/,p:0,say:["I appreciate that, but right now I care more about the launch than a discount."]}
+  ],
+  probes:[[0,"What exactly is ready now, and what isn't?"],[0,"When will I have the final files?"],[0,"What happens if you miss the new date too?"],[0,"How will I know things are on track?"],[0,"Who's my point of contact from now on?"]],
+  onNext:[[0,"Fine. Send me the recovery plan in writing within the hour."]],
+  closing:[[0,"Okay. Thank you, {name}. I feel a bit better than I did twenty minutes ago. Don't let me down."]],
+  goals:[st=>st.flags.apologized&&!st.flags.excused?'met':st.flags.apologized?'partial':'missed', st=>st.flags.cause?'met':'missed', st=>st.flags.plan?(st.flags.vague?'partial':'met'):'missed', st=>st.flags.comm?'met':st.flags.next?'partial':'missed'],
+  phrases:[["I'm sorry — that's on us, and I take full responsibility.","Owning the problem"],["Here's what happened, briefly.","Explaining without excuses"],["You'll have the first batch by Wednesday at noon.","Committing to a specific date"],["I'll send you a short update every day at 5 p.m. until launch.","Rebuilding trust through communication"],["Going forward, we've changed our approval process so this won't happen again.","Preventing recurrence"]]
+},
+qa:{
+  opening:[[0,"Good morning, {name}. Thanks for coming in. The floor is yours — we'll save our questions for the end."]],
+  probes:[],
+  qs:[[0,"Let's start with the money. What's the total cost, and when do we break even?"],[1,"Who are the main competitors, and why would we win against them?"],[0,"What are your key cost assumptions, and how confident are you in them?"],[1,"What evidence do you have that customers actually want this?"],[0,"What happens if it doesn't work? What's our downside?"],[1,"Is the timeline realistic? What resources would you need?"],[0,"If I gave you half the budget, what would you do?"],[1,"What's the single biggest risk, and how would you manage it?"]],
+  special(a){
+    const st=S.demo, d=DEMO.qa;
+    const nextQ=()=>{ if(st.qI>=d.qs.length) return null; const q=d.qs[st.qI++]; st.lastQP=q[0]; return line(q[0],q[1]) };
+    if(st.phase===0){
+      st.presWords=(st.presWords||0)+a.n; if(a.signpost) st.flags.signpost=true;
+      if(st.presWords<70 && !/that'?s (it|all)|thank you|any questions|concludes|end of (my )?presentation|happy to take/.test(a.low)) return [line(0, fresh('goon',["Please, go on.","Go ahead — we're listening.","Mm-hm. Continue."]))];
+      st.phase=1; return [line(0,"Thank you. Let's go to questions."), nextQ()];
+    }
+    if(/\b(my ask|i'?m asking|we'?re asking|asking for (your )?approval|request(ing)? (your )?approval|green light|so to (summari[sz]e|recap))\b/.test(a.low)){ st.flags.ask=true; st.endNow=true; return [line(0,"Clear. Thank you, {name}.")] }
+    st.answered=(st.answered||0)+1;
+    if(a.n>90 && /hard/.test(S.difficulty)) return [line(0,"Sorry — so what's the short answer?")];
+    const solid = a.nums.money.length||a.nums.pct.length||a.nums.plain.length||a.reason;
+    if(a.n<15 && !solid && (st.vagueN=(st.vagueN||0)+1)<=2) return [line(st.lastQP, fresh('vague',["That's a bit vague. Can you be more specific?","Can you put a number on that?","I'm not sure that answers the question."]))];
+    const out=[line(st.lastQP, fresh('qack', solid?["That's helpful, thank you.","Okay, that's clear.","Good — that's the kind of detail I was looking for."]:["Okay.","Alright.","I see."]))];
+    const maxQ=Math.min(d.qs.length, 3+Math.round(S.minutes/4)), q = st.qI<maxQ ? nextQ() : null;
+    if(q) out.push(q); else { st.closing=true; out.push(line(0,"I think that covers our questions. Could you give us a quick summary of what you're asking for?")) }
+    return out;
+  },
+  closing:[[0,"Thank you. We'll discuss it and get back to you by the end of the week."],[1,"Thanks, {name}. You were well prepared."]],
+  goals:[st=>(st.presWords||0)>=80&&st.flags.signpost?'met':(st.presWords||0)>=40?'partial':'missed', st=>(st.answered||0)>=2&&!(st.vagueN>1)?'met':(st.answered||0)>=1?'partial':'missed', st=>(st.answered||0)>=4?'met':(st.answered||0)>=2?'partial':'missed', st=>st.flags.ask||st.intents.slice(-2).some(a=>/\b(ask|request|approv|budget|support|recommend|green light|go ahead)\b/.test(a.low))?'met':'missed'],
+  phrases:[["I'll cover three points: the problem, the plan and the budget.","Signposting your structure"],["The short answer is yes — and here's why.","Answering directly first"],["That's a fair challenge. Here's how we'd manage that risk.","Handling tough questions calmly"],["Based on our pilot data, we expect break-even in month 14.","Backing answers with numbers"],["So my ask today is approval for the first phase.","Restating your ask"]]
+},
+'contract-review':{
+  opening:[[0,"Hi {name}, Rebecca Hall from Veritas legal. Thanks for making time. I assume you've read the draft — which points would you like to discuss?"]],
+  clauses:{
+    '3.2':{keys:/\b3\.2\b|payment term|net ?90|ninety days|90 days|net ?30|net ?45|pay(ment)? within|invoice/,explain:"It means you invoice us, and we have ninety days to pay.",defend:["Ninety days is our standard payment cycle for all vendors.","Our finance team works on ninety-day terms. That's company policy."],concede:"Thirty days is too tight for our finance team, but I can move to forty-five. That's as far as I can go."},
+    '3.3':{keys:/\b3\.3\b|late (payment|fee)|interest/,explain:"If we pay late, there's no penalty or interest.",defend:["We don't generally accept late-payment interest."],concede:"Fine — one percent per month, after thirty days overdue."},
+    '5.1':{keys:/\b5\.1\b|auto.?renew|automatic(ally)? renew|renewal/,explain:"The contract renews automatically each year unless someone gives ninety days' notice.",defend:["Auto-renewal saves both of us admin time."],concede:"Okay — renewal only with written confirmation from both sides."},
+    '5.3':{keys:/\b5\.3\b|terminat|15 days|fifteen days|cancel|for convenience/,explain:"We can end the agreement at any time with fifteen days' notice, without paying a penalty.",defend:["We need flexibility if our priorities change.","Fifteen days is standard for our marketing vendors."],concede:"I can do thirty days' notice, and we'll pay for all work completed. Sixty is too long for us."},
+    '7.1':{keys:/\b7\.1\b|intellectual property|\bip\b|pre.?existing|tools|templates|methodolog|own(ership)?/,explain:"Everything you create for us — and everything you use to create it, including your templates — becomes ours.",defend:["If we pay for the work, we want to own it. All of it.","Our policy is full ownership of all work product."],concede:"Okay, I see the distinction. Your pre-existing tools stay yours, and we get a perpetual licence to use them in the deliverables."},
+    '9.2':{keys:/\b9\.2\b|liabilit|unlimited|\bcap\b|capped|indemn/,explain:"It means that if something goes wrong, there's no limit on what your company could owe us — but our liability is capped at one month's fees.",defend:["Unlimited liability is our policy for vendors who handle our brand.","Our board insists on it, I'm afraid."],concede:"I can accept a mutual cap — twelve months' fees for both sides — with carve-outs for confidentiality breaches."},
+    '10.1':{keys:/\b10\.1\b|non.?compet|healthcare sector|24 months|twenty.?four months|exclusiv|other (clients|companies) in/,explain:"You couldn't work for any healthcare company during the contract, or for two years afterwards.",defend:["We don't want you working for our competitors.","Our strategy is confidential. We need that protection."],concede:"Let's narrow it to a list of named direct competitors, for twelve months after the contract ends."},
+    '12.4':{keys:/\b12\.4\b|governing law|delaware|jurisdiction|korean law|which law/,explain:"Any dispute would be handled under Delaware law.",defend:["Delaware law is non-negotiable, I'm afraid. It's the same for all our contracts."],never:true}
+  },
+  special(a){
+    const st=S.demo, C=DEMO['contract-review'].clauses, low=a.low;
+    const found=Object.entries(C).filter(([k,c])=>c.keys.test(low)); if(!found.length) return null;
+    const [k,c]=found[0]; st.flags['c'+k]=true; st.lastClause=k;
+    if((a.q||/clarify|explain|what (does|do) .* mean/.test(low)) && /what (does|do|is)|mean|clarify|explain|understand|walk me through/.test(low) && !st.flags['x'+k]){ st.flags['x'+k]=true; st.explained=(st.explained||0)+1; return [line(0,c.explain)] }
+    if(st.agreed[k]) return [line(0,`We've already agreed on ${k}. Is there something else you'd like to change there?`)];
+    if(c.never) return [line(0,fresh('law',c.defend))];
+    const effort=a.reason||a.propose||a.cond; st.push[k]=(st.push[k]||0)+(effort?1:0.5);
+    if(effort) st.flags.proposedAlt=(st.flags.proposedAlt||0)+(a.propose||a.cond?1:0);
+    if(effort && st.push[k]>=NEED[S.difficulty]){ st.agreed[k]=true; return [line(0,c.concede)] }
+    return [line(0, fresh('def'+k,c.defend) + (effort?'':' Why is that a problem for you?'))];
+  },
+  probes:[[0,"Which clauses are you most concerned about?"],[0,"Is there anything else in the draft you'd like to flag?"],[0,"Shall we go through the remaining clauses in order?"],[0,"Can you put your proposed wording in writing?"]],
+  onNext:[[0,"Good. Send me your redline by Wednesday and I'll review it with my team."]],
+  closing:[[0,"Good. Send me your redline by Wednesday and I'll review it with my team. Thanks, {name}."]],
+  goals:[st=>(st.explained||0)>=2?'met':(st.explained||0)===1?'partial':'missed', st=>{const n=['3.2','7.1','9.2'].filter(k=>st.flags['c'+k]).length;return n===3?'met':n?'partial':'missed'}, st=>(st.flags.proposedAlt||0)>=2?'met':(st.flags.proposedAlt||0)===1?'partial':'missed', st=>{const n=Object.keys(st.agreed).length;return n>=2&&(st.flags.next||st.flags.summary)?'met':n>=1?'partial':'missed'}],
+  phrases:[["Could you clarify what clause 9.2 means in practice?","Asking for clarification"],["Our main concern with this clause is that…","Flagging a risk"],["Would you be open to a mutual cap of twelve months' fees?","Proposing alternative terms"],["We'd like to propose the following wording:","Introducing a redline"],["So, to confirm, we've agreed on 3.2 and 9.2.","Summarising agreed points"]]
+},
+'contract-negotiation':{
+  opening:[[0,"Alright, {name}. We've got six open issues and not much patience left on our side. Let's close this today. Where do you want to start?"],[1,"And I'll say up front — the liability point matters most to me."]],
+  special(a){
+    const st=S.demo, low=a.low, cond=a.cond||a.propose, need=NEED[S.difficulty], out=[];
+    const iss={fee:/\b(the|your|annual|yearly|license|licence) fee\b|\bprice\b(?! increase)|per year|a year|your number/, term:/\bterm\b|\byears?\b|multi.year/, pay:/payment|quarter|upfront|up front|arrears|net ?60|in advance/, sla:/uptime|\bsla\b|99|service level|credits?\b|downtime|outage/, liab:/liabilit|breach|unlimited|super.?cap|\bcap\b|insurance|iso|soc ?2|certif/, inc:/increase|escalat|7%|fixed (price|pricing)|cpi|inflation|price rise/};
+    let hits=Object.keys(iss).filter(k=>iss[k].test(low)); if(hits.includes('liab')||hits.includes('inc')) hits=hits.filter(k=>k!=='fee'||a.nums.money.length); hits.forEach(k=>st.flags['i_'+k]=true);
+    const m=a.nums.money.find(x=>x>=250000&&x<=500000);
+    if(!hits.length && !m) return null;
+    if(hits.length>=2 && cond && !st.flags.package){ st.flags.package=true; out.push(line(0,"Okay. That's a package I can take seriously.")) }
+    const threeYr=/three.year|3.year|three years|3 years/.test(low);
+    if(m){
+      if(m>=400000) out.push(line(0, fresh('feehigh',["That's barely moved from your opening position.","We're still a long way apart on the fee."])));
+      else if(m>=350000){ if(threeYr||st.agreed.term){ st.agreed.fee=m; st.agreed.term=true; out.push(line(0,`${kUSD(m)} a year on a three-year term… with fixed pricing, I could take that to the board.`)) } else out.push(line(0,`${kUSD(m)} for a one-year deal? No. If you're talking about three years, maybe.`)) }
+      else { st.agreed.fee=m; st.flags.belowWalk=true; out.push(line(0,`${kUSD(m)}? Now we're talking.`)) }
+    } else if(hits.includes('fee') && !st.agreed.fee) out.push(line(0,"So what's your number? We're at three hundred thousand."));
+    if(hits.includes('term') && !m && !st.agreed.term){ if(cond && (threeYr||/two.year|2.year|two years|2 years/.test(low))){ st.agreed.term=true; out.push(line(0,"A multi-year term could work — if the price reflects it.")) } else out.push(line(0,"We're not comfortable locking in for three years without an exit clause.")) }
+    if(hits.includes('pay') && !st.agreed.pay){ if(cond){ st.agreed.pay=true; out.push(line(0,"Quarterly payments would really help our cash flow. If we get that, I can be flexible elsewhere.")) } else out.push(line(0,"Quarterly payment in arrears is important to us. It's a cash-flow issue.")) }
+    if(hits.includes('sla') && !st.agreed.sla){ if(/20%|twenty %/.test(low) || (cond && (st.push.sla=(st.push.sla||0)+1)>=need)){ st.agreed.sla=true; out.push(line(1,"99.9 percent with credits capped at twenty percent… I can accept that.")) } else out.push(line(1,"We need 99.9 percent uptime. We can't go down during peak season.")) }
+    if(hits.includes('liab') && !st.agreed.liab){
+      const offer=/super.?cap|(2|3|two|three) ?(x|times)|insurance|soc ?2|iso|certif|audit/.test(low);
+      if(/unlimited/.test(low) && a.yes){ st.flags.unlimited=true; st.agreed.liab=true; out.push(line(1,"Unlimited for data breaches. Good, I'm glad we agree.")) }
+      else if(offer && ((st.push.liab=(st.push.liab||0)+1)>=need-1)){ st.agreed.liab=true; out.push(line(1,"With your security certifications and a super-cap at three times the annual fee, I can live with that.")) }
+      else out.push(line(1, offer?"That's a step in the right direction, but I need more comfort on data breaches.":"Unlimited liability for data breaches. That's my red line."));
+    }
+    if(hits.includes('inc') && !st.agreed.inc){ if(cond||/3%|cap/.test(low)){ st.agreed.inc=true; out.push(line(0,"A cap on increases… fine, as long as it's no more than three percent a year.")) } else out.push(line(0,"We need pricing fixed for the term. Seven percent a year isn't acceptable.")) }
+    return out.slice(0,3);
+  },
+  probes:[[0,"So what's your number on the fee?",'fee'],[1,"Can you walk me through your security certifications?",'liab'],[0,"Can you lock pricing for the whole term?",'inc'],[1,"What happens if you have an outage during peak season?",'sla'],[0,"Are you open to quarterly payments?",'pay']],
+  pressure:[0,"Our board meets Friday. If we don't have a deal by then, we go with the other vendor."],
+  onNext:[[0,"Good. Let's get the lawyers to paper what we agreed."]],
+  closing:[[0,"Okay. Let's get the lawyers to paper what we agreed. Thanks, {name}."],[1,"Thanks. Please send the updated security annex too."]],
+  goals:[st=>st.flags.agenda?'met':Object.keys(st.flags).filter(k=>k.startsWith('i_')).length>=3?'partial':'missed', st=>st.flags.package?'met':st.proposals>=2?'partial':'missed', st=>st.flags.belowWalk||st.flags.unlimited?'missed':(st.agreed.fee||st.agreed.liab)?'met':'partial', st=>st.flags.summary?'met':st.flags.next?'partial':'missed'],
+  phrases:[["Let's agree on the order of the issues first.","Structuring the meeting"],["If you can accept quarterly payments, we can lock pricing for three years.","Packaging trades"],["That's below what we can accept.","Protecting your walk-away"],["We can offer a super-cap of three times annual fees for data breaches.","Offering a creative alternative"],["Let me summarise where we've landed on each point.","Summarising before closing"]]
+},
+'mg-negotiation':{
+  opening:[[0,"Hi {name}, Karen Whitmore. And this is Ben, our finance director. Thanks for joining. I hope the term sheet was clear — are you happy to move forward on that basis?"],[1,"Hi {name}. Good to meet you."]],
+  special(a){
+    const st=S.demo, low=a.low, need=NEED[S.difficulty];
+    const rr=a.nums.pct.find(x=>x>=5&&x<=15);
+    const m=(rr && st.agreed.mg) ? null : a.nums.money.find(x=>x>=200000&&x<=1500000 && !(st.agreed.mg && Math.abs(x-st.agreed.mg)<20000));
+    const mgCtx=/\bmg\b|minimum|guarantee|total|over (the )?(three|3) years|in total/.test(low);
+    if(m && !rr && (mgCtx || !st.agreed.mg) && !/advance/.test(low) || (m && rr && !st.agreed.mg && mgCtx)){
+      st.flags.mgOffer=true; st.push.mg=(st.push.mg||0)+1;
+      if(st.agreed.mg) return [line(0,`We've already agreed on ${kUSD(st.agreed.mg)}. Let's move on.`)];
+      if(m>=760000){ st.agreed.mg=m; st.flags.mgHigh=true; return [line(0,`${kUSD(m)}? Good — that's close enough. Shall we move on to the royalty?`)] }
+      if(m>=700000){ if(st.push.mg>=need-1 || a.reason || /ramp|first year|year one|lower/.test(low)){ st.agreed.mg=m; return [line(0,`${kUSD(m)}, with a lower first year… I think we can make that work.`),line(1,"I'd want the ramp clearly defined in the contract.")] } return [line(0,"We're getting closer. But I'd need to see how you'd ramp it.")] }
+      if(m>=600000){ if(st.push.mg>=need && (a.reason||st.flags.forecast)){ const v=Math.max(m+50000,700000); st.agreed.mg=v; return [line(0,`If your forecast holds up, we could meet at ${kUSD(v)}, ramped over three years. That's my final position.`)] } return [line(0,`${kUSD(m)} is a big drop from nine hundred.`),line(1,"How did you get to that number?")] }
+      return [line(0,"That's well below what we'd accept. Our partners in Japan and Taiwan are paying a lot more than that.")];
+    }
+    const r=a.nums.pct.find(x=>x>=5&&x<=15);
+    if(r && /royalt|rate|%/.test(low)){
+      st.flags.royalty=true; st.push.roy=(st.push.roy||0)+1;
+      if(r>=12){ st.agreed.royalty=r; return [line(0,"Twelve percent — good, that's what we proposed.")] }
+      if(r>=11){ st.agreed.royalty=r; return [line(0,"Eleven I can do, as long as the MG stays above seven hundred thousand.")] }
+      if(r>=10){ if((a.cond&&st.push.roy>=need)||S.difficulty==='easy'){ st.agreed.royalty=r; return [line(0,"Ten percent, if the MG is at least seven fifty. Okay.")] } return [line(0,"Ten percent would only work with a much higher MG.")] }
+      return [line(0,`${r} percent? No. We'd need at least eleven.`)];
+    }
+    return null;
+  },
+  topics:[
+    {id:'explain',keys:/how (does|do|would|is) (the )?(mg|minimum|shortfall|it work)|shortfall|clarify|what (does|do|is) .{0,20}(mean|mg|minimum)|walk me through|explain/,p:0,say:["Sure. The MG is the minimum royalty you pay us each year, whatever you sell. If your royalties come in below it, you pay the difference within thirty days of year-end. That's the shortfall."]},
+    {id:'cross',keys:/cross|carry (over|forward)|across (the )?(three |3 )?years|over the (whole|full|entire) term|aggregate|annual shortfall|pool/,p:0,guard:["We prefer annual shortfall payments — it protects us if sales are slow."],reveal:[[0,"Okay — cross-collateralised across the three years. But then the advance stays at one hundred and fifty thousand."]],onReveal:st=>st.agreed.cross=true},
+    {id:'advance',keys:/advance|on signing|upfront payment/,p:0,guard:["The advance is a hundred and fifty thousand, recoupable against royalties. That's standard for us."],reveal:[[0,"If the MG is annual, I could bring the advance down to a hundred thousand."]],onReveal:st=>st.agreed.advance=true},
+    {id:'ramp',keys:/ramp|lower first year|year one|first year|step.?up|phase/,p:0,say:["A ramp is reasonable for a new market. What split are you thinking?"]},
+    {id:'forecast',keys:/forecast|we expect|project(ed|ion)|sales of|estimate|million in|net sales|we (will|can|could) sell/,p:1,guard:["And how did you build that forecast? What's it based on?"],reveal:[[1,"Okay — that sounds grounded. I can work with those numbers."]],unlock:(a,st,n)=>a.reason||/store|online|channel|department|retail|e.?commerce|coupang|musinsa|distribut|partner/.test(a.low)||n>=3,onReveal:st=>st.flags.forecastOK=true},
+    {id:'channels',keys:/store|online|channel|department|retail|e.?commerce|coupang|musinsa|distribut|shop|outlet/,p:1,say:["That's helpful. Which of those channels drives most of year one?","Okay, that sounds realistic for year one."]},
+    {id:'approvals',keys:/approv|business days|turnaround/,p:0,guard:["Thirty business days is our global standard."],reveal:[[0,"Okay — fifteen business days. That's the best I can do."]],onReveal:st=>st.agreed.approval=true},
+    {id:'renewal',keys:/renew|option to extend|extension/,p:0,say:["We could offer a renewal option if you reach a hundred and ten percent of the MG."]},
+    {id:'security',keys:/bank guarantee|letter of credit|collateral|security deposit/,p:1,say:["A bank guarantee covering the first year's MG would be enough for us."]}
+  ],
+  probes:[[0,"So, what MG would you propose?",'mgOffer'],[1,"What's your sales forecast for year one?",'forecast'],[1,"Which channels will you sell through?",'channels'],[0,"Are you comfortable with the royalty rate?",'royalty'],[1,"Could you provide a bank guarantee for the MG?",'security']],
+  pressure:[0,"I should mention — there's another licensee in Korea who's very interested."],
+  onNext:[[0,"Great. I'll update the term sheet with what we discussed and send it over this week."]],
+  closing:[[0,"Great. I'll update the term sheet and send it over this week."],[1,"Thanks, {name}. Please send your forecast assumptions as well."]],
+  goals:[st=>st.flags.explain?'met':'missed', st=>st.flags.forecastOK?'met':st.flags.forecast?'partial':'missed', st=>st.agreed.mg&&st.agreed.mg<=720000&&(st.agreed.cross||st.flags.ramp)?'met':st.agreed.mg||st.flags.mgOffer?'partial':'missed', st=>{const n=['royalty','advance','approval','cross'].filter(k=>st.agreed[k]).length;return n>=2?'met':n?'partial':'missed'}, st=>st.flags.summary?'met':st.flags.next?'partial':'missed'],
+  phrases:[["Could you walk me through how the shortfall payment works?","Clarifying the MG mechanics"],["Based on our forecast of $1.6M in year one, an MG of $900K isn't realistic.","Using data to push back"],["Would you consider cross-collateralising the MG across the three years?","Proposing structure"],["If you can ramp the MG, we can keep the royalty at 12%.","Trading terms"],["So, to recap: $700K MG, ramped, cross-collateralised, with 15-day approvals.","Summarising the deal"]]
+}
+};
+
+/* ---------- Demo debrief (rule-based analysis of what you actually said) ---------- */
+const GRAMMAR = [
+  [/\bdiscuss about\b/gi,'discuss','"Discuss" doesn\'t take "about".','"discuss"에는 about을 쓰지 않아요.',1],
+  [/\bexplain me\b/gi,'explain to me','"Explain" needs "to" before the person.','explain 뒤 사람 앞에는 to가 필요해요.',1],
+  [/\bcontact to\b/gi,'contact','"Contact" takes a direct object.','contact는 바로 목적어를 받아요.',1],
+  [/\bmore cheap(er)?\b/gi,'cheaper','Use the comparative "cheaper".','비교급은 cheaper.',1],
+  [/\bmore better\b/gi,'better','"Better" is already comparative.','better 자체가 비교급이에요.',1],
+  [/\binformations\b/gi,'information','"Information" is uncountable.','information은 셀 수 없는 명사예요.',1],
+  [/\badvices\b/gi,'advice','"Advice" is uncountable.','advice는 셀 수 없는 명사예요.',1],
+  [/\bfeedbacks\b/gi,'feedback','"Feedback" is uncountable.','feedback은 셀 수 없는 명사예요.',1],
+  [/\bequipments\b/gi,'equipment','"Equipment" is uncountable.','equipment는 셀 수 없는 명사예요.',1],
+  [/\breturn back\b/gi,'return','"Return" already means "go back".','return에 이미 back의 의미가 있어요.',1],
+  [/\bi'?m agree\b/gi,'I agree','"Agree" is a verb — no "am".','agree는 동사라 am이 필요 없어요.',1],
+  [/\bit'?s depends?\b/gi,'it depends','Use the verb: "it depends".','it depends가 맞는 형태예요.',1],
+  [/\bhow do you think\b/gi,'what do you think','With "think", use "what".','think와는 what을 써요.',1],
+  [/\bthe price is (so |very )?expensive\b/gi,'the price is high','Prices are "high"; products are "expensive".','가격은 high, 물건이 expensive예요.',1],
+  [/\bsorry for late\b/gi,'sorry for the delay','More natural professional phrasing.','비즈니스에서 더 자연스러운 표현이에요.',1],
+  [/\bmake a meeting\b/gi,'set up a meeting','Natural collocation.','자연스러운 연어 표현이에요.',1],
+  [/\bi want to\b/gi,"I'd like to",'"I\'d like to" sounds more polite in business.','비즈니스에서는 I\'d like to가 더 정중해요.',0],
+  [/\bi think maybe\b/gi,'I believe','Double hedging weakens your point.','이중 완충 표현은 주장을 약하게 만들어요.',0],
+  [/\bwe will try\b/gi,"we'll make sure",'Show commitment, not uncertainty.','불확실함 대신 확신을 보여주세요.',0],
+  [/\bas soon as possible\b/gi,'by [a specific date]','Specific dates build trust.','구체적인 날짜가 신뢰를 줘요.',0],
+  [/\b(that is|it'?s) impossible\b/gi,'that would be difficult for us, because…','Softer, and keeps the negotiation open.','더 부드럽고 협상의 여지를 남겨요.',0],
+  [/\bwe can'?t\b/gi,"we're not in a position to",'Softer — then follow with what you CAN do ("…, but what we can do is…").','더 부드러운 표현이에요. 이어서 "…, but what we can do is…"로 대안을 제시하세요.',0],
+  [/\bplease check\b/gi,'could you take a look at','A request form sounds more natural.','요청형이 더 자연스러워요.',0],
+  [/\bi have a question\b/gi,'(ask the question directly)','Go straight to the question — it sounds confident.','바로 질문하는 게 더 자신감 있어 보여요.',0],
+  [/\bgive (us|you) (a )?discount\b/gi,'offer a reduction in exchange for…','Frame a discount as a trade.','할인은 교환 조건으로 제시하세요.',0],
+  [/\bno problem\b/gi,'that works for us','More professional acceptance.','더 프로페셔널한 수락 표현이에요.',0],
+  [/\bvery very\b/gi,'extremely','Use a stronger word instead of repeating "very".','very 반복 대신 강한 단어를 쓰세요.',0]
 ];
+const BIZ = /\b(proposal|timeline|budget|deliverable|stakeholder|leverage|commitment|alternative|priorit|scope|clause|terms|liabilit|revenue|forecast|margin|implementation|concern|flexib|compromise|objective|mutual|reasonable|approach|recoup|royalt|guarantee|negotiat|requirement|milestone|deadline|accountab|transparen|feasib|constraint|trade-?off|in exchange|on the condition)/gi;
+function demoAnalyze(m){
+  const st=S.demo||{intents:[],flags:{},agreed:{},revealed:{},rapport:0,proposals:0}, me=S.log.filter(l=>l.me), all=me.map(l=>l.text).join(' ');
+  const words=all.toLowerCase().match(/[a-z']+/g)||[], ttr=words.length?new Set(words).size/words.length:0, sample=Math.min(1,words.length/180);
+  const I=st.intents, cnt=k=>I.filter(a=>a[k]).length;
+  const qN=cnt('q'), openN=cnt('open'), empN=cnt('empathy'), reasonN=cnt('reason'), condN=cnt('cond'), propN=cnt('propose'), signN=cnt('signpost'), numN=I.filter(a=>a.nums.money.length||a.nums.pct.length).length;
+  const biz=(all.match(BIZ)||[]).length;
+  const errs=[], rewrites=[];
+  me.forEach(l=>{
+    let better=l.text, whys=[];
+    GRAMMAR.forEach(([re,to,en,ko,isErr])=>{ re.lastIndex=0; if(re.test(better)){ re.lastIndex=0; better=better.replace(re,m0=>/^[A-Z]/.test(m0)?to.charAt(0).toUpperCase()+to.slice(1):to); whys.push(L(en,ko)); if(isErr) errs.push(en) } });
+    if(better!==l.text && rewrites.length<6) rewrites.push({original:l.text, better, why:whys.join(' ')});
+  });
+  me.forEach(l=>{
+    if(rewrites.length>=4) return; const t=l.text.trim(), w=t.split(/\s+/).length;
+    if(rewrites.some(r=>r.original===t)) return;
+    if(/^(give|send|tell|check|show|lower|reduce)\b/i.test(t)) rewrites.push({original:t, better:'Could you '+t.charAt(0).toLowerCase()+t.slice(1).replace(/[.!]$/,'?'), why:L('A direct command can sound abrupt — turn it into a request.','명령문은 딱딱하게 들려요. 요청형으로 바꿔보세요.')});
+    else if(w<=3 && /^(yes|no|ok|okay|sure|maybe)\b/i.test(t)) rewrites.push({original:t, better:t.replace(/[.!?]$/,'')+(/^no/i.test(t)?" — unfortunately that won't work for us, because…":" — and to add to that, …"), why:L('One-word answers sound passive. Add a reason or detail.','한 단어 답변은 소극적으로 들려요. 이유나 설명을 붙이세요.')});
+    else if(w>=6 && /negotiation|mg-/.test(S.scenarioId) && /\b(we|i) (can|will|could) (offer|give|do|lower|reduce|accept)/i.test(t) && !/\b(if|because|in exchange|provided)\b/i.test(t)) rewrites.push({original:t, better:t.replace(/[.!]$/,'')+', provided that…', why:L('Attach a condition so concessions are trades, not gifts.','조건을 붙여 양보를 "교환"으로 만드세요.')});
+  });
+  if(!rewrites.length) rewrites.push({original:'I will check and tell you.', better:"Let me look into that and get back to you by end of day tomorrow.", why:L('Example: adds ownership and a concrete timeframe.','예시: 책임감과 구체적인 기한을 더해요.')});
+  const clamp=v=>Math.max(30,Math.min(96,Math.round(v)));
+  const fr = m.myWords? m.fTotal/m.myWords : 0, avg=m.avgLen;
+  const sc = {
+    'Fluency & flow': clamp(58 + (avg>=10&&avg<=40?14:avg>=6?6:-8) + (fr<.02?10:fr<.05?3:-8) + (m.wpm?(m.wpm>=100&&m.wpm<=165?8:0):3) + Math.min(8,m.turns)),
+    'Grammar & accuracy': clamp(90 - errs.length*7 - (avg<6?10:0)),
+    'Vocabulary & register': clamp(50 + ttr*30 + Math.min(18,biz*3) + Math.min(10,words.length/40)),
+    'Clarity & structure': clamp(58 + signN*5 + (st.flags.agenda?7:0) + (st.flags.summary?8:0) + (avg>=8?6:0) - (st.clar||0)*4),
+    'Persuasion & negotiation': clamp(52 + reasonN*5 + condN*6 + Math.min(12,propN*4) + numN*3 + (st.flags.traded||st.flags.package?10:0) - (st.flags.overgave||st.flags.gaveFree||st.flags.belowWalk||st.flags.unlimited?12:0) - (st.flags.excused?8:0)),
+    'Listening & responsiveness': clamp(54 + Math.min(20,qN*4) + openN*3 + empN*4 + (st.rapport>=2?5:0))
+  };
+  Object.keys(sc).forEach(k=>sc[k]=clamp(50+(sc[k]-50)*(0.55+0.45*sample)));   // short sessions → less extreme scores
+  const overall = Math.round(Object.values(sc).reduce((a,b)=>a+b,0)/6);
+  let lv = overall<55?'B1':overall<64?'B1+':overall<73?'B2':overall<82?'B2+':overall<90?'C1':'C1+'; if(m.myWords<150 && /C1/.test(lv)) lv='B2+';
+  const level = lv+' · demo';
+  const d=D(), allLow=normText(all);
+  const gfn = d.goals || (S.scenarioId==='custom' ? [st=>(st.flags.summary||st.flags.next)&&st.proposals>=1?'met':st.proposals>=1?'partial':'missed', st=>errs.length<=1&&avg>=8?'met':avg>=5?'partial':'missed', st=>st.intents.filter(x=>x.reason||x.cond).length>=2?'met':st.intents.some(x=>x.reason||x.cond)?'partial':'missed'] : []);
+  const kwGoal=g=>{ const stop=new Set(['their','about','which','would','there','these','those','clear','clearly','achieve','outcome','described']); const ks=(g.toLowerCase().match(/[a-z]{5,}/g)||[]).filter(w=>!stop.has(w)).map(w=>w.slice(0,5)); const h=ks.filter(k=>allLow.includes(k)).length; return h>=2?'met':h===1?'partial':'missed' };
+  const NOTE={met:L('Achieved during the meeting.','회의 중에 달성했어요.'),partial:L('Started, but not fully completed.','시도했지만 완전히 마무리하진 못했어요.'),missed:L('Not addressed in this meeting.','이번 회의에서는 다루지 않았어요.')};
+  const goals=S.goals.map((g,i)=>{ const s=gfn[i]?gfn[i](st):kwGoal(g); return {goal:g,status:s,note:NOTE[s]} });
+  const S1=[], S2=[];
+  if(qN>=3) S1.push(L(`You asked ${qN} questions — good for keeping the other side talking.`,`질문을 ${qN}번 해서 상대가 계속 이야기하도록 잘 이끌었어요.`));
+  if(openN>=2) S1.push(L('You used open questions (what / how / why) to uncover information.','what/how/why로 시작하는 열린 질문으로 정보를 끌어냈어요.'));
+  if(empN>=1) S1.push(L('You acknowledged their position, which builds rapport.','상대의 입장을 인정해 신뢰를 쌓았어요.'));
+  if(reasonN>=2) S1.push(L('You supported your points with reasons.','주장을 이유로 뒷받침했어요.'));
+  if(condN>=1||st.flags.traded||st.flags.package) S1.push(L('You framed concessions as conditional trades ("if… then…").','양보를 "if… then…" 조건부 교환으로 제시했어요.'));
+  if(st.flags.summary) S1.push(L('You summarised before closing.','마무리 전에 내용을 요약했어요.'));
+  if(fr<.02 && m.myWords>40) S1.push(L('Very few fillers — you sounded composed.','군말이 거의 없어 침착하게 들렸어요.'));
+  if(avg>=12) S1.push(L('Your answers were developed, not just one-liners.','짧은 답변이 아니라 충분히 전개된 답변을 했어요.'));
+  if(!S1.length) S1.push(L('You stayed in the conversation until the end.','끝까지 회의에 참여했어요.'));
+  if(qN<2) S2.push(L('Ask more questions — especially open ones like "What would success look like for you?"','질문을 더 하세요. 특히 "What would success look like for you?" 같은 열린 질문이요.'));
+  if(avg<8) S2.push(L(`Your average turn was only ${avg} words. Add a reason or an example to each answer.`,`평균 발화가 ${avg}단어로 짧아요. 답변마다 이유나 예시를 하나씩 붙이세요.`));
+  if(st.flags.gaveFree||st.flags.overgave) S2.push(L('You gave a concession without getting anything back. Always trade: "If you…, we can…"','대가 없이 양보했어요. 항상 "If you…, we can…"으로 교환하세요.'));
+  if(st.flags.belowWalk||st.flags.unlimited||st.flags.mgHigh) S2.push(L('You agreed to a term outside your mandate. Know your walk-away point before the meeting.','협상 기준선 밖의 조건에 동의했어요. 회의 전에 마지노선을 정해두세요.'));
+  if(st.flags.excused) S2.push(L('Avoid blaming others — own the problem first, then explain.','남 탓을 피하고, 먼저 책임을 인정한 뒤 설명하세요.'));
+  if(!st.flags.summary) S2.push(L('Close with a summary: "So, to confirm, we\'ve agreed to…"','"So, to confirm, we\'ve agreed to…"로 요약하며 마무리하세요.'));
+  if(signN===0) S2.push(L('Use signposting ("First…, second…, finally…") to make your structure clear.','"First…, second…, finally…" 같은 구조 표현을 쓰세요.'));
+  if(fr>=.05) S2.push(L('Reduce fillers like "you know" and "kind of" — pause silently instead.','"you know", "kind of" 같은 군말 대신 잠깐 멈추세요.'));
+  if(errs.length) S2.push(L(`Watch common errors: ${[...new Set(errs)].slice(0,2).join(' ')}`,`자주 하는 실수에 주의하세요: ${[...new Set(errs)].slice(0,2).join(' ')}`));
+  const headline = overall>=82?L('Strong, confident meeting performance','자신감 있고 탄탄한 회의 진행'):overall>=72?L('Solid meeting — a few habits to polish','안정적인 회의 — 다듬을 습관 몇 가지'):overall>=62?L('You got through it — now sharpen structure and precision','회의는 해냈어요 — 이제 구조와 정확성을 다듬어요'):L('Good start — focus on fuller, clearer answers','좋은 시작 — 더 충분하고 명확한 답변에 집중하세요');
+  const met=goals.filter(g=>g.status==='met').length;
+  const summary = L(`You spoke ${m.turns} times (${m.myWords} words, ${m.share}% of the conversation) and met ${met} of ${goals.length} objectives. This debrief is generated by Pactli's rule-based demo analysis — connect the AI for a full coach's review.`,
+    `총 ${m.turns}번 발언(${m.myWords}단어, 대화의 ${m.share}%)했고 목표 ${goals.length}개 중 ${met}개를 달성했어요. 이 리포트는 데모용 규칙 기반 분석입니다 — AI를 연결하면 코치 수준의 상세 피드백을 받을 수 있어요.`);
+  return {overall, level, headline, summary, scores:sc, goals, strengths:S1.slice(0,4), improvements:S2.slice(0,4), rewrites:rewrites.slice(0,6), phrases:(d.phrases||DEMO.generic.phrases).map(([phrase,use])=>({phrase,use}))};
+}
+
 
 /* =========================================================
    MEETING FLOW
@@ -1320,8 +1834,8 @@ function startMeeting(){
     custom:sc.custom?$('fCustom').value.trim():'', topic:sc.needsTopic?$('fTopic').value.trim():'',
     messages:[], log:[], userTurns:[], start:0, timer:null, busy:false, ended:false, skip:false, lastAI:null, demoI:0
   };
-  if(!rec) rec = initRec();
-  $('rTitle').textContent = S.title; $('rSub').textContent = `${S.tag} · ${dlabel(S.difficulty)} · you are ${S.role}`;
+  try{ if(rec){ rec.onend=null; rec.abort() } }catch(e){} rec = initRec(); recOn=false; recDone=true;
+  $('rTitle').textContent = S.title; $('rSub').textContent = `${S.tag} · ${dlabel(S.difficulty)} · you are ${S.role}${settings.demo?' · demo mode':''}`;
   $('tiles').innerHTML = S.personas.map((p,i)=>`
     <div class="tile" id="tile-${i}"><span class="av" style="background:${p.color}">${initials(p.name)}</span>
       <div class="nm">${esc(p.name)}</div><div class="rl">${esc(p.role)}</div><div class="wave"><i></i><i></i><i></i><i></i></div></div>`).join('') +
@@ -1367,10 +1881,8 @@ async function aiTurn(userContent){
   let out;
   try{
     if(settings.demo){
-      await new Promise(r=>setTimeout(r,700));
-      const line = S.demoI===0 ? `Hi ${S.name}, thanks for making the time. Shall we get started?` : DEMO_LINES[Math.min(S.demoI-1,DEMO_LINES.length-1)];
-      out = {turns:[{speaker:S.personas[S.demoI%S.personas.length].name,text:line}],end:S.demoI>=DEMO_LINES.length};
-      S.demoI++;
+      await new Promise(r=>setTimeout(r,500+Math.random()*700));
+      out = S.messages.length<=1 ? demoOpen() : demoReply(S.lastUserText||'');
     } else {
       const raw = await callAI(meetingSystem(), S.messages, 'chat');
       try{ out = parseJSON(raw) }catch(e){ out = {turns:[{speaker:S.personas[0].name,text:raw.replace(/[{}"]/g,'').trim()}],end:false} }
@@ -1397,7 +1909,7 @@ async function aiTurn(userContent){
   if(out.end){
     addLog('sys','The meeting has been closed.');
     setStatus('Meeting closed — preparing your debrief…');
-    setTimeout(()=>endMeeting(true),1800);
+    const s0=S; setTimeout(()=>{ if(S===s0) endMeeting(true) },1800);
     return;
   }
   $('mic').disabled=false; setStatus(rec?'Your turn — tap the mic or press Space':'Your turn — type your reply');
@@ -1412,7 +1924,7 @@ function userSays(text, dur){
   if(!S || S.busy || S.ended) return;
   const words = text.split(/\s+/).filter(Boolean).length;
   S.userTurns.push({text, words, dur: dur||0});
-  addLog('me', text);
+  addLog('me', text); S.lastUserText=text;
   aiTurn(`${stamp()} ${S.name}: ${text}`);
 }
 function sendTyped(){
@@ -1467,7 +1979,7 @@ async function endMeeting(auto){
   go('report');
   let fb;
   try{
-    if(settings.demo) fb = demoFeedback();
+    if(settings.demo) fb = demoAnalyze(m);
     else {
       const transcript = S.log.map(l=>`${l.me?'LEARNER ('+S.name+')':l.speaker}: ${l.text}`).join('\n');
       const raw = await callAI(reportSystem(), [{role:'user',content:
@@ -1484,17 +1996,6 @@ async function endMeeting(auto){
 }
 function retryReport(){ if(S){ S.ended=false; endMeeting(true) } }
 function cleanup(){ clearInterval(S.timer); speechSynthesis.cancel(); if(recOn) stopMic(false) }
-
-function demoFeedback(){
-  const me = S.log.filter(l=>l.me);
-  return {overall:72,level:'B2+ (demo)',headline:'Demo report — connect the API for real feedback',summary:'This is sample output shown in demo mode. With the server connected, this section analyses your actual words against the meeting objectives.',
-    scores:{'Fluency & flow':74,'Grammar & accuracy':70,'Vocabulary & register':68,'Clarity & structure':75,'Persuasion & negotiation':66,'Listening & responsiveness':78},
-    goals:S.goals.map((g,i)=>({goal:g,status:['met','partial','missed'][i%3],note:'Sample evaluation.'})),
-    strengths:['Kept answers short and on topic','Polite, professional tone','Responded directly to questions'],
-    improvements:['Ask more open questions to uncover needs','Signpost your structure ("First… second…")','Confirm next steps with a specific date'],
-    rewrites:(me.slice(0,3).map(l=>({original:l.text,better:'(An improved version would appear here.)',why:'Demo mode'}))).concat([{original:'I will check and tell you.',better:'Let me look into that and get back to you by end of day tomorrow.',why:'Adds ownership and a concrete timeframe.'}]),
-    phrases:[{phrase:'To make sure we\'re on the same page…',use:'Summarising before moving on'},{phrase:'What would success look like for you?',use:'Uncovering real goals'},{phrase:'If we were able to…, would you be in a position to…?',use:'Conditional trading in negotiation'}]};
-}
 
 function renderReport(r){
   const f=r.fb, m=r.metrics, C=2*Math.PI*66, off=C*(1-(f.overall||0)/100);
