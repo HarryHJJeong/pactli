@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <script>/* PC/Mobile view — applied before first paint */(function(){try{var v=JSON.parse(localStorage.getItem('pactli_view')||'"auto"');var small=Math.min(screen.width,screen.height)<760;var m=v==='mobile'||(v==='auto'&&(small||innerWidth<760));if(m)document.documentElement.classList.add('mob');if(v==='pc'&&small)document.querySelector('meta[name=viewport]').content='width=1280';}catch(e){}})();</script>
 <title>Pactli</title>
-<meta name="description" content="AI 상대와 음성으로 진행하는 비즈니스 영어 회의·협상 시뮬레이션">
+<meta name="description" content="Business English meeting and negotiation simulator with voice counterparts">
 <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 430 430%22%3E%3Crect width=%22430%22 height=%22430%22 rx=%2295%22 fill=%22%23F8F7F2%22/%3E%3Cg fill=%22none%22 stroke=%22%2306452C%22 stroke-width=%2248%22 stroke-linecap=%22round%22 stroke-linejoin=%22round%22%3E%3Cpath d=%22M128 140 V340%22/%3E%3Cpath d=%22M128 168 C128 128 162 110 200 110 C252 110 282 146 282 192 C282 238 252 274 200 274 C162 274 128 256 128 220%22/%3E%3C/g%3E%3Ccircle cx=%22340%22 cy=%22300%22 r=%2228%22 fill=%22%238ED000%22/%3E%3C/svg%3E">
 <meta name="theme-color" content="#293e36">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -683,7 +683,7 @@ html.mob .modal .pane{max-width:410px!important}
         </div>
         <div class="field"><label>Difficulty</label>
           <div class="seg" id="segDiff">
-            <button data-v="easy">Easy · 쉬움</button><button data-v="medium" class="on">Medium · 중간</button><button data-v="hard">Hard · 어려움</button><button data-v="veryhard">Very Hard · 매우 어려움</button>
+            <button data-v="easy">Easy</button><button data-v="medium" class="on">Medium</button><button data-v="hard">Hard</button><button data-v="veryhard">Very Hard</button>
           </div>
           <div class="hint" id="diffHint"></div>
         </div>
@@ -843,7 +843,7 @@ html.mob .modal .pane{max-width:410px!important}
       <div><label>Speech recognition</label><select id="setLang"><option value="en-US">English (US)</option><option value="en-GB">English (UK)</option><option value="en-AU">English (AU)</option></select></div>
       <div><label>AI voice speed</label><select id="setRate"><option value="0.85">Slower</option><option value="1">Natural</option><option value="1.12">Faster</option></select></div>
     </div>
-    <div class="field"><label>Feedback language</label><select id="setFb"><option value="en">English</option><option value="ko">한국어 (explanations in Korean)</option></select></div>
+    <select id="setFb" hidden><option value="en">English</option></select>
     <div class="toggle"><div>Auto-send when I stop<small>Off = review the recognised text before sending</small></div><button class="sw" id="setAuto" onclick="this.classList.toggle('on')"></button></div>
     <div class="toggle"><div>Show AI captions live<small>Turn off for a harder listening challenge</small></div><button class="sw" id="setCap" onclick="this.classList.toggle('on')"></button></div>
     <div class="toggle"><div>Rule-based engine<small>Built-in counterparts &amp; feedback — no AI needed. Turn off to use the AI (requires the server key).</small></div><button class="sw" id="setDemo" onclick="this.classList.toggle('on')"></button></div>
@@ -901,13 +901,13 @@ html.mob .modal .pane{max-width:410px!important}
    DIFFICULTY
    ========================================================= */
 const DIFF = {
-  easy:{label:'Easy · 쉬움', hint:'Patient, cooperative counterparts. Slower, simpler English. Little pushback.',
+  easy:{label:'Easy', hint:'Patient, cooperative counterparts. Slower, simpler English. Little pushback.',
     prompt:'EASY: cooperative and patient. Use simple, common vocabulary and short sentences. Give the learner time and, if they struggle, help with a gentle prompt. Mild or no pushback; accept reasonable points readily.'},
-  medium:{label:'Medium · 중간', hint:'Typical professionals. Natural pace, fair questions and reasonable objections.',
+  medium:{label:'Medium', hint:'Typical professionals. Natural pace, fair questions and reasonable objections.',
     prompt:'MEDIUM: a typical professional — fair, natural pace and vocabulary, genuine questions and reasonable objections. Concede when given good reasons.'},
-  hard:{label:'Hard · 어려움', hint:'Skeptical and demanding. Probing follow-ups, firm pushback, business jargon.',
+  hard:{label:'Hard', hint:'Skeptical and demanding. Probing follow-ups, firm pushback, business jargon.',
     prompt:'HARD: demanding and skeptical. Push back firmly, probe vague answers and numbers, use business jargon and idioms. Concede only in exchange for something.'},
-  veryhard:{label:'Very Hard · 매우 어려움', hint:'Senior negotiators. Interruptions, pressure tactics, fast idiomatic English, rare concessions.',
+  veryhard:{label:'Very Hard', hint:'Senior negotiators. Interruptions, pressure tactics, fast idiomatic English, rare concessions.',
     prompt:'VERY HARD: seasoned senior negotiators. Interrupt long or vague answers, use pressure tactics (aggressive anchoring, deadlines, "take it or leave it", strategic silence, good-cop/bad-cop between participants), raise unexpected objections, and speak fast with advanced idiomatic English. Concede rarely and only for clear value. Stay professional — never insulting.'}
 };
 const dlabel = d => (DIFF[d]&&DIFF[d].label) || d;
@@ -954,7 +954,7 @@ const SCENARIOS = [
      explain:"That's what we'd pay you each month.",why:"we need to see results before we commit more budget.",defend:["That's more than we planned to spend, especially before we've seen results."]}
   ],
   hidden:[
-    {id:'pain',keys:'challenge|problem|pain|issue|struggl|frustrat|not working|biggest|difficult|concern|why (are|did) you',owner:0,unlock:'any',
+    {id:'pain',keys:'challenge|problem|pain|headache|main issue|issue|struggl|frustrat|not working|biggest|difficult|concern|why (are|did) you',owner:0,unlock:'any',
      reveal:"Honestly? We get plenty of traffic to the website, but most of the leads are junk — students, job seekers, even competitors. Our sales team wastes half their week on them.",recap:'low-quality leads from the website'},
     {id:'budget',keys:'budget|spend|invest|how much (can|could|would|do)|price range|afford|money',owner:0,unlock:'trust',
      guard:["We're still working that out. I'd rather hear what you'd recommend first.","I'm not going to put a number on the table this early, to be honest."],
@@ -994,12 +994,12 @@ const SCENARIOS = [
     {name:'James Whitfield',role:'Head of Operations, Halcyon Retail',gender:'m',color:'#e2ecff',stance:'ally',traits:{warmth:.75,patience:.7,assert:.3},
      brief:"Actually prefers the learner's solution and worries the cheaper competitor lacks retail experience. Speaks less, occasionally asks about implementation risk and timeline. Can be won over as an ally."}],
   issues:[
-    {id:'discount',label:'the discount',range:[0,60],keys:'discount|price|percent|%|off\\b|reduc|lower|cheaper|number',owner:0,unit:'pct',better:'up',open:20,target:12,reserve:10,limit:10,step:3,weight:3,
+    {id:'discount',label:'the discount',range:[0,60],keys:'discount|price|percent|%|\\d+ ?% off|off the price|reduc|lower|cheaper|number',owner:0,unit:'pct',better:'up',open:20,target:12,reserve:10,limit:10,step:3,weight:3,
      trades:'two.year|2.year|multi.year|three.year|3.year|longer (term|contract|commitment)|upfront|up front|prepay|in advance|reduc\\w* (the )?scope|phase|reference|case study|referral|pay (in full|annually)',tradeBonus:3,
      explain:"We need you to come down from your quoted price.",why:"the competing quote is about twenty percent lower.",defend:["We need you to get closer to their number.","My director won't sign at this price."]}
   ],
   hidden:[
-    {id:'competitor',keys:'competitor|driving|behind (the|your|that|this)|reason (for|behind)|why (do|did|are) you (ask|need|want|request)|where does (the|that|this) .{0,15}come from|which (vendor|company)|who (is|are) (they|the other)|cheaper|lower quote|their (quote|offer|price|proposal)|compar',owner:0,unlock:'any',
+    {id:'competitor',keys:'competitor|other vendor|same scope|their scope|coming from|where (is|does) (this|that|the) .{0,30}come from|driving|behind (the|your|that|this)|reason (for|behind)|why (do|did|are) you (ask|need|want|request)|where does (the|that|this) .{0,15}come from|which (vendor|company)|who (is|are) (they|the other)|cheaper|lower quote|their (quote|offer|price|proposal)|compar',owner:0,unlock:'any',
      reveal:"I can't share their name. But their quote was around a hundred and ninety-two thousand.",recap:'the competitor quoted about $192K'},
     {id:'weakness',keys:'experience|retail|track record|case stud|risk|reliab|expertise|proven|references|rollout',owner:1,unlock:'reason',
      guard:["Their proposal looked solid on paper."],
@@ -1136,7 +1136,7 @@ const SCENARIOS = [
     {id:'rival',keys:'other licensee|alternative|someone else|other (partner|company)|competition',owner:0,unlock:'any',reveal:"I'll be honest — there's another licensee in Korea who's interested, but they don't have your retail network.",recap:'a rival licensee exists but lacks retail reach'}
   ],
   topics:[
-    {id:'explain',keys:'how (does|do|would|is) (the )?(mg|minimum|shortfall|it work)|shortfall|walk me through|clarify|what (does|do|is) .{0,25}(mean|mg|minimum)',owner:0,say:["Sure. The MG is the minimum royalty you pay us each year, whatever you sell. If your royalties come in below it, you pay the difference within thirty days of year-end. That's the shortfall."]},
+    {id:'explain',keys:'how (does|do|would|is) (the )?(mg|minimum|shortfall|it work)|shortfall|what happens if|if (our|the) sales|sales (are|come in) (lower|below)|walk me through|clarify|what (does|do|is) .{0,25}(mean|mg|minimum)',owner:0,say:["Sure. The MG is the minimum royalty you pay us each year, whatever you sell. If your royalties come in below it, you pay the difference within thirty days of year-end. That's the shortfall."]},
     {id:'ramp',keys:'ramp|lower first year|year one|first year|step.?up|phase',owner:0,say:["A ramp is reasonable for a new market. What split are you thinking?"]},
     {id:'renewal',keys:'renew|option to extend|extension',owner:0,say:["We could offer a renewal option if you reach a hundred and ten percent of the MG."]},
     {id:'security',keys:'bank guarantee|letter of credit|collateral|security deposit',owner:1,say:["A bank guarantee covering the first year's MG would give us real comfort."]}
@@ -1202,6 +1202,120 @@ const SCENARIOS = [
   issues:[], hidden:[], topics:[]
 }
 ];
+/* =========================================================
+   SCENARIO KNOWLEDGE — what each counterpart knows and can talk about beyond the deal itself.
+   Merged into SCENARIOS at load (also editable per scenario in the editor / Excel "Knowledge" sheet).
+   about[]      per persona: how they introduce themselves
+   kb{intent}   answers to general questions (company, team, decide, time, priority, need, opinion, past,
+                standard, whyus, japan, asset, …) · kbOwner{intent} = persona index that answers
+   ask{issue}   what they want in exchange when asked to be flexible on that issue
+   keysAdd{issue} extra keywords · topics[] extra topics (several replies each, used in turn)
+   moreSay{topic} extra replies for existing topics
+   ========================================================= */
+const SCENARIO_KB = {
+  discovery:{
+    about:[["I run marketing at Northwind — the website, lead generation, events. Sales is the team I have to keep happy.","I've been VP Marketing here for about three years. Lead generation is the part that keeps me up at night."]],
+    kb:{company:["We're a mid-size freight and warehousing company — about four hundred people, mostly in the Midwest.","Northwind moves freight and runs warehouses for manufacturers. We've grown fast, but our marketing hasn't kept up."],
+      team:["My team is small — four people. We do content and events in-house, but nobody here really knows paid media.","Four people in marketing, about twenty in sales. Sales is who complains about the leads."],
+      whyus:["Honestly? A colleague said you did good work in B2B. And we can't afford another quarter like the last one.","We saw your case study with a logistics company. That's closer to our world than most agencies get."],
+      opinion:["It sounds sensible. I've just heard 'sensible' before — what's different this time?","I like that you're asking questions first. The last agency pitched before they understood anything."],
+      need:["Show me how you'd filter out the junk leads — and how I'll know it's working before the quarter ends.","A plan I can explain to my CEO in two minutes."],
+      priority:["Lead quality. Not more leads — better ones.","Getting sales to trust marketing again, honestly."],
+      standard:["We don't have a standard process — that's partly the problem."]},
+    ask:{fee:"show me results in the first month, and a higher fee becomes much easier to justify."},
+    topics:[
+      {id:'tools',keys:'crm|hubspot|salesforce|tools|software|tracking|analytics|google ads|attribution',owner:0,say:["We use HubSpot, but honestly nobody trusts the data in it.","The tracking was set up by the last agency. I'm not sure what's actually being measured.","Google Analytics and HubSpot. Neither is connected to what sales actually closes."]},
+      {id:'website',keys:'website|\\bsite\\b|landing page|contact form|traffic|visitors|seo',owner:0,say:["The site gets about eight thousand visits a month. The contact form is where the junk comes from.","Traffic isn't the problem. What happens after someone lands on the site is.","Most of our traffic is people looking for jobs, if I'm honest."]},
+      {id:'salesteam',keys:'sales (team|reps|people|director)|follow.?up|call (the )?leads|sales process|hand.?off',owner:0,say:["Sales calls every lead within a day. Most of them go nowhere.","My sales director has basically stopped trusting marketing leads.","There's no real hand-off process. Leads just land in a shared inbox."]}
+    ]},
+  negotiation:{
+    about:[["I run procurement for Halcyon. My job is to get the best deal — not the nicest presentation.","I lead procurement here. I've been through a lot of software deals."],["I'm Head of Operations — I'm the one who has to live with whatever we buy.","I run store operations. Forty of my people would use this system every day."]],
+    kb:{company:["Halcyon runs about a hundred and twenty stores across Korea, and online is growing fast.","We're a mid-size retailer — a hundred and twenty stores, and a growing online business."],
+      team:["About forty people in operations would use the CRM every day. Most of them aren't tech people."],
+      decide:["I negotiate the deal. Our CFO approves anything over two hundred thousand.","Procurement leads this, but James has a strong voice on the operational side."],
+      priority:["Price, obviously. But James will tell you a failed rollout costs more than any discount.","Getting a fair price — and not regretting it six months later."],
+      need:["A number closer to theirs. Or a very good reason why we should pay more.","Something that makes this an easy decision for my CFO."],
+      past:["Our last CRM project ran four months late. Nobody here wants to repeat that."],
+      opinion:["Your proposal is strong. Your price isn't.","Operationally, we like it. Financially, we have a problem."],
+      standard:["We always get at least two quotes. That's policy."]},
+    kbOwner:{team:1,past:1},
+    ask:{discount:"if we committed to two years instead of one, what would that do to your price?"},
+    topics:[
+      {id:'support',keys:'support|account manager|training|help ?desk|after.?sales|24.?7|onboarding',owner:1,say:["Training matters a lot to us — our store managers aren't tech people.","If something breaks at seven in the morning, who do we call? That's what I want to know.","A dedicated account manager would make a real difference for us."]},
+      {id:'scope',keys:'scope|modules?|features|phase|phasing|drop|what.?s included|smaller (project|version)',owner:0,say:["If the price has to stay high, maybe the scope has to change. What could we drop?","We're open to phasing it, if that brings the first-year cost down.","Which parts are really essential in year one?"]},
+      {id:'integration',keys:'integrat|migrat|pos\\b|point of sale|existing system|legacy|data transfer',owner:1,say:["Our POS system is fifteen years old. Integration is where these projects usually go wrong.","Data migration is my biggest worry, honestly. How do you handle it?"]}
+    ]},
+  'contract-review':{
+    about:[["I'm Senior Legal Counsel at Veritas Health. I review all of our vendor contracts.","I'm on the legal team at Veritas — vendor agreements are most of what I do."]],
+    kb:{company:["Veritas Health runs hospitals and clinics in three states. We're careful about who uses our name.","We're a healthcare group, so reputation and patient trust come first."],
+      standard:["Yes, this is our standard MSA. But I've agreed changes before when vendors gave good reasons.","It's our standard template. Standard doesn't mean we never change it."],
+      decide:["I can agree most changes myself. Anything on liability goes to our General Counsel.","Marketing wants you; legal signs off on the terms. That's me, and my boss for the big points."],
+      time:["We'd like to sign within two weeks, so the campaign can start next month.","Marketing wants to start next month, so ideally we'd sign in the next two weeks."],
+      priority:["Protecting the brand and the patients' trust. That's why liability and IP look the way they do.","Liability, mainly. Then IP."],
+      need:["Clear reasons, and proposed wording I can take to my team.","Tell me what you need changed and why — in writing, ideally."],
+      opinion:["Honestly, I think we're closer than it looks. Most of these are just our standard positions.","Your concerns aren't unusual. Let's go through them one by one."],
+      past:["We've had an agency reuse our creative for a competitor before. That's why the non-compete exists."]},
+    ask:{pay:"show me why Net 90 is a real problem for you, and I'll talk to finance.",liab:"explain the risk clearly — and tell me what cap you'd propose.",ip:"tell me exactly which tools and templates you need to keep.",noncomp:"narrow it down to what you really need to protect.",term:"tell me what notice period would work for you, and why.",late:"if we agree a grace period first, we could talk about interest.",renew:"tell me how you'd prefer renewal to work."},
+    topics:[
+      {id:'insurance',keys:'insurance|insured|coverage|indemnity policy|policy limit',owner:0,say:["Do you carry professional indemnity insurance? If so, how much? That would help me on liability.","Insurance cover would make a cap much easier for me to accept."]},
+      {id:'data',keys:'patient data|hipaa|privacy|personal data|confidential (information|data)',owner:0,say:["You won't touch patient data directly — but anything with our name on it is sensitive.","Confidentiality is covered in section 8. That one's mutual, so it shouldn't be a problem."]},
+      {id:'scopework',keys:'scope of work|sow|deliverables|statement of work|retainer cover',owner:0,say:["The scope will be in a separate statement of work. The MSA is just the legal framework.","Deliverables go in the SOW. Let's agree the legal terms first."]}
+    ]},
+  'contract-negotiation':{
+    about:[["I'm VP Procurement at Atlas. I've done more of these deals than I can count.","I run procurement. I like clear numbers and short meetings."],["I'm the CISO. If you get breached, it's my name in the headlines.","I'm responsible for security at Atlas — data and uptime are my world."]],
+    kb:{company:["Atlas Retail Group — about three hundred stores, and a fast-growing online business.","We're one of the bigger retail groups in the region. Peak season is make-or-break for us."],
+      decide:["The board approves it on Friday. Hannah has a veto on anything security-related.","I negotiate; the board signs. And nothing goes through without Hannah's OK on security."],
+      priority:["For me, the fee and the payment schedule. For Hannah, liability and uptime — don't underestimate that.","Price and cash flow on my side. Security on Hannah's."],
+      need:["A clean package. Give me a fee I can defend, and Hannah gets her protection.","Something I can present to the board on Friday without a long explanation."],
+      opinion:["Your product is fine. Your terms need work.","I think there's a deal here, if we package it right."],
+      past:["Our last vendor had a four-hour outage on Black Friday. That's why the SLA matters so much to Hannah."]},
+    kbOwner:{past:1},
+    ask:{fee:"if we signed for three years, what would the fee look like?",term:"make it worth our while — fixed pricing, for example.",credits:"show me you can actually hit 99.9 percent.",liab:"show me SOC 2 and ISO 27001, and we can talk about a cap.",pay:"help me on quarterly payment, and I'll help you elsewhere.",inc:"fixed pricing for the whole term would make a longer contract much easier."},
+    keysAdd:{term:'how long|length|duration|contract length|lock(ed)? in'},
+    topics:[
+      {id:'implementation',keys:'implement|onboard|integrat|api|go.?live|rollout|set.?up',owner:1,say:["Implementation has to be done before peak season in November.","We'll need your team on site for the integration. Remote won't cut it."]},
+      {id:'support',keys:'support|account manager|escalation|response time|24.?7|named contact',owner:1,say:["We need a named support contact, twenty-four seven, during peak season.","What's your response time for a critical incident? I'd want it in the contract."]}
+    ]},
+  'mg-negotiation':{
+    about:[["I run global licensing at Driftwood. I've set up our partnerships in eight markets.","I lead licensing — Korea is the market I'm most excited about this year."],["I'm the finance director. I look at whether the numbers hold up.","I handle the finance side — forecasts, guarantees, payments."]],
+    kb:{company:["Driftwood is an outdoor brand from the Pacific Northwest — about four hundred million dollars in sales, mostly in the US.","We make outdoor apparel and gear. Asia is our fastest-growing region."],
+      japan:["Japan's been great — our partner there passed their MG in year two. That's why we're confident about Korea.","I can't share their exact terms. But they accepted a similar structure, and it's worked well for both sides."],
+      decide:["I recommend the deal; Ben signs off on the finance side, and our CEO approves new territories.","Ben and I agree the terms; our CEO signs new territories."],
+      priority:["Getting the right partner for Korea. And an MG that shows real commitment.","Commitment. The MG is how we know a partner is serious."],
+      need:["A credible plan — your channels, your marketing, and a forecast I can believe.","Show us the forecast, and some security. Then we can talk structure."],
+      opinion:["Your team clearly knows the Korean market. The numbers just need to meet somewhere.","I like the plan. I'm less sure about the MG you're implying."],
+      standard:["It's our standard term sheet for a market this size."]},
+    kbOwner:{need:1},
+    ask:{mg:"show me a forecast I can believe — and some security, like a bank guarantee.",royalty:"a bigger marketing commitment would make that easier.",advance:"if the advance stays where it is, I can be flexible elsewhere.",approval:"send us complete product packs, and we can move faster.",cross:"keep the advance at a hundred and fifty thousand, and I can consider it."},
+    topics:[
+      {id:'marketing',keys:'marketing (plan|budget|spend|commitment)|advertis|launch campaign|influencer|promotion',owner:1,say:["What's your marketing plan for year one? Three percent of net sales is our minimum.","How much are you planning to spend on the launch itself?"]},
+      {id:'channels',keys:'channel|department store|online|e.?commerce|own stores|distribution|retail network|wholesale',owner:1,say:["Which channels are you planning — department stores, online, your own stores?","Distribution is the part I want to understand best. Where will customers actually find the product?"]},
+      {id:'design',keys:'design|local (product|version)|korean (market|customers)|sizing|colou?rs|adapt',owner:0,say:["We're open to Korea-only designs, as long as they go through approvals.","Sizing and colours can be adapted for Korea. The logo and the core range can't."]}
+    ]},
+  escalation:{
+    about:[["I'm Head of Brand at Lumina. This launch is the biggest thing we do all year.","I run the brand team. And right now I'm the one answering to our CEO."]],
+    kb:{company:["Lumina is a skincare brand — the spring launch is our biggest campaign of the year."],
+      asset:["The hero video and the social banners. Without those, we can't launch anything.","Everything for launch week first — the video, the banners, the store posters."],
+      time:["The launch is on the twentieth — ten days from now. We need everything a week before, to test it.","Ten days. And we need at least five of those to review and test."],
+      priority:["The hero video. Then the social banners. The rest can wait a few days.","Honestly? Anything that goes live on launch day."],
+      need:["Dates. Real dates. And one person I can call who actually knows what's going on.","A recovery plan — in writing, today."],
+      decide:["My CEO. And right now she's asking me every day."],
+      opinion:["It's a start. I need to see it happen before I believe it."]},
+    topics:[
+      {id:'contact',keys:'main contact|contact person|one contact|point of contact|who (will|should) i (call|contact)|project manager|single contact|one person|account manager',owner:0,say:["I need one name. Not a team inbox.","Who exactly? And will they pick up the phone?"]},
+      {id:'quality',keys:'rush|quality|cut corners|still (good|high)|review|check',owner:0,say:["Don't rush it so much that I get mistakes. That would be worse.","Fast is good. Wrong is not."]}
+    ]}
+};
+function applyScenarioKB(list){
+  list.forEach(sc=>{ const k=SCENARIO_KB[sc.id]; if(!k || sc._kb) return; sc._kb=true;
+    (k.about||[]).forEach((a,i)=>{ if(sc.personas[i]) sc.personas[i].about=a });
+    sc.kb=Object.assign({}, k.kb, sc.kb); sc.kbOwner=Object.assign({}, k.kbOwner, sc.kbOwner);
+    Object.entries(k.ask||{}).forEach(([id,t])=>{ const is=(sc.issues||[]).find(x=>x.id===id); if(is) is.ask=t });
+    Object.entries(k.keysAdd||{}).forEach(([id,t])=>{ const is=(sc.issues||[]).find(x=>x.id===id); if(is) is.keys+='|'+t });
+    sc.topics=(sc.topics||[]).concat(k.topics||[]);
+  });
+}
+applyScenarioKB(SCENARIOS);
 const PCOLORS = ['#e6ede6','#e2ecff','#f3eee2','#dff0e4','#e8e2fb','#f8dcd8'];
 const FILLERS = ['um','uh','erm','er','you know','basically','sort of','kind of','i mean','so yeah'];
 
@@ -1380,7 +1494,8 @@ const SCHEMA = {
     ['name','Name','Full name (required).','s'],['role','Job title','e.g. Procurement Lead, Halcyon Retail.','s'],
     ['gender','Voice','m or f.','e:gender'],['stance','Stance','lead (main negotiator) · ally (quietly on your side) · skeptic (challenges claims).','e:stance'],
     ['warmth','Warmth 0–1','How friendly they start.','n'],['patience','Patience 0–1','How long before they get impatient.','n'],['assertiveness','Assertiveness 0–1','How hard they push.','n'],
-    ['personality','Personality','What they want, what they hide, where they can concede (also used by the AI option).','l']
+    ['personality','Personality','What they want, what they hide, where they can concede (also used by the AI option).','l'],
+    ['about','Self-introduction','How they describe themselves when asked about their role. One per line.','l']
   ],
   Issues:[
     ['id','ID','Short ID, e.g. discount, pay, liab.','s'],['label','Label','How they say it: "the discount", "payment terms (3.2)".','s'],
@@ -1391,6 +1506,7 @@ const SCHEMA = {
     ['open','Their opening','Where they start. Use 999 for "unlimited / no cap".','n'],['target','Their target','What they hope to get.','n'],['reserve','Their walk-away','The furthest they can go.','n'],
     ['your_limit','Learner limit','The learner\'s walk-away (from the mandate) — crossing it is flagged in the debrief.','n'],
     ['step','Typical step','Usual size of one concession.','n'],['weight','Importance 1–3','3 = must be agreed before the deal is done.','n'],
+    ['ask','What they ask for','Said when the learner asks them to be flexible, e.g. "if we committed to two years, what would that do to your price?"','s'],
     ['trade_keywords','They value in exchange','Comma-separated, e.g. two-year, upfront, case study.','s'],['trade_bonus','Trade worth','How much a trade is worth to them, in the issue\'s unit.','n'],
     ['options','Options (unit = option)','One per line: score | label | keywords (score 0–1, 1 = best for them).','l'],
     ['explain','Explanation','What they say if asked what it means.','l'],['why','Their reason','Short reason, e.g. "we need to see results first."','s'],
@@ -1410,9 +1526,10 @@ const SCHEMA = {
   Agenda:[['persona','Persona #','Who asks.','p'],['question','Question','A question they ask to keep the meeting moving.','l'],['covers','Covers','Optional ID of the issue / hidden / topic it covers — skipped once that is done.','s']],
   Pressure:[['persona','Persona #','','p'],['line','Pressure line','Used on Hard / Very Hard, e.g. "I need an answer today."','l']],
   Questions:[['persona','Persona #','','p'],['question','Question','Asked after the presentation, in order.','l']],
+  Knowledge:[['intent','Question type','company · team · role · decide · time · priority · need · opinion · past · rival · standard · whyus · asset · sales · success · customer · report · quality · scope · support · japan (other markets)','s'],['persona','Persona #','Who answers.','p'],['replies','Replies','One per line — used in turn.','l']],
   Phrases:[['phrase','Phrase','Useful expression shown in the debrief.','s'],['use','When to use it','','s']]
 };
-const CHILD = ['Personas','Issues','Hidden','Topics','Agenda','Pressure','Questions','Phrases'];
+const CHILD = ['Personas','Issues','Hidden','Topics','Knowledge','Agenda','Pressure','Questions','Phrases'];
 
 /* keywords ⇄ regex */
 const reEsc = s => s.replace(/[.*+?^${}()|[\]\\]/g,'\\$&');
@@ -1426,7 +1543,7 @@ function rxToKw(src){
   const parts=src.split('|'), plain=parts.map(p=>p.replace(/^\\b/,'').replace(/\\s\+/g,' '));
   return plain.every(p=>!/[\\()[\]?*+.^$]/.test(p.replace(/\\\./g,''))) ? plain.map(p=>p.replace(/\\\./g,'.')).join(', ') : 're:'+src;
 }
-const isYes = v => /^(y|yes|true|1|o|예|네)$/i.test(String(v??'').trim());
+const isYes = v => /^(y|yes|true|1)$/i.test(String(v??'').trim());
 const toNum = v => { if(v===''||v==null) return undefined; if(/^(unlimited|no cap|uncapped|∞)$/i.test(String(v).trim())) return 999; const n=+String(v).replace(/[$,%\s]/g,''); return isNaN(n)?undefined:n };
 const splitLines = v => String(v??'').split(/\r?\n|\s\|\s/).map(s=>s.trim()).filter(Boolean);
 const pIdx = v => { const n=parseInt(v,10); return isNaN(n)||n<1 ? 0 : n-1 };
@@ -1438,7 +1555,7 @@ function rowsToScenario(base, kids){
   const g = k => String(base[k]??'').trim();
   const personas=(kids.Personas||[]).filter(r=>String(r.name||'').trim()).map((r,i)=>clean({name:String(r.name).trim(), role:String(r.role||'Participant').trim(), gender:/^f/i.test(r.gender)?'f':'m', color:PCOLORS[i%PCOLORS.length],
     stance:ENUM.stance.includes(String(r.stance).trim())?String(r.stance).trim():(i?'ally':'lead'), brief:String(r.personality||'A realistic professional.').trim(),
-    traits:{warmth:toNum(r.warmth)??.5, patience:toNum(r.patience)??.6, assert:toNum(r.assertiveness)??.5}}));
+    traits:{warmth:toNum(r.warmth)??.5, patience:toNum(r.patience)??.6, assert:toNum(r.assertiveness)??.5}, about:splitLines(r.about)}));
   if(!g('title') || !personas.length) return null;
   const issues=(kids.Issues||[]).filter(r=>String(r.id||r.label||'').trim()).map((r,i)=>{
     const unit=ENUM.unit.includes(String(r.unit).trim())?String(r.unit).trim():'pct', id=String(r.id||('issue'+(i+1))).trim();
@@ -1446,7 +1563,7 @@ function rowsToScenario(base, kids){
     return clean({id, label:String(r.label||id).trim(), keys:kwToRx(r.keywords||r.label||id), owner:pIdx(r.owner), unit,
       better:ENUM.better_for_them.includes(String(r.better_for_them).trim())?String(r.better_for_them).trim():'auto',
       open:toNum(r.open), target:toNum(r.target), reserve:toNum(r.reserve), limit:toNum(r.your_limit), step:toNum(r.step), weight:toNum(r.weight)??2,
-      trades:kwToRx(r.trade_keywords), tradeBonus:toNum(r.trade_bonus), options:opts, explain:String(r.explain||'').trim(), why:String(r.why||'').trim(),
+      ask:String(r.ask||'').trim(), trades:kwToRx(r.trade_keywords), tradeBonus:toNum(r.trade_bonus), options:opts, explain:String(r.explain||'').trim(), why:String(r.why||'').trim(),
       defend:splitLines(r.defend), fmt:String(r.format||'').trim(), unlimitedLabel:String(r.unlimited_label||'').trim(), never:isYes(r.never)||undefined});
   });
   const hidden=(kids.Hidden||[]).filter(r=>String(r.reveal||'').trim()).map((r,i)=>clean({id:String(r.id||('h'+(i+1))).trim(), keys:kwToRx(r.keywords), owner:pIdx(r.owner),
@@ -1456,11 +1573,12 @@ function rowsToScenario(base, kids){
   const agenda=(kids.Agenda||[]).filter(r=>String(r.question||'').trim()).map(r=>clean({p:pIdx(r.persona), text:String(r.question).trim(), tag:String(r.covers||'').trim()}));
   const pressure=(kids.Pressure||[]).filter(r=>String(r.line||'').trim()).map(r=>[pIdx(r.persona), String(r.line).trim()]);
   const questions=(kids.Questions||[]).filter(r=>String(r.question||'').trim()).map(r=>[pIdx(r.persona), String(r.question).trim()]);
+  const kb={}, kbOwner={}; (kids.Knowledge||[]).filter(r=>String(r.intent||'').trim()&&String(r.replies||'').trim()).forEach(r=>{ const k=String(r.intent).trim().toLowerCase(); kb[k]=(kb[k]||[]).concat(splitLines(r.replies)); kbOwner[k]=pIdx(r.persona) });
   const phrases=(kids.Phrases||[]).filter(r=>String(r.phrase||'').trim()).map(r=>[String(r.phrase).trim(), String(r.use||'').trim()]);
   let id=g('id').replace(/[^\w-]/g,'').slice(0,40); if(!id || SCENARIOS.some(s=>s.id===id)) id=(id?id+'-':'u')+Math.random().toString(36).slice(2,7);
   const nx=pLines(g('next_step_reply'))[0];
   return clean({id, tag:g('category')||'Custom', title:g('title'), desc:g('description')||g('situation').slice(0,110), role:g('your_role'), brief:g('situation'), mandate:g('your_mandate'),
-    goals:splitLines(g('goals')).flatMap(x=>x.split(/\s*;\s*/)).filter(Boolean).slice(0,6), goalRules:splitLines(g('goal_checks')), personas, issues, hidden, topics, agenda, pressure, questions, phrases,
+    goals:splitLines(g('goals')).flatMap(x=>x.split(/\s*;\s*/)).filter(Boolean).slice(0,6), goalRules:splitLines(g('goal_checks')), personas, issues, kb:Object.keys(kb).length?kb:undefined, kbOwner:Object.keys(kbOwner).length?kbOwner:undefined, _kb:true, hidden, topics, agenda, pressure, questions, phrases,
     opening:pLines(g('opening')), closing:pLines(g('closing')), onNext:nx, smalltalk:g('small_talk')&&!isYes(g('small_talk'))?false:undefined,
     startMood:toNum(g('start_mood')), presentation:isYes(g('presentation'))||undefined, doc:g('document'), authored:2});
 }
@@ -1471,12 +1589,13 @@ function scenarioToRows(sc){
     goal_checks:(sc.goalRules||[]).join('\n'), opening:pl(sc.opening), closing:pl(sc.closing), next_step_reply:sc.onNext?`${P(sc.onNext[0])}: ${sc.onNext[1]}`:'', small_talk:sc.smalltalk===false?'no':'yes',
     start_mood:sc.startMood||'', presentation:sc.presentation?'yes':'no', document:sc.doc||''};
   const kids={
-    Personas:(sc.personas||[]).map(p=>({name:p.name, role:p.role, gender:p.gender||'m', stance:p.stance||'lead', warmth:p.traits?.warmth??'', patience:p.traits?.patience??'', assertiveness:p.traits?.assert??'', personality:p.brief||''})),
+    Personas:(sc.personas||[]).map(p=>({name:p.name, role:p.role, gender:p.gender||'m', stance:p.stance||'lead', warmth:p.traits?.warmth??'', patience:p.traits?.patience??'', assertiveness:p.traits?.assert??'', personality:p.brief||'', about:[].concat(p.about||[]).join('\n')})),
     Issues:(sc.issues||[]).map(is=>({id:is.id, label:is.label, keywords:rxToKw(is.keys), owner:P(is.owner), unit:is.unit, better_for_them:is.better||'auto', open:is.open??'', target:is.target??'', reserve:is.reserve??'',
-      your_limit:is.limit??'', step:is.step??'', weight:is.weight??'', trade_keywords:rxToKw(is.trades), trade_bonus:is.tradeBonus??'', options:(is.options||[]).map(o=>`${o.score} | ${o.label} | ${rxToKw(o.key)}`).join('\n'),
+      your_limit:is.limit??'', step:is.step??'', weight:is.weight??'', ask:is.ask||'', trade_keywords:rxToKw(is.trades), trade_bonus:is.tradeBonus??'', options:(is.options||[]).map(o=>`${o.score} | ${o.label} | ${rxToKw(o.key)}`).join('\n'),
       explain:is.explain||'', why:is.why||'', defend:(is.defend||[]).join('\n'), format:is.fmt||'', unlimited_label:is.unlimitedLabel||'', never:is.never?'yes':'no'})),
     Hidden:(sc.hidden||[]).map(h=>({id:h.id, keywords:rxToKw(h.keys), owner:P(h.owner), unlock:h.unlock||'any', reveal:h.reveal, guard:(h.guard||[]).join('\n'), recap:h.recap||''})),
     Topics:(sc.topics||[]).map(t=>({id:t.id, keywords:rxToKw(t.keys), owner:P(t.owner), replies:(t.say||[]).join('\n'), needs_evidence:t.needEvidence?'yes':'no', doubt:(t.doubt||[]).join('\n')})),
+    Knowledge:Object.entries(sc.kb||{}).map(([k,v])=>({intent:k, persona:P((sc.kbOwner||{})[k]||0), replies:[].concat(v).join('\n')})),
     Agenda:(sc.agenda||[]).map(a=>({persona:P(a.p), question:a.text, covers:a.tag||''})),
     Pressure:(sc.pressure||[]).map(([p,t])=>({persona:P(p), line:t})),
     Questions:(sc.questions||[]).map(([p,t])=>({persona:P(p), question:t})),
@@ -1646,7 +1765,7 @@ function edBuild(){ const s=rowsToScenario(Object.assign({},ED.base,{id:ED.origI
 function renderEditor(){
   const sc0=edBuild(), warn=sc0?validateScenario(sc0):['Add a title and at least one named persona.'];
   const sheets=CHILD.filter(n=>n!=='Questions'||isYes(ED.base.presentation)||(ED.kids.Questions||[]).length);
-  const label={Personas:'Personas',Issues:'Negotiable issues',Hidden:'Hidden information',Topics:'Topics',Agenda:'Agenda questions',Pressure:'Pressure lines',Questions:'Q&A questions',Phrases:'Debrief phrases'};
+  const label={Personas:'Personas',Issues:'Negotiable issues',Hidden:'Hidden information',Topics:'Topics',Knowledge:'General knowledge',Agenda:'Agenda questions',Pressure:'Pressure lines',Questions:'Q&A questions',Phrases:'Debrief phrases'};
   const card=(sheet,r,i)=>`<div class="erow"><div class="erow-h"><b>${esc(r.name||r.label||r.id||r.question||r.line||r.phrase||(label[sheet]+' '+(i+1)))}</b>
       <span><button class="lnk" onclick="edMove('${sheet}',${i},-1)">↑</button> <button class="lnk" onclick="edMove('${sheet}',${i},1)">↓</button> <button class="lnk" style="color:var(--bad)" onclick="edDel('${sheet}',${i})">Remove</button></span></div>
       <div class="egrid">${SCHEMA[sheet].map(c=>edField(sheet,i,c)).join('')}</div></div>`;
@@ -1916,6 +2035,7 @@ function structuredBrief(sc, st){
     sc.hidden.forEach(h=>{ const how={any:'any relevant question',open:'an open question',reason:'a reason or evidence',rapport:'good rapport',trust:'trust built through empathy and polite open questions'}[h.unlock]||'a good question';
       out.push(`- ${P(h.owner||0)}: "${h.reveal}" — needs ${how}.${st&&st.revealed[h.id]?' (ALREADY REVEALED)':''}`) });
   }
+  if(sc.kb && Object.keys(sc.kb).length) out.push('BACKGROUND YOU CAN SHARE WHEN ASKED:\n'+Object.entries(sc.kb).map(([k,v])=>`- ${k}: ${[].concat(v)[0]}`).join('\n'));
   if(sc.presentation && (sc.questions||[]).length) out.push('QUESTIONS TO ASK AFTER THE PRESENTATION (one at a time):\n'+sc.questions.map(q=>`- ${P(q[0])}: ${q[1]}`).join('\n'));
   if((sc.pressure||[]).length && /hard/.test(S.difficulty)) out.push('PRESSURE LINES you may use once each: '+sc.pressure.map(x=>x[1]).join(' | '));
   return out.length ? out.join('\n')+'\n' : '';
@@ -1962,7 +2082,7 @@ OUTPUT: ONLY valid JSON, nothing else:
    5. NLG      : persona & mood-aware templates, anti-repetition, number formatting, email register
    ========================================================= */
 const rnd = a => a[Math.floor(Math.random()*a.length)];
-const L = (en,ko) => settings.fb==='ko' ? ko : en;
+const L = en => en;   // English-only interface
 const W2N = {zero:0,one:1,two:2,three:3,four:4,five:5,six:6,seven:7,eight:8,nine:9,ten:10,eleven:11,twelve:12,thirteen:13,fourteen:14,fifteen:15,sixteen:16,seventeen:17,eighteen:18,nineteen:19,twenty:20,thirty:30,forty:40,fifty:50,sixty:60,seventy:70,eighty:80,ninety:90};
 const NUM_FOLLOW = /^(percent|per|%|days?|weeks?|months?|years?|million|thousand|hundred|grand|k|x|times|point|and|or|to|more|extra|additional|full|business|calendar|working|units?|pieces?|dollars?|bucks|is|would|could|should|will|works?|then|for|on|in|at|instead|max(imum)?|min(imum)?|tops|net|year|month|day|ish|a|the|but|if|with|as|from)$/;
 const STOP = new Set('the a an and or but if then so to of in on at for with by from as is are was were be been it this that these those i you we they he she me us them my your our their its do does did have has had will would can could should may might must not no yes okay ok just very really about into than there here what which who when where why how all any some more most such only also too please thanks thank'.split(' '));
@@ -2011,7 +2131,7 @@ function sentences(text){
 function nlu(text){
   const low = normText(text), n = (text.match(/[A-Za-z0-9$%']+/g)||[]).length;
   const a = { t:text, low, n, ents:entities(low),
-    q: /\?\s*$/.test(text.trim()) || has(low,/^\s*(what|how|why|when|where|who|which|could|can|would|do|does|did|is there|are there|is it|are you|have you|may i|shall we|will you)\b/),
+    q: /\?\s*$/.test(text.trim()) || /^\s*(so,? )?(tell me|let me know|i'?d (like|love) to (know|hear)|i'?m curious|i was wondering|walk me through|can i ask)\b/i.test(text.trim()) || has(low,/^\s*(what|how|why|when|where|who|which|could|can|would|do|does|did|is there|are there|is it|are you|have you|may i|shall we|will you)\b/),
     open: has(low,/\b(what|how|why|tell me|walk me through|could you (explain|describe|share|tell)|can you (explain|describe|share|tell)|help me understand)\b/),
     whyQ: has(low,/^\s*why\b|\bwhy (do|does|is|are|should|would|can'?t|not)\b/),
     greet: has(low,/\b(hi|hello|good (morning|afternoon|evening)|nice to (meet|see)|thanks? (you )?for (having|joining|your time|making|meeting|coming|the opportunity))\b/),
@@ -2021,14 +2141,14 @@ function nlu(text){
     empathy: has(low,/\b(i (completely |totally |fully )?understand|i hear you|that must|i appreciate|fair point|i see your point|makes sense|i get (it|that)|i know (this|that) is|understandable)\b/),
     apology: has(low,/\b(sorry|apolog|my (fault|mistake|bad)|our (fault|mistake)|take (full )?responsib|we dropped the ball|we let you down|on us\b)/),
     excuse: has(low,/\b(not (our|my) fault|wasn'?t (our|my) fault|because (the|our|your) (system|manager|client|vendor|other team|supplier)|(they|your team|the client) didn'?t|blame|it happens|nothing (we|i) could do)\b/),
-    propose: has(low,/\b(we (can|could|will|would|are willing|'d be (happy|willing)|propose|suggest|recommend|offer|'d like to (propose|suggest|offer))|i (propose|suggest|recommend|can offer|'d suggest|'d propose)|how about|what if|let'?s (say|go with|agree|do)|we'?re (willing|able|happy|prepared) to|our offer|counter|could we|can we|would you (accept|consider|agree)|would it be possible|is it possible|we'?d accept|we can (do|go|offer|accept|give))\b/),
+    propose: has(low,/\b(we'?d like to (keep|have|change|ask|get|move|go|propose|suggest|offer|add|remove|limit|cap|reduce)|we (can|could|will|would|are willing|'d be (happy|willing)|propose|suggest|recommend|offer|'d like to (propose|suggest|offer))|i (propose|suggest|recommend|can offer|'d suggest|'d propose)|how about|what if|let'?s (say|go with|agree|do)|we'?re (willing|able|happy|prepared) to|our offer|counter|could we|can we|would you (accept|consider|agree)|would it be possible|is it possible|we'?d accept|we can (do|go|offer|accept|give))\b/),
     cond: has(low,/\b(if (you|we)|in exchange|in return|provided (that)?|on (the )?condition|as long as|only if|subject to)\b/),
     reason: has(low,/\b(because|since|so that|the reason|that'?s why|due to|for example|for instance|based on|according to|which means|this means|given that|as (it|they|we|our|this)\b|so,? (we|i|our)\b|otherwise|in order to)\b/) && !/^\s*so,? (we|i|our)\b[^.]*$/.test(low.replace(/\b(because|since|due to|the reason|given that|otherwise|in order to|which means|this means|as (it|they|we|our|this))\b.*/,'')) || has(low,/\b(because|since|due to|the reason|given that|otherwise|in order to|which means|this means)\b/),
     evidence: has(low,/\b(data|evidence|our (forecast|numbers|data|results|research|pilot|case stud)|we('ve| have)? (achieved|delivered|completed|increased|reduced|grew|done|worked with|helped|launched|built)|last year|survey|benchmark|track record|\d+ (clients|customers|projects|rollouts))\b/) || /\d/.test(low) && has(low,/\b(increase|growth|clients|customers|projects|sales|revenue|leads)\b/),
     accept: has(low,/^\s*(yes|yeah|yep|sure|of course|absolutely|definitely|okay|ok|deal|agreed|fine|that works|sounds good|we (can )?accept|i accept|we agree|i agree|let'?s do (it|that))\b/) || has(low,/\b(we (can|could) (accept|live with|agree to) (that|this|it)|that works for (us|me)|you have a deal|it'?s a deal)\b/),
     reject: (has(low,/^\s*(no|nope|unfortunately|i'?m afraid)\b/) && !has(low,/^\s*no (problem|worries|doubt)|not at all/)) || has(low,/\b(can'?t (accept|agree|do that|go (that|any) (low|high|further))|cannot (accept|agree)|not acceptable|unacceptable|won'?t work|doesn'?t work|too (high|low|much|expensive|long|short)|no way|out of the question)\b/),
     holdFirm: has(low,/\b(can'?t (lower|reduce|move|go (down|up|lower|higher)|change)|cannot (lower|reduce|move|change)|won'?t (lower|reduce|move|budge)|our price is (fixed|final)|final offer|best (and final )?offer|non.?negotiable|not able to (move|reduce|lower))\b/),
-    askPosition: has(low,/\b(what'?s your (best|bottom|final|position|number|offer|target|limit)|what (can|could) you (do|offer|accept)|where (are|do) you (stand|land)|what would (you|it) take|what number|your (best|final) (price|number|offer)|what do you (need|want|propose)|what would work for you)\b/),
+    askPosition: has(low,/\b(what'?s your (best|bottom|final|position|number|offer|target|limit)|what (can|could) you (do|offer|accept)|where (are|do) you (stand|land)|what would you take|what number|your (best|final) (price|number|offer)|what do you propose|what would work for you|your budget for|what (are you|you'?re) looking for|how long (a|of a) (contract|term)|what (term|length|price|fee|rate|number) (are|do|would) you|where would you (like|want) to (land|be))\b/),
     clarifyReq: has(low,/\b(what do you mean|could you (repeat|say that again|rephrase|clarify)|can you (repeat|say that again|rephrase|clarify)|sorry\s*\?|pardon|i didn'?t (catch|understand|follow|get) (that|you)|come again|say again|meaning of)\b/),
     explainReq: has(low,/\b(what (does|do|is) .{0,40}(mean|refer)|(could|can|would) you (please )?(explain|clarify|elaborate|walk me through|tell me (more )?about)|please (explain|clarify)|explain (to me|what|how|why|this|that|the)|walk me through|how does .{0,30} work|what exactly|i (don'?t|do not) (understand|get)|not (sure|clear) (what|how))\b/) && !has(low,/\b(let me|can i|could i|may i|i'?ll|i will|i'?d like to|we'?ll|allow me to) (explain|clarify|walk)/),
     summary: has(low,/\b(summar\w*|recap\w*|to sum up|so we('ve| have)? agreed|let me confirm|just to confirm|so to clarify|to confirm,? we|so,? to (confirm|be clear)|in summary|let me (go over|run through))\b/),
@@ -2127,7 +2247,7 @@ function bindOffers(sc, st, a, sentLow){
   });
   // option issues & unlimited by keyword
   mentioned.filter(is=>!out.some(o=>o.issue.id===is.id)).forEach(is=>{
-    if(is.unit==='option' && is.options){ const opt=is.options.slice().sort((x,y)=>x.score-y.score).find(o=>rx(o.key).test(sentLow)); if(opt && (a.propose||a.cond||a.accept||/\b(propose|suggest|would like|'d like|want|prefer|instead|change (it )?to|keep|ask for)\b/.test(sentLow))) out.push({issue:is, v:opt.score, opt}) }
+    if(is.unit==='option' && is.options){ const opt=is.options.slice().sort((x,y)=>x.score-y.score).find(o=>rx(o.key).test(sentLow)); if(opt && !(!a.propose && sentences(sentLow).every(x=>/\?\s*$/.test(x.trim()))) && (a.propose||a.cond||a.accept||/\b(propose|suggest|would like|'d like|want|prefer|instead|change (it )?to|keep|ask for)\b/.test(sentLow))) out.push({issue:is, v:opt.score, opt}) }
     else if(/\bunlimited|no cap|uncapped\b/.test(sentLow) && (a.accept||/accept|agree|fine with/.test(sentLow))) out.push({issue:is, v:999});
   });
   return out;
@@ -2148,6 +2268,7 @@ function resolveAuto(is, v, st){
   if(st){ st.autoRes=st.autoRes||{}; st.autoRes[is.id]={better:is.better,target:is.target,reserve:is.reserve,step:is.step} }
 }
 function evaluateOffer(sc, st, offer, a, sentLow){
+  tr(st,'O:'+offer.issue.id);
   resolveAuto(offer.issue, offer.v, st);
   const is=offer.issue, S_=st.issues[is.id], diff=S.difficulty, lead=is.owner||0, mood=moodOf(st,lead);
   const prevMine = (st.offers[is.id]||[]).slice(-1)[0];
@@ -2234,6 +2355,8 @@ function evaluateOffer(sc, st, offer, a, sentLow){
   return [ln(lead, fresh(st,'reject'+mood,[`${cap1(fv(offer.v))} is well below anything we could accept.${is.why&&!st.usedSet.has('why|'+is.id)?(st.usedSet.add('why|'+is.id),' '+cap1(is.why)):''}`,`I'm sorry, ${fv(offer.v)} just doesn't work for us. We're at ${fv(S_.pos)}.`,`That's not a serious number for us, I'm afraid.`]))];
 }
 const ln = (p,t) => ({p,t});
+const tr = (st,k) => { (st._tr=st._tr||[]).push(k) };
+const frT = (st,k,arr) => { tr(st,'F:'+k); return fresh(st,k,arr) };
 function ev(st, kind, text, good){ st.events.push({turn:st.turn, kind, text, good}) }
 
 /* ---------- 4. Dialogue: hidden info, topics, questions ---------- */
@@ -2249,12 +2372,15 @@ function unlocked(h, a, st){
   }
 }
 function handleHidden(sc, st, h, a){
+  if((st._tr||[]).includes('H:'+h.id)) return [];
+  tr(st,'H:'+h.id);
   st.asked[h.id]=(st.asked[h.id]||0)+1;
-  if(st.revealed[h.id]) return [ln(h.owner||0, fresh(st,'again'+h.id,["As I said, "+low1(h.recap||h.reveal),"I think I've covered that one."]))];
+  if(st.revealed[h.id]) return [ln(h.owner||0, fresh(st,'again'+h.id,["As I said, "+low1(h.recap||h.reveal).replace(/([^.!?])$/,'$1.'),"I think I've covered that one."]))];
   if(unlocked(h,a,st)){ st.revealed[h.id]=true; feel(st,h.owner||0,+3,+3); ev(st,'reveal',`Uncovered: ${h.recap||h.id}.`,1); return [ln(h.owner||0, h.reveal)] }
   return [ln(h.owner||0, fresh(st,'guard'+h.id, h.guard||["I'd rather not get into that yet."]))];
 }
 function handleTopic(sc, st, tp, a){
+  tr(st,'T:'+tp.id);
   st.topicsSaid[tp.id]=(st.topicsSaid[tp.id]||0)+1; st.flags['t_'+tp.id]=true;
   if(tp.needEvidence && !(a.evidence||a.reason||st.flags['ok_'+tp.id])) return [ln(tp.owner||0, fresh(st,'doubt'+tp.id, tp.doubt||["Can you give me an example?"]))];
   if(tp.needEvidence) st.flags['ok_'+tp.id]=true;
@@ -2264,10 +2390,139 @@ function handleTopic(sc, st, tp, a){
 }
 function personaByName(sc, low){ return (sc.personas||[]).findIndex(p=>new RegExp('\\b'+p.name.split(' ')[0].toLowerCase()+'\\b').test(low)) }
 
+/* ---------- KNOWLEDGE LAYER — meaning-based matching + general business questions ----------
+   Every hidden fact, topic and knowledge item gets a "concept profile". A learner sentence is
+   matched by concepts and content words (IDF-weighted), not only by the first keyword that hits,
+   so differently-worded questions still reach the right answer. */
+const CONCEPTS = {
+  budget:/\b(budget|spend|spending|invest|money|afford|how much|cost|price range|pay for|put into)\b/,
+  time:/\b(when|how soon|timeline|time ?frame|deadline|date|start|launch|go.?live|live|schedule|by when|how long|urgent|rush|quickly|asap|sign (this|it))\b/,
+  decide:/\b(decid\w*|decision|approv\w*|sign.?off|final say|who (else|makes|signs|has|needs|will)|stakeholder|board|ceo|cfo|boss|management|involved)\b/,
+  problem:/\b(problem|issue|challenge|pain|headache|bottleneck|biggest worry|frustrat\w*|wrong|struggl\w*|difficult|not working|isn'?t working|concern|worr\w*|risk|fix|improve)\b/,
+  past:/\b(previous|before|past|last time|earlier|former|used to|history|happened|last (agency|vendor|partner))\b/,
+  rival:/\b(competitor|other (vendor|company|companies|partner|partners|licensee|supplier|option)s?|rival|alternative|someone else|cheaper|lower quote|their (quote|offer|price)|same scope|talking to)\b/,
+  customer:/\b(customer|client|audience|buyer|sell to|market|consumer|who do you sell)\b/,
+  success:/\b(success\w*|goal|kpi|measure|result|outcome|objective|target|expect\w*|look like)\b/,
+  report:/\b(report\w*|update|communicat\w*|dashboard|check.?in|inform|let you know|how often)\b/,
+  team:/\b(how (big|large) is (your|the) \w* ?team|team size|who('s| is) (on|in) your team|how many (people|staff|employees|users|of you|person)|people (would|will) use|your (marketing|sales|legal|finance) team (look like|like))\b/,
+  company:/\b(your company|your business|organi[sz]ation|firm|about you|stores|branches|locations|offices|how big is (your|the) (company|business|group)|what (does|do) (your company|you) (do|sell|make))\b/,
+  role:/\b(your (role|job|position|title|responsibilit\w*)|what do you do|in charge of|about yourself)\b/,
+  priority:/\b(priorit\w*|most (important|urgent)|matters? (most|to you)|care (about|most)|value most|key (thing|issue|point)|main (thing|issue|point|goal|concern)|biggest (issue|concern)|besides price|only issue)\b/,
+  flex:/\b(flexib\w*|room|wiggle|negotiable|move on|movement|budge|any chance|open to|willing to|maximum|minimum|best (price|offer|you can)|(go|come|move) (lower|down|up|higher)|meet (us|me) (halfway|in the middle)|(lower|reduce) (it|that|the \w+|your \w+)\?)\b/,
+  need:/\b(what (would|will|does) it take|what would (a good|an acceptable|the ideal|a fair) .{0,25}look like|make (this|it|things) right|make it easier for you|what (do|would) you need|need from us|what would (help|make)|what can we do|how can we (help|make)|accept (a|the)|in return)\b/,
+  opinion:/\b(what do you think|how do you feel|your (view|opinion|impression|thoughts)|does (that|this|it) (sound|make sense)|how does (that|this) sound|our approach|our proposal)\b/,
+  more:/\b(anything else|any other|what else|other (concerns|issues|points|questions)|should (i|we) know)\b/,
+  standard:/\b(standard|template|all (your|vendors|partners|contracts)|usual(ly)?|normally|always)\b/,
+  doc:/\b(draft|contract|agreement|term sheet|document|clause|redline|revised|wording|in writing)\b/,
+  quality:/\b(quality|experience\w*|track record|expertise|reliab\w*|proven|references|case stud\w*|retail)\b/,
+  support:/\b(support|service|account manager|training|maintenance|24\/7)\b/,
+  scope:/\b(scope|deliverables?|features?|modules?|phase|included|audit)\b/,
+  pay:/\b(pay|paying|payment|invoice|cash ?flow|instal\w*|upfront|quarterly|arrears)\b/,
+  sales:/\b(sales|revenue|forecast|perform\w*|numbers|sold|sell)\b/,
+  asset:/\b(assets?|files|banners|creative|deliver\w*|ready|first batch|materials|receive|need first|get first)\b/,
+  happened:/\b(happened|went wrong|cause|what (exactly )?happened|why (was|were|did) (it|they|the)|delay)\b/,
+  law:/\b(law|jurisdiction|court|legal)\b/,
+  security:/\b(secur\w*|certif\w*|soc ?2|iso|audit|breach|data)\b/,
+  japan:/\b(japan|taiwan|other (markets|countries)|partner in)\b/,
+  whyus:/\b(why us|made you (contact|reach|call|choose)|find us|hear about us)\b/
+};
+const STEM = w => w.replace(/(ings?|ed|es|s|ly)$/,'').slice(0,7);
+const CONTENT = t => new Set((String(t).toLowerCase().match(/[a-z][a-z'-]{3,}/g)||[]).filter(w=>!STOP.has(w)&&!/^(what|could|would|about|that|this|there|have|your|with|from|they|their|them|tell|know|think|really|please|maybe|just|like|also|exactly|need|needs|first|want|make|right|good|going|very|much|many|more|some|time|thing|things|other|which|where|when|will|been|were|does|doing|done|said|sure|okay|well|here|than|then|only|even|still|back|into|over|after|before|every|each|said|being|because)$/.test(w)).map(STEM));
+const conceptsOf = t => { const low=' '+String(t).toLowerCase()+' '; return new Set(Object.keys(CONCEPTS).filter(k=>CONCEPTS[k].test(low))) };
+const keysText = src => String(src||'').replace(/\\b|\\s\+|\\./g,' ').replace(/[()?*+.^$\[\]{}\\]/g,' ').replace(/\|/g,' ');
+// general questions every counterpart can answer (scenario.kb[intent] overrides the derived answer)
+const KB_INTENTS = {
+  role:{c:['role']}, company:{c:['company']}, team:{c:['team']}, priority:{c:['priority']}, decide:{c:['decide']},
+  time:{c:['time']}, flex:{c:['flex']}, need:{c:['need'], re:/\bwhat (would|will|does) it take\b|\bwhat do you need from us\b/}, opinion:{c:['opinion']}, more:{c:['more']},
+  standard:{c:['standard']}, whyus:{c:['whyus'], re:/\b(why (did|have) you (contact|reach out to|choose|come to|call)|what made you (contact|reach|call|choose|get in touch)|why us\b|how did you (find|hear about) us)\b/}, docreq:{c:['doc'], re:/\b(send|share|get|see|have)\b.{0,25}\b(draft|version|copy|contract|document|term sheet|redline|wording|it in writing)\b/},
+  past:{c:['past']}, rival:{c:['rival']}, customer:{c:['customer']}, success:{c:['success']}, report:{c:['report']}, quality:{c:['quality']},
+  happened:{c:['happened']}, sales:{c:['sales']}, japan:{c:['japan','sales']}, scope:{c:['scope']}, support:{c:['support']}, asset:{c:['asset']}
+};
+const PROF = new WeakMap();
+function profiles(sc){
+  if(PROF.has(sc)) return PROF.get(sc);
+  const META=['flex','need','opinion','more','priority','standard','role'];
+  const P=[], add=(kind,ref,text,keys,extra)=>{ const k=keysText(keys)+' '+(ref.label||'')+' '+(extra||[]).join(' '), t=k+' '+text; const con=conceptsOf(t), kcon=conceptsOf(k); META.forEach(m=>{con.delete(m);kcon.delete(m)}); (ref.con||[]).forEach(c=>{con.add(c);kcon.add(c)}); P.push({kind,ref,keys,con,kcon,words:CONTENT(k),twords:CONTENT(text)}) };
+  (sc.hidden||[]).forEach(h=>add('H',h,(h.recap||'')+' '+(h.reveal||''),h.keys,h.ex));
+  (sc.topics||[]).forEach(t=>add('T',t,(t.say||[]).join(' '),t.keys,t.ex));
+  Object.entries(KB_INTENTS).forEach(([id,k])=>{ const p={kind:'K',ref:{id},keys:'',con:new Set(k.c),kcon:new Set(k.c),words:new Set(),twords:new Set(),re:k.re}; P.push(p) });
+  const df={}; P.forEach(p=>p.con.forEach(c=>df[c]=(df[c]||0)+1));
+  const wdf={}; P.forEach(p=>new Set([...p.words,...p.twords]).forEach(w=>wdf[w]=(wdf[w]||0)+1));
+  const pr={P, idf:c=>Math.log(1+P.length/(df[c]||1)), widf:w=>Math.log(1+P.length/(wdf[w]||1))};
+  PROF.set(sc, pr); return pr;
+}
+function rankMatches(sc, st, a, sl){
+  const {P,idf,widf}=profiles(sc), uc=conceptsOf(sl), uw=CONTENT(sl), out=[];
+  (sc.personas||[]).forEach(p=>{ const org=String(p.role||'').split(/,\s*/)[1]; if(org && new RegExp('\\b'+org.split(' ')[0].toLowerCase()+'\\b').test(sl)) uc.add('company') });
+  P.forEach(p=>{
+    let s=0, hit=false;
+    if(p.keys && rx(p.keys) && rx(p.keys).test(sl)){ hit=true; const mm=sl.match(new RegExp(p.keys,'gi'))||[]; s+=4.5 + (mm.length-1)*.5 + Math.min(2, mm.reduce((n,x)=>n+x.trim().length,0)/12) }
+    if(p.kind==='K'){ const wh=(sl.match(/^\s*(?:so,? |and |but )?(who|when|where|why|how many|how much|how long)\b/)||[])[1]; if(wh && ({who:['decide','role'],when:['time'],'how long':['time'],'how many':['team','company'],'how much':['budget']}[wh]||[]).includes(p.ref.id)) s+=1.5 }
+    if(p.re && p.re.test(sl)){ hit=true; s+=3 }
+    uc.forEach(c=>{ if(p.kcon.has(c)) s+=1.3*idf(c) + (p.kind==='K' && c===p.ref.id ? 1.2 : 0); else if(p.con.has(c)) s+=.5*idf(c) });
+    uw.forEach(w=>{ if(p.words.has(w)) s+=.6*widf(w); else if(p.twords.has(w) && w.length>=5) s+=.2*widf(w) });
+    if(p.kind==='K' && !a.q && !/\b(tell me|i'?d like to know|i wonder|let me ask)\b/.test(sl)) s*=.4;   // general answers are for questions
+    if(p.kind==='H' && st.revealed[p.ref.id]) s*=.6;
+    if(p.kind==='H' && p.ref.unlock==='reason' && a.q && !hit) s*=.6;
+    if(p.kind==='H' && p.ref.unlock==='reason' && a.q && hit) s-=1;
+    if(p.kind==='T' && (st.topicsSaid[p.ref.id]||0)>= (p.ref.say||[]).length) s*=.5;
+    if(s>0) out.push({p,s,hit});
+  });
+  return out.sort((x,y)=>y.s-x.s);
+}
+const kbLines = (sc, id) => (sc.kb && sc.kb[id]) ? [].concat(sc.kb[id]) : null;
+const kbOwner = (sc, id, def) => (sc.kbOwner && sc.kbOwner[id]!=null) ? sc.kbOwner[id] : def;
+function openIssues(sc, st){ return (sc.issues||[]).filter(is=>!is.never && st.agreed[is.id]==null).sort((x,y)=>(y.weight||1)-(x.weight||1)) }
+function kbAnswer(sc, st, id, a, sl, addr){
+  tr(st,'K:'+id);
+  const lead=0, p=addr>=0?addr:kbOwner(sc,id,lead), per=sc.personas[p]||sc.personas[0], mood=moodOf(st,p), say=t=>[ln(p,t)];
+  const fromKB = kbLines(sc,id); const isM=issuesMentioned(sc, sl)[0]; const is=isM || (sc.issues||[]).find(i=>i.id===st.focus) || openIssues(sc,st)[0];
+  const hid = k => (sc.hidden||[]).find(h=>h.id===k || (CONCEPTS[k] && conceptsOf(keysText(h.keys)+' '+(h.recap||'')).has(k)));
+  switch(id){
+    case 'role': { if(per.about) return say(fresh(st,'about'+p,[].concat(per.about))); const [title,org]=String(per.role).split(/,\s*/); return say(`I'm ${/^[aeiou]/i.test(title)?'an':'a'} ${title}${org?' at '+org:''}${p===0?' — so this one is on my desk.':'.'}`) }
+    case 'decide': case 'time': case 'past': case 'rival': {
+      const h=hid(id==='decide'?'decide':id==='time'?'time':id); if(h && (!kbLines(sc,id) || rx(h.keys).test(sl))){ return handleHidden(sc, st, h, a) }
+      if(fromKB) return say(fresh(st,'kb'+id,fromKB));
+      return say(fresh(st,'kbd'+id,{decide:["I'll make the recommendation, but final sign-off sits with my director.","It's my call in the end, with input from my team."],time:["We'd like to wrap this up in the next couple of weeks, ideally.","Sooner rather than later — but I'd rather get it right than rush it."],past:["We've had mixed experiences before, so I'm being careful this time.","Let's just say we've learned to read the small print."],rival:["We always look at alternatives — that's my job.","We do have other options, yes. But we're here talking to you."]}[id])) }
+    case 'priority': { if(fromKB) return say(fresh(st,'kbpri',fromKB)); const o=openIssues(sc,st); if(!o.length) return say("Honestly, getting this signed and moving is the priority now.");
+      return say(`For us, the big one is ${o[0].label}${o[0].why?' — '+low1(o[0].why).replace(/\.$/,'')+'':''}.${o[1]?` After that, ${o[1].label}.`:''}`) }
+    case 'flex': { if(!is) break; if(is.never) return say(fresh(st,'never'+is.id,is.defend||["That one isn't negotiable, I'm afraid."]));
+      const S_=st.issues[is.id], room=Math.abs((S_.pos??is.open)-(is.reserve??S_.pos)); tr(st,'flex:'+is.id); st.focus=is.id;
+      if(room<1e-9 || (is.step && room<is.step*.6)) return say(fresh(st,'flexno',[`Honestly, there isn't much room left on ${is.label}.`,`We're very close to our limit on ${is.label}.`]));
+      const ask = is.ask ? ` ${cap1(is.ask)}` : is.trades ? ' What could you offer in return?' : ' Give me a reason, and I can take it back to my team.';
+      return say(fresh(st,'flexyes'+mood,{warm:[`There's a little room on ${is.label}, yes.`,`I think we can find some flexibility on ${is.label}.`],neutral:[`Maybe — but not for nothing.`,`There might be some room on ${is.label}, but it has to work for us too.`],cold:[`Not much. And not for free.`,`Possibly. But you'll have to give me something.`],angry:[`Not unless you give me a very good reason.`]}[mood])+ask) }
+    case 'need': { if(fromKB) return say(fresh(st,'kbneed',fromKB)); const o=is||openIssues(sc,st)[0]; if(!o) return say("Just a clear, written summary of what we've agreed.");
+      return say(o.ask ? `Honestly? ${cap1(o.ask)}` : `Move on ${o.label}, and give me a reason I can take to my team.`) }
+    case 'opinion': { const o=openIssues(sc,st)[0]; const t={warm:`Honestly, I like it.${o?` My only real concern is ${o.label}.`:''}`,neutral:`It's interesting.${o?` I still have questions about ${o.label}, though.`:''}`,cold:`I'm not convinced yet${o?` — mainly because of ${o.label}`:''}.`,angry:`Frankly, I'm not there yet.`}[mood];
+      return say(fromKB&&mood!=='cold'&&mood!=='angry'?fresh(st,'kbop',fromKB):t) }
+    case 'more': { const h=(sc.hidden||[]).find(h=>!st.revealed[h.id] && (h.unlock==='any'||h.unlock==='open')); if(h && Math.random()<.7){ return handleHidden(sc, st, h, Object.assign({},a,{open:true})) }
+      const t=(sc.topics||[]).find(t=>!st.topicsSaid[t.id]); if(t) return handleTopic(sc, st, t, a);
+      const o=openIssues(sc,st)[0]; return say(o?`Not really — ${o.label} is the main thing for us.`:"No, I think that's everything.") }
+    case 'docreq': return say(fresh(st,'docreq',["Sure — once we've agreed the points, I'll send a revised version.","Of course. Send me your proposed wording first, and I'll turn it around quickly."]));
+    case 'standard': if(fromKB) return say(fresh(st,'kbstd',fromKB)); return say(fresh(st,'std',["Yes, it's our standard — but standard doesn't mean fixed, if you have good reasons.","It's our usual starting point, yes."]));
+  }
+  if(fromKB) return say(fresh(st,'kb'+id,fromKB));
+  // topic-like intents without content: route to a matching topic, else none
+  return null;
+}
+/* question-aware fallback: engaged, not evasive */
+function questionFallback(sc, st, a, p){
+  const low=a.low, mood=moodOf(st,p), o=openIssues(sc,st)[0], tie=o?` For me, the bigger question right now is ${o.label}.`:'';
+  let pool;
+  if(/^\s*who\b/.test(low)) pool=["That would mostly be me, with input from my team.","Me, mainly — I'll loop in others if needed."];
+  else if(/^\s*when\b/.test(low)) pool=["I'd have to check the exact date and come back to you.","Soon — I can confirm the exact timing after this call."];
+  else if(/^\s*how (many|much)\b/.test(low)) pool=["I don't have the exact figure in front of me — I can get back to you on that.","I'd need to check the numbers, honestly."];
+  else if(/^\s*why\b/.test(low)) pool=o&&o.why?[`Mainly because ${low1(o.why).replace(/\.$/,'')}.`]:["It's mostly about managing risk on our side.","It comes down to what we've been asked to deliver internally."];
+  else if(/^\s*(is|are|do|does|did|can|could|will|would|have|has)\b/.test(low)) pool=mood==='warm'?["I think so, yes — though it depends on the details.","Probably, yes. Why do you ask?"]:mood==='neutral'?["Possibly. It depends on the details.","Not necessarily — it depends on what we agree today."]:["Not really, no.","I wouldn't count on it."];
+  else pool=["Good question.","That's a fair question.","Hmm, let me think about that."];
+  tr(st,'F:q2');
+  return [ln(p, fresh(st,'qf',pool)+(/^\s*(who|when|how (many|much))\b/.test(low)||!tie||Math.random()<.4?'':tie))];
+}
+
 /* ---------- 4. Dialogue: main turn ---------- */
 function engineTurn(sc, st, text, channel){
   st.usedSet = st.usedSet || new Set(st.used||[]);
-  st.turn++; const whole=nlu(text), lead=0, P=sc.personas.length;
+  st.turn++; st._tr=[]; const whole=nlu(text), lead=0, P=sc.personas.length;
   TURN_REFS = whole.low.match(/\b\d{1,2}\.\d{1,2}\b/g);
   st.learnerTurns.push({t:text, n:whole.n, a:{q:whole.q,open:whole.open,reason:whole.reason,evidence:whole.evidence,cond:whole.cond,propose:whole.propose,empathy:whole.empathy,signpost:whole.signpost,summary:whole.summary}});
   const R=[]; const add=(pri,lines)=>{ if(lines&&lines.length) R.push({pri,lines}) };
@@ -2320,7 +2575,7 @@ function engineTurn(sc, st, text, channel){
   // ---- per-sentence processing
   const sents = sentences(text); const handledIssues=new Set(), handledHidden=new Set(), handledTopics=new Set();
   let offersMade=0;
-  const turnOffers = bindOffers(sc, st, whole, whole.low);
+  const turnOffers = bindOffers(sc, st, whole, whole.low); let handledK=false;
   sents.forEach(sent=>{
     let a=nlu(sent); const sl=a.low;
     // offers / numbers
@@ -2333,7 +2588,7 @@ function engineTurn(sc, st, text, channel){
     // accept their last counter
     const strongAccept = /\b(accept|agree|deal|works for (us|me)|fine with|go with|that'?s fine|sounds good|we can live with)\b/.test(sl) || (a.accept && a.n<=4);
     if(strongAccept && !a.reject && st.expect && st.expect.type==='offer' && !handledIssues.has(st.expect.issue)){
-      const is=sc.issues.find(i=>i.id===st.expect.issue); handledIssues.add(is.id);
+      const is=sc.issues.find(i=>i.id===st.expect.issue); tr(st,'ACC:'+is.id); handledIssues.add(is.id);
       st.agreed[is.id]=st.expect.value; ev(st,'acceptTheirs',`Accepted their ${is.label}: ${fmtVal(is,st.expect.value)}.`, (is.limit!=null && better(is, st.expect.value, is.limit))?-1:0);
       if(is.limit!=null && better(is, st.expect.value, is.limit)) ev(st,'limit',`Accepted ${fmtVal(is,st.expect.value)} on ${is.label}, outside your mandate.`,-1);
       st.expect=null; feel(st,is.owner||0,+5,+5);
@@ -2343,7 +2598,7 @@ function engineTurn(sc, st, text, channel){
     if((a.holdFirm || (a.reject && !a.q)) && (st.focus || st.expect)){
       const is=issuesMentioned(sc, sl)[0] || sc.issues.find(i=>i.id===(st.expect&&st.expect.issue||st.focus));
       if(is && turnOffers.some(o=>o.issue.id===is.id)) return;   // "90 days is too long. Could we do 30?" → let the offer answer
-      if(is && !handledIssues.has(is.id)){ handledIssues.add(is.id);
+      if(is && !handledIssues.has(is.id)){ tr(st,'HF:'+is.id); handledIssues.add(is.id);
         const p=is.owner||0, mood=moodOf(st,p); feel(st,p,-2,-5);
         const ally = sc.personas.findIndex(x=>x.stance==='ally');
         const L1=[ln(p, fresh(st,'firm'+mood,[`Then help me understand why we should accept ${fmtVal(is,is.better==='down'?Math.max(st.issues[is.id].pos,(st.offers[is.id]||[]).slice(-1)[0]||0):st.issues[is.id].pos)}.`,`If you can't move, I'm not sure how we close this.`,`That's disappointing. What CAN you do?`,`Then we have a problem on ${is.label}.`]))];
@@ -2352,19 +2607,36 @@ function engineTurn(sc, st, text, channel){
     }
     // explanation of an issue
     const isMent = issuesMentioned(sc, sl).filter(i=>!handledIssues.has(i.id));
-    if(isMent.length && (a.explainReq || (a.q && /\bmean|what is|what are|how does\b/.test(sl)))){ const is=isMent[0]; handledIssues.add(is.id); st.flags.explained=(st.flags.explained||0)+1; st.flags['x_'+is.id]=true; is.raisedBy=1; st.issues[is.id].raised=true; st.focus=is.id; add(32,[ln(is.owner||0, is.explain||`It's about ${is.label}.`)]); return }
+    if(isMent.length && !/\bwhy\b/.test(sl) && (a.explainReq || (a.q && /\bmean|what is|what are|how does\b/.test(sl)))){ const is=isMent[0]; tr(st,'X:'+is.id); handledIssues.add(is.id); st.flags.explained=(st.flags.explained||0)+1; st.flags['x_'+is.id]=true; is.raisedBy=1; st.issues[is.id].raised=true; st.focus=is.id; add(32,[ln(is.owner||0, is.explain||`It's about ${is.label}.`)]); return }
+    // meaning-based routing for questions: hidden info, topics and general business questions
+    const ranks = rankMatches(sc, st, a, sl).filter(r=>!(r.p.kind==='H'&&handledHidden.has(r.p.ref.id)) && !(r.p.kind==='T'&&handledTopics.has(r.p.ref.id)));
+    const best = ranks[0];
+    const issueNamed = isMent.length && !(best && best.hit) && !/^\s*(?:so,? |and |but )?(who|when)\b/.test(sl);
+    const issueWhy = (issueNamed || isMent.length && (a.whyQ || /\b(why|concern|worried|problem|change|necessary|need (\d|ninety|thirty|that|this|to own))\b/.test(sl))) && !(best && best.p.kind==='K' && /^(flex|need|priority|opinion)$/.test(best.p.ref.id));
+    for(const best of ranks.slice(0,3)){
+    if(!(a.q && best && (best.hit || best.s>=2) && !issueWhy && !handledK && !(a.agenda && !best.hit) && !(a.askPosition && !best.hit && (sc.issues||[]).length))) break;
+      let out=null;
+      if(best.p.kind==='H'){ handledHidden.add(best.p.ref.id); out=handleHidden(sc, st, best.p.ref, Object.assign({},a,{open:a.open||whole.open,reason:whole.reason||a.reason})) }
+      else if(best.p.kind==='T'){ handledTopics.add(best.p.ref.id); out=handleTopic(sc, st, best.p.ref, Object.assign({},a,{evidence:whole.evidence||a.evidence,reason:whole.reason||a.reason})) }
+      else { const tp=(sc.topics||[]).find(t=>!handledTopics.has(t.id) && profiles(sc).P.find(x=>x.ref===t).con.has(best.p.ref.id));
+        out = tp && !kbLines(sc,best.p.ref.id) ? (handledTopics.add(tp.id), handleTopic(sc, st, tp, a)) : kbAnswer(sc, st, best.p.ref.id, a, sl, addr); if(out) handledK=true }
+      if(out && out.length){ add(26, out); return }
+      handledK=false;
+    }
+    if(R.length && R[R.length-1].pri===26) return;
     // hidden info
-    const hid=(sc.hidden||[]).find(h=>!handledHidden.has(h.id) && rx(h.keys).test(sl) && (a.q||a.open||a.n>=4));
+    const hidHits=(sc.hidden||[]).filter(h=>!handledHidden.has(h.id) && rx(h.keys).test(sl) && (a.q||a.open||a.n>=4));
+    const hid=hidHits.sort((x,y)=>{ const rr=rankMatches(sc,st,a,sl); const sx=(rr.find(r=>r.p.ref===x)||{s:0}).s, sy=(rr.find(r=>r.p.ref===y)||{s:0}).s; return sy-sx })[0];
     if(hid && (a.q || a.open || h_shouldAnswerStatement(hid,a))){ handledHidden.add(hid.id); add(22, handleHidden(sc, st, hid, Object.assign({},a,{open:a.open||whole.open,reason:whole.reason||a.reason}))); return }
     if(hid && st.revealed[hid.id] && !a.q && (a.ents.length||a.propose||a.reason||a.commitDate) && !st.flags['addr_'+hid.id]){ handledHidden.add(hid.id); st.flags['addr_'+hid.id]=true; feel(st,hid.owner||0,+5,+3); ev(st,'addressed',`Addressed their concern: ${hid.recap||hid.id}.`,1);
       add(21,[ln(hid.owner||0, fresh(st,'addr',["That's good to hear — it addresses my main concern.","Okay, that helps a lot, actually.","If you can really do that, that changes things for me."]))]); return }
     // asking their position
     if(a.askPosition){ const is=(isMent[0]) || sc.issues.find(i=>i.id===st.focus) || (sc.issues||[]).find(i=>!st.agreed[i.id]&&!i.never);
-      if(is && !handledIssues.has(is.id)){ handledIssues.add(is.id); st.focus=is.id; st.issues[is.id].raised=true; st.expect={type:'offer',issue:is.id,value:st.issues[is.id].pos};
+      if(is && !handledIssues.has(is.id)){ tr(st,'P:'+is.id); handledIssues.add(is.id); st.focus=is.id; st.issues[is.id].raised=true; st.expect={type:'offer',issue:is.id,value:st.issues[is.id].pos};
         add(24,[ln(is.owner||0, fresh(st,'pos'+moodOf(st,is.owner||0),[`Our position on ${is.label} is ${fmtVal(is,st.issues[is.id].pos)}.`,`We're at ${fmtVal(is,st.issues[is.id].pos)} on ${is.label}. What can you do?`,`${cap1(fmtVal(is,st.issues[is.id].pos))}. That's where we are.`]))]); return } }
     // issue raised without numbers: defend / ask for their proposal
     if(isMent.length && !(a.agenda && isMent.length>=2) && (a.q || a.propose || a.reason || a.reject || /concern|problem|issue|risk|worried|change|flag|point/.test(sl))){
-      const is=isMent[0]; handledIssues.add(is.id); st.issues[is.id].raised=true; st.focus=is.id;
+      const is=isMent[0]; tr(st,'I:'+is.id); handledIssues.add(is.id); st.issues[is.id].raised=true; st.focus=is.id;
       const later=turnOffers.find(o=>o.issue.id===is.id);
       if(later){ offersMade++; add(30, evaluateOffer(sc, st, later, Object.assign({},whole,{cond:whole.cond}), whole.low)); return }
       a=Object.assign({},a,{reason:a.reason||whole.reason, evidence:a.evidence||whole.evidence, propose:a.propose||whole.propose});
@@ -2378,7 +2650,8 @@ function engineTurn(sc, st, text, channel){
       add(20,[ln(is.owner||0, fresh(st,'def'+is.id,is.defend||[`What did you have in mind on ${is.label}?`]) + (a.reason?'':' '+fresh(st,'whyask',["Why is that a problem for you?","What would you propose instead?","What exactly worries you?"])))]); return;
     }
     // topics
-    const tp=(sc.topics||[]).find(t=>!handledTopics.has(t.id) && rx(t.keys).test(sl));
+    const tpHits=(sc.topics||[]).filter(t=>!handledTopics.has(t.id) && rx(t.keys).test(sl)); const rr=tpHits.length>1?rankMatches(sc,st,a,sl):[];
+    const tp=tpHits.sort((x,y)=>((rr.find(r=>r.p.ref===y)||{s:0}).s)-((rr.find(r=>r.p.ref===x)||{s:0}).s))[0];
     if(tp){ handledTopics.add(tp.id); add(a.q||a.explainReq?31:15, handleTopic(sc, st, tp, Object.assign({},a,{evidence:whole.evidence||a.evidence,reason:whole.reason||a.reason}))); return }
   });
   // ---- scenario needs (escalation-style)
@@ -2395,21 +2668,22 @@ function engineTurn(sc, st, text, channel){
   if(whole.howareyou && st.turn<=3) add(10,[ln(addr>=0?addr:lead, fresh(st,'hay',["Good, thanks — busy week, as always.","Not bad, thanks. Let's make the most of the time."]))]);
   else if(whole.smalltalk && st.turn<=2 && !R.length && !whole.propose && !whole.ents.length && !st.flags.icebreak) add(9,[ln(lead, "Ha — yes. Anyway, let's get into it.")]);
   if(whole.greet && st.turn===1 && !R.length) add(8,[ln(lead, fresh(st,'greet',["Likewise — good to see you.","Thanks for making the time.","Good to meet you too."]))]);
-  if(whole.agenda && !R.length) add(8,[ln(lead, fresh(st,'agendaok',["Sounds good. Go ahead.","That works. Where do you want to start?","Fine by me."]))]);
+  if(whole.agenda && !R.length) tr(st,'AG'), add(8,[ln(lead, fresh(st,'agendaok',["Sounds good. Go ahead.","That works. Where do you want to start?","Fine by me."]))]);
   if(whole.empathy && !R.length) add(7,[ln(lead, fresh(st,'emp',["I appreciate that.","Thank you — that helps.","Okay, I appreciate you saying that."]))]);
   if(whole.nextstep && !R.length && st.turn>=3 && sc.onNext){ add(12,[ln(sc.onNext[0], sc.onNext[1])]); st.flags.next=true }
   if(whole.threat){ const p=lead, m=moodOf(st,p); feel(st,p, S.difficulty==='veryhard'?-8:-3, -6); ev(st,'threat','Threatened to walk away.',0);
     add(18,[ln(p, m==='warm'? "Let's not get there. I'm sure we can find a solution." : fresh(st,'threat',["That's your choice. But I don't think you'll find a better partner.","Then I suppose we both have alternatives."]))]) }
   // ---- fallback when nothing matched
   if(!R.length){
-    if(whole.n<3 && !whole.accept && !whole.reject && !whole.ents.length){ st.flags.unclear=(st.flags.unclear||0)+1; add(5,[ln(st.lastAIBy||lead, fresh(st,'clar',["Sorry, I didn't quite catch that. Could you say that again?","Sorry — could you repeat that?","I'm not sure I followed. Could you rephrase that?"]))]) }
-    else if(whole.accept && st.expect && st.expect.type==='question') add(5,[ln(st.lastAIBy||lead, fresh(st,'yesmore',["Good. Could you say a bit more about that?","Okay — how exactly?","Great. What would that look like?"]))]);
-    else if((whole.accept||whole.reject) && whole.n<=4) add(5,[ln(st.lastAIBy||lead, fresh(st,'short',["Could you say a bit more about that?","Okay — can you expand on that?","Why do you say that?"]))]);
-    else if(whole.propose) add(5,[ln(addr>=0?addr:lead, fresh(st,'prop', whole.reason||whole.cond ? ["That's an interesting idea. What would it look like in practice?","Okay, that could work. What would you need from us?","I like the direction. Can you be more specific?"] : ["That's a start, but why should we agree to that?","Hmm. What's in it for us?","I'm not convinced yet. Can you explain the reasoning?"]))]);
-    else if(whole.q) add(5,[ln(addr>=0?addr:lead, fresh(st,'q',["Good question. Honestly, it depends on what you can offer us.","I'd rather hear your view on that first.","That's still being discussed internally, to be honest.","That's not something I can share right now."]))]);
-    else if(whole.evidence||whole.reason){ const sk=sc.personas.findIndex(x=>x.stance==='skeptic'); add(5,[ln(lead, fresh(st,'reasonack',["Okay, that's a fair point.","That's useful context.","I see where you're coming from."]))].concat(sk>0&&!whole.evidence&&Math.random()<.5?[ln(sk, fresh(st,'skep',["What's that based on?","Do you have data to support that?"]))]:[])) }
-    else if(!whole.anyIntent && whole.n>3 && (sc.issues||[]).length){ feelAll(st,0,-4); st.flags.offtopic=(st.flags.offtopic||0)+1; if(st.flags.offtopic<=3) ev(st,'offtopic','Went off-topic: "'+text.slice(0,60)+(text.length>60?'…':'')+'"',-1); add(5,[ln(lead, fresh(st,'offtopic',{warm:["Ha — fair. But let's get back to the open points, shall we?","Interesting! Coming back to the deal, though — where are you on the terms?","I hear you. Let's park that and get back to what's still open."],neutral:["Let's stay focused — what's your position on the open points?","I'm not sure how that helps us here. Can we get back to the terms?","Okay. And how does that relate to what we're discussing?","Let's keep to the agenda, if that's okay."],cold:["I'm not sure how that's relevant.","Can we stick to the terms, please?","We don't have much time. What's your position?"],angry:["That's not helpful. What are you offering?","Let's not waste time. The terms, please."]}[moodOf(st,lead)]))]) }
-    else add(5,[ln(addr>=0?addr:lead, fresh(st,'stmt',["Okay, I see.","Right, that's useful context.","Understood.","Okay — noted."]))]);
+    if(whole.n<3 && !whole.accept && !whole.reject && !whole.ents.length){ st.flags.unclear=(st.flags.unclear||0)+1; add(5,[ln(st.lastAIBy||lead, frT(st,'clar',["Sorry, I didn't quite catch that. Could you say that again?","Sorry — could you repeat that?","I'm not sure I followed. Could you rephrase that?"]))]) }
+    else if(whole.accept && st.expect && st.expect.type==='question' && /\b(can|could|will|would) you (put|send|share|confirm|write|get|follow)\b[^?]*\?\s*$/i.test(st.lastAI)) add(5,[ln(st.lastAIBy||lead, frT(st,'yesreq',["Great, thank you.","Perfect — thanks.","Good, I'll look out for it."]))]);
+    else if(whole.accept && st.expect && st.expect.type==='question') add(5,[ln(st.lastAIBy||lead, frT(st,'yesmore',["Good. Could you say a bit more about that?","Okay — how exactly?","Great. What would that look like?"]))]);
+    else if((whole.accept||whole.reject) && whole.n<=4) add(5,[ln(st.lastAIBy||lead, frT(st,'short',["Could you say a bit more about that?","Okay — can you expand on that?","Why do you say that?"]))]);
+    else if(whole.propose) add(5,[ln(addr>=0?addr:lead, frT(st,'prop', whole.reason||whole.cond ? ["That's an interesting idea. What would it look like in practice?","Okay, that could work. What would you need from us?","I like the direction. Can you be more specific?"] : ["That's a start, but why should we agree to that?","Hmm. What's in it for us?","I'm not convinced yet. Can you explain the reasoning?"]))]);
+    else if(whole.q) add(5, questionFallback(sc, st, whole, addr>=0?addr:(st.lastAIBy||lead)));
+    else if(whole.evidence||whole.reason){ const sk=sc.personas.findIndex(x=>x.stance==='skeptic'); add(5,[ln(lead, frT(st,'reasonack',["Okay, that's a fair point.","That's useful context.","I see where you're coming from."]))].concat(sk>0&&!whole.evidence&&Math.random()<.5?[ln(sk, fresh(st,'skep',["What's that based on?","Do you have data to support that?"]))]:[])) }
+    else if(!whole.anyIntent && whole.n>3 && (sc.issues||[]).length){ feelAll(st,0,-4); st.flags.offtopic=(st.flags.offtopic||0)+1; if(st.flags.offtopic<=3) ev(st,'offtopic','Went off-topic: "'+text.slice(0,60)+(text.length>60?'…':'')+'"',-1); add(5,[ln(lead, frT(st,'offtopic',{warm:["Ha — fair. But let's get back to the open points, shall we?","Interesting! Coming back to the deal, though — where are you on the terms?","I hear you. Let's park that and get back to what's still open."],neutral:["Let's stay focused — what's your position on the open points?","I'm not sure how that helps us here. Can we get back to the terms?","Okay. And how does that relate to what we're discussing?","Let's keep to the agenda, if that's okay."],cold:["I'm not sure how that's relevant.","Can we stick to the terms, please?","We don't have much time. What's your position?"],angry:["That's not helpful. What are you offering?","Let's not waste time. The terms, please."]}[moodOf(st,lead)]))]) }
+    else add(5,[ln(addr>=0?addr:lead, frT(st,'stmt',["Okay, I see.","Right, that's useful context.","Understood.","Okay — noted."]))]);
   }
   // ---- ally / skeptic interjections
   const ally=sc.personas.findIndex(x=>x.stance==='ally'), skep=sc.personas.findIndex(x=>x.stance==='skeptic');
@@ -2472,7 +2746,7 @@ function composeTurns(sc, st, res, opts){
   const lead=0, mood=moodOf(st,lead), a=opts.a;
   if(!opts.noExtras){
     if(a && a.n>70 && /hard/.test(S.difficulty) && !st.closing && !sc.presentation){ feel(st,lead,0,-4); lines.unshift(ln(lines[0]?lines[0].p:lead, S.difficulty==='veryhard'?"Let me stop you there.":"Sorry to cut in —")) }
-    else if(a && lines.length && Math.random()<.4 && !/^(okay|ok|right|hmm|well|look|so|thanks|thank|great|good|sorry|fair|i see|let me|that|we already|like i|as i|again|hold on|yes|no\b|sure|of course|just|it means|our|we|i'm|i am)/i.test(lines[0].t)) lines[0]={p:lines[0].p, t:fresh(st,'ack',ACKS[moodOf(st,lines[0].p)])+' '+lines[0].t};
+    else if(a && lines.length && Math.random()<.4 && !/^(okay|ok|right|hmm|well|look|so|thanks|thank|great|good|sorry|fair|i see|let me|that|we already|like i|as i|again|hold on|yes|no\b|sure|of course|just|it means|our|we|i'm|i am|i appreciate|i hear|fine|ha\b|glad|nice|oh\b|honestly|alright|got it)/i.test(lines[0].t)) lines[0]={p:lines[0].p, t:fresh(st,'ack',ACKS[moodOf(st,lines[0].p)])+' '+lines[0].t};
     // keep the meeting moving with an agenda question
     if(!st.closing && !st.endNow && !lines.some(l=>/\?\s*$/.test(l.t)) && !sc.presentation && !(st.expect && (st.expect.type==='offer'||st.expect.type==='justify') && st.expect.t===st.turn)){
       const q=nextAgenda(sc, st); if(q) lines.push(q);
@@ -2580,7 +2854,7 @@ function engineReply(sc, st, text, opts){
   if(res.end) return {turns:composeTurns(sc, st, res, {noExtras:true}), end:true};
   // everything resolved → invite a summary
   const open=(sc.issues||[]).filter(is=>!is.never && is.weight>=2 && st.agreed[is.id]==null);
-  if((sc.issues||[]).length && !open.length && !st.flags.allDone && opts.channel!=='email'){ st.flags.allDone=true; st.sumInvite=true; res.lines.push(ln(0, "I think we've covered the main points. Would you like to summarise where we've landed?")); return {turns:composeTurns(sc, st, res, {noExtras:true}), end:false} }
+  if((sc.issues||[]).length && !open.length && !st.flags.allDone && st.turn>=6 && opts.channel!=='email'){ st.flags.allDone=true; st.sumInvite=true; res.lines.push(ln(0, "I think we've covered the main points. Would you like to summarise where we've landed?")); return {turns:composeTurns(sc, st, res, {noExtras:true}), end:false} }
   return {turns:composeTurns(sc, st, res, {a:nlu(text), noExtras:opts.channel==='email'}), end:false, slow:res.slow};
 }
 /* =========================================================
@@ -2594,90 +2868,73 @@ function engineReply(sc, st, text, opts){
 // [regex, replacement, why(en), why(ko), kind]  kind: err = grammar/usage, reg = register/style
 const LANG = [
   // verbs that take no preposition / wrong preposition
-  [/\b(discuss(?:ed|ing)?) about\b/gi,'$1','"Discuss" takes a direct object — no "about".','discuss는 about 없이 바로 목적어를 받아요.','err'],
-  [/\b(explain(?:ed|ing)?) about\b/gi,'$1','"Explain" takes a direct object — no "about".','explain은 about 없이 목적어를 받아요.','err'],
-  [/\b(mention(?:ed|ing)?) about\b/gi,'$1','"Mention" takes a direct object — no "about".','mention은 about 없이 목적어를 받아요.','err'],
-  [/\b(contact(?:ed|ing)?) (to|with) /gi,'$1 ','"Contact" takes a direct object.','contact는 to/with 없이 목적어를 받아요.','err'],
-  [/\b(enter(?:ed|ing)?) into (the )?(room|office|building|meeting)\b/gi,'$1 the $3','"Enter" a place — no "into".','장소에 들어갈 때 enter 뒤에 into를 쓰지 않아요.','err'],
-  [/\bmarried with\b/gi,'married to','We say "married to".','"married to"가 맞아요.','err'],
-  [/\b(depends?|depending) (of|to|in)\b/gi,'$1 on','"Depend on", not "of / to".','depend는 on과 함께 써요.','err'],
-  [/\bexplain (me|us|him|her|them)\b/gi,'explain to $1','"Explain" needs "to" before the person.','explain 뒤 사람 앞에는 to가 필요해요.','err'],
-  [/\b(suggest(?:ed|s)?|recommend(?:ed|s)?) (me|us|him|her|them) to ([a-z]+)/gi,'$1 that $2 $3','"Suggest / recommend" don\'t take "someone to do" — say "suggest that we…" or "suggest doing…".','suggest/recommend는 "사람 + to부정사"를 쓰지 않아요. "suggest that we…"나 "suggest -ing"로 쓰세요.','err'],
-  [/\b(make|made|let|lets) (me|us|him|her|them|it) to ([a-z]+)/gi,'$1 $2 $3','After "make / let", use the bare verb (no "to").','make/let 뒤에는 to 없이 동사원형을 써요.','err'],
-  [/\blook(ing)? forward to (meet|see|hear|work|receive|discuss)\b/gi,(m,g,v)=>`look${g||''} forward to ${v.replace(/e$/,'')}ing`,'"Look forward to" + -ing.','look forward to 뒤에는 -ing를 써요.','err'],
-  [/\bi'?m agree\b/gi,'I agree','"Agree" is a verb — no "am".','agree는 동사라 am이 필요 없어요.','err'],
-  [/\bit'?s depends?\b/gi,'it depends','Say "it depends".','it depends가 맞는 형태예요.','err'],
-  [/\bhow do you think\b/gi,'what do you think','With "think", use "what".','think와는 how가 아니라 what을 써요.','err'],
-  [/\bmore (better|worse|cheaper|faster|bigger|easier)\b/gi,'$1','Already comparative — drop "more".','이미 비교급이라 more가 필요 없어요.','err'],
-  [/\bmore cheap\b/gi,'cheaper','Use "cheaper".','cheaper를 쓰세요.','err'],
-  [/\bmost best\b/gi,'best','"Best" is already superlative.','best 자체가 최상급이에요.','err'],
-  [/\b(informations|advices|feedbacks|equipments|staffs|homeworks|furnitures|knowledges|evidences|luggages)\b/gi,m=>m.replace(/s$/i,''),'This noun is uncountable — no plural "-s".','셀 수 없는 명사라 -s를 붙이지 않아요.','err'],
-  [/\bmany (information|advice|feedback|equipment|evidence|money)\b/gi,'a lot of $1','Uncountable nouns take "a lot of / much", not "many".','셀 수 없는 명사에는 many 대신 a lot of를 써요.','err'],
-  [/\bpeople (is|was|has)\b/gi,(m,v)=>'people '+({is:'are',was:'were',has:'have'})[v.toLowerCase()],'"People" is plural.','people은 복수예요.','err'],
-  [/\bevery (days|weeks|months|years|times)\b/gi,(m,n)=>'every '+n.replace(/s$/,''),'"Every" takes a singular noun.','every 뒤에는 단수 명사를 써요.','err'],
-  [/\balmost (people|companies|clients|customers|koreans|employees)\b/gi,'most $1','"Almost" can\'t describe a noun — say "most people" or "almost all people".','almost는 명사를 꾸밀 수 없어요. most people / almost all people로 쓰세요.','err'],
-  [/\bthe most of\b/gi,'most of','Say "most of", without "the".','"most of"가 맞아요.','err'],
-  [/\bgo(es|ing)? to (home|abroad|overseas|there|downtown)\b/gi,(m,g,p)=>'go'+(g||'')+' '+p,'"Home / abroad / there" are adverbs — no "to".','home/abroad/there 앞에는 to를 쓰지 않아요.','err'],
-  [/\bwent to (home|abroad|overseas|there)\b/gi,'went $1','"Home / abroad / there" are adverbs — no "to".','home/abroad/there 앞에는 to를 쓰지 않아요.','err'],
-  [/\b(i|we) (was|were|am|'m|are|felt|feel) (so |very |really )?(boring|interesting|exciting|confusing|embarrassing|disappointing|tiring)\b/gi,(m,p,v,a,adj)=>`${p} ${v} ${a||''}${({boring:'bored',interesting:'interested',exciting:'excited',confusing:'confused',embarrassing:'embarrassed',disappointing:'disappointed',tiring:'tired'})[adj.toLowerCase()]}`,'People feel "-ed" (bored, interested); things are "-ing".','사람의 감정은 -ed(bored, interested), 원인이 되는 것은 -ing예요.','err'],
-  [/\b(i'?m|we'?re|i am|we are) interesting in\b/gi,'$1 interested in','"Interested in" describes your feeling.','관심이 있다는 interested in이에요.','err'],
-  [/\bgot (an )?interest in\b/gi,'became interested in','Say "became interested in".','"became interested in"이 자연스러워요.','err'],
-  [/\b(nobody|no one) (wouldn'?t|didn'?t|don'?t|can'?t|won'?t)\b/gi,(m,n,v)=>n+' '+v.replace(/n'?t$/,'').replace(/^wo$/,'will').replace(/^ca$/,'can'),'Double negative — "nobody" is already negative.','이중 부정이에요. nobody 자체가 부정이에요.','err'],
-  [/\bsince (\d+|one|two|three|four|five|six|ten) (years|months|weeks|days)\b/gi,'for $1 $2','Use "for" with a length of time; "since" with a starting point.','기간에는 for, 시작 시점에는 since를 써요.','err'],
-  [/\bfor (\d+|a|one|two|three) (years?|months?|days?|weeks?) ago\b/gi,'$1 $2 ago','Don\'t combine "for" and "ago".','for와 ago를 같이 쓰지 않아요.','err'],
-  [/\b(return(?:ed)?) back\b/gi,'$1','"Return" already means "go back".','return에 이미 back의 의미가 있어요.','err'],
-  [/\brepeat(ed)? again\b/gi,'repeat$1','"Repeat" already means "say again".','repeat에 이미 again의 의미가 있어요.','err'],
-  [/\b(the reason (is|was)) because\b/gi,'$1 that','"The reason is that…" (not "because").','"The reason is that…"이 맞아요.','err'],
-  [/\b(although|even though) ([^.,]{3,60}), but\b/gi,'$1 $2,','Use "although" OR "but" — not both.','although와 but을 함께 쓰지 않아요.','err'],
-  [/\baccording to (me|my opinion|my thought)\b/gi,'in my view','"According to" is for other sources — for yourself, say "in my view".','according to는 남의 출처에 써요. 내 의견은 "in my view".','err'],
-  [/\bin nowadays\b/gi,'nowadays','"Nowadays" needs no "in".','nowadays 앞에는 in을 쓰지 않아요.','err'],
-  [/\b(the )?price is (so |very |too )?(expensive|cheap)\b/gi,(m,t,a,x)=>`${t||''}price is ${a||''}${x.toLowerCase()==='expensive'?'high':'low'}`,'Prices are "high / low"; products are "expensive / cheap".','가격은 high/low, 물건이 expensive/cheap이에요.','err'],
-  [/\b(send|submit|finish|complete|deliver|pay|confirm)( (it|them|this|that|the \w+))? until\b/gi,'$1$2 by','For a deadline, use "by" ("until" means continuing up to that time).','마감에는 by를 써요. until은 "그때까지 계속"이라는 뜻이에요.','err'],
-  [/\bsorry for late\b/gi,'sorry for the delay','More natural professional phrasing.','비즈니스에서 더 자연스러운 표현이에요.','err'],
-  [/\bmake a meeting\b/gi,'set up a meeting','Natural collocation: "set up / arrange a meeting".','"set up a meeting"이 자연스러운 연어예요.','err'],
-  [/\b(very|so) (exhausted|unique|essential|perfect|delicious|huge|fantastic|terrible|excellent)\b/gi,(m,v,a)=>({exhausted:'completely exhausted',unique:'unique',essential:'essential',perfect:'perfect',delicious:'really delicious',huge:'enormous',fantastic:'fantastic',terrible:'really terrible',excellent:'excellent'})[a.toLowerCase()],'This adjective is already extreme — drop "very" or use "absolutely / really".','이미 강한 형용사라 very를 붙이지 않아요.','err'],
-  [/\bhow can i say\b/gi,'how should I put it','Smoother way to buy time.','시간을 벌 때 더 자연스러운 표현이에요.','reg'],
-  [/\bplease understand\b/gi,'I hope you can understand our position','"Please understand" can sound like pressure.','"Please understand"는 압박처럼 들릴 수 있어요.','reg'],
-  [/\bwe hope (your|for your) positive (answer|reply|response)\b/gi,'we look forward to a positive response','Natural closing phrase.','자연스러운 마무리 표현이에요.','reg'],
-  [/\bi will check and (tell|let) you\b/gi,"I'll look into it and get back to you",'Sounds more professional.','더 프로페셔널하게 들려요.','reg'],
-  [/\b(wanna)\b/gi,'want to','"Wanna" is too casual for a business meeting.','"wanna"는 회의에서 너무 캐주얼해요.','reg'],
-  [/\b(gonna)\b/gi,'going to','"Gonna" is too casual for a business meeting.','"gonna"는 회의에서 너무 캐주얼해요.','reg'],
-  [/\bi want to\b/gi,"I'd like to",'"I\'d like to" sounds more polite.','I\'d like to가 더 정중해요.','reg'],
-  [/\bi think maybe\b/gi,'I believe','Double hedging weakens your point.','이중 완충 표현은 주장을 약하게 만들어요.','reg'],
-  [/\bwe will try\b/gi,"we'll make sure",'Show commitment, not uncertainty.','불확실함 대신 확신을 보여주세요.','reg'],
-  [/\bas soon as possible\b/gi,'by [a specific day]','A specific date builds trust.','구체적인 날짜가 신뢰를 줘요.','reg'],
-  [/\b(that is|that'?s|it'?s) impossible\b/gi,'that would be very difficult for us','Softer, and it keeps the negotiation open.','더 부드럽고 협상의 여지를 남겨요.','reg'],
-  [/\bwe can'?t\b/gi,"we're not in a position to",'Softer — then add what you CAN do.','더 부드러운 표현이에요. 이어서 가능한 대안을 말하세요.','reg'],
-  [/\bplease check\b/gi,'could you take a look at','A request sounds more natural than an order.','요청형이 더 자연스러워요.','reg'],
-  [/\bi have a question\b/gi,'(ask the question directly)','Go straight to the question — it sounds more confident.','바로 질문하는 게 더 자신감 있어 보여요.','reg'],
-  [/\bgive (us|you) (a )?discount\b/gi,'offer a reduction in exchange for…','Frame a discount as a trade.','할인은 교환 조건으로 제시하세요.','reg'],
-  [/\bno problem\b/gi,'that works for us','More professional acceptance.','더 프로페셔널한 수락 표현이에요.','reg'],
-  [/\bvery very\b/gi,'extremely','Use a stronger word instead of repeating "very".','very 반복 대신 강한 단어를 쓰세요.','reg'],
-  [/([a-z])\.\s+Because\b/g,'$1, because','Join "Because…" to the previous sentence — on its own it\'s a fragment.','"Because…"는 앞 문장과 연결하세요. 혼자서는 불완전한 문장이에요.','err'],
-  [/\bas you know,? /gi,'','In a negotiation "as you know" can sound presumptuous — just state the point.','협상에서 "as you know"는 단정적으로 들릴 수 있어요. 바로 요점을 말하세요.','reg']
+  [/\b(discuss(?:ed|ing)?) about\b/gi,'$1','"Discuss" takes a direct object — no "about".','','err'],
+  [/\b(explain(?:ed|ing)?) about\b/gi,'$1','"Explain" takes a direct object — no "about".','','err'],
+  [/\b(mention(?:ed|ing)?) about\b/gi,'$1','"Mention" takes a direct object — no "about".','','err'],
+  [/\b(contact(?:ed|ing)?) (to|with) /gi,'$1 ','"Contact" takes a direct object.','','err'],
+  [/\b(enter(?:ed|ing)?) into (the )?(room|office|building|meeting)\b/gi,'$1 the $3','"Enter" a place — no "into".','','err'],
+  [/\bmarried with\b/gi,'married to','We say "married to".','','err'],
+  [/\b(depends?|depending) (of|to|in)\b/gi,'$1 on','"Depend on", not "of / to".','','err'],
+  [/\bexplain (me|us|him|her|them)\b/gi,'explain to $1','"Explain" needs "to" before the person.','','err'],
+  [/\b(suggest(?:ed|s)?|recommend(?:ed|s)?) (me|us|him|her|them) to ([a-z]+)/gi,'$1 that $2 $3','"Suggest / recommend" don\'t take "someone to do" — say "suggest that we…" or "suggest doing…".','','err'],
+  [/\b(make|made|let|lets) (me|us|him|her|them|it) to ([a-z]+)/gi,'$1 $2 $3','After "make / let", use the bare verb (no "to").','','err'],
+  [/\blook(ing)? forward to (meet|see|hear|work|receive|discuss)\b/gi,(m,g,v)=>`look${g||''} forward to ${v.replace(/e$/,'')}ing`,'"Look forward to" + -ing.','','err'],
+  [/\bi'?m agree\b/gi,'I agree','"Agree" is a verb — no "am".','','err'],
+  [/\bit'?s depends?\b/gi,'it depends','Say "it depends".','','err'],
+  [/\bhow do you think\b/gi,'what do you think','With "think", use "what".','','err'],
+  [/\bmore (better|worse|cheaper|faster|bigger|easier)\b/gi,'$1','Already comparative — drop "more".','','err'],
+  [/\bmore cheap\b/gi,'cheaper','Use "cheaper".','','err'],
+  [/\bmost best\b/gi,'best','"Best" is already superlative.','','err'],
+  [/\b(informations|advices|feedbacks|equipments|staffs|homeworks|furnitures|knowledges|evidences|luggages)\b/gi,m=>m.replace(/s$/i,''),'This noun is uncountable — no plural "-s".','','err'],
+  [/\bmany (information|advice|feedback|equipment|evidence|money)\b/gi,'a lot of $1','Uncountable nouns take "a lot of / much", not "many".','','err'],
+  [/\bpeople (is|was|has)\b/gi,(m,v)=>'people '+({is:'are',was:'were',has:'have'})[v.toLowerCase()],'"People" is plural.','','err'],
+  [/\bevery (days|weeks|months|years|times)\b/gi,(m,n)=>'every '+n.replace(/s$/,''),'"Every" takes a singular noun.','','err'],
+  [/\balmost (people|companies|clients|customers|koreans|employees)\b/gi,'most $1','"Almost" can\'t describe a noun — say "most people" or "almost all people".','','err'],
+  [/\bthe most of\b/gi,'most of','Say "most of", without "the".','','err'],
+  [/\bgo(es|ing)? to (home|abroad|overseas|there|downtown)\b/gi,(m,g,p)=>'go'+(g||'')+' '+p,'"Home / abroad / there" are adverbs — no "to".','','err'],
+  [/\bwent to (home|abroad|overseas|there)\b/gi,'went $1','"Home / abroad / there" are adverbs — no "to".','','err'],
+  [/\b(i|we) (was|were|am|'m|are|felt|feel) (so |very |really )?(boring|interesting|exciting|confusing|embarrassing|disappointing|tiring)\b/gi,(m,p,v,a,adj)=>`${p} ${v} ${a||''}${({boring:'bored',interesting:'interested',exciting:'excited',confusing:'confused',embarrassing:'embarrassed',disappointing:'disappointed',tiring:'tired'})[adj.toLowerCase()]}`,'People feel "-ed" (bored, interested); things are "-ing".','','err'],
+  [/\b(i'?m|we'?re|i am|we are) interesting in\b/gi,'$1 interested in','"Interested in" describes your feeling.','','err'],
+  [/\bgot (an )?interest in\b/gi,'became interested in','Say "became interested in".','','err'],
+  [/\b(nobody|no one) (wouldn'?t|didn'?t|don'?t|can'?t|won'?t)\b/gi,(m,n,v)=>n+' '+v.replace(/n'?t$/,'').replace(/^wo$/,'will').replace(/^ca$/,'can'),'Double negative — "nobody" is already negative.','','err'],
+  [/\bsince (\d+|one|two|three|four|five|six|ten) (years|months|weeks|days)\b/gi,'for $1 $2','Use "for" with a length of time; "since" with a starting point.','','err'],
+  [/\bfor (\d+|a|one|two|three) (years?|months?|days?|weeks?) ago\b/gi,'$1 $2 ago','Don\'t combine "for" and "ago".','','err'],
+  [/\b(return(?:ed)?) back\b/gi,'$1','"Return" already means "go back".','','err'],
+  [/\brepeat(ed)? again\b/gi,'repeat$1','"Repeat" already means "say again".','','err'],
+  [/\b(the reason (is|was)) because\b/gi,'$1 that','"The reason is that…" (not "because").','','err'],
+  [/\b(although|even though) ([^.,]{3,60}), but\b/gi,'$1 $2,','Use "although" OR "but" — not both.','','err'],
+  [/\baccording to (me|my opinion|my thought)\b/gi,'in my view','"According to" is for other sources — for yourself, say "in my view".','','err'],
+  [/\bin nowadays\b/gi,'nowadays','"Nowadays" needs no "in".','','err'],
+  [/\b(the )?price is (so |very |too )?(expensive|cheap)\b/gi,(m,t,a,x)=>`${t||''}price is ${a||''}${x.toLowerCase()==='expensive'?'high':'low'}`,'Prices are "high / low"; products are "expensive / cheap".','','err'],
+  [/\b(send|submit|finish|complete|deliver|pay|confirm)( (it|them|this|that|the \w+))? until\b/gi,'$1$2 by','For a deadline, use "by" ("until" means continuing up to that time).','','err'],
+  [/\bsorry for late\b/gi,'sorry for the delay','More natural professional phrasing.','','err'],
+  [/\bmake a meeting\b/gi,'set up a meeting','Natural collocation: "set up / arrange a meeting".','','err'],
+  [/\b(very|so) (exhausted|unique|essential|perfect|delicious|huge|fantastic|terrible|excellent)\b/gi,(m,v,a)=>({exhausted:'completely exhausted',unique:'unique',essential:'essential',perfect:'perfect',delicious:'really delicious',huge:'enormous',fantastic:'fantastic',terrible:'really terrible',excellent:'excellent'})[a.toLowerCase()],'This adjective is already extreme — drop "very" or use "absolutely / really".','','err'],
+  [/\bhow can i say\b/gi,'how should I put it','Smoother way to buy time.','','reg'],
+  [/\bplease understand\b/gi,'I hope you can understand our position','"Please understand" can sound like pressure.','','reg'],
+  [/\bwe hope (your|for your) positive (answer|reply|response)\b/gi,'we look forward to a positive response','Natural closing phrase.','','reg'],
+  [/\bi will check and (tell|let) you\b/gi,"I'll look into it and get back to you",'Sounds more professional.','','reg'],
+  [/\b(wanna)\b/gi,'want to','"Wanna" is too casual for a business meeting.','','reg'],
+  [/\b(gonna)\b/gi,'going to','"Gonna" is too casual for a business meeting.','','reg'],
+  [/\bi want to\b/gi,"I'd like to",'"I\'d like to" sounds more polite.','','reg'],
+  [/\bi think maybe\b/gi,'I believe','Double hedging weakens your point.','','reg'],
+  [/\bwe will try\b/gi,"we'll make sure",'Show commitment, not uncertainty.','','reg'],
+  [/\bas soon as possible\b/gi,'by [a specific day]','A specific date builds trust.','','reg'],
+  [/\b(that is|that'?s|it'?s) impossible\b/gi,'that would be very difficult for us','Softer, and it keeps the negotiation open.','','reg'],
+  [/\bwe can'?t\b/gi,"we're not in a position to",'Softer — then add what you CAN do.','','reg'],
+  [/\bplease check\b/gi,'could you take a look at','A request sounds more natural than an order.','','reg'],
+  [/\bi have a question\b/gi,'(ask the question directly)','Go straight to the question — it sounds more confident.','','reg'],
+  [/\bgive (us|you) (a )?discount\b/gi,'offer a reduction in exchange for…','Frame a discount as a trade.','','reg'],
+  [/\bno problem\b/gi,'that works for us','More professional acceptance.','','reg'],
+  [/\bvery very\b/gi,'extremely','Use a stronger word instead of repeating "very".','','reg'],
+  [/([a-z])\.\s+Because\b/g,'$1, because','Join "Because…" to the previous sentence — on its own it\'s a fragment.','','err'],
+  [/\bas you know,? /gi,'','In a negotiation "as you know" can sound presumptuous — just state the point.','','reg']
 ];
 const BIZ_V = /\b(proposal|timeline|budget|deliverable|stakeholder|leverage|commitment|alternative|priorit\w*|scope|clause|terms|liabilit\w*|revenue|forecast|margin|implementation|concern|flexib\w*|compromise|objective|mutual|reasonable|approach|recoup|royalt\w*|guarantee|negotiat\w*|requirement|milestone|deadline|accountab\w*|transparen\w*|feasib\w*|constraint|trade-?off|in exchange|on the condition|provided that|ballpark|bottom line|walk-away|non-negotiable|redline|mandate)\b/gi;
 const SOFTEN = /\b(i'?m afraid|unfortunately|to be honest|i'?m not sure (that|we)|it (seems|looks like)|would|could|might|perhaps|i'?d suggest|i'?d prefer|i see your point, but|i understand, but|that'?s a fair point, but|with respect)\b/i;
 const HEDGES = /\b(maybe|perhaps|i think|i guess|kind of|sort of|probably|might)\b/gi;
 
-/* Korean rendering of engine event texts (deal content such as labels and values stays as said in the meeting) */
-const EV_KO = [
-  [/^Accepted their (.+): (.+)\.$/,'상대 제안 수락 — $1: $2'],[/^Addressed their concern: (.+)\.$/,'상대의 우려 해소: $1'],[/^Used confrontational language\.$/,'공격적인 표현을 썼어요.'],
-  [/^Agreed (.+): (.+)\.$/,'합의 — $1: $2'],[/^Took ownership and apologised\.$/,'책임을 인정하고 사과했어요.'],[/^Closed by restating the ask\.$/,'요청 사항을 다시 말하며 마무리했어요.'],
-  [/^Offered (.+) on (.+) — below anything they could accept\.$/,'$2에 $1 제시 — 상대가 받아들일 수 없는 수준'],[/^Committed to specific dates\.$/,'구체적인 날짜를 약속했어요.'],
-  [/^Conceded on (.+) to (.+) without asking for anything back\.$/,'$1에서 대가 없이 $2로 양보'],[/^Blamed others instead of taking ownership\.$/,'책임을 인정하지 않고 남 탓을 했어요.'],
-  [/^Raised (.+) with a reason\.$/,'이유와 함께 $1 문제 제기'],[/^Raised (.+)\.$/,'$1 문제 제기'],[/^Answered directly with numbers or reasons\.$/,'숫자나 이유로 직접 답했어요.'],
-  [/^Their patience ran out\.$/,'상대의 인내심이 바닥났어요.'],[/^(Accepted|Agreed) (.+) on (.+), outside your mandate( \((.+)\))?\.$/,'$3에서 $2 합의 — 협상 권한(마지노선$4) 밖'],
-  [/^Gave a very long answer to a direct question\.$/,'직접적인 질문에 너무 길게 답했어요.'],[/^Summary misquoted (.+)\.$/,'요약에서 $1을 잘못 말했어요.'],[/^Pushed on (.+), which they won't change\.$/,'상대가 바꿀 수 없는 $1을 밀어붙였어요.'],
-  [/^Went off-topic: (.+)$/,'주제를 벗어났어요: $1'],[/^Offered (.+) on (.+) — at or beyond what they asked\.$/,'$2에서 상대 요구 이상($1)을 바로 줬어요.'],[/^Proposed a package across several issues\.$/,'여러 이슈를 묶어 패키지로 제안했어요.'],
-  [/^Presented for about (\d+) words( with clear signposting)?\.$/,(m,n,sg)=>`약 ${n}단어로 발표했어요${sg?' (구조 표현 사용)':''}.`],[/^They applied pressure: (.+)$/,'상대가 압박했어요: $1'],
-  [/^Tried to reopen (.+) after agreeing (.+)\.$/,'$2로 합의한 $1을 다시 꺼냈어요.'],[/^Moved backwards on (.+): (.+)\.$/,'$1 제안을 후퇴시켰어요: $2'],[/^Uncovered: (.+)\.$/,'숨은 정보 확보: $1'],
-  [/^Gave a one-word answer to small talk.*$/,'스몰토크에 한 단어로 답했어요 — 디테일을 붙이고 되물어 보세요.'],[/^Went straight to business without small talk\.$/,'스몰토크 없이 바로 본론으로 들어갔어요.'],
-  [/^Built rapport with small talk and asked back\.$/,'스몰토크로 분위기를 만들고 되물었어요.'],[/^Engaged in small talk before business\.$/,'본론 전에 스몰토크를 했어요.'],[/^Summarised the agreement accurately\.$/,'합의 내용을 정확히 요약했어요.'],
-  [/^Threatened to walk away\.$/,'협상 결렬을 언급했어요.'],[/^Traded on (.+): (.+) in exchange for something they value\.$/,'$1: 상대가 원하는 것과 교환해 $2'],[/^Gave a vague timeline.*$/,'"ASAP / soon" 같은 모호한 일정을 말했어요.'],
-  [/^Gave a vague answer without numbers or reasons\.$/,'숫자나 이유 없이 모호하게 답했어요.'],[/^Confirmed the agreed terms in writing\.$/,'합의 조건을 이메일로 확정했어요.'],[/^Sent a pre-read with numbers or reasons\.$/,'숫자와 근거가 담긴 사전 자료를 보냈어요.']
-];
-const evText = t => { if(settings.fb!=='ko') return t; for(const [re,to] of EV_KO){ if(re.test(t)) return t.replace(re,to) } return t };
+const evText = t => t;
 function engineAnalyze(m, sc, st){
   const me=S.log.filter(l=>l.me), texts=me.map(l=>l.text.trim()), all=texts.join(' ');
   const sents=texts.flatMap(t=>sentences(t)).filter(s=>/[a-z]/i.test(s));
@@ -2708,43 +2965,43 @@ function engineAnalyze(m, sc, st){
   const softened=rejectTurns.filter(t=>SOFTEN.test(t)).length;
   const butN=(all.match(/\bbut\b/gi)||[]).length, connVar=(all.match(/\b(however|although|on the other hand|that said|having said that|while|whereas)\b/gi)||[]).length;
   const habits=[];
-  if(soN>=3 && soN/N>=.2) habits.push(L(`You started ${soN} sentences with "So…". Drop it, or vary: "That's why…", "As a result…", "With that in mind…".`,`${soN}개의 문장을 "So…"로 시작했어요. 생략하거나 "That's why…", "As a result…", "With that in mind…"로 바꿔보세요.`));
-  if(thinkN>=3 && thinkN/N>=.25) habits.push(L(`"I think…" opened ${thinkN} sentences. In a meeting, mix in "In my view…", "From our side…", "I'd suggest…" — or state the point directly.`,`"I think…"로 ${thinkN}번 시작했어요. "In my view…", "From our side…", "I'd suggest…"를 섞거나 바로 요점을 말하세요.`));
-  if(becFrag.length) habits.push(L(`"${becFrag[0]}" is a fragment on its own. Join it to the main idea: "We need X, because…".`,`"${becFrag[0]}"는 혼자서는 불완전한 문장이에요. 주절과 연결하세요: "We need X, because…".`));
-  if(casual>=2) habits.push(L(`Casual words (${[...new Set(all.match(/\b(wanna|gonna|gotta|yeah|yep|nope|stuff|kinda)\b/gi).map(x=>x.toLowerCase()))].join(', ')}) slipped in. Keep a business register: "want to", "going to", "yes".`,`캐주얼한 표현(${[...new Set(all.match(/\b(wanna|gonna|gotta|yeah|yep|nope|stuff|kinda)\b/gi).map(x=>x.toLowerCase()))].join(', ')})이 섞였어요. "want to", "going to", "yes"로 비즈니스 톤을 유지하세요.`));
-  if(texts.length>=4 && shortT/texts.length>=.4) habits.push(L(`${shortT} of your ${texts.length} turns were 5 words or fewer. Use answer + reason + next step.`,`${texts.length}번 중 ${shortT}번이 5단어 이하였어요. "답 + 이유 + 다음 단계"로 말해보세요.`));
-  if(rejectTurns.length>=2 && softened===0) habits.push(L('Your "no"s were unsoftened. Try "I\'m afraid that won\'t work for us, but what we could do is…".','거절할 때 완충 표현이 없었어요. "I\'m afraid that won\'t work for us, but what we could do is…"를 써보세요.'));
-  if(hedgeRate>.7 && N>=5) habits.push(L('Lots of hedging (maybe / I think / kind of) made you sound unsure. Commit to your key points.','maybe / I think / kind of 같은 완충어가 많아 확신이 없어 보였어요. 핵심 주장은 단호하게 말하세요.'));
-  if(butN>=5 && connVar===0) habits.push(L(`You used "but" ${butN} times and no other contrast words. Try "however", "that said", "on the other hand".`,`"but"을 ${butN}번 썼고 다른 대조 표현은 없었어요. "however", "that said", "on the other hand"도 써보세요.`));
-  if(m.fTotal && m.myWords && m.fTotal/m.myWords>=.05) habits.push(L('Frequent fillers — pause silently instead of "um / you know / like".','군말이 잦아요. "um / you know / like" 대신 잠깐 멈추세요.'));
+  if(soN>=3 && soN/N>=.2) habits.push(L(`You started ${soN} sentences with "So…". Drop it, or vary: "That's why…", "As a result…", "With that in mind…".`,''));
+  if(thinkN>=3 && thinkN/N>=.25) habits.push(L(`"I think…" opened ${thinkN} sentences. In a meeting, mix in "In my view…", "From our side…", "I'd suggest…" — or state the point directly.`,''));
+  if(becFrag.length) habits.push(L(`"${becFrag[0]}" is a fragment on its own. Join it to the main idea: "We need X, because…".`,''));
+  if(casual>=2) habits.push(L(`Casual words (${[...new Set(all.match(/\b(wanna|gonna|gotta|yeah|yep|nope|stuff|kinda)\b/gi).map(x=>x.toLowerCase()))].join(', ')}) slipped in. Keep a business register: "want to", "going to", "yes".`,''));
+  if(texts.length>=4 && shortT/texts.length>=.4) habits.push(L(`${shortT} of your ${texts.length} turns were 5 words or fewer. Use answer + reason + next step.`,''));
+  if(rejectTurns.length>=2 && softened===0) habits.push(L('Your "no"s were unsoftened. Try "I\'m afraid that won\'t work for us, but what we could do is…".',''));
+  if(hedgeRate>.7 && N>=5) habits.push(L('Lots of hedging (maybe / I think / kind of) made you sound unsure. Commit to your key points.',''));
+  if(butN>=5 && connVar===0) habits.push(L(`You used "but" ${butN} times and no other contrast words. Try "however", "that said", "on the other hand".`,''));
+  if(m.fTotal && m.myWords && m.fTotal/m.myWords>=.05) habits.push(L('Frequent fillers — pause silently instead of "um / you know / like".',''));
 
   /* ---- event-linked rewrites (the moments that mattered) ---- */
   const turnText = e => (T[e.turn-1]||{}).t;
   const EV_FIX = {
-    overgive:[t=>"Before I give a number — what would you need to see from us to close today?", L('You offered as much as they asked, or more. Ask what they need, then trade.','상대가 요구한 만큼 또는 그 이상을 바로 줬어요. 먼저 필요한 걸 묻고 교환하세요.')],
-    concede:[t=>"If you can commit to [something they value], we could move to that.", L('Concessions should come with a condition attached.','양보에는 항상 조건을 붙이세요.')],
-    limit:[t=>"That's beyond what I'm authorised to agree today. What I can offer is…", L('This crossed your walk-away point. Hold the line or trade for more.','마지노선을 넘었어요. 버티거나 더 큰 대가를 받으세요.')],
-    retract:[t=>"Let me be clear about where we stand — our offer remains what I said earlier.", L('Moving backwards destroys trust. Stay consistent.','제안을 뒤로 물리면 신뢰가 깨져요. 일관성을 유지하세요.')],
-    reopen:[t=>"Building on what we've agreed, could we now look at…?", L('Reopening a settled point annoys the other side — move forward instead.','합의된 사항을 다시 꺼내면 상대가 불쾌해해요. 앞으로 나아가세요.')],
-    excuse:[t=>"I'm sorry — that's on us. Here's what happened, briefly, and here's what we're doing about it.", L('Own the problem before explaining it.','설명하기 전에 먼저 책임을 인정하세요.')],
-    vague:[t=>"You'll have it by Thursday at 5 p.m., and I'll update you at noon tomorrow.", L('Replace "ASAP / soon" with a specific day and time.','"ASAP / soon" 대신 구체적인 요일과 시간을 말하세요.')],
-    aggressive:[t=>"I understand where you're coming from, but I see it differently.", L('Disagree without attacking — it keeps them listening.','공격하지 않고 반대 의견을 말하면 상대가 계속 들어요.')],
-    shortsmall:[t=>"Pretty good, thanks — busy, but in a good way. How about you?", L('Small talk: answer + one detail + ask back.','스몰토크: 답 + 디테일 하나 + 되묻기.')],
-    vagueanswer:[t=>"The short answer is yes — we expect to break even in month 14, based on our pilot.", L('Answer directly first, then add a number or reason.','먼저 직접 답하고 숫자나 이유를 덧붙이세요.')],
-    offtopic:[t=>"Coming back to the terms — our position on [issue] is …, because …", L('Keep every turn linked to the agenda or an open issue.','모든 발언을 안건이나 남은 이슈와 연결하세요.')],
-    belowreserve:[t=>"Given [reason], we'd like to propose [number]. How close can you get to that?", L('An extreme number with no reason isn\'t taken seriously — anchor with a justification.','이유 없는 극단적인 숫자는 무시당해요. 근거와 함께 제시하세요.')]
+    overgive:[t=>"Before I give a number — what would you need to see from us to close today?", L('You offered as much as they asked, or more. Ask what they need, then trade.','')],
+    concede:[t=>"If you can commit to [something they value], we could move to that.", L('Concessions should come with a condition attached.','')],
+    limit:[t=>"That's beyond what I'm authorised to agree today. What I can offer is…", L('This crossed your walk-away point. Hold the line or trade for more.','')],
+    retract:[t=>"Let me be clear about where we stand — our offer remains what I said earlier.", L('Moving backwards destroys trust. Stay consistent.','')],
+    reopen:[t=>"Building on what we've agreed, could we now look at…?", L('Reopening a settled point annoys the other side — move forward instead.','')],
+    excuse:[t=>"I'm sorry — that's on us. Here's what happened, briefly, and here's what we're doing about it.", L('Own the problem before explaining it.','')],
+    vague:[t=>"You'll have it by Thursday at 5 p.m., and I'll update you at noon tomorrow.", L('Replace "ASAP / soon" with a specific day and time.','')],
+    aggressive:[t=>"I understand where you're coming from, but I see it differently.", L('Disagree without attacking — it keeps them listening.','')],
+    shortsmall:[t=>"Pretty good, thanks — busy, but in a good way. How about you?", L('Small talk: answer + one detail + ask back.','')],
+    vagueanswer:[t=>"The short answer is yes — we expect to break even in month 14, based on our pilot.", L('Answer directly first, then add a number or reason.','')],
+    offtopic:[t=>"Coming back to the terms — our position on [issue] is …, because …", L('Keep every turn linked to the agenda or an open issue.','')],
+    belowreserve:[t=>"Given [reason], we'd like to propose [number]. How close can you get to that?", L('An extreme number with no reason isn\'t taken seriously — anchor with a justification.','')]
   };
   E.filter(e=>e.good<0||(e.kind==='belowreserve' && !((T[e.turn-1]||{}).a||{}).reason && !((T[e.turn-1]||{}).a||{}).evidence)).forEach(e=>{ const f=EV_FIX[e.kind], t=turnText(e); if(f && t && !rewrites.some(r=>r.original===t)) rewrites.push({original:t, better:f[0](t), why:f[1], pri:3}) });
   // summary that misquoted → give the correct summary sentence
   const rc=recapList(sc,st), rcSay=(sc.issues||[]).filter(is=>st.agreed[is.id]!=null).map(is=>`${fmtVal(is,st.agreed[is.id])} on ${is.label}`);
-  if(has('misquote') && rc.length){ const t=T.find(x=>x.a&&x.a.summary); if(t) rewrites.push({original:t.t, better:`So, to confirm, we've agreed ${rcSay.length>1?rcSay.slice(0,-1).join(', ')+' and '+rcSay.slice(-1):rcSay[0]||rc.join('; ')}.`, why:L('Your summary didn\'t match what was agreed. Check each number before you close.','요약이 실제 합의와 달랐어요. 마무리 전에 숫자를 하나씩 확인하세요.'), pri:3}) }
+  if(has('misquote') && rc.length){ const t=T.find(x=>x.a&&x.a.summary); if(t) rewrites.push({original:t.t, better:`So, to confirm, we've agreed ${rcSay.length>1?rcSay.slice(0,-1).join(', ')+' and '+rcSay.slice(-1):rcSay[0]||rc.join('; ')}.`, why:L('Your summary didn\'t match what was agreed. Check each number before you close.',''), pri:3}) }
   // structure rewrites
   texts.forEach(t=>{ if(rewrites.length>=8) return; if(rewrites.some(r=>r.original===t)) return; const w=t.split(/\s+/).length;
-    if(/^(give|send|tell|check|show|lower|reduce|change|remove|accept)\b/i.test(t)) rewrites.push({original:t, better:'Could you '+t.charAt(0).toLowerCase()+t.slice(1).replace(/[.!]*$/,'?'), why:L('A bare command sounds abrupt — make it a request.','명령문은 딱딱하게 들려요. 요청형으로 바꾸세요.'), pri:1});
-    else if(w<=3 && /^(yes|no|ok|okay|sure|maybe|right)\b/i.test(t)) rewrites.push({original:t, better:t.replace(/[.!?]$/,'')+(/^no/i.test(t)?" — I'm afraid that won't work for us, because…":" — and to build on that, …"), why:L('One-word answers sound passive. Add a reason or detail.','한 단어 답변은 소극적으로 들려요. 이유나 설명을 붙이세요.'), pri:1});
+    if(/^(give|send|tell|check|show|lower|reduce|change|remove|accept)\b/i.test(t)) rewrites.push({original:t, better:'Could you '+t.charAt(0).toLowerCase()+t.slice(1).replace(/[.!]*$/,'?'), why:L('A bare command sounds abrupt — make it a request.',''), pri:1});
+    else if(w<=3 && /^(yes|no|ok|okay|sure|maybe|right)\b/i.test(t)) rewrites.push({original:t, better:t.replace(/[.!?]$/,'')+(/^no/i.test(t)?" — I'm afraid that won't work for us, because…":" — and to build on that, …"), why:L('One-word answers sound passive. Add a reason or detail.',''), pri:1});
   });
   rewrites.sort((a,b)=>b.pri-a.pri);
-  if(!rewrites.length) rewrites.push({original:'I will check and tell you.', better:"Let me look into that and get back to you by end of day tomorrow.", why:L('Example: adds ownership and a concrete timeframe.','예시: 책임감과 구체적인 기한을 더해요.')});
+  if(!rewrites.length) rewrites.push({original:'I will check and tell you.', better:"Let me look into that and get back to you by end of day tomorrow.", why:L('Example: adds ownership and a concrete timeframe.','')});
 
   /* ---- goals from scenario rules ---- */
   const agreedN=Object.keys(st.agreed||{}).length, limitHit=has('limit');
@@ -2777,7 +3034,7 @@ function engineAnalyze(m, sc, st){
       case 'objections': return tc('reason')+tc('cond')>=2?'met':tc('reason')+tc('cond')?'partial':'missed';
       default: return 'partial';
     } };
-  const NOTE={met:L('Achieved during the meeting.','회의 중에 달성했어요.'),partial:L('Started, but not fully completed.','시도했지만 완전히 마무리하진 못했어요.'),missed:L('Not addressed in this meeting.','이번 회의에서는 다루지 않았어요.')};
+  const NOTE={met:L('Achieved during the meeting.',''),partial:L('Started, but not fully completed.',''),missed:L('Not addressed in this meeting.','')};
   const allLow=normText(all);
   const kwGoal=g=>{ const stop=new Set(['their','about','which','would','there','these','those','clear','clearly','achieve','outcome','described']); const ks=(g.toLowerCase().match(/[a-z]{5,}/g)||[]).filter(w=>!stop.has(w)).map(w=>w.slice(0,5)); const h=ks.filter(k=>allLow.includes(k)).length; return h>=2?'met':h===1?'partial':'missed' };
   const rules=sc.goalRules||[];
@@ -2806,40 +3063,40 @@ function engineAnalyze(m, sc, st){
   /* ---- strengths / improvements from what actually happened ---- */
   const S1=[], S2=[];
   const pick=(k)=>E.find(e=>e.kind===k);
-  if(has('trade')) S1.push(L(`You traded rather than gave: ${pick('trade').text}`,`그냥 주지 않고 교환했어요: ${evText(pick('trade').text)}`));
-  if(has('reveal')) S1.push(L(`Your questions uncovered hidden information (${E.filter(e=>e.kind==='reveal').length}×): ${pick('reveal').text.replace(/^Uncovered: /,'').replace(/\.$/,'')}.`,`질문으로 숨은 정보를 ${E.filter(e=>e.kind==='reveal').length}개 알아냈어요: ${pick('reveal').text.replace(/^Uncovered: /,'').replace(/\.$/,'')}.`));
-  if(has('package')) S1.push(L('You packaged several issues together instead of conceding one by one.','하나씩 양보하지 않고 여러 이슈를 묶어 제안했어요.'));
-  if(has('summary')) S1.push(L('Your summary matched what was agreed — clean close.','요약이 실제 합의와 정확히 일치했어요.'));
-  if(has('apology')) S1.push(L('You owned the problem and apologised before explaining.','설명 전에 문제를 인정하고 사과했어요.'));
-  if(has('commit')) S1.push(L('You committed to specific dates instead of "ASAP".','"ASAP" 대신 구체적인 날짜를 약속했어요.'));
-  if(cnt('goodanswer')>=2) S1.push(L(`You answered ${cnt('goodanswer')} questions directly, with numbers or reasons.`,`${cnt('goodanswer')}개의 질문에 숫자나 이유로 직접 답했어요.`));
-  if(has('smalltalk')) S1.push(L(st.flags.askedBack?'Good small talk — you answered with detail and asked back.':'You engaged in small talk before getting down to business.',st.flags.askedBack?'스몰토크를 잘했어요 — 디테일을 붙이고 되물었어요.':'본론 전에 스몰토크로 분위기를 만들었어요.'));
-  if(st.openQs>=2) S1.push(L(`You asked ${st.openQs} open questions (what / how / why) to keep them talking.`,`what/how/why 열린 질문을 ${st.openQs}번 해서 상대가 말하게 했어요.`));
-  if((st.flags.explained||0)>=1) S1.push(L('You asked for clarification instead of guessing.','추측하지 않고 확인 질문을 했어요.'));
-  if(tc('reason')>=2) S1.push(L('You backed your points with reasons.','주장을 이유로 뒷받침했어요.'));
-  if(fr<.02 && m.myWords>60) S1.push(L('Very few fillers — you sounded composed.','군말이 거의 없어 침착하게 들렸어요.'));
-  if(!S1.length) S1.push(L('You stayed in the conversation until the end.','끝까지 회의에 참여했어요.'));
+  if(has('trade')) S1.push(L(`You traded rather than gave: ${pick('trade').text}`,''));
+  if(has('reveal')) S1.push(L(`Your questions uncovered hidden information (${E.filter(e=>e.kind==='reveal').length}×): ${pick('reveal').text.replace(/^Uncovered: /,'').replace(/\.$/,'')}.`,''));
+  if(has('package')) S1.push(L('You packaged several issues together instead of conceding one by one.',''));
+  if(has('summary')) S1.push(L('Your summary matched what was agreed — clean close.',''));
+  if(has('apology')) S1.push(L('You owned the problem and apologised before explaining.',''));
+  if(has('commit')) S1.push(L('You committed to specific dates instead of "ASAP".',''));
+  if(cnt('goodanswer')>=2) S1.push(L(`You answered ${cnt('goodanswer')} questions directly, with numbers or reasons.`,''));
+  if(has('smalltalk')) S1.push(L(st.flags.askedBack?'Good small talk — you answered with detail and asked back.':'You engaged in small talk before getting down to business.',st.flags.askedBack?'':''));
+  if(st.openQs>=2) S1.push(L(`You asked ${st.openQs} open questions (what / how / why) to keep them talking.`,''));
+  if((st.flags.explained||0)>=1) S1.push(L('You asked for clarification instead of guessing.',''));
+  if(tc('reason')>=2) S1.push(L('You backed your points with reasons.',''));
+  if(fr<.02 && m.myWords>60) S1.push(L('Very few fillers — you sounded composed.',''));
+  if(!S1.length) S1.push(L('You stayed in the conversation until the end.',''));
   const bad=E.filter(e=>e.good<0);
   const seenK=new Set(); bad.forEach(e=>{ if(seenK.has(e.kind)||S2.length>=3) return; seenK.add(e.kind); const fix=EV_FIX[e.kind]; S2.push(evText(e.text)+(fix?' '+fix[1]:'')) });
   habits.slice(0,2).forEach(h=>S2.length<5&&S2.push(h));
-  if(st.questions<2 && !sc.presentation) S2.push(L('Ask more questions — e.g. "What would success look like for you?"','질문을 더 하세요. 예: "What would success look like for you?"'));
-  if(!st.flags.summary && !sc.presentation) S2.push(L('Close with a summary: "So, to confirm, we\'ve agreed to…"','"So, to confirm, we\'ve agreed to…"로 요약하며 마무리하세요.'));
+  if(st.questions<2 && !sc.presentation) S2.push(L('Ask more questions — e.g. "What would success look like for you?"',''));
+  if(!st.flags.summary && !sc.presentation) S2.push(L('Close with a summary: "So, to confirm, we\'ve agreed to…"',''));
   if(!S2.length){
-    if(!st.flags.agenda && !sc.presentation) S2.push(L('Open with a quick agenda: "I\'d like to cover three things today: …" — it lets you control the meeting.','"I\'d like to cover three things today: …"처럼 안건을 먼저 제시하면 회의를 주도할 수 있어요.'));
-    if(!st.flags.signpost) S2.push(L('Signpost your points ("First…", "The main issue is…", "Finally…") so they are easy to follow.','"First…", "The main issue is…", "Finally…"로 구조를 보여주세요.'));
-    if(!st.flags.next && !sc.presentation) S2.push(L('End with a concrete next step and owner: "I\'ll send the revised terms by Thursday."','구체적인 다음 단계로 마무리하세요: "I\'ll send the revised terms by Thursday."'));
-    if(S.difficulty!=='veryhard') S2.push(L('You handled this level well — try the next difficulty up.','이 난이도는 잘 해냈어요 — 한 단계 높여보세요.'));
+    if(!st.flags.agenda && !sc.presentation) S2.push(L('Open with a quick agenda: "I\'d like to cover three things today: …" — it lets you control the meeting.',''));
+    if(!st.flags.signpost) S2.push(L('Signpost your points ("First…", "The main issue is…", "Finally…") so they are easy to follow.',''));
+    if(!st.flags.next && !sc.presentation) S2.push(L('End with a concrete next step and owner: "I\'ll send the revised terms by Thursday."',''));
+    if(S.difficulty!=='veryhard') S2.push(L('You handled this level well — try the next difficulty up.',''));
   }
-  if(errs.length) S2.push(L(`Watch: ${[...new Set(errs)].slice(0,2).join(' ')}`,`주의할 표현: ${[...new Set(errs)].slice(0,2).join(' ')}`));
+  if(errs.length) S2.push(L(`Watch: ${[...new Set(errs)].slice(0,2).join(' ')}`,''));
 
   /* ---- key moments timeline ---- */
   const moments=E.filter(e=>e.good!==0 || ['pressure','belowreserve','threat'].includes(e.kind)).slice(0,14).map(e=>({turn:e.turn, good:e.good, text:evText(e.text)}));
 
-  const headline = overall>=82?L('Strong, confident meeting performance','자신감 있고 탄탄한 회의 진행'):overall>=72?L('Solid meeting — a few habits to polish','안정적인 회의 — 다듬을 습관 몇 가지'):overall>=62?L('You got through it — now sharpen structure and precision','회의는 해냈어요 — 이제 구조와 정확성을 다듬어요'):L('Good start — focus on fuller, clearer answers','좋은 시작 — 더 충분하고 명확한 답변에 집중하세요');
+  const headline = overall>=82?L('Strong, confident meeting performance',''):overall>=72?L('Solid meeting — a few habits to polish',''):overall>=62?L('You got through it — now sharpen structure and precision',''):L('Good start — focus on fuller, clearer answers','');
   const met=goals.filter(g=>g.status==='met').length;
-  const deal = rc.length ? L(` Outcome: ${rc.join('; ')}.`,` 결과: ${rc.join('; ')}.`) : '';
+  const deal = rc.length ? L(` Outcome: ${rc.join('; ')}.`,'') : '';
   const summary = L(`You spoke ${m.turns} times (${m.myWords} words, ${m.share}% of the conversation), met ${met} of ${goals.length} objectives, with ${goodN} strong and ${badN} weak moments.${deal}`,
-    `총 ${m.turns}번 발언(${m.myWords}단어, 대화의 ${m.share}%)했고, 목표 ${goals.length}개 중 ${met}개를 달성했으며 좋은 장면 ${goodN}개, 아쉬운 장면 ${badN}개가 있었어요.${deal}`);
+    '');
   return {overall, level:lv+' · rule-based', headline, summary, scores:sc6, goals, strengths:S1.slice(0,4), improvements:S2.slice(0,5),
     rewrites:rewrites.slice(0,7).map(({original,better,why})=>({original,better,why})), habits, moments,
     phrases:(sc.phrases||[]).map(([phrase,use])=>({phrase,use}))};
@@ -2997,17 +3254,17 @@ async function aiEmails(c, instruction){
 /* ---------- email coach (both modes) ---------- */
 function emailCheck(subject, body){
   const tips=[]; let s=100; const b=body.trim(), w=(b.match(/\S+/g)||[]).length;
-  if(!subject || subject.replace(/^(re:\s*)+/i,'').trim().split(/\s+/).length<2){ s-=10; tips.push(L('Use a specific subject line (e.g. "Revised pricing — 2-year option").','구체적인 제목을 쓰세요 (예: "Revised pricing — 2-year option").')) }
-  if(!/^\s*(hi|hello|dear|good (morning|afternoon|evening))\b/i.test(b)){ s-=12; tips.push(L('Open with a greeting: "Hi Sofia," or "Dear Ms Martinez,".','인사로 시작하세요: "Hi Sofia," 또는 "Dear Ms Martinez,"')) }
-  if(!/((best|kind|warm)\s+)?regards|best wishes|sincerely|many thanks|^\s*thanks,?\s*$|^\s*thank you,?\s*$|^\s*best,?\s*$|cheers/im.test(b)){ s-=10; tips.push(L('Close with a sign-off ("Best regards,") and your name.','"Best regards,"와 이름으로 마무리하세요.')) }
-  if(w<25){ s-=12; tips.push(L('Too brief — add context and a clear request.','너무 짧아요 — 맥락과 분명한 요청을 덧붙이세요.')) }
-  if(w>260){ s-=8; tips.push(L('Long email — use bullet points or shorter paragraphs.','긴 이메일이에요 — 글머리표나 짧은 단락을 활용하세요.')) }
-  if(w>70 && !/\n\s*\n/.test(b)){ s-=8; tips.push(L('Break the email into short paragraphs.','짧은 단락으로 나누세요.')) }
-  if(!/\?|could you|would you|please|let me know|i'?d appreciate|look forward/i.test(b)){ s-=10; tips.push(L('End with a clear ask or next step ("Could you confirm by Friday?").','분명한 요청이나 다음 단계로 끝내세요 ("Could you confirm by Friday?").')) }
-  if(/!!|\basap\b|\burgent\b|\b[A-Z]{5,}\b/.test(b)){ s-=6; tips.push(L('Avoid "ASAP", capitals and "!!" — they read as pushy.','"ASAP", 대문자, "!!"는 강압적으로 읽혀요.')) }
+  if(!subject || subject.replace(/^(re:\s*)+/i,'').trim().split(/\s+/).length<2){ s-=10; tips.push(L('Use a specific subject line (e.g. "Revised pricing — 2-year option").','')) }
+  if(!/^\s*(hi|hello|dear|good (morning|afternoon|evening))\b/i.test(b)){ s-=12; tips.push(L('Open with a greeting: "Hi Sofia," or "Dear Ms Martinez,".','')) }
+  if(!/((best|kind|warm)\s+)?regards|best wishes|sincerely|many thanks|^\s*thanks,?\s*$|^\s*thank you,?\s*$|^\s*best,?\s*$|cheers/im.test(b)){ s-=10; tips.push(L('Close with a sign-off ("Best regards,") and your name.','')) }
+  if(w<25){ s-=12; tips.push(L('Too brief — add context and a clear request.','')) }
+  if(w>260){ s-=8; tips.push(L('Long email — use bullet points or shorter paragraphs.','')) }
+  if(w>70 && !/\n\s*\n/.test(b)){ s-=8; tips.push(L('Break the email into short paragraphs.','')) }
+  if(!/\?|could you|would you|please|let me know|i'?d appreciate|look forward/i.test(b)){ s-=10; tips.push(L('End with a clear ask or next step ("Could you confirm by Friday?").','')) }
+  if(/!!|\basap\b|\burgent\b|\b[A-Z]{5,}\b/.test(b)){ s-=6; tips.push(L('Avoid "ASAP", capitals and "!!" — they read as pushy.','')) }
   LANG.forEach(([re,to,en,ko,kind])=>{ re.lastIndex=0; const m=b.match(re); if(m && tips.length<8 && !(kind==='reg'&&/as soon as possible|we can'?t|no problem/i.test(m[0]))){ re.lastIndex=0; const one=new RegExp(re.source,re.flags.replace('g','')); const fixed=m[0].replace(one, to); s-=kind==='err'?4:2; tips.push(L(`"${m[0]}" → "${fixed}" — ${en}`,`"${m[0]}" → "${fixed}" — ${ko}`)) } });
-  { const ss=sentences(b.replace(/\n+/g,' ')); const frag=ss.find(x=>/^because\b/i.test(x)&&!/,/.test(x)); if(frag){ s-=3; tips.push(L(`"${frag.slice(0,60)}" is a fragment — join it to the previous sentence.`,`"${frag.slice(0,60)}"는 불완전한 문장이에요 — 앞 문장과 연결하세요.`)) }
-    if(/\b(wanna|gonna|gotta)\b/i.test(b)){ s-=4; tips.push(L('Avoid "wanna / gonna" in business email.','비즈니스 이메일에서 "wanna / gonna"는 피하세요.')) } }
+  { const ss=sentences(b.replace(/\n+/g,' ')); const frag=ss.find(x=>/^because\b/i.test(x)&&!/,/.test(x)); if(frag){ s-=3; tips.push(L(`"${frag.slice(0,60)}" is a fragment — join it to the previous sentence.`,'')) }
+    if(/\b(wanna|gonna|gotta)\b/i.test(b)){ s-=4; tips.push(L('Avoid "wanna / gonna" in business email.','')) } }
   return {score:Math.max(30,s), tips};
 }
 
@@ -3051,9 +3308,9 @@ function mailHTML(e, compact){
   return `<div class="mail ${e.me?'me':''}"><div class="mail-h"><span class="av" style="background:${e.me?'var(--green)':(p?p.color:'#e6ede6')};${e.me?'color:#fff':''}">${initials(e.me?myName():e.from)}</span>
     <div style="flex:1;min-width:0"><b>${esc(e.me?myName()+' (you)':e.from)}</b><small>${e.me?'to '+esc((e.to||[]).join(', ')):esc(p?p.role:'')} · ${new Date(e.t).toLocaleString([], {month:'short',day:'numeric',hour:'2-digit',minute:'2-digit'})}</small></div></div>
     <div class="mail-subj">${esc(e.subject)}</div><div class="mail-body">${esc(body)}</div>
-    ${e.me&&e.check&&!compact?`<details class="echeck"><summary>✓ Email check · ${e.check.score}/100${e.check.tips.length?` · ${e.check.tips.length} tip${e.check.tips.length>1?'s':''}`:''}</summary>${e.check.tips.length?`<ul>${e.check.tips.map(t=>`<li>${esc(t)}</li>`).join('')}</ul>`:`<p>${L('Clear, well-structured professional email.','명확하고 구조가 잘 잡힌 이메일이에요.')}</p>`}</details>`:''}</div>`;
+    ${e.me&&e.check&&!compact?`<details class="echeck"><summary>✓ Email check · ${e.check.score}/100${e.check.tips.length?` · ${e.check.tips.length} tip${e.check.tips.length>1?'s':''}`:''}</summary>${e.check.tips.length?`<ul>${e.check.tips.map(t=>`<li>${esc(t)}</li>`).join('')}</ul>`:`<p>${L('Clear, well-structured professional email.','')}</p>`}</details>`:''}</div>`;
 }
-function renderMails(){ const c=getCase(curCase); $('thMails').innerHTML=c.emails.map(e=>mailHTML(e)).join(''); $('cStatus').textContent = c.status==='closed'?L('✓ Terms confirmed by email — this case is closed. You can still keep writing or run another meeting.','✓ 이메일로 조건이 확정됐어요. 계속 이메일을 쓰거나 회의를 다시 할 수 있어요.'):'' }
+function renderMails(){ const c=getCase(curCase); $('thMails').innerHTML=c.emails.map(e=>mailHTML(e)).join(''); $('cStatus').textContent = c.status==='closed'?L('✓ Terms confirmed by email — this case is closed. You can still keep writing or run another meeting.',''):'' }
 async function sendEmail(){
   const c=getCase(curCase), to=$('cTo').value, subject=$('cSubj').value.trim(), body=$('cBody').value.trim();
   if(!body){ toast('Write your email first.'); return }
@@ -3080,7 +3337,7 @@ function resetCase(){
 function threadToMeeting(){ openSetup(curCase) }
 function renderRoomEmails(){
   const c=S&&S.caseId?getCase(S.caseId,false):null;
-  $('emailPane').innerHTML = c&&c.emails.length ? `<div class="hint" style="margin-bottom:12px">${L('Emails in this case — the other side has read them too.','이 케이스의 이메일이에요 — 상대방도 모두 읽었어요.')}</div>`+c.emails.map(e=>mailHTML(e,true)).join('') : '<div class="empty">No emails yet.</div>';
+  $('emailPane').innerHTML = c&&c.emails.length ? `<div class="hint" style="margin-bottom:12px">${L('Emails in this case — the other side has read them too.','')}</div>`+c.emails.map(e=>mailHTML(e,true)).join('') : '<div class="empty">No emails yet.</div>';
 }
 /* after a meeting: save shared state + follow-up email */
 async function caseAfterMeeting(){
@@ -3252,7 +3509,7 @@ function localMetrics(){
     avgLen: me.length?Math.round(myW/me.length):0, longest, duration: Math.round((Date.now()-S.start)/1000) };
 }
 function reportSystem(){
-  const lang = settings.fb==='ko' ? 'Write "headline", "summary", "note", "why", "use", strengths and improvements in natural Korean (한국어). Keep all English example sentences ("original", "better", "phrase") in English.' : 'Write everything in English.';
+  const lang = settings.fb==='ko' ? '' : 'Write everything in English.';
   return `You are an expert business-English communication coach for Korean professionals. Assess a learner's performance in a simulated spoken meeting. The transcript comes from speech recognition, so ignore obvious transcription glitches, punctuation and capitalisation; judge vocabulary, grammar, structure, tone, persuasion, negotiation and meeting skills. If a confidential mandate is given, also judge how well the learner protected it (did they concede too much, too early, or for nothing?). If a document is given, check whether the learner referred to it accurately.
 ${lang}
 Be specific and quote the learner's real words. Be honest but encouraging. Scores 0–100 (60 = gets the job done with clear issues, 80 = strong professional, 90+ = near-native executive level). Account for difficulty: performing well at a harder level deserves credit.
@@ -3319,8 +3576,8 @@ function renderReport(r){
     <div class="pane"><h3>Objectives</h3>${(f.goals||[]).map(g=>{const [c,i]=st(g.status);return `<div class="gl"><span class="dot ${c}">${i}</span><div>${esc(g.goal)}<small>${esc(g.note)}</small></div></div>`}).join('')}</div>
     <div class="pane"><h3>What worked</h3><ul class="pts">${(f.strengths||[]).map(s=>`<li>${esc(s)}</li>`).join('')}</ul></div>
     <div class="pane"><h3>Focus next time</h3><ul class="pts">${(f.improvements||[]).map(s=>`<li>${esc(s)}</li>`).join('')}</ul></div>
-    ${(f.moments&&f.moments.length)?`<div class="pane"><h3>Key moments</h3>${f.moments.map(x=>{const [c,i]=x.good>0?['y','✓']:x.good<0?['n','✕']:['p','•'];return `<div class="gl"><span class="dot ${c}">${i}</span><div>${esc(x.text)}<small>${settings.fb==='ko'?'발언':'Turn'} ${x.turn}</small></div></div>`}).join('')}</div>`:''}
-    ${(f.habits&&f.habits.length)?`<div class="pane"><h3>Speaking habits</h3><ul class="pts">${f.habits.map(h=>`<li>${esc(h)}</li>`).join('')}</ul><div class="hint" style="margin-top:10px">${settings.fb==='ko'?'실제 수업 기록에서 한국인 학습자에게 자주 나타난 습관을 기준으로 분석했어요.':'Checked against habits that come up often for Korean speakers in real class transcripts.'}</div></div>`:''}
+    ${(f.moments&&f.moments.length)?`<div class="pane"><h3>Key moments</h3>${f.moments.map(x=>{const [c,i]=x.good>0?['y','✓']:x.good<0?['n','✕']:['p','•'];return `<div class="gl"><span class="dot ${c}">${i}</span><div>${esc(x.text)}<small>${settings.fb==='ko'?'':'Turn'} ${x.turn}</small></div></div>`}).join('')}</div>`:''}
+    ${(f.habits&&f.habits.length)?`<div class="pane"><h3>Speaking habits</h3><ul class="pts">${f.habits.map(h=>`<li>${esc(h)}</li>`).join('')}</ul><div class="hint" style="margin-top:10px">${settings.fb==='ko'?'':'Checked against habits that come up often for Korean speakers in real class transcripts.'}</div></div>`:''}
     <div class="pane full"><h3>Say it better</h3>${(f.rewrites||[]).map(w=>`<div class="rw"><div class="o">${esc(w.original)}</div><div class="b"><span>${esc(w.better)}</span>${playBtn(w.better)}</div><div class="w">${esc(w.why)}</div></div>`).join('')}</div>
     <div class="pane full"><h3>Phrases to keep</h3>${(f.phrases||[]).map(p=>`<div class="ph"><div style="flex:1"><b>${esc(p.phrase)}</b><small>${esc(p.use)}</small></div>${playBtn(p.phrase)}</div>`).join('')}</div>
     ${(r.emails&&r.emails.length)?`<div class="pane full"><details><summary>EMAILS IN THIS CASE (${r.emails.length})</summary><div style="margin-top:16px">${r.emails.map(e=>mailHTML(e)).join('')}</div></details></div>`:''}
