@@ -772,6 +772,22 @@ html.shell.mob .toast{bottom:calc(104px + env(safe-area-inset-bottom))}
 html.mob #meSheet{align-items:flex-end;padding:0}
 html.mob #meSheet .pane{max-width:430px!important;border-radius:22px 22px 0 0;padding-bottom:calc(18px + env(safe-area-inset-bottom))!important;animation:shup .25s ease}
 @keyframes shup{from{transform:translateY(40px);opacity:.4}to{transform:none;opacity:1}}
+
+/* ===== Phone fit — nothing may be wider than the screen ===== */
+.rgrid{grid-template-columns:repeat(2,minmax(0,1fr))}
+.rgrid>*,.cp-grid>*,.setup>*,.hero>*,.row>*{min-width:0}
+html.mob .hero,html.mob .setup,html.mob .rgrid,html.mob .login-wrap,html.mob .cp-grid,html.mob .rep-head{grid-template-columns:minmax(0,1fr)}
+html.mob .kpis,html.mob #arcBody .kpis{grid-template-columns:repeat(2,minmax(0,1fr))!important}
+html.mob .pane,html.mob .kpi,html.mob .brief,html.mob .hist,html.mob .mail{min-width:0;overflow-wrap:break-word}
+/* tables scroll inside their own panel instead of widening the page */
+html.mob .bptbl,html.mob .pane table{display:block;width:100%;max-width:100%;overflow-x:auto;-webkit-overflow-scrolling:touch;overscroll-behavior-x:contain}
+html.mob .bptbl td{min-width:88px}
+html.mob .bptbl td:first-child{min-width:150px}
+html.mob .pane svg,html.mob .pane img{max-width:100%;height:auto}
+html.mob pre,html.mob code{white-space:pre-wrap;overflow-wrap:anywhere}
+/* safety net: the page itself never scrolls sideways */
+html.mob body{overflow-x:hidden}
+@supports (overflow:clip){ html.mob,html.mob body{overflow-x:clip} }
 @media print{
   body{background:#fff}
   .top,.noprint{display:none!important}
