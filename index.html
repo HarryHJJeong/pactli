@@ -227,11 +227,6 @@ details summary{cursor:pointer;color:var(--muted);font-size:12.5px;letter-spacin
 .hist .sc{font-family:var(--serif);font-size:32px;font-weight:700;color:var(--gold);width:56px}
 .hist b{display:block}
 .hist small{color:var(--dim);font-size:12px}
-.hist small{display:block;overflow:hidden;text-overflow:ellipsis;max-width:100%}
-.hist .av{flex-shrink:0}
-#inboxList .hist small{white-space:normal!important;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;line-height:1.5;margin-top:3px;overflow-wrap:anywhere}
-#inboxList .hist b{overflow-wrap:anywhere}
-#thMails,#thSide{overflow-wrap:anywhere;min-width:0}
 .empty{color:var(--dim);text-align:center;padding:60px 0}
 
 .modal{position:fixed;inset:0;background:#0c1c17a3;backdrop-filter:blur(6px);display:none;align-items:center;justify-content:center;z-index:50;padding:20px}
@@ -689,6 +684,91 @@ html.mob .bbtn2 small{font-size:8.5px;font-weight:800;letter-spacing:.03em}
 html.mob .bbtn2.on{background:var(--lime);border-color:var(--lime)}
 .bhead .bchip{font-size:11px;font-weight:700;background:var(--lime);color:var(--deep);padding:4px 9px;border-radius:10px;margin-left:auto;margin-right:8px;white-space:nowrap}
 .bhead .bclose{width:30px;height:30px;border-radius:50%;background:#efece4;border:0;font-size:14px;font-weight:700;color:var(--ink2);cursor:pointer;flex-shrink:0;display:flex;align-items:center;justify-content:center}
+
+/* ===== Campaign ===== */
+.cp-hero{grid-template-columns:1.1fr .9fr}
+.cp-chips{display:flex;gap:7px;flex-wrap:wrap;margin-top:16px}
+.cp-chips span{font-size:11.5px;padding:5px 10px;border-radius:20px;background:rgba(255,255,255,.13);font-weight:600;color:#fff}
+.cp-grid{display:grid;grid-template-columns:minmax(0,1fr) 400px;gap:26px;padding-bottom:60px;align-items:start}
+.cp-pick{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:8px}
+.cp-pick button{text-align:left;padding:12px 14px;border:1px solid var(--line);border-radius:12px;background:var(--panel);font-size:13.5px;font-weight:650;color:var(--ink2);transition:.15s;line-height:1.35}
+.cp-pick button:hover{border-color:#cfd8cf}
+.cp-pick button.on{background:var(--green);border-color:var(--green);color:#fff}
+.cp-ep{display:flex;gap:14px;padding:16px 18px;background:var(--panel);border:1px solid var(--line);border-radius:14px;margin-bottom:10px;box-shadow:var(--sh)}
+.cp-ep.now{border-color:#c3dba5;background:#f3f8ec}
+.cp-ep.lock{opacity:.62;box-shadow:none}
+.cp-n{width:34px;height:34px;border-radius:11px;background:#eef1ec;color:var(--muted);display:flex;align-items:center;justify-content:center;font-weight:850;flex-shrink:0;font-size:14px}
+.cp-ep.now .cp-n{background:var(--green);color:#fff}
+.cp-ep.done .cp-n{background:#dff0e4;color:var(--ok)}
+.cp-b{flex:1;min-width:0}
+.cp-t{display:flex;justify-content:space-between;gap:10px;align-items:center}
+.cp-t b{font-size:15px;font-weight:800;color:var(--ink);letter-spacing:-.02em}
+.cp-b p{color:var(--muted);font-size:13px;margin-top:3px}
+.cp-steps{display:flex;gap:14px;align-items:center;flex-wrap:wrap;margin-top:12px}
+.cp-steps .btn{padding:8px 14px;font-size:13px}
+.cp-steps .lnk .badge{margin-left:4px}
+.cp-note{margin-top:10px;font-size:12.5px;background:#fff7e8;border:1px solid #ead5af;color:#76572d;border-radius:10px;padding:9px 12px}
+.cp-foot{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-top:18px}
+.cp-ledger{padding:22px}
+.cp-ledger .bptbl{margin-bottom:0}
+.cp-ledger .bptbl td{padding:7px 6px;font-size:12.5px}
+.cp-kv{display:flex;justify-content:space-between;font-size:13px;padding-top:4px}
+.cp-kv b{color:var(--green)}
+.cp-carry{background:#f3f8ec;border-color:#c3dba5}
+.cp-dot{cursor:default}
+.cp-dot:hover circle:nth-child(2){r:7}
+.cp-banner{display:flex;align-items:center;gap:18px;justify-content:space-between;flex-wrap:wrap;background:#f3f8ec;border:1px solid #c3dba5;border-radius:16px;padding:18px 22px;margin-top:22px;cursor:pointer;transition:.2s}
+.cp-banner:hover{box-shadow:0 8px 24px rgba(37,43,41,.06)}
+.cp-banner b{display:block;font-size:17px;font-weight:800;letter-spacing:-.03em;color:var(--ink)}
+.cp-banner small{color:var(--muted);font-size:13px}
+html.mob .cp-grid{grid-template-columns:1fr;gap:6px}
+html.mob .cp-hero{grid-template-columns:1fr}
+html.mob .cp-pick{grid-template-columns:1fr 1fr}
+html.mob .cp-pick button{padding:10px 11px;font-size:12.5px}
+html.mob .cp-ep{padding:14px}
+html.mob .cp-ledger{padding:18px}
+html.mob #arcBody .kpis{grid-template-columns:repeat(2,1fr)!important}
+@media print{ #sidebar,#tabbar,.viewsw{display:none!important} html.shell:not(.mob) body{padding-left:0} }
+
+/* ===== Nav icons & mobile tab bar (v2) ===== */
+.nvi{width:22px;height:22px;display:block;fill:none;stroke:currentColor;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round;overflow:visible}
+.nvi .ac{fill:var(--nvi-ac,#c7e48b);stroke:none}
+.nvi .dt{fill:currentColor;stroke:none}
+#sidebar .ni .ico{width:22px;height:22px;opacity:1;display:flex;align-items:center;justify-content:center}
+#sidebar .ni .nvi{width:20px;height:20px;--nvi-ac:#c7e48b}
+#sidebar .ni:not(.active):not(:hover) .nvi{opacity:.82}
+
+#tabbar{left:12px;right:12px;bottom:calc(10px + env(safe-area-inset-bottom));padding:6px;gap:2px;background:rgba(255,254,251,.96);backdrop-filter:saturate(1.4) blur(14px);
+  border:1px solid var(--line);border-radius:24px;box-shadow:0 12px 32px rgba(37,43,41,.13),0 2px 6px rgba(37,43,41,.05)}
+#tabbar button{color:var(--muted);gap:2px;padding:4px 0 3px;border-radius:16px;font-size:10.5px;font-weight:700;letter-spacing:-.01em;background:none!important}
+#tabbar .ico{position:relative;width:48px;height:32px;border-radius:16px;display:flex;align-items:center;justify-content:center;font-size:0;transition:background .2s,transform .2s}
+#tabbar .nvi{--nvi-ac:#d4e8ad}
+#tabbar button.active{color:var(--ink)}
+#tabbar button.active .ico{background:var(--green);color:#fff;animation:tbpop .32s ease}
+#tabbar button.active .nvi{--nvi-ac:#c7e48b}
+#tabbar button:active .ico{transform:scale(.92)}
+@keyframes tbpop{0%{transform:scale(.86)}60%{transform:scale(1.06)}100%{transform:scale(1)}}
+#tabbar .badge.dot{top:1px;right:5px;min-width:9px;width:9px;height:9px;padding:0;font-size:0;border:2px solid #fffefb}
+html.shell.mob .screen{padding-bottom:calc(96px + env(safe-area-inset-bottom))}
+html.shell.mob .toast{bottom:calc(104px + env(safe-area-inset-bottom))}
+@media (min-width:600px){ html.mob #tabbar{left:50%;right:auto;width:406px;transform:translateX(-50%)} }
+
+/* "Me" sheet */
+.me-pane{padding:14px 16px 18px!important}
+.me-grab{width:38px;height:4px;border-radius:4px;background:#dcd8cf;margin:0 auto 14px}
+.me-head{display:flex;gap:12px;align-items:center;padding:4px 6px 14px;border-bottom:1px solid var(--line);margin-bottom:8px}
+.me-head .av{width:42px;height:42px;background:var(--green);color:#fff;font-size:15px}
+.me-head b{display:block;font-size:16px;letter-spacing:-.02em}
+.me-head small{color:var(--muted);font-size:12.5px}
+.me-it{display:flex;align-items:center;gap:12px;width:100%;padding:12px 8px;border-radius:12px;font-size:14.5px;font-weight:650;color:var(--ink);text-align:left}
+.me-it:hover{background:#f3f1ea}
+.me-it .ico{width:38px;height:38px;border-radius:12px;background:#f0f4eb;color:var(--green);display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.me-it .ico .nvi{--nvi-ac:#c7e48b}
+.me-it.bad{color:var(--bad)}.me-it.bad .ico{background:#fdecea;color:var(--bad)}
+.me-it .chev{margin-left:auto;color:var(--dim);font-weight:400}
+html.mob #meSheet{align-items:flex-end;padding:0}
+html.mob #meSheet .pane{max-width:430px!important;border-radius:22px 22px 0 0;padding-bottom:calc(18px + env(safe-area-inset-bottom))!important;animation:shup .25s ease}
+@keyframes shup{from{transform:translateY(40px);opacity:.4}to{transform:none;opacity:1}}
 @media print{
   body{background:#fff}
   .top,.noprint{display:none!important}
@@ -769,6 +849,7 @@ html.mob .bbtn2.on{background:var(--lime);border-color:var(--lime)}
         <div class="steps"><span><b>01</b>Choose</span><span><b>02</b>Speak</span><span><b>03</b>Debrief</span></div>
       </div>
     </div>
+    <div id="campBanner"></div>
     <div class="section-h" style="gap:16px;flex-wrap:wrap"><h2>Choose your meeting</h2>
       <select class="scsel" id="homeSel" onchange="if(this.value){openSetup(this.value);this.value=''}"></select></div>
     <div class="grid" id="cards"></div>
@@ -788,11 +869,12 @@ html.mob .bbtn2.on{background:var(--lime);border-color:var(--lime)}
   <div class="wrap">
     <div class="top">
       <div class="brand" onclick="go('home')"><b>pactli<i>.</i></b><span>MEETING ROOM</span></div>
-      <div class="nav"><button onclick="go('home')">← All scenarios</button></div>
+      <div class="nav"><button id="setupBack" onclick="setupBack()">← All scenarios</button></div>
     </div>
     <div class="setup">
       <div class="pane">
-        <div class="field"><label>Scenario</label><select id="setupSel" onchange="openSetup(this.value)"></select></div>
+        <div class="warnbar" id="campWarn"></div>
+        <div class="field" id="setupSelWrap"><label>Scenario</label><select id="setupSel" onchange="openSetup(this.value)"></select></div>
         <div class="eyebrow" id="sTag" style="margin-top:26px"></div>
         <h2 id="sTitle"></h2>
         <p class="lead" id="sDesc"></p>
@@ -956,6 +1038,28 @@ html.mob .bbtn2.on{background:var(--lime);border-color:var(--lime)}
   </div>
 </section>
 
+<!-- ============ CAMPAIGN ============ -->
+<section class="screen" id="campaign">
+  <div class="wrap">
+    <div class="top">
+      <div class="brand" onclick="go('home')"><b>pactli<i>.</i></b><span>Campaign</span></div>
+      <div class="nav"><button onclick="go('home')">← Home</button></div>
+    </div>
+    <div id="campBody"></div>
+  </div>
+</section>
+
+<!-- ============ ARC REPORT ============ -->
+<section class="screen" id="arc">
+  <div class="wrap">
+    <div class="top">
+      <div class="brand" onclick="go('home')"><b>pactli<i>.</i></b><span>Arc Report</span></div>
+      <div class="nav noprint"><button onclick="window.print()">Save PDF</button><button onclick="openCampaign()">← Campaign</button></div>
+    </div>
+    <div id="arcBody"></div>
+  </div>
+</section>
+
 <!-- ============ HISTORY ============ -->
 <section class="screen" id="history">
   <div class="wrap">
@@ -1015,6 +1119,7 @@ html.mob .bbtn2.on{background:var(--lime);border-color:var(--lime)}
     </div>
   </div>
 </div>
+<div class="modal" id="meSheet" onclick="if(event.target===this)this.classList.remove('on')"><div class="pane me-pane"><div class="me-grab"></div><div id="meBody"></div></div></div>
 <div class="busy-ov" id="busy"><div class="spin"></div><h2 id="busyT">Reading your file</h2><p id="busyP"></p></div>
 <!-- ============ APP SHELL ============ -->
 <aside id="sidebar">
@@ -1505,20 +1610,23 @@ function go(id){
   document.querySelectorAll('.screen,#room').forEach(s=>s.classList.remove('on'));$(id).classList.add('on');window.scrollTo(0,0);
   const H=document.documentElement; H.classList.toggle('inroom',id==='room');
   H.classList.toggle('shell', typeof authed==='function' && authed() && id!=='login' && id!=='room');
-  const tab = {home:'home',setup:'home',history:'history',report:'history',admin:'admin',editor:'admin',inbox:'inbox',thread:'inbox'}[id];
+  const inCamp = !!(typeof sc!=='undefined' && sc && sc.campaign);
+  const tab = (inCamp && (id==='setup'||id==='report')) ? 'campaign' : {home:'home',setup:'home',history:'history',report:'history',admin:'admin',editor:'admin',inbox:'inbox',thread:'inbox',campaign:'campaign',arc:'campaign'}[id];
+  /* browser / phone Back button moves between screens instead of leaving the app */
+  if(!go._pop){ try{ const st={s:id}; if(history.state && history.state.s && history.state.s!==id) history.pushState(st,''); else history.replaceState(st,'') }catch(e){} }
   document.querySelectorAll('[data-tab]').forEach(b=>b.classList.toggle('active', b.dataset.tab===tab));
 }
 function busy(on,t,p){$('busy').classList.toggle('on',on); if(t)$('busyT').textContent=t; $('busyP').textContent=p||''}
 const customs = () => LS.get('pactli_custom',[]);
 let shared = [];   // scenarios shared by an admin (stored in the Scenarios sheet)
-const allSc = () => SCENARIOS.concat(shared.map(s=>Object.assign({},s,{shared:true,mine:false})), customs(), typeof CASE_SCENARIOS!=='undefined'?CASE_SCENARIOS:[]);
+const allSc = () => SCENARIOS.concat(shared.map(s=>Object.assign({},s,{shared:true,mine:false})), customs(), typeof CASE_SCENARIOS!=='undefined'?CASE_SCENARIOS:[], typeof campScenarios==='function'?campScenarios():[]);
 const isAdmin = () => !!(session && session.user && session.user.admin);
 
 /* =========================================================
    HOME
    ========================================================= */
 function renderCards(){
-  const list = allSc().filter(s=>!s.caseGroup);
+  const list = allSc().filter(s=>!s.caseGroup && !s.campaign);
   $('cards').innerHTML = list.map((s,i)=>`
     <div class="card ${s.featured?'featured':''} ${s.mine||s.shared?'mine':''}" onclick="openSetup('${s.id}')">
       <div class="num">${String(i+1).padStart(2,'0')}</div>
@@ -1530,9 +1638,12 @@ function renderCards(){
       ${s.mine||(s.shared&&isAdmin())?`<button class="del" title="Delete" onclick="delCustom('${s.id}',event)">×</button>`:''}
     </div>`).join('');
   renderSelects();
+  { const b=$('campBanner'), c=typeof campActive==='function'&&campActive(), X=c&&campCtx(c);
+    if(b) b.innerHTML = X ? `<div class="cp-banner" onclick="openCampaign()"><div><div class="eyebrow" style="margin-bottom:6px">Campaign in progress</div><b>${esc(X.them)} — Episode ${Math.min(6,c.eps.filter(e=>e.done).length+1)} of 6</b><small>${esc(X.R.name)} · ${esc(X.F.name)}</small></div><button class="btn gold">Continue →</button></div>`
+      : `<div class="cp-banner" onclick="openCampaign()"><div><div class="eyebrow" style="margin-bottom:6px">New · Campaign</div><b>One client. Six linked meetings.</b><small>Pick your role and field, then follow one deal from first handshake to signature.</small></div><button class="btn gold">Start a campaign →</button></div>` }
 }
 function renderSelects(){
-  const list = allSc().filter(s=>!s.caseGroup), groups = {};
+  const list = allSc().filter(s=>!s.caseGroup && !s.campaign), groups = {};
   list.forEach(s=>{(groups[s.tag]=groups[s.tag]||[]).push(s)});
   const opts = Object.entries(groups).map(([g,a])=>`<optgroup label="${esc(g)}">${a.map(s=>`<option value="${s.id}">${esc(s.title)}</option>`).join('')}</optgroup>`).join('');
   $('homeSel').innerHTML = `<option value="">Quick select — ${list.length} scenarios</option>`+opts;
@@ -1573,8 +1684,14 @@ function openSetup(id){
   $('topicWrap').style.display = sc.needsTopic?'block':'none';
   $('sttWarn').style.display = SR ? 'none':'block';
   renderDoc();
+  { const k=sc.campaign, c=k&&campGet(k.id);
+    $('setupSelWrap').style.display = k?'none':''; $('setupBack').textContent = k?'← Campaign':'← All scenarios'; $('fRole').readOnly = !!k;
+    const w=$('campWarn'); w.style.display = c&&(c.eps[k.ep].done||c.status!=='active')?'block':'none';
+    w.textContent = 'This episode is already complete. You can run it again for practice — it will not change the campaign.';
+    if(c){ cfg.difficulty=c.difficulty; $('segDiff').querySelectorAll('button').forEach(b=>b.classList.toggle('on',b.dataset.v===c.difficulty)); showDiffHint() } }
   go('setup'); updateBadges();
 }
+function setupBack(){ sc && sc.campaign ? openCampaign() : go('home') }
 function renderDoc(){
   const text = cfg.docText || sc.doc || '';
   $('sDocPane').style.display = text?'block':'none';
@@ -2111,7 +2228,9 @@ async function importFiles(files){
       const {text, wb} = await extractText(f);
       if(!text.trim()) throw new Error(`${f.name}: no readable text found (scanned image PDF?).`);
       let rows = [];
-      if(wb){ rows = scenariosFromWorkbook(wb) || [];
+      if(wb){ const cp=campPackImport(wb);
+        if(cp){ toast(cp.warn.length ? cp.warn[0] : `Campaign pack imported — ${cp.fields} field${cp.fields===1?'':'s'} and ${cp.roles} role${cp.roles===1?'':'s'} added or changed`, 5200); if(cp.warn.length) console.warn(cp.warn); continue }
+        rows = scenariosFromWorkbook(wb) || [];
         rows.forEach(r=>{ const w=validateScenario(r); if(w.length) console.warn('Scenario "'+r.title+'":', w) }) }
       if(rows.length) added.push(...rows);
       else {
@@ -2406,6 +2525,7 @@ function entities(low){
     else if(/year/.test(u)) type='years';
     else if(/unit|piece/.test(u)) type='units';
     else if(m[1] || v>=1000) type= (v>=1900&&v<=2100&&!m[1]) ? 'yearnum' : 'money';
+    if((type==='num' || (type==='money' && !m[1])) && COUNT_NOUN.test(low.slice(re.lastIndex, re.lastIndex+18))) type='units';   // a count of things, not a price
     if(/net\s*$/.test(low.slice(Math.max(0,idx-5),idx+1)) && type==='num') type='days';
     if(type==='num' && /\d+-?year/.test(low.slice(idx, idx+10))) type='years';
     const before=low.slice(Math.max(0,idx-14),idx);
@@ -2414,6 +2534,7 @@ function entities(low){
   }
   return E;
 }
+const COUNT_NOUN = /^\s*(user )?(units?|pieces?|seats?|users?|licen[cs]es?|wafers?|chips?|cards?|tonnes?|tons?|containers?|stores?|cases?|boxes|pallets?|shipments?|bottles?|kits?|devices?|vehicles?|copies|downloads|subscribers|transactions?|orders|housings?|parts|panels?|modules?|cartridges?)\b/;
 const has = (low,re) => re.test(low);
 function sentences(text){
   return String(text).replace(/\s+/g,' ').split(/(?<=[!?]|(?<!\b(?:mr|mrs|ms|dr|vs|no|e\.g|i\.e|etc))\.)(?=\s+|$)/i).map(s=>s.trim()).filter(Boolean);
@@ -2466,6 +2587,10 @@ function newEngineState(sc){
     emo:{}, focus:null, expect:null, lastAI:'', lastAIBy:0, agendaI:0, qI:0, phase:0, presWords:0, closing:false, endNow:false, interjected:{}, learnerTurns:[], pressureUsed:0 };
   (sc.personas||[]).forEach((p,i)=>{ const t=p.traits||{}; st.emo[i]={trust:Math.round(30+(t.warmth??.5)*40+(sc.startMood||0)), patience:Math.round(50+(t.patience??.5)*50)} });
   (sc.issues||[]).forEach(is=>{ st.issues[is.id]={pos:is.open, moves:0, pushes:0, raised:false} });
+  /* linked scenarios: trust, positions and agreed terms can be carried in from earlier meetings */
+  Object.entries(sc.startEmo||{}).forEach(([i,e])=>{ if(st.emo[i]) Object.assign(st.emo[i], e) });
+  Object.entries(sc.prePos||{}).forEach(([id,v])=>{ if(st.issues[id]){ st.issues[id].pos=v; st.issues[id].raised=true } });
+  Object.entries(sc.preAgreed||{}).forEach(([id,v])=>{ if(st.issues[id]){ st.agreed[id]=v; st.issues[id].pos=v; st.issues[id].raised=true } });
   return st;
 }
 function rehydrate(st, sc){ st.usedSet = new Set(st.used||[]); Object.entries(st.autoRes||{}).forEach(([id,r])=>{ const is=(sc.issues||[]).find(x=>x.id===id); if(is) Object.assign(is,r) }); (sc.issues||[]).forEach(is=>{ if(!st.issues[is.id]) st.issues[is.id]={pos:is.open,moves:0,pushes:0,raised:false} }); (sc.personas||[]).forEach((p,i)=>{ if(!st.emo[i]) st.emo[i]={trust:50,patience:70} }); return st }
@@ -2495,10 +2620,10 @@ function fmtVal(is, v){
     case 'units': s=`${Math.round(v)} units`; break;
     default: s=String(v);
   }
-  if(is.fmt) s=is.fmt.replace('{v}', is.unit==='pct'||is.unit==='multiple' ? String(+(+v).toFixed(1)) : String(Math.round(v)));
+  if(is.fmt) s=is.fmt.replace('{v}', is.unit==='pct'||is.unit==='multiple' ? String(+(+v).toFixed(1)) : Math.round(v).toLocaleString('en-US'));
   return s;
 }
-const isUnl = (is, v) => (is.unit!=='money' && (is.open>=999 || is.unlimitedLabel) && v>=999) || (is.unlimitedAt!=null && v>=is.unlimitedAt);
+const isUnl = (is, v) => (is.unit!=='money' && (is.open===999 || is.unlimitedLabel) && v>=999) || (is.unlimitedAt!=null && v>=is.unlimitedAt);
 const better = (is, a, b) => is.better==='down' ? a<b : a>b;          // is a better than b FOR THEM
 const atLeast = (is, a, b) => is.better==='down' ? a<=b : a>=b;        // a is at least as good as b for them
 const ACKS = {warm:["Thanks, that's helpful.","I appreciate that.","That makes sense.","Okay, good."], neutral:["Okay.","Right.","I see.","Fair enough.","Got it."], cold:["Hmm.","Right.","Okay…","I hear you."], angry:["Look.","Right.","Hmm."]};
@@ -2521,6 +2646,7 @@ function bindOffers(sc, st, a, sentLow){
     if(e.type==='num') cands = cands.filter(is=>mentioned.includes(is) && (a.propose||a.cond||a.accept||a.n<=6||(st.expect&&st.expect.issue===is.id)));
     if(a.q && !a.propose && !a.cond && !/\b(accept|agree|consider|do|work|go)\b/.test(sentLow)) return;   // "what's driving the 20%?" quotes a number, doesn't offer one
     if(!cands.length) return;
+    if(/^(days|months|years)$/.test(e.type) && mentioned.length && mentioned.every(m=>m.unit==='option') && !cands.some(c=>mentioned.includes(c))) return;
     let pick = cands.find(is=>mentioned.includes(is) && is.unit===UNIT_OF[e.type]) || cands.find(is=>mentioned.includes(is))
              || (st.expect && cands.find(is=>is.id===st.expect.issue))
              || ((a.propose||a.cond||a.accept||a.n<=6) && st.focus && cands.find(is=>is.id===st.focus))
@@ -2641,8 +2767,8 @@ function evaluateOffer(sc, st, offer, a, sentLow){
   }
   // below reserve
   feel(st,lead,-2,-6); st.expect={type:'justify',issue:is.id,t:st.turn};
-  ev(st,'belowreserve',`Offered ${fv(offer.v)} on ${is.label} — below anything they could accept.`,0);
-  return [ln(lead, fresh(st,'reject'+mood,[`${cap1(fv(offer.v))} is well below anything we could accept.${is.why&&!st.usedSet.has('why|'+is.id)?(st.usedSet.add('why|'+is.id),' '+cap1(is.why)):''}`,`I'm sorry, ${fv(offer.v)} just doesn't work for us. We're at ${fv(S_.pos)}.`,`That's not a serious number for us, I'm afraid.`]))];
+  ev(st,'belowreserve',`Offered ${fv(offer.v)} on ${is.label} — outside anything they could accept.`,0);
+  return [ln(lead, fresh(st,'reject'+mood,[`${cap1(fv(offer.v))} is well outside anything we could accept.${is.why&&!st.usedSet.has('why|'+is.id)?(st.usedSet.add('why|'+is.id),' '+cap1(is.why)):''}`,`I'm sorry, ${fv(offer.v)} just doesn't work for us. We're at ${fv(S_.pos)}.`,`That's not a serious number for us, I'm afraid.`]))];
 }
 const ln = (p,t) => ({p,t});
 const tr = (st,k) => { (st._tr=st._tr||[]).push(k) };
@@ -2929,6 +3055,11 @@ function engineTurn(sc, st, text, channel){
     if(a.askPosition){ const is=(isMent[0]) || (sc.issues||[]).find(i=>i.id===st.focus) || (sc.issues||[]).find(i=>!st.agreed[i.id]&&!i.never);
       if(is && !handledIssues.has(is.id)){ tr(st,'P:'+is.id); handledIssues.add(is.id); st.focus=is.id; st.issues[is.id].raised=true; st.expect={type:'offer',issue:is.id,value:st.issues[is.id].pos};
         add(24,[ln(is.owner||0, fresh(st,'pos'+moodOf(st,is.owner||0),[`Our position on ${is.label} is ${fmtVal(is,st.issues[is.id].pos)}.`,`We're at ${fmtVal(is,st.issues[is.id].pos)} on ${is.label}. What can you do?`,`${cap1(fmtVal(is,st.issues[is.id].pos))}. That's where we are.`]))]); return } }
+    // a point outside the learner's authority, deferred to their team (linked scenarios)
+    { const od=isMent.find(i=>i.outside && !st.flags['defer_'+i.id]);
+      if(od && typeof CAMP_DEFER!=='undefined' && CAMP_DEFER.test(sl) && !bindOffers(sc,st,a,sl).some(o=>o.issue.id===od.id)){ handledIssues.add(od.id); st.flags['defer_'+od.id]=true; st.issues[od.id].raised=true; st.flags.deferred=true; tr(st,'DF:'+od.id);
+        ev(st,'defer',`Deferred ${od.label} to their team instead of agreeing outside their authority.`,1);
+        add(20,[ln(od.owner||0, fresh(st,'defer',[`Fair enough. Check with your team and come back to me on ${od.label}.`,`Okay — get back to me on ${od.label} once you've spoken to your team.`,`That's fine. Let's park ${od.label} until you've checked internally.`]))]); return } }
     // issue raised without numbers: defend / ask for their proposal
     if(isMent.length && !(a.agenda && isMent.length>=2) && (a.q || a.propose || a.reason || a.reject || /concern|problem|issue|risk|worried|change|flag|point/.test(sl))){
       const is=isMent[0]; tr(st,'I:'+is.id); handledIssues.add(is.id); st.issues[is.id].raised=true; st.focus=is.id;
@@ -2999,6 +3130,8 @@ function checkSummary(sc, st, whole){
     if(ag==null) out.push(ln(o.issue.owner||lead, `Just to be clear — we haven't actually agreed on ${o.issue.label} yet.`));
     else if(Math.abs(ag-o.v)>1e-6) { out.push(ln(o.issue.owner||lead, `Sorry, one correction: we agreed ${fmtVal(o.issue,ag)} on ${o.issue.label}, not ${fmtVal(o.issue,o.v)}.`)); ev(st,'misquote',`Summary misquoted ${o.issue.label}.`,-1) }
   });
+  const openKey=(sc.issues||[]).filter(is=>!is.never && (is.weight||1)>=2 && st.agreed[is.id]==null && !st.flags['defer_'+is.id]);
+  if(!out.length && openKey.length && (!Object.keys(st.agreed).length || openKey.length>=2)){ out.push(ln(lead, Object.keys(st.agreed).length ? `Before we wrap up — we still haven't settled ${openKey.slice(0,2).map(i=>i.label).join(' or ')}.` : `Hold on — we haven't actually agreed anything yet. Shall we start with ${openKey[0].label}?`)); ev(st,'prematuresum','Tried to summarise before the key points were agreed.',-1); return out }
   if(!out.length) ev(st,'summary','Summarised the agreement accurately.',1);
   return out;
 }
@@ -3065,7 +3198,7 @@ function nextAgenda(sc, st){
   for(let k=0;k<list.length;k++){
     const i=(st.agendaI+k)%list.length, it=list[i], key='ag|'+i;
     if(st.usedSet.has(key)) continue;
-    const covered = it.tag && (st.revealed[it.tag] || st.agreed[it.tag]!=null || st.flags['t_'+it.tag] || st.flags[it.tag] || (it.tag==='addr1'&&st.flags.addr1) || (st.issues[it.tag]&&st.issues[it.tag].raised&&st.offers[it.tag]));
+    const covered = it.tag && (st.revealed[it.tag] || st.agreed[it.tag]!=null || st.flags['t_'+it.tag] || st.flags[it.tag] || (it.tag==='addr1'&&st.flags.addr1) || st.flags['defer_'+it.tag] || (st.issues[it.tag]&&st.issues[it.tag].raised&&st.offers[it.tag]));
     st.usedSet.add(key); if(covered) continue;
     st.agendaI=i+1; if(st.expect&&st.expect.type==='offer') st.expect={type:'question'}; return ln(it.p,it.text);
   }
@@ -3390,6 +3523,11 @@ function engineAnalyze(m, sc, st){
       case 'addressed': return (st.flags.addressed||0)>=n?'met':st.flags.addressed?'partial':'missed';
       case 'decision': return has('consensus')?'met':has('decision')?'partial':'missed';
       case 'outcome': return (st.flags.summary||st.flags.next)&&st.proposals>=1?'met':st.proposals>=1?'partial':'missed';
+      case 'hiddenany': { const g=list.filter(h=>st.revealed[h]).length; return g>=2?'met':g?'partial':'missed' }
+      case 'openq': return st.openQs>=n?'met':st.openQs?'partial':'missed';
+      case 'evidence': { const g=tc('evidence'); return g>=n?'met':(g||tc('reason'))?'partial':'missed' }
+      case 'deferred': { const outs=(sc.issues||[]).filter(i=>i.outside), took=outs.filter(i=>st.agreed[i.id]!=null).length, said=st.flags.deferred||CAMP_DEFER.test(all); return took&&!said?'missed':said?'met':'partial' }
+      case 'calm': { const t0=(sc.campaign&&sc.campaign.trust0)||50; return has('aggressive')?'missed':st.emo[0].trust>=t0-5?'met':'partial' }
       case 'clarity': return errs.length<=1&&m.avgLen>=8?'met':m.avgLen>=5?'partial':'missed';
       case 'objections': return tc('reason')+tc('cond')>=2?'met':tc('reason')+tc('cond')?'partial':'missed';
       default: return 'partial';
@@ -3483,7 +3621,7 @@ function brHuman(id){ return String(id||'').replace(/[-_]+/g,' ').replace(/([a-z
 function brShort(is, v){
   if(v==null || v==='') return '—';
   if(is.unit==='option') return fmtVal(is, v);
-  if(v>=999) return is.unlimitedLabel ? cap1(is.unlimitedLabel) : 'No cap';
+  if(isUnl(is,v)) return is.unlimitedLabel ? cap1(is.unlimitedLabel) : 'No cap';
   switch(is.unit){
     case 'pct': return (+(+v).toFixed(1))+'%';
     case 'money': return v>=1e6 ? '$'+(+(v/1e6).toFixed(2))+'M' : v>=1e3 ? '$'+(+(v/1e3).toFixed(v%1000?1:0))+'K' : '$'+Math.round(v);
@@ -3491,12 +3629,12 @@ function brShort(is, v){
     case 'months': return v+' mo';
     case 'years': return v+(v===1?' yr':' yrs');
     case 'multiple': return v+'×';
-    default: return is.fmt ? is.fmt.replace('{v}', v) : String(v);
+    default: return is.fmt ? is.fmt.replace('{v}', (+v).toLocaleString('en-US')) : String(v);
   }
 }
 /* which way is good for the LEARNER: 'low' | 'high' | null */
 function brDir(is){ return is.better==='up' ? 'low' : is.better==='down' ? 'high' : null }
-function brOk(is, v){ const d=brDir(is); if(v==null || is.limit==null || !d) return null; if(v>=999 && d==='low') return false; return d==='low' ? v<=is.limit+1e-9 : v>=is.limit-1e-9 }
+function brOk(is, v){ const d=brDir(is); if(v==null || is.limit==null || !d) return null; if(isUnl(is,v) && d==='low') return false; return d==='low' ? v<=is.limit+1e-9 : v>=is.limit-1e-9 }
 function brIssues(sc){ return (sc.issues||[]).filter(is=>!is.never && (is.limit!=null || is.myTarget!=null || is.unit==='option' && (is.options||[]).length)) }
 function brTrades(sc){
   if((sc.tradeCards||[]).length) return sc.tradeCards.map(c=>Array.isArray(c)?{give:c[0], get:c[1], key:c[2]}:c);
@@ -3524,10 +3662,10 @@ function brUsed(card, txt){
 function brBar(is, st, mode, lv){
   const d=brDir(is), live=mode==='live'&&st, theirs=live?brTheirs(st,is):null, mine=live?brMine(st,is.id):null, agreed=live&&st.agreed?st.agreed[is.id]:null;
   const showOpen = lv<=1 && is.open!=null;
-  const vals=[is.limit, is.myTarget, showOpen?is.open:null, theirs, mine, agreed].filter(v=>v!=null && v<999);
+  const vals=[is.limit, is.myTarget, showOpen?is.open:null, theirs, mine, agreed].filter(v=>v!=null && !isUnl(is,v));
   if(!vals.length) return '';
   let lo=Math.min(...vals), hi=Math.max(...vals); const pad=(hi-lo)*.2 || Math.max(1,Math.abs(hi)*.2); lo-=pad; hi+=pad; if(lo<0 && vals.every(v=>v>=0)) lo=Math.max(0, lo);
-  const P=v=> v>=999 ? 97 : Math.max(2, Math.min(97, (v-lo)/(hi-lo)*100));
+  const P=v=> isUnl(is,v) ? 97 : Math.max(2, Math.min(97, (v-lo)/(hi-lo)*100));
   let zone='';
   if(is.limit!=null && d) zone = d==='low' ? `<div class="bz" style="left:0;width:${P(is.limit)}%"></div>` : `<div class="bz" style="left:${P(is.limit)}%;right:0"></div>`;
   const marks=[]; // [pos, cls, label, row(top|bot), priority]
@@ -3764,7 +3902,7 @@ const EMAIL0 = {
   'mg-negotiation':[0,'Driftwood x Hanbit — licence term sheet',["Attached is our term sheet for the Korean licence.","Our standard Minimum Guarantee for a market of Korea's size is USD 900,000 over three years. Please confirm you're happy to proceed on this basis, or send any comments."]]
 };
 function firstEmail(sc){
-  const e=EMAIL0[sc.id];
+  const e=sc.firstMail||EMAIL0[sc.id];
   if(e) return mkMail(sc, e[0], e[1], e[2]);
   return mkMail(sc, 0, sc.title, sc.doc ? ["I've shared the document with you (see the document panel).","Could you send me your comments on it before we meet?"] : ["Thanks for your time.","Before we meet, could you outline your position in a short email? It will help us make the most of the meeting."]);
 }
@@ -3956,6 +4094,7 @@ async function sendEmail(){
   $('thTyping').style.display='none'; $('cSend').disabled=false;
 }
 function resetCase(){
+  if(String(curCase).startsWith('cmp-')){ toast('This thread belongs to a campaign — use "Redo" on the episode instead.',3800); return }
   if(!confirm('Reset this case? The email thread and everything agreed so far will be cleared.')) return;
   const cs=loadCases(); delete cs[curCase]; LS.set(caseKey(),cs); $('cSubj').value=''; openThread(curCase); toast('Case reset');
 }
@@ -3977,7 +4116,7 @@ async function caseAfterMeeting(){
   try{
     if(settings.demo){
       const rc=S.eng ? recapList(S.sc, S.eng) : [];
-      const paras = S.sc&&S.sc.presentation ? ["Thanks for presenting today.","Could you send us your cost assumptions and your risk plan in writing by Friday? We'll make a decision after that."]
+      const paras = S.sc&&S.sc.followUp ? S.sc.followUp : S.sc&&S.sc.presentation ? ["Thanks for presenting today.","Could you send us your cost assumptions and your risk plan in writing by Friday? We'll make a decision after that."]
         : rc.length ? ["Thanks for your time today. To confirm what we agreed:", rc.map(x=>'• '+x.charAt(0).toUpperCase()+x.slice(1)).join('\n'), "Could you confirm this summary by email, so we can move to the next step?"]
         : ["Thanks for your time today.","We still have a few open points. Could you send me your revised position in writing?"];
       mails=[mkMail(s0, 0, 'Follow-up: '+s0.title, paras, S.difficulty)];
@@ -3999,6 +4138,7 @@ function startMeeting(){
   LS.set('pactli_name', $('fName').value.trim());
   if(sc.custom && !$('fCustom').value.trim()){ toast('Describe the meeting first.'); return }
   if(sc.needsTopic && !$('fTopic').value.trim()){ toast('Add your presentation topic first.'); return }
+  if(sc.campaign && !settings.demo){ settings.demo=true; toast('Campaigns run on the rule-based engine.',3200) }
   S = {
     scenarioId:sc.id, title:sc.title, tag:sc.tag, brief:sc.brief, goals:sc.goals, mandate:sc.mandate||'',
     personas:sc.personas, name, role:$('fRole').value.trim()||sc.role||'Participant',
@@ -4174,6 +4314,7 @@ async function endMeeting(auto){
   const record = {id:Date.now(), date:new Date().toISOString(), title:S.title, tag:S.tag, difficulty:S.difficulty, name:S.name, role:S.role, metrics:m, fb, log:S.log,
     brief: settings.demo ? briefSnapshot(S.sc, S.eng) : null,
     emails: cse ? cse.emails.slice(-8).map(e=>({me:e.me,from:e.from,to:e.to,subject:e.subject,body:e.body.slice(0,1200),t:e.t,fromP:e.fromP,check:e.check})) : []};
+  if(S.sc && S.sc.campaign && settings.demo){ try{ campAfterMeeting(record) }catch(e){ console.warn(e) } }
   caseAfterMeeting();
   curReport=null; renderReport(record); showDelBtn();
   gas('reports.save',{record}).then(r=>{ if(r&&r.rowId){ curReport={rowId:r.rowId,from:'history'}; showDelBtn() } }).catch(e=>toast('Could not save to your history: '+e.message,4500));
@@ -4182,6 +4323,7 @@ function retryReport(){ if(S){ S.ended=false; endMeeting(true) } }
 function cleanup(){ clearInterval(S.timer); speechSynthesis.cancel(); if(recOn) stopMic(false) }
 
 function renderReport(r){
+  if(r.kind==='arc' && r.arc){ $('repBody').innerHTML = renderArc(r.arc); return }
   const f=r.fb, m=r.metrics, C=2*Math.PI*66, off=C*(1-(f.overall||0)/100);
   const st = s=>s==='met'?['y','✓']:s==='partial'?['p','~']:['n','✕'];
   const fillTxt = m.fTotal? Object.entries(m.fillers).sort((a,b)=>b[1]-a[1]).slice(0,3).map(([k,v])=>`"${k}" ×${v}`).join(', ') : 'None detected';
@@ -4200,6 +4342,7 @@ function renderReport(r){
     <div class="kpi"><small>Fillers</small><b>${m.fTotal}</b><span>${esc(fillTxt)}</span></div>
   </div>
   <div class="rgrid">
+    ${r.camp?renderCampPane(r.camp):''}
     ${f.rubric?`<div class="pane"><h3>Evaluation · ${f.rubric.Overall}/100</h3>${[['Content / Relevance','Relevant content that directly addresses the issue'],['Logic / Development','Reasonable arguments with adequate reasons and examples'],['Delivery','Expressions, grammar & usage, fluency']].map(([k,d])=>`<div class="bar"><div><span>${esc(k)}<small style="display:block;color:var(--dim);font-size:11px;font-weight:400">${d}</small></span><b>${f.rubric[k]}</b></div><i><u style="width:${f.rubric[k]}%"></u></i></div>`).join('')}</div>`:''}
     <div class="pane"><h3>Skill breakdown</h3>${Object.entries(f.scores||{}).map(([k,v])=>`<div class="bar"><div><span>${esc(k)}</span><b>${v}</b></div><i><u style="width:${v}%"></u></i></div>`).join('')}</div>
     <div class="pane"><h3>Objectives</h3>${(f.goals||[]).map(g=>{const [c,i]=st(g.status);return `<div class="gl"><span class="dot ${c}">${i}</span><div>${esc(g.goal)}<small>${esc(g.note)}</small></div></div>`}).join('')}</div>
@@ -4333,6 +4476,8 @@ function localGas(action, d){
     case 'scenarios.list': return {scenarios:db.scenarios};
     case 'scenarios.save': need(); db.scenarios=db.scenarios.filter(s=>s.id!==d.scenario.id).concat([d.scenario]); save(); return {ok:true};
     case 'scenarios.delete': need(); db.scenarios=db.scenarios.filter(s=>s.id!==d.id); save(); return {ok:true};
+    case 'campaigns.save': db.campaigns=(db.campaigns||[]).filter(x=>!(x.userId===me.id&&x.id===d.campaign.id)).concat([{userId:me.id,id:d.campaign.id,json:d.campaign}]).slice(-80); save(); return {ok:true};
+    case 'campaigns.list': return {campaigns:(db.campaigns||[]).filter(x=>x.userId===me.id).map(x=>x.json)};
   }
   throw new Error('Unknown action.');
 }
@@ -4353,26 +4498,27 @@ async function doLogin(){
 async function afterLogin(){
   renderNav(); renderCards(); go('home');
   await loadShared(); renderCards();
+  campPull().then(renderCards);
 }
 function logout(){
   if(S && !S.ended){ S.ended=true; try{cleanup()}catch(e){} }
-  session=null; LS.set('pactli_session', null); shared=[];
+  session=null; LS.set('pactli_session', null); shared=[]; CAMP_CACHE.clear(); campServer=null;
   go('login');
 }
 function renderNav(){
   const u = session.user;
-  const items = [['home','◎','Meetings',"go('home')"],['inbox','✉','Inbox','openInbox()'],['history','▤','History','openHistory()']].concat(u.admin?[['admin','☷','Admin','openAdmin()']]:[]);
+  const items = [['home',NI('chat'),'Meetings',"go('home')"],['campaign',NI('flag'),'Campaign','openCampaign()'],['inbox',NI('mail'),'Inbox','openInbox()'],['history',NI('clock'),'History','openHistory()']].concat(u.admin?[['admin',NI('clip'),'Admin','openAdmin()']]:[]);
   const bdg = t => t==='inbox' ? '<span class="badge" data-badge style="display:none"></span>' : '';
-  $('sideNav').innerHTML = '<div class="nav-group">Practice</div>'+items.slice(0,3).map(([t,i,l,f])=>`<button class="ni" data-tab="${t}" onclick="${f}"><span class="ico">${i}</span>${l}${bdg(t)}</button>`).join('')
-    + (u.admin?'<div class="nav-group">Director</div>'+items.slice(3).map(([t,i,l,f])=>`<button class="ni" data-tab="${t}" onclick="${f}"><span class="ico">${i}</span>${l}</button>`).join(''):'')
-    + '<div class="nav-group">Account</div><button class="ni" onclick="openSettings()"><span class="ico">⚙</span>Settings</button>';
+  $('sideNav').innerHTML = '<div class="nav-group">Practice</div>'+items.slice(0,4).map(([t,i,l,f])=>`<button class="ni" data-tab="${t}" onclick="${f}"><span class="ico">${i}</span>${l}${bdg(t)}</button>`).join('')
+    + (u.admin?'<div class="nav-group">Director</div>'+items.slice(4).map(([t,i,l,f])=>`<button class="ni" data-tab="${t}" onclick="${f}"><span class="ico">${i}</span>${l}</button>`).join(''):'')
+    + '<div class="nav-group">Account</div><button class="ni" onclick="openSettings()"><span class="ico">'+NI('gear')+'</span>Settings</button>';
   $('sideName').textContent = u.name||u.id;
   $('sideRole').textContent = [u.title,u.company].filter(Boolean).join(' · ') || (u.admin?'Admin':'Member');
-  const tabs = items.concat([['settings','⚙','Settings','openSettings()']]);
+  const tabs = items.filter(x=>x[0]!=='admin').concat([['admin',NI('face'),'Me','openMe()']]);   // admin & settings live in the "Me" sheet
   $('tabbar').style.setProperty('--tabs', tabs.length);
   $('tabbar').innerHTML = tabs.map(([t,i,l,f])=>`<button data-tab="${t}" onclick="${f}"><span class="ico">${i}${t==='inbox'?'<span class="badge dot" data-badge style="display:none"></span>':''}</span>${l}</button>`).join('');
   updateBadges();
-  $('homeNav').innerHTML = `<button onclick="openHistory()">History</button>${u.admin?'<button onclick="openAdmin()">Admin</button>':''}<button onclick="openSettings()">Settings</button>
+  $('homeNav').innerHTML = `<button onclick="openCampaign()">Campaign</button><button onclick="openHistory()">History</button>${u.admin?'<button onclick="openAdmin()">Admin</button>':''}<button onclick="openSettings()">Settings</button>
     <span class="uchip"><span class="av">${initials(u.name||u.id)}</span>${esc(u.name||u.id)}</span><button onclick="logout()">Log out</button>`;
 }
 async function changePw(){
@@ -4448,6 +4594,1074 @@ async function delMember(){
   if(!editing || !confirm(`Delete ${editing.name||editing.id}? Their past session records stay in the sheet.`)) return;
   try{ await gas('users.delete',{id:editing.id}); $('memModal').classList.remove('on'); toast('Member deleted'); renderAdmin() }catch(e){ toast(e.message) }
 }
+
+
+/* ---------- nav icons — rounded, friendly, with a soft lime accent ---------- */
+const NAVI = {
+  /* Meetings: a smiling speech bubble */
+  chat:'<path d="M7 4.5h10a3 3 0 0 1 3 3v5.5a3 3 0 0 1-3 3h-4.5L8.5 19.5V16H7a3 3 0 0 1-3-3V7.5a3 3 0 0 1 3-3z"/><circle class="dt" cx="9.6" cy="9.4" r="1.05"/><circle class="dt" cx="14.4" cy="9.4" r="1.05"/><path d="M10.1 12.1c1.05.85 2.75.85 3.8 0"/>',
+  /* Campaign: a little flag on a hill */
+  flag:'<path class="ac" d="M7.5 4.6c1.9-1.1 3.8-1.1 5.6 0s3.7 1.1 5.6 0v6.6c-1.9 1.1-3.7 1.1-5.6 0s-3.7-1.1-5.6 0z"/><path d="M7.5 4.6c1.9-1.1 3.8-1.1 5.6 0s3.7 1.1 5.6 0v6.6c-1.9 1.1-3.7 1.1-5.6 0s-3.7-1.1-5.6 0"/><path d="M7.5 3.5V20"/><path d="M3.5 20.5c2.2-1.6 4.6-2.4 7.2-2.4s5 .8 7.2 2.4"/>',
+  /* Inbox: an envelope with a tiny heart */
+  mail:'<rect x="3" y="6" width="16.5" height="13" rx="3.2"/><path d="M4.2 8.3l7 5 7-5"/><path class="ac" d="M19.6 2.6c.55-.85 1.95-.6 1.95.55 0 1.05-1.95 2.25-1.95 2.25s-1.95-1.2-1.95-2.25c0-1.15 1.4-1.4 1.95-.55z"/>',
+  /* History: a round alarm clock */
+  clock:'<circle cx="12" cy="12.8" r="7"/><path d="M12 9.6v3.4l2.2 1.4"/><path d="M4.6 6.4l2.2-2.1M19.4 6.4l-2.2-2.1"/><path d="M8.2 19.4l-1.1 1.6M15.8 19.4l1.1 1.6"/><circle class="ac" cx="12" cy="12.9" r="1.15"/>',
+  /* Me: a blushing face */
+  face:'<circle cx="12" cy="12" r="8.6"/><circle class="dt" cx="9.2" cy="10.6" r="1.05"/><circle class="dt" cx="14.8" cy="10.6" r="1.05"/><path d="M9.6 14.2c1.35 1.15 3.45 1.15 4.8 0"/><circle class="ac" cx="7.3" cy="13.5" r="1.25"/><circle class="ac" cx="16.7" cy="13.5" r="1.25"/>',
+  /* Admin: a clipboard with a tick */
+  clip:'<rect x="5" y="4.8" width="14" height="16" rx="3"/><rect class="ac" x="8.6" y="3" width="6.8" height="3.6" rx="1.5"/><rect x="8.6" y="3" width="6.8" height="3.6" rx="1.5"/><path d="M9 13.2l2.1 2.1 4-4.2"/>',
+  /* Settings: two friendly sliders */
+  gear:'<path d="M4.5 8h7.5M17.5 8h2M4.5 16h2M12 16h7.5"/><circle class="ac" cx="14.8" cy="8" r="2.4"/><circle cx="14.8" cy="8" r="2.4"/><circle class="ac" cx="9.2" cy="16" r="2.4"/><circle cx="9.2" cy="16" r="2.4"/>',
+  /* Sign out & layout */
+  out:'<path d="M14 4.5h3a2.5 2.5 0 0 1 2.5 2.5v10a2.5 2.5 0 0 1-2.5 2.5h-3"/><path d="M10.5 8.2L6.7 12l3.8 3.8M6.9 12h8"/>',
+  screen:'<rect x="3.5" y="5" width="17" height="11" rx="2.5"/><path d="M9 20h6M12 16v4"/>'
+};
+const NI = k => `<svg class="nvi" viewBox="0 0 24 24" aria-hidden="true">${NAVI[k]||''}</svg>`;
+function openMe(){
+  const u=(session&&session.user)||{}, it=(ico,label,fn,cls)=>`<button class="me-it ${cls||''}" onclick="$('meSheet').classList.remove('on');${fn}"><span class="ico">${NI(ico)}</span>${label}<span class="chev">›</span></button>`;
+  $('meBody').innerHTML = `<div class="me-head"><span class="av">${initials(u.name||u.id)}</span><div><b>${esc(u.name||u.id||'')}</b><small>${esc([u.title,u.company].filter(Boolean).join(' · ')||(u.admin?'Admin':'Member'))}</small></div></div>`
+    + it('gear','Settings','openSettings()')
+    + (u.admin ? it('clip','Admin','openAdmin()') : '')
+    + it('screen','Switch to PC view',"setView('pc')")
+    + it('out','Sign out','logout()','bad');
+  $('meSheet').classList.add('on');
+}
+
+/* =========================================================
+   CAMPAIGN — one client, six linked meetings.
+   A campaign is assembled from four layers:
+     Arc skeleton (6 episodes, below) · Role pack · Field pack · Personas
+   and a Deal Ledger that carries trust, discovered needs, signed terms,
+   promises and goodwill from one episode into the next.
+   Every episode is generated as an ordinary Pactli scenario, so the same
+   rule engine, briefing card, email thread and debrief run it.
+   ========================================================= */
+const CAMP_EPS = [
+  {k:'first',  t:'First Meeting',     s:'Build rapport and uncover what they really need'},
+  {k:'terms',  t:'The Term Sheet',    s:'Negotiate the contract terms'},
+  {k:'problem',t:'The Problem',       s:'Something goes wrong in delivery — fix it'},
+  {k:'shock',  t:'The Shock',         s:'An outside event breaks the deal economics'},
+  {k:'reneg',  t:'The Renegotiation', s:'Their senior decision-maker joins the table'},
+  {k:'close',  t:'The Closing',       s:'Last-minute request, final terms, signature'}
+];
+
+/* ---------- ROLE PACKS ----------
+   sides: which side of the deal the role can sit on · title: the learner's job title
+   peer: the counterpart's job title (when the learner is the provider / the buyer)
+   focus: issues this role owns (weight 3) · outside: issues outside this role's authority (defer to the team) */
+const CAMP_ROLES = [
+  {id:'sales', name:'Sales / Account Executive', sides:['provider'], title:{provider:'Account Executive'}, peer:{provider:'Procurement Lead'}, focus:['price','volume'], outside:['liab'],
+   kpi:'contract value and margin', phrases:[["Before we talk numbers, can I check what matters most to you?","Qualifying before pricing"],["If you can commit to that volume, I can look at the price.","Linking price to commitment"]]},
+  {id:'bd', name:'Business Development / Partnerships', sides:['provider','buyer'], title:{provider:'Partnerships Manager',buyer:'Partnerships Manager'}, peer:{provider:'Head of Partnerships',buyer:'Head of Partnerships'}, focus:['excl','term'], outside:['liab'],
+   kpi:'a partnership that can grow', phrases:[["What would a successful first year look like for both of us?","Framing a partnership"],["We could start with a time-limited exclusive and review it after twelve months.","Proposing a staged commitment"]]},
+  {id:'procurement', name:'Procurement / Sourcing', sides:['buyer'], title:{buyer:'Procurement Manager'}, peer:{buyer:'Account Director'}, focus:['price','pay'], outside:['liab'],
+   kpi:'total cost and supply security', phrases:[["Could you walk me through how that price is built up?","Asking for a cost breakdown"],["We could move on volume if the payment terms improve.","Trading across issues"]]},
+  {id:'marketing', name:'Marketing / Agency Account Manager', sides:['provider','buyer'], title:{provider:'Marketing Manager',buyer:'Marketing Manager'}, peer:{provider:'Marketing Director',buyer:'Marketing Director'}, focus:['mkt','excl'], outside:['pay'],
+   kpi:'launch impact in the market', phrases:[["How will we both measure whether the launch worked?","Agreeing success measures"],["If we share the launch budget, we should share the plan as well.","Linking money to joint planning"]]},
+  {id:'pm', name:'Project Manager', sides:['provider','buyer'], title:{provider:'Project Manager',buyer:'Project Manager'}, peer:{provider:'Programme Manager',buyer:'Programme Manager'}, focus:['lead','sla'], outside:['price'],
+   kpi:'on-time delivery', phrases:[["Let me walk you through the critical path.","Explaining a schedule"],["That date is achievable only if we get your sign-off by the fifth.","Stating a dependency"]]},
+  {id:'product', name:'Product Manager', sides:['provider','buyer'], title:{provider:'Product Manager',buyer:'Product Manager'}, peer:{provider:'Head of Product',buyer:'Solutions Director'}, focus:['custom','lead'], outside:['price'],
+   kpi:'a product that fits the market', phrases:[["Which of these changes would you give up first?","Prioritising requirements"],["We can commit to two changes this year; the rest go on the roadmap.","Scoping customisation"]]},
+  {id:'cs', name:'Customer Success', sides:['provider'], title:{provider:'Customer Success Manager'}, peer:{provider:'Operations Director'}, focus:['sla','support'], outside:['price'],
+   kpi:'renewal and customer health', phrases:[["What would make you confident enough to renew today?","Testing renewal intent"],["Here is what we will change, and when you will see it.","Making a service commitment"]]},
+  {id:'legal', name:'Legal / Contract Manager', sides:['provider','buyer'], title:{provider:'Contract Manager',buyer:'Contract Manager'}, peer:{provider:'Senior Legal Counsel',buyer:'Senior Legal Counsel'}, focus:['liab','termn','change'], outside:['price'],
+   kpi:'risk the company can carry', phrases:[["Our concern with this clause is the exposure it creates.","Flagging a legal risk"],["Would you accept a mutual cap instead?","Proposing balanced wording"]]},
+  {id:'finance', name:'Finance', sides:['provider','buyer'], title:{provider:'Finance Manager',buyer:'Finance Manager'}, peer:{provider:'Finance Director',buyer:'Finance Director'}, focus:['pay','price'], outside:['excl'],
+   kpi:'cash flow and margin', phrases:[["At those payment terms we would be financing the contract for you.","Explaining a cash-flow impact"],["Could we link the price to an agreed index?","Proposing a price mechanism"]]},
+  {id:'supply', name:'Supply Chain / Logistics', sides:['provider','buyer'], title:{provider:'Supply Chain Manager',buyer:'Supply Chain Manager'}, peer:{provider:'Supply Chain Director',buyer:'Supply Chain Director'}, focus:['lead','volume'], outside:['liab'],
+   kpi:'continuity of supply', phrases:[["Could you share a rolling twelve-week forecast?","Asking for planning data"],["We can hold safety stock if you commit to the volume.","Trading stock for commitment"]]},
+  {id:'licensing', name:'Licensing / Content', sides:['provider','buyer'], title:{provider:'Licensing Manager',buyer:'Licensing Manager'}, peer:{provider:'VP Licensing',buyer:'VP Licensing'}, focus:['volume','excl','price'], outside:['liab'],
+   kpi:'guaranteed income and brand control', phrases:[["Our forecast doesn't support a guarantee at that level.","Using a forecast to push back"],["Would you consider a lower guarantee with a higher rate?","Restructuring the deal"]]},
+  {id:'founder', name:'Founder / CEO', sides:['provider','buyer'], title:{provider:'Founder & CEO',buyer:'Founder & CEO'}, peer:{provider:'Managing Director',buyer:'Managing Director'}, focus:['price','term','excl'], outside:[],
+   kpi:'a deal the company can live with for years', phrases:[["Let me be open about what this deal means for us.","Speaking as the decision-maker"],["I can decide that today — if we can close the rest.","Using your authority to close"]]}
+];
+
+/* ---------- FIELD PACKS ----------
+   pco / bco: provider and buyer companies · pd / bd: one-line descriptions · pn / bn: [contact, gender, senior, gender]
+   price / volume: the two commercial issues. P = provider [opening ask, target, walk-away], B = buyer [opening, target, walk-away]
+   pain / deadline / driver: what the BUYER reveals when asked well — [what they say, short recap]
+   problems: [caused by provider|buyer|shared, short name, what happened, impact]
+   shocks: [hits provider|buyer, short name, what happened, size of the price adjustment in %] */
+const CAMP_FIELDS = [
+{id:'semi', name:'Semiconductors / AI Hardware', pco:'Korvex Semiconductor', bco:'Helix Cloud', pd:'a Korean AI-chip maker', bd:'a US cloud provider with eleven data centres',
+ pn:['Jisoo Han','f','Daniel Seo','m'], bn:['Rachel Stone','f','Victor Lang','m'], prod:'the K2 inference accelerator card', deal:'a three-year supply agreement for K2 inference accelerator cards',
+ price:{label:'the unit price', unit:'money', fmt:'${v} per card', keys:'unit price|price per (card|unit)|per card', P:[2400,2250,2100], B:[1900,2050,2200], step:50, round:50, range:[1000,4000]},
+ volume:{label:'the annual volume commitment', unit:'units', fmt:'{v} cards a year', keys:'volume|cards (a|per) year|minimum (order|quantity)|\\bmoq\\b', P:[12000,10000,8000], B:[5000,7000,9000], step:1000, round:500, range:[4500,50000]},
+ sla:{label:'late-delivery penalties', fmt:'penalties capped at {v}% of the order value'},
+ pain:["Our current accelerators burn too much power. Energy is now our single biggest operating cost.",'power cost is their biggest pain'],
+ deadline:["We need cards racked before our new data hall opens in March.",'cards are needed before the March data-hall opening'],
+ driver:["Honestly, what my CTO wants most is a second source. We're too dependent on one supplier.",'they want a second source of supply'],
+ problems:[['provider','a late shipment','the second batch of 1,500 cards shipped three weeks late because of a substrate shortage','two racks in the new data hall are standing empty'],
+   ['buyer','a late payment','the invoice for the first batch is 40 days overdue','the next shipment is on hold in the warehouse'],
+   ['shared','a firmware fault',"about 4% of the cards throttle under load — the firmware is the supplier's, but the cooling specification was changed on the customer's side",'a customer launch has slipped by two weeks']],
+ shocks:[['provider','new export-licence rules','new export-control rules mean every shipment now needs a licence, adding cost and about four weeks',8],
+   ['provider','a foundry price increase','the foundry has raised wafer prices by 12% from next quarter',9],
+   ['buyer','a capital-spending freeze',"the cloud provider's board has frozen 15% of this year's data-centre spending",10]]},
+{id:'saas', name:'SaaS / Cloud', pco:'Nimbus Analytics', bco:'Orbis Retail Group', pd:'a customer-data platform vendor', bd:'a retail group with about three hundred stores',
+ pn:['Grace Miller','f','Alan Reed','m'], bn:['Marcus Hale','m','Diane Foster','f'], prod:'the Nimbus customer-data platform', deal:'an enterprise licence for the Nimbus customer-data platform',
+ price:{label:'the annual licence fee', unit:'money', keys:'licen[cs]e fee|annual fee|\\bfee\\b|per year|a year', P:[420000,390000,350000], B:[300000,340000,380000], step:20000, round:5000, range:[100000,900000]},
+ volume:{label:'the committed number of seats', unit:'units', fmt:'{v} user seats', keys:'seats?|users|headcount', P:[1500,1200,900], B:[600,800,1000], step:100, round:50, range:[100,5000]},
+ sla:{label:'service credits', fmt:'service credits capped at {v}% of monthly fees'},
+ pain:["Our customer data sits in five systems that don't talk to each other. Marketing can't see what the stores see.",'customer data is split across five systems'],
+ deadline:["We have to be live before the holiday season. After October, IT freezes every change.",'go-live is needed before the October change freeze'],
+ driver:["What my CEO actually cares about is the loyalty-app relaunch. If this doesn't feed that, it's dead.",'the real driver is the loyalty-app relaunch'],
+ problems:[['provider','an outage','the platform was down for five hours during a weekend promotion','store staff could not look up loyalty accounts'],
+   ['buyer','a late payment','the second quarterly invoice is 45 days overdue','new seats cannot be activated until it is settled'],
+   ['shared','a failed data migration',"the migration failed twice — the import tool is the vendor's, but the source data was full of duplicate customer IDs",'go-live has slipped by three weeks']],
+ shocks:[['provider','a cloud-hosting price rise',"the vendor's hosting costs have risen 14% after its cloud supplier changed pricing",7],
+   ['buyer','a restructuring','the retailer is closing forty stores and has to cut software costs',12],
+   ['provider','a new data-residency law','a new data-residency rule requires a local data centre, raising the cost of serving the contract',8]]},
+{id:'mfg', name:'Manufacturing / Components', pco:'Daesung Precision', bco:'Volta Mobility', pd:'a Korean precision-components maker', bd:'a German electric-vehicle maker',
+ pn:['Minho Kang','m','Eunji Yoon','f'], bn:['Anna Keller','f','Stefan Brandt','m'], prod:'aluminium battery housings', deal:'a supply contract for aluminium battery housings',
+ price:{label:'the unit price', unit:'money', fmt:'${v} per unit', keys:'unit price|price per unit|per (unit|piece|housing)', P:[118,112,105], B:[92,100,108], step:2, round:1, range:[50,200]},
+ volume:{label:'the annual volume commitment', unit:'units', fmt:'{v} units a year', keys:'volume|units (a|per) year|minimum (order|quantity)|\\bmoq\\b|call.?off', P:[60000,50000,40000], B:[25000,35000,45000], step:5000, round:5000, range:[5000,200000]},
+ sla:{label:'late-delivery penalties', fmt:'penalties capped at {v}% of the order value'},
+ pain:["Our current supplier's scrap rate is killing us. Nearly 3% of housings fail the leak test.",'a 3% failure rate with their current supplier'],
+ deadline:["Start of production for the new platform is in September. Tooling has to be approved by June.",'tooling approval is needed by June'],
+ driver:["Between us, purchasing is under orders to localise supply in Asia. Price matters, but a second source matters more.",'they are under orders to dual-source in Asia'],
+ problems:[['provider','a quality escape',"a batch of 2,000 housings failed the leak test at the customer's plant",'the production line stopped for a full shift'],
+   ['buyer','a sudden forecast cut',"the customer cut its call-off by 30% with two weeks' notice",'eight weeks of finished stock are sitting in the warehouse'],
+   ['shared','a drawing mismatch','parts were made to revision C while the line expects revision D — the change notice was sent, but never acknowledged','4,000 units need rework']],
+ shocks:[['provider','an aluminium price spike','aluminium prices have jumped 18% in two months',8],
+   ['provider','a new import tariff','a new 10% tariff now applies to the parts',7],
+   ['buyer','a demand slump','electric-vehicle orders have dropped and production has been cut back',9]]},
+{id:'cpg', name:'Consumer Goods', pco:'Maru Home', bco:'Brightmart', pd:'a Korean small-appliance brand', bd:'a Southeast Asian retail chain with 220 stores',
+ pn:['Sora Lim','f','Jun Park','m'], bn:['Daniel Reyes','m','Mei Lin Tan','f'], prod:'the Maru compact air-fryer range', deal:'a distribution agreement for the Maru compact air-fryer range',
+ price:{label:'the wholesale price', unit:'money', fmt:'${v} per unit', keys:'wholesale price|unit price|per unit|cost price', P:[64,60,56], B:[48,53,58], step:1, round:1, range:[30,100]},
+ volume:{label:'the annual volume commitment', unit:'units', fmt:'{v} units a year', keys:'volume|units (a|per) year|minimum (order|quantity|purchase)|\\bmoq\\b', P:[80000,65000,50000], B:[30000,42000,55000], step:5000, round:5000, range:[5000,300000]},
+ sla:{label:'late-delivery penalties', fmt:'penalties capped at {v}% of the order value'},
+ pain:["Our private-label fryer gets terrible reviews. We need a brand customers trust on that shelf.",'their private-label product has poor reviews'],
+ deadline:["The range has to be in stores for the year-end promotion. That means stock in our warehouse by mid-October.",'stock is needed in their warehouse by mid-October'],
+ driver:["What we really want is something our competitor can't sell. An exclusive colour or model would change the conversation.",'they want something exclusive to their stores'],
+ problems:[['provider','a short shipment','the first container arrived 20% short and a week late','the launch promotion ran with empty shelves in thirty stores'],
+   ['buyer','unauthorised discounting','the shelf price was cut 25% below the agreed minimum without warning','other retailers are demanding the same price'],
+   ['shared','a labelling error',"energy labels were printed from an old template — the artwork was the brand's, but the retailer approved it",'12,000 units have to be relabelled']],
+ shocks:[['provider','a freight-rate spike','container freight rates have tripled since the contract was signed',6],
+   ['buyer','a currency slide',"the retailer's local currency has fallen 12% against the dollar",8],
+   ['provider','a new safety standard','a new safety certification is required from next quarter, adding cost to every unit',5]]},
+{id:'game', name:'Gaming / Entertainment / Content', pco:'Lumen Studios', bco:'Hanbit Interactive', pd:'the studio that owns the Starfall Chronicles game', bd:'a Korean game publisher',
+ pn:['Claire Dubois','f','Robert Kane','m'], bn:['Jiwon Moon','f','Sean Yoo','m'], prod:'the Starfall Chronicles licence', deal:'a publishing licence for Starfall Chronicles in Korea',
+ price:{label:'the royalty rate', unit:'pct', keys:'royalt\\w*|revenue share|rev.?share', P:[30,27,24], B:[18,21,25], step:1, round:.5, range:[5,50]},
+ volume:{label:'the minimum guarantee', unit:'money', keys:'\\bmg\\b|minimum guarantee|guarantee', P:[1200000,1000000,800000], B:[500000,700000,900000], step:50000, round:25000, range:[200000,3000000]},
+ sla:{label:'penalties for missed launch milestones', fmt:'milestone penalties capped at {v}%', keys:'milestone'},
+ pain:["Our last two launches were original titles, and both missed their numbers. We need a game with a fan base already built in.",'they need proven content after two weak launches'],
+ deadline:["We want to launch for the winter holiday. That means a signed licence by the end of this month.",'they must sign this month to launch for winter'],
+ driver:["Frankly, our investors want to see a global-brand partnership before the next funding round.",'investors want a global-brand partnership before the next round'],
+ problems:[['provider','slow approvals','localised assets took forty business days to approve instead of fifteen','the Korean launch date has slipped'],
+   ['buyer','a missed guarantee instalment','the second instalment of the minimum guarantee was not paid','the next build is being held back'],
+   ['shared','a launch-day server failure',"the servers failed on launch day — the network code is the studio's, but the capacity plan was the publisher's",'reviews dropped to two stars in the first week']],
+ shocks:[['buyer','a platform-fee change',"the app stores have changed their fee structure, cutting the publisher's margin",10],
+   ['buyer','a ratings ruling','a new ratings ruling restricts in-game purchases and has cut forecast revenue',12],
+   ['provider','a studio acquisition','the studio has been acquired, and the new owner wants better terms in every territory',10]]},
+{id:'bio', name:'Bio / Medical Devices', pco:'Seoul BioSense', bco:'MedAxis Distribution', pd:'a Korean maker of rapid diagnostic tests', bd:'a European medical-device distributor',
+ pn:['Hana Choi','f','David Kwon','m'], bn:['Tom Becker','m','Ingrid Larsen','f'], prod:'the BioSense rapid cardiac-test cartridge', deal:'a distribution agreement for BioSense rapid cardiac-test cartridges',
+ price:{label:'the price per box', unit:'money', fmt:'${v} per box', keys:'price per box|per box|unit price|transfer price', P:[480,455,430], B:[390,420,445], step:10, round:5, range:[200,800]},
+ volume:{label:'the annual volume commitment', unit:'units', fmt:'{v} boxes a year', keys:'volume|boxes (a|per) year|minimum (order|quantity|purchase)', P:[40000,34000,28000], B:[15000,22000,30000], step:2000, round:1000, range:[2000,150000]},
+ sla:{label:'late-delivery penalties', fmt:'penalties capped at {v}% of the order value'},
+ pain:["Hospitals keep telling us our current supplier's results take twenty-five minutes. Emergency rooms want ten.",'hospitals want results in ten minutes, not twenty-five'],
+ deadline:["The big hospital tenders open in April. Without a registered product by then, we lose a whole year.",'the product must be registered before the April tenders'],
+ driver:["What I can't say publicly is that our main supplier is being bought by a competitor. We need a replacement we can rely on.",'their main supplier is being bought by a competitor'],
+ problems:[['provider','a lot recall','one production lot showed out-of-range controls and had to be recalled','two hospitals have paused their orders'],
+   ['buyer','a cold-chain breach',"a shipment sat unrefrigerated in the distributor's warehouse for thirty-six hours",'3,000 boxes may have to be destroyed'],
+   ['shared','a registration delay',"the regulator asked for extra data — the dossier is the manufacturer's, but it was filed six weeks late by the distributor",'the launch has moved by a quarter']],
+ shocks:[['provider','new regulatory requirements','new device regulations require a costly re-certification',7],
+   ['buyer','a reimbursement cut','the health authority has cut the reimbursement price for the test by 15%',10],
+   ['provider','a reagent shortage','a key reagent supplier raised prices sharply after a plant fire',8]]},
+{id:'logi', name:'Logistics / Shipping', pco:'Pacific Arc Logistics', bco:'Hanul Electronics', pd:'a trans-Pacific freight and warehousing company', bd:'a Korean electronics exporter',
+ pn:['Ryan Cole','m','Linda Marsh','f'], bn:['Nari Song','f','James Ko','m'], prod:'trans-Pacific container freight', deal:'an annual contract for trans-Pacific container freight',
+ price:{label:'the rate per container', unit:'money', fmt:'${v} per container', keys:'rate per container|per container|freight rate|\\brate\\b', P:[3400,3200,2950], B:[2600,2850,3100], step:50, round:50, range:[1500,6000]},
+ volume:{label:'the annual volume commitment', unit:'units', fmt:'{v} containers a year', keys:'volume|containers (a|per) year|minimum (quantity|volume)|allocation', P:[2400,2000,1600], B:[1000,1400,1800], step:100, round:100, range:[200,10000]},
+ sla:{label:'penalties for late arrival', fmt:'delay penalties capped at {v}% of freight charges'},
+ pain:["Last peak season a third of our containers were rolled to later sailings. We missed two retail launches.",'a third of their containers were rolled last peak season'],
+ deadline:["Our new television line ships from August. Space has to be locked in before the peak-season rush.",'space must be secured before the August peak'],
+ driver:["To be honest, I'd pay a bit more for guaranteed space. My bonus depends on on-time delivery, not on the freight rate.",'guaranteed space matters more to them than the rate'],
+ problems:[['provider','rolled cargo','forty containers were rolled to a sailing two weeks later','a retail launch in the United States was missed'],
+   ['buyer','a volume shortfall','only 60% of the committed volume was delivered to the port this quarter','allocated space has been sailing empty'],
+   ['shared','a customs hold','a shipment was held for twelve days — the forwarder filed the entry, but the commercial invoice carried the wrong tariff code','storage charges are mounting every day']],
+ shocks:[['provider','a canal disruption','a canal closure is forcing longer routes and emergency surcharges',12],
+   ['provider','a fuel-price spike','fuel costs have risen 20% in a single quarter',8],
+   ['buyer','a new tariff on finished goods',"a new tariff on the exporter's products has cut its shipping volumes",10]]},
+{id:'fin', name:'Fintech', pco:'Clearo Payments', bco:'Dalgona Market', pd:'a payment-gateway provider', bd:'a Korean online marketplace',
+ pn:['Yuna Jung','f','Kevin Oh','m'], bn:['Oliver Shin','m','Helen Jang','f'], prod:'the Clearo payment gateway', deal:'a three-year payment-processing agreement',
+ price:{label:'the annual platform fee', unit:'money', keys:'platform fee|annual fee|\\bfee\\b|per year|a year', P:[360000,330000,300000], B:[240000,275000,310000], step:10000, round:5000, range:[100000,700000]},
+ volume:{label:'the committed monthly transaction volume', unit:'units', fmt:'{v} transactions a month', keys:'transactions?|transaction volume|monthly volume|minimum volume', P:[900000,750000,600000], B:[300000,450000,650000], step:50000, round:50000, range:[100000,3000000]},
+ sla:{label:'service credits', fmt:'service credits capped at {v}% of monthly fees'},
+ pain:["Our checkout fails about 4% of the time on mobile. Every failed payment is a lost order.",'4% of their mobile checkouts fail'],
+ deadline:["We have to switch before the November sale. After that, nobody touches the checkout until January.",'the switch-over is needed before the November sale'],
+ driver:["What the board really wants is instalment payments and a wallet. Our current provider can't do either.",'the board wants instalments and a wallet'],
+ problems:[['provider','a settlement delay','settlements to sellers were delayed by three days after a reconciliation error','hundreds of sellers complained publicly'],
+   ['buyer','a chargeback surge','chargebacks have tripled since seller checks were relaxed','the acquiring bank is threatening penalties'],
+   ['shared','a failed release',"a checkout update failed — the interface change was the provider's, but the sandbox test was skipped by the marketplace",'payments were down for ninety minutes on a Friday evening']],
+ shocks:[['provider','a card-network fee increase','the card networks have raised their scheme fees',6],
+   ['provider','new capital requirements','the regulator has introduced new capital requirements for payment providers',7],
+   ['buyer','a funding squeeze',"the marketplace's funding round was cut, and it must reduce fixed costs by 15%",10]]},
+{id:'energy', name:'Energy / Construction', pco:'Hanbit E&C', bco:'Solterra Power', pd:'a Korean engineering and construction contractor', bd:'a renewable-energy developer',
+ pn:['Joon Lee','m','Mira Shin','f'], bn:['Laura Mendes','f','Paul Richter','m'], prod:'a 60 MW solar-plus-storage plant', deal:'a construction contract for a 60 MW solar-plus-storage plant',
+ price:{label:'the contract price', unit:'money', keys:'contract price|lump sum|total price|contract value', P:[58000000,55000000,52000000], B:[47000000,50500000,53500000], step:1000000, round:500000, range:[30000000,90000000]},
+ volume:{label:'the advance payment', unit:'pct', fmt:'an advance payment of {v}%', keys:'advance|down payment|mobili[sz]ation', P:[20,15,10], B:[5,8,12], step:1, round:.5, range:[0,40]},
+ sla:{label:'delay damages', fmt:'delay damages capped at {v}% of the contract price', keys:'delay damages'},
+ pain:["Our last contractor finished seven months late. We paid penalties to the grid operator the whole time.",'their last contractor finished seven months late'],
+ deadline:["The grid-connection window closes in eighteen months. Miss it, and the tariff we were awarded is gone.",'grid connection must happen within eighteen months'],
+ driver:["Our lenders care about one thing: a contractor whose balance sheet can stand behind its guarantees.",'the lenders want a contractor with strong guarantees'],
+ problems:[['provider','a schedule slip','piling is six weeks behind after a subcontractor walked off site','the grid-connection date is at risk'],
+   ['buyer','a late land handover','the eastern plot was handed over two months late','crews and cranes have been standing idle'],
+   ['shared','a design clash',"cable trenches clash with the drainage — the design is the contractor's, but the survey data came from the developer",'three weeks of rework are needed']],
+ shocks:[['provider','a steel and battery price surge','steel and battery-module prices have risen sharply since signing',6],
+   ['buyer','an interest-rate rise','financing costs have risen and the lenders want the budget cut',5],
+   ['provider','a new local-content rule','a new rule requires 30% local content, forcing a change of suppliers',7]]},
+{id:'beauty', name:'Beauty / Fashion', pco:'Sooa Skin', bco:'Maison Verte', pd:'a Korean skincare brand', bd:'a French beauty retailer with ninety stores',
+ pn:['Dana Kim','f','Eric Noh','m'], bn:['Camille Laurent','f','Antoine Moreau','m'], prod:'the Sooa Calm skincare line', deal:'a distribution agreement for the Sooa Calm skincare line',
+ price:{label:'the wholesale price', unit:'money', fmt:'${v} per case', keys:'wholesale price|price per case|per case|cost price', P:[340,320,300], B:[260,285,310], step:5, round:5, range:[150,500]},
+ volume:{label:'the annual volume commitment', unit:'units', fmt:'{v} cases a year', keys:'volume|cases (a|per) year|minimum (order|quantity|purchase)', P:[36000,30000,24000], B:[12000,18000,26000], step:2000, round:1000, range:[2000,150000]},
+ sla:{label:'late-delivery penalties', fmt:'penalties capped at {v}% of the order value'},
+ pain:["Our Korean skincare shelf is full of brands nobody has heard of. Customers pick them up and put them back.",'their Korean skincare shelf lacks a brand customers recognise'],
+ deadline:["Our spring beauty event is in March. Brands that aren't on the shelf by then wait until autumn.",'the line must be on the shelf for the March beauty event'],
+ driver:["What I really need is a brand my competitors don't have. If you're also in their stores, it's worth much less to me.",'what they value is a brand their rivals do not have'],
+ problems:[['provider','an unannounced formula change','a reformulated batch arrived with a different scent and no notice','customers are returning products'],
+   ['buyer','grey-market sales','stock sold to the retailer is appearing on discount websites in other countries','other distributors are complaining'],
+   ['shared','a labelling non-compliance',"an ingredient list did not meet European rules — the label was the brand's, but the retailer's compliance team signed it off",'8,000 units are blocked in the warehouse']],
+ shocks:[['provider','an ingredient restriction','a key ingredient has been restricted in Europe, forcing a reformulation',6],
+   ['buyer','a weak consumer market','consumer spending has dropped and inventory is being cut',9],
+   ['provider','a currency swing','the Korean won has strengthened 10% against the euro',7]]},
+{id:'fnb', name:'Food & Beverage', pco:'Hansik Foods', bco:'Urban Table', pd:'a Korean maker of sauces and meal kits', bd:'a US restaurant and grocery group',
+ pn:['Sumin Bae','f','Brian Hwang','m'], bn:['Jake Morrison','m','Susan Clarke','f'], prod:'Hansik sauces and meal kits', deal:'a supply agreement for Hansik sauces and meal kits',
+ price:{label:'the price per case', unit:'money', fmt:'${v} per case', keys:'price per case|per case|unit price|case price', P:[58,54,50], B:[42,47,52], step:1, round:1, range:[25,90]},
+ volume:{label:'the annual volume commitment', unit:'units', fmt:'{v} cases a year', keys:'volume|cases (a|per) year|minimum (order|quantity|purchase)', P:[120000,100000,80000], B:[40000,60000,85000], step:5000, round:5000, range:[5000,400000]},
+ sla:{label:'late-delivery penalties', fmt:'penalties capped at {v}% of the order value'},
+ pain:["Our kitchens can't get consistent Korean sauces. Every batch from our importer tastes different.",'their current sauces are inconsistent from batch to batch'],
+ deadline:["The new menu launches in May, in every location on the same day. Product has to be in our distribution centres by April.",'product is needed in their distribution centres by April'],
+ driver:["The truth is, our chef has already designed the menu around your sauce. Don't tell procurement I said that.",'their chef has already built the menu around this product'],
+ problems:[['provider','a short shelf life','a shipment arrived with five weeks of shelf life left instead of sixteen','half of it may have to be written off'],
+   ['buyer','a storage failure',"pallets were stored outside the temperature range at the customer's distribution centre",'quality complaints are coming in from restaurants'],
+   ['shared','an allergen-label miss',"sesame was missing from the allergen statement — the label was the producer's, but the pack was resized and reprinted by the customer",'a voluntary recall is under discussion']],
+ shocks:[['provider','a chilli crop failure','a poor harvest has doubled the price of red-pepper powder',9],
+   ['buyer','a minimum-wage rise','labour costs have jumped and food costs have to come down',8],
+   ['provider','a new import-inspection rule','every shipment now needs a costly inspection certificate',5]]},
+{id:'ads', name:'Advertising / Media', pco:'Northlight Agency', bco:'Verano Mobility', pd:'an integrated marketing agency', bd:'an electric-car brand entering Korea',
+ pn:['Elena Rossi','f','Mark Ellison','m'], bn:['Sofia Navarro','f','Luis Ortega','m'], prod:'a twelve-month integrated launch campaign', deal:'a twelve-month agency retainer for the Verano launch in Korea',
+ price:{label:'the monthly retainer', unit:'money', fmt:'${v} a month', keys:'retainer|monthly fee|\\bfee\\b|per month|a month', P:[68000,62000,56000], B:[45000,52000,60000], step:2000, round:1000, range:[20000,120000]},
+ volume:{label:'the committed annual media spend', unit:'money', keys:'media (spend|budget|commitment)|ad spend|advertising budget', P:[3000000,2500000,2000000], B:[1000000,1500000,2200000], step:250000, round:100000, range:[500000,6000000]},
+ sla:{label:'fee reductions for missed targets', fmt:'fee reductions capped at {v}% of the retainer', keys:'fee reduction|missed (target|kpi)'},
+ pain:["Our last agency sent a beautiful report every quarter, and nobody could tell me what it did for sales.",'their last agency could not show any impact on sales'],
+ deadline:["The first showroom opens in ten weeks. The launch campaign has to be live two weeks before that.",'the campaign must be live in eight weeks'],
+ driver:["Headquarters measures me on test-drive bookings. Awareness is nice, but bookings keep my budget.",'they are measured on test-drive bookings'],
+ problems:[['provider','a missed target','test-drive leads came in 35% below the agreed target for the quarter','headquarters is questioning the budget'],
+   ['buyer','late approvals','creative that the plan allowed five days to approve took four weeks','the launch missed its media bookings'],
+   ['shared','a brand-safety incident',"an ad ran next to offensive content — the agency chose the network, but the stricter blocklist had been rejected by the client to save cost",'the story reached the trade press']],
+ shocks:[['buyer','a headquarters budget cut',"global headquarters has cut every market's marketing budget by 15%",10],
+   ['provider','media-price inflation','media prices have risen 20% ahead of an election season',7],
+   ['buyer','a product delay',"the car's launch has been pushed back by four months",8]]}
+];
+
+/* ---------- ISSUE CATALOG ----------
+   Shared across every field (price / volume / sla take their label and numbers from the field pack).
+   pdir: which direction the PROVIDER prefers · P / B as in the field packs
+   say.buyer = lines used when the counterpart is the buyer · say.provider = when the counterpart is the provider
+   options (option issues): [label, score for the provider 0–1, keywords] */
+const CAMP_ISSUES = {
+  price:{pdir:'up', w:2, keys:'\\bprice\\b|pricing|\\$', say:{
+    buyer:{explain:"It's what we pay you — and it's the first line my management looks at.", why:"we have a budget, and a competing quote below yours.", defend:["That's above what we budgeted for this.","We have a competing quote that is lower than that."], ask:"show me what we get for the difference — or give me a commitment I can take upstairs."},
+    provider:{explain:"It's the price for the scope we quoted, with support and warranty included.", why:"our costs don't leave much room below that.", defend:["That price already includes a volume discount.","Below that, I'd need approval from our pricing committee."], ask:"a longer term or a bigger commitment would give me something to take to our pricing committee."}}},
+  volume:{pdir:'up', w:2, keys:'commit(ment)?', say:{
+    buyer:{explain:"It's the minimum we commit to, whether or not our demand holds.", why:"we can't commit to more than we may need.", defend:["We can't promise that much before we've seen how it performs.","Our forecast doesn't support a commitment that large."], ask:"give us some flexibility if demand drops, and I can go higher."},
+    provider:{explain:"It's the minimum you commit to — it's what lets us plan around you.", why:"we plan our capacity around committed customers.", defend:["Below that level, the pricing doesn't work for us.","Capacity goes to the customers who commit."], ask:"a better price for us would make a smaller commitment workable."}}},
+  term:{label:'the contract term', unit:'years', pdir:'up', w:1, P:[4,3,2], B:[1,2,3], step:1, round:1, range:[1,10], keys:'\\bterm\\b|\\d+.year|\\byears?\\b|multi.year|duration|contract length', say:{
+    buyer:{explain:"How long we're locked in.", why:"we don't want to be locked in before we've seen results.", defend:["We'd rather start short and extend once it's working."], ask:"fix the price for the whole period, and a longer term gets easier."},
+    provider:{explain:"How long the agreement runs.", why:"a short contract doesn't repay what we invest up front.", defend:["A one-year deal doesn't cover our set-up cost."], ask:"if the term has to be shorter, the price has to reflect that."}}},
+  pay:{label:'payment terms', unit:'days', fmt:'Net {v}', pdir:'down', w:2, P:[30,30,60], B:[90,60,45], step:15, round:5, range:[0,180], keys:'payment terms?|\\bnet\\b|pay(ment)? within|invoice|days to pay', say:{
+    buyer:{explain:"How many days we have to pay after your invoice.", why:"our finance team runs the same payment cycle for every supplier.", defend:["That's our standard payment cycle for all suppliers.","Finance won't make an exception without a reason."], ask:"show me why it's a real problem for you, and I'll talk to finance."},
+    provider:{explain:"How many days you have to pay after our invoice.", why:"we finance the materials and the work up front.", defend:["We carry the cost up front, so we need to be paid promptly.","Longer terms mean we are financing your purchase."], ask:"if you need longer terms, we'd have to look at the price."}}},
+  sla:{unit:'pct', pdir:'down', w:2, P:[5,10,15], B:[30,20,10], step:5, round:.5, range:[0,60], keys:'penalt\\w*|service credits?|\\bsla\\b|service level|liquidated', say:{
+    buyer:{explain:"What you pay back if you miss what you promised.", why:"we need real consequences if delivery slips.", defend:["Without a meaningful penalty, we carry all the risk.","A small cap tells me you don't trust your own delivery."], ask:"show me your delivery record, and I can be more relaxed about the cap."},
+    provider:{explain:"What we pay back if we miss the agreed level — up to a cap.", why:"an open-ended penalty isn't something we can insure.", defend:["We can't accept penalties that could wipe out our margin on the contract.","That cap is standard across our customers."], ask:"if you want a higher cap, we'd need clear exclusions for things outside our control."}}},
+  liab:{label:'the liability cap', unit:'months', fmt:"a cap of {v} months' fees", unlimitedLabel:'unlimited liability', pdir:'down', w:2, P:[6,12,24], B:[999,36,12], step:6, round:1, range:[1,60], keys:'liabilit\\w*|unlimited|\\bcap\\b|capped|indemn\\w*', say:{
+    buyer:{explain:"How much you'd owe us if something went seriously wrong.", why:"a failure could cost us far more than the contract is worth.", defend:["Unlimited liability is our policy for critical suppliers.","A low cap leaves us exposed."], ask:"explain the risk on your side, and tell me what cap you'd propose."},
+    provider:{explain:"The most we could owe you if something went wrong.", why:"we can't bet the company on one contract.", defend:["Our insurers won't cover more than that.","That cap is in every contract we sign."], ask:"if you need a higher cap, tell me which risks worry you and we can carve those out."}}},
+  termn:{label:'the termination notice', unit:'days', fmt:"{v} days' notice", pdir:'up', w:1, P:[180,90,60], B:[30,60,90], step:30, round:15, range:[0,365], keys:"terminat\\w*|notice period|days.? notice|for convenience|exit clause", say:{
+    buyer:{explain:"How much notice we must give to end the agreement.", why:"we need flexibility if our priorities change.", defend:["We need to be able to exit quickly if things change."], ask:"tell me what notice you need to wind down properly, and why."},
+    provider:{explain:"How much notice either side gives before ending the agreement.", why:"we need time to reassign people and stock.", defend:["Short notice leaves us with people and stock we can't place."], ask:"if you want a shorter notice period, we'd need a termination fee."}}},
+  lead:{label:'the delivery lead time', unit:'days', fmt:'delivery within {v} days', pdir:'up', w:2, P:[90,75,50], B:[30,45,65], step:10, round:5, range:[5,200], keys:'lead time|deliver\\w* (within|in|time)|turnaround|how (fast|quickly)', say:{
+    buyer:{explain:"How long from our order to your delivery.", why:"our own schedule depends on it.", defend:["That's too slow for our schedule.","Our planning cycle doesn't allow that much lead time."], ask:"give me a firm date I can plan around, and I can live with a little longer."},
+    provider:{explain:"How long we need from your order to delivery.", why:"that's what our schedule really needs.", defend:["Faster than that means overtime and air freight.","That's the real lead time. I won't promise what we can't do."], ask:"a rolling forecast from you would let us shorten it."}}},
+  mkt:{label:'the joint marketing fund', unit:'pct', fmt:'a marketing fund of {v}% of contract value', pdir:'down', w:2, P:[0,1,3], B:[5,3,2], step:1, round:.5, range:[0,15], keys:'marketing (fund|budget|contribution|support)|co.?marketing|\\bmdf\\b|launch (budget|support)', say:{
+    buyer:{explain:"Money you contribute to promoting the product in our market.", why:"we're the ones building your name here.", defend:["We carry the launch cost. We need you to share it."], ask:"commit to a launch plan with us, and I can be flexible on the number."},
+    provider:{explain:"What we contribute to joint marketing.", why:"we fund marketing against results, not up front.", defend:["We don't normally fund marketing before we see sales."], ask:"tie it to sales targets, and I can go higher."}}},
+  excl:{label:'exclusivity', unit:'option', w:2, keys:'exclusiv\\w*|sole (supplier|distributor|partner|rights)|other (retailers|distributors|partners|suppliers|customers|publishers)|only (supplier|partner|distributor)',
+    options:[['non-exclusive rights',1,'non.?exclusive|no exclusivity|without exclusivity'],['exclusivity for the first 12 months, then a review',.5,'12 months|twelve months|first year|one year|limited|review|trial|time.?limited'],['full exclusivity in the territory',0,'full(y)? exclusiv|complete exclusiv|(?<!non.)exclusive (rights|deal|partner|distributor|supplier|licen[cs]e)|sole ']], say:{
+    buyer:{explain:"Whether you can sell the same thing to our competitors here.", why:"we don't want to build the market and then watch you sell to our rivals.", defend:["If we invest in launching this, we need protection from competitors."], ask:"give us a period of exclusivity, and we can commit to more."},
+    provider:{explain:"Whether we can work with other partners in your market.", why:"tying ourselves to one partner limits our growth.", defend:["We don't grant exclusivity before a partner has proven the volume."], ask:"commit to minimum volumes, and time-limited exclusivity becomes possible."}}},
+  support:{label:'the support level', unit:'option', w:2, keys:'support (level|tier|hours)|24.?7|account manager|response time|dedicated (team|contact|support)|named contact|help ?desk',
+    options:[['standard business-hours support',1,'standard|business.?hours|basic'],['a named support contact with a four-hour response time',.5,'named|4.?hour|four.?hour|response time|account manager'],['a dedicated 24/7 support team',0,'24.?7|dedicated|round the clock|on.?site']], say:{
+    buyer:{explain:"Who we call when something goes wrong, and how fast they answer.", why:"when it breaks, we need someone who picks up.", defend:["Business-hours support isn't enough for an operation like ours."], ask:"a named contact and a response time in writing would settle most of it."},
+    provider:{explain:"The level of support included in the price.", why:"premium support costs us people.", defend:["Round-the-clock support isn't included at this price."], ask:"we could include a named contact if the term is longer."}}},
+  custom:{label:'customisation', unit:'option', w:2, keys:'customi[sz]\\w*|tailor\\w*|locali[sz]\\w*|bespoke|roadmap|feature request|modif\\w*|adapt\\w*',
+    options:[['the standard product only',1,'standard|as.?is|off.the.shelf|no customi'],['two agreed customisations in the first year',.5,'two |2 |couple|limited|first year'],['a custom version with roadmap commitments',0,'roadmap|full(y)? custom|dedicated version|bespoke']], say:{
+    buyer:{explain:"How far you'll adapt the product to the way we work.", why:"the standard version doesn't fit our process.", defend:["We need it adapted to our market. The standard version won't do."], ask:"agree the two changes that matter most to us, and we can drop the rest."},
+    provider:{explain:"How much we adapt the product for you.", why:"every custom version is something we have to maintain.", defend:["Custom work pulls our engineers off the roadmap."], ask:"limit it to two changes, and we can do them in the first year."}}},
+  change:{label:'price adjustment', unit:'option', w:1, sym:true, keys:'price (review|adjust\\w*)|review clause|adjust\\w* clause|index\\w*|escalat\\w*|exchange rate|\\bfx\\b|currenc\\w*|material change|hardship|force majeure|cost increase|if (costs|prices|rates) (go|rise|move|change)|fixed for the (whole |entire |full )?term',
+    options:[['prices fixed for the whole term',1,'fixed (price|for)|no (adjustment|review|change)'],['a joint price review if costs or exchange rates move by more than 5%',.5,'review|renegotiat\\w*|revisit|reopen|adjust\\w*|hardship|material change|5 ?%|threshold'],['automatic indexation to costs and exchange rates',0,'index\\w*|automatic\\w*|pass.?through|escalat\\w*']], say:{
+    buyer:{explain:"As drafted, prices stay fixed for the whole term, whatever happens to costs or exchange rates.", why:"fixed prices give us both certainty.", defend:["Fixed pricing is simpler for everyone.","I'd rather not build a reopener into the contract."], ask:"tell me what you're worried about — a narrow review clause is easier to accept than a broad one."}}}
+};
+CAMP_ISSUES.change.say.provider = CAMP_ISSUES.change.say.buyer;
+
+/* what each side values in exchange — used for trade cards and for the engine's trade detection */
+const CAMP_VALUES = {
+  buyer:[['A longer price lock','price (lock|freeze|protection|guarantee)|fixed (price|pricing)|hold the price'],['Extended payment terms','(longer|extended) payment|net (60|75|90)|pay(ment)? in instal\\w*|instal\\w*'],['Priority delivery or support','priority|expedit\\w*|fast.?track|dedicated|named contact|24.?7'],['A performance guarantee','guarantee|warrant\\w*|penalt\\w*|service credit']],
+  provider:[['A longer term','longer (term|contract|commitment)|multi.?year|(two|three|four|five|2|3|4|5).year|extend\\w*'],['A higher volume commitment','(more|higher|bigger|larger) (volume|commitment|order)|volume commitment|minimum order|commit to'],['Faster payment or prepayment','prepay\\w*|pay(ment)? (up ?front|in advance|early|within (15|30))|net (15|30)|upfront'],['A reference or case study','case study|reference|testimonial|logo|press release|referral|joint announcement']]
+};
+
+/* ---------- storage ---------- */
+const campUser = () => (session&&session.user&&session.user.id)||'guest';
+const campKey = () => 'pactli_camps_'+campUser();
+const campAll = () => LS.get(campKey(), {});
+const campGet = id => campAll()[id]||null;
+function campPut(c, quiet){ const a=campAll(); c.updated=Date.now(); a[c.id]=c; LS.set(campKey(), a); if(!quiet) campPush(c) }
+const campActive = () => Object.values(campAll()).filter(c=>c.status==='active').sort((a,b)=>b.updated-a.updated)[0]||null;
+const campSnap = o => JSON.parse(JSON.stringify(o));
+const campPacks = () => LS.get('pactli_camp_packs',{fields:[],roles:[]});
+const campFields = () => { const cu=(campPacks().fields||[]); return CAMP_FIELDS.filter(f=>!cu.some(x=>x.id===f.id)).concat(cu) };
+const campRoles = () => { const cu=(campPacks().roles||[]); return CAMP_ROLES.filter(f=>!cu.some(x=>x.id===f.id)).concat(cu) };
+const campSid = (c,n) => 'cmp-'+c.id+'-'+(n+1);
+const campClamp = (v,a,b) => Math.max(a,Math.min(b,v));
+const poss = n => n+(/s$/i.test(n)?"'":"'s");
+
+/* progress is kept in this browser and, when the member server supports it, mirrored there (campaigns.save / campaigns.list) */
+let campServer = null;   // null = unknown, false = server has no campaign actions
+async function campPush(c){ if(campServer===false || !authed()) return; try{ await gas('campaigns.save',{campaign:c}); campServer=true }catch(e){ if(campServer===null) campServer=false } }
+async function campPull(){
+  if(campServer===false || !authed()) return;
+  try{ const r=await gas('campaigns.list',{}); campServer=true; const a=campAll(); let ch=false;
+    (r.campaigns||[]).forEach(c=>{ if(c&&c.id&&(!a[c.id]||(c.updated||0)>(a[c.id].updated||0))){ a[c.id]=c; ch=true } });
+    if(ch){ LS.set(campKey(), a); CAMP_CACHE.clear(); if($('campaign').classList.contains('on')) renderCampaign() }
+  }catch(e){ if(campServer===null) campServer=false }
+}
+
+/* ---------- context: who is who in this campaign ---------- */
+function campCtx(c){
+  const F=campFields().find(f=>f.id===c.field), R=campRoles().find(r=>r.id===c.role); if(!F||!R) return null;
+  const side=c.side, oth=side==='provider'?'buyer':'provider';
+  const me=side==='provider'?F.pco:F.bco, them=side==='provider'?F.bco:F.pco, n=side==='provider'?F.bn:F.pn;
+  const peer=(R.peer&&R.peer[side])||'Account Director', senT=R.id==='legal'?'General Counsel':'Chief Financial Officer';
+  const first=x=>x.split(' ')[0];
+  return {c,F,R,side,oth,me,them, myTitle:((R.title&&R.title[side])||R.name)+', '+me, themDesc:side==='provider'?F.bd:F.pd, meDesc:side==='provider'?F.pd:F.bd,
+    C:{name:n[0],gender:n[1],role:peer+', '+them,first:first(n[0])}, Sn:{name:n[2],gender:n[3],role:senT+', '+them,first:first(n[2]),title:senT}};
+}
+function campIssue(id, X, o){
+  const base=CAMP_ISSUES[id]; if(!base) return null;
+  const fld=(id==='price'||id==='volume'||id==='sla') ? (X.F[id]||{}) : {};
+  const d=Object.assign({}, base, fld); d.keys=[fld.keys, base.keys].filter(Boolean).join('|');
+  if(d.unit!=='money') d.keys=d.keys.replace('|\\$','');
+  const say=(base.say&&base.say[X.oth])||{};
+  const is={id, label:d.label, keys:d.keys, owner:0, unit:d.unit, weight:(o&&o.weight)||d.w||1, explain:say.explain, why:say.why, defend:(say.defend||[]).slice(), ask:say.ask};
+  if(d.fmt) is.fmt=d.fmt; if(d.unlimitedLabel) is.unlimitedLabel=d.unlimitedLabel;
+  if(d.unit==='option'){
+    const sc=ps=> d.sym ? ps : (X.side==='provider' ? 1-ps : ps);   // score for THEM
+    is.options=d.options.map(([label,ps,key])=>({label,score:sc(ps),key}));
+    Object.assign(is,{better:'up',open:1,target:1,reserve:.5,limit:.5});
+  } else {
+    const them=X.side==='provider'?d.B:d.P, mine=X.side==='provider'?d.P:d.B;
+    const theirUp = X.side==='provider' ? d.pdir!=='up' : d.pdir==='up';
+    Object.assign(is,{better:theirUp?'up':'down', open:them[0], target:them[1], reserve:them[2], limit:mine[2], myTarget:mine[1], step:d.step, roundTo:d.round, range:d.range});
+  }
+  if(o&&o.outside) is.outside=true;
+  return is;
+}
+const campOpt = (is, v) => (is.options||[]).slice().sort((a,b)=>Math.abs(a.score-v)-Math.abs(b.score-v))[0];
+function campMandateLine(is){
+  if(is.unit==='option'){ const mid=campOpt(is,.5), best=campOpt(is,0); return `${cap1(is.label)}: aim for "${best.label}" · accept at least "${mid.label}"` }
+  return `${cap1(is.label)}: aim for ${fmtVal(is,is.myTarget)} · limit ${fmtVal(is,is.limit)}`;
+}
+
+/* what the counterpart reveals when asked well (the "needs map") */
+function campNeeds(X){
+  const F=X.F, Sn=X.Sn, pr=campIssue('price',X);
+  const K={pain:'challenge|problem|pain|headache|main issue|struggl\\w*|frustrat\\w*|not working|biggest|difficult\\w*|why (are|did) you|looking for|what (are|were) you (hoping|trying)',
+    deadline:'timeline|time ?frame|how soon|deadline|by when|when (do|would|are) you|start date|urgent|schedule|launch|go.?live',
+    budget:'budget|spend|invest|how much (can|could|would|do)|price range|afford|pricing (limit|flexib\\w*)|discount|room on price|best price',
+    decision:'decision|decide|who else|stakeholder|sign.?off|approv\\w*|involved|who (makes|signs)',
+    driver:'priorit\\w*|most important|matters? most|really (want|need|care)|care about|ideal outcome|key (thing|driver)|behind (this|the)|drives?|what would make'};
+  const dec={id:'decision',unlock:'open',guard:["It goes through the usual process.","A few people are involved."],reveal:`I make the recommendation. But ${Sn.name}, our ${Sn.title}, signs off anything of this size.`,recap:`${Sn.name}, their ${Sn.title}, signs off`,hint:'Who else signs off on the decision?'};
+  const list = X.oth==='buyer' ? [
+    {id:'pain',unlock:'any',reveal:F.pain[0],recap:F.pain[1],hint:'What is their biggest problem right now?',card:['A guarantee on what hurts them most','A firmer price','guarantee|warrant\\w*|commit(ment)? (to|on)|penalt\\w*']},
+    {id:'deadline',unlock:'any',reveal:F.deadline[0],recap:F.deadline[1],hint:'What is their deadline?',card:['Delivery in time for their deadline','A firmer price','expedit\\w*|fast.?track|priority|in time for|before (the|your)|by (the end of|march|april|may|june|july|august|september|october|november)']},
+    {id:'budget',unlock:'trust',guard:["We're still working that out. I'd rather hear your proposal first.","I'm not going to put a number on the table this early."],reveal:`Alright, since you asked — realistically, our number for ${pr.label} is around ${fmtVal(pr,pr.target)}. A little more, if the case is strong.`,recap:`their number for ${pr.label} is around ${fmtVal(pr,pr.target)}`,hint:'What number are they really working with?',card:['Phased or deferred payments','Your price target','phase\\w*|instal\\w*|defer\\w*|spread|quarterly']},
+    dec,
+    {id:'driver',unlock:'trust',guard:["It's a business decision, like any other.","I'd rather keep that to myself for now."],reveal:F.driver[0],recap:F.driver[1],hint:'What is really driving this decision?',card:['A longer commitment built around what really drives them','More volume or a longer term','multi.?year|longer (term|commitment)|(two|three|four|2|3|4).year|secure\\w*|guaranteed (supply|capacity|allocation|space)|exclusiv\\w*']}
+  ] : [
+    {id:'pain',unlock:'any',keysAdd:'capacity|availab\\w*|supply|stock|allocation|demand',reveal:`To be open with you — demand for ${F.prod} is running ahead of what we can deliver this year. Customers who commit early are served first.`,recap:'supply is tight — early commitments are served first',hint:'How tight is their capacity?',card:['An early, firm commitment','A better price','firm (order|commitment)|binding|commit\\w* (now|early|today)|forecast']},
+    {id:'deadline',unlock:'any',keysAdd:'quarter|year.?end|target',reveal:"My quarter closes at the end of next month. Deals signed before then get far more attention from my management.",recap:'their quarter closes at the end of next month',hint:'Is there a deadline on their side?',card:['Signing before their quarter closes','An extra concession','sign (this|by|before|it)|quarter.?end|this (month|quarter)|by the end of']},
+    {id:'budget',unlock:'trust',guard:["Our pricing is what it is, I'm afraid.","I'd rather hear what you need before we talk about flexibility."],reveal:`Anything beyond about ${fmtVal(pr,pr.target)} on ${pr.label} has to go to our pricing committee — and they always want something in return.`,recap:`their pricing committee approves anything beyond ${fmtVal(pr,pr.target)}`,hint:'How much room do they have on price?',card:['A longer term or more volume','A price beyond their standard','longer term|multi.?year|more volume|(two|three|2|3).year']},
+    dec,
+    {id:'driver',unlock:'trust',guard:["We want good customers, like everyone.","I'd rather keep that to myself for now."],reveal:`Honestly? What we want most is a reference customer in this market. A named case study with ${X.me} would be worth real money to us.`,recap:'they want a named reference customer',hint:'What do they really want from this deal?',card:['A named case study or reference','A better price','case study|reference|testimonial|logo|press release']}
+  ];
+  return list.map(h=>Object.assign({owner:0, keys:K[h.id]+(h.keysAdd?'|'+h.keysAdd:'')}, h));
+}
+function campKB(X, ep){
+  const buyer=X.oth==='buyer';
+  return {company:[`We're ${X.themDesc}.`,`${X.them} is ${X.themDesc} — and this project matters to us.`],
+    whyus: buyer ? ["Your name came up when we looked at alternatives. I wanted to hear it from you directly.","A colleague mentioned your work. I'd rather judge for myself."] : [`A customer like ${X.me} is exactly who we want to work with here.`],
+    opinion: ["It sounds sensible so far. I'd like to see it on paper.","I like that you're asking questions before telling me what I need."],
+    standard:["Our terms are standard — but standard isn't the same as fixed."],
+    need: ep===0 ? ["Something I can explain to my management in two minutes."] : ["A reason I can take upstairs — or something in return."],
+    past: buyer ? ["We've been let down before, so I'm careful this time."] : ["We've had customers sign and then not deliver the volume. That's why we ask for commitments."]};
+}
+function campPersona(X, who, i, o){
+  const p=X[who], lead=who==='C';
+  return Object.assign({name:p.name, role:p.role, gender:p.gender, color:PCOLORS[i%PCOLORS.length], stance:'lead',
+    traits: lead ? {warmth:.55,patience:.6,assert:.55} : {warmth:.3,patience:.45,assert:.8},
+    brief: lead ? `Your day-to-day contact at ${X.them} for the whole deal. Professional and fair; opens up when asked well and shown respect.` : `Senior decision-maker at ${X.them}. Direct, numbers-driven, short on time. Moves only for evidence or a trade.`,
+    about: lead ? [`I'm ${p.role.split(',')[0]} at ${X.them}. This one is on my desk from start to finish.`] : [`I'm the ${X.Sn.title}. Anything that changes a signed contract ends up with me.`],
+    cares: lead ? (X.oth==='buyer' ? 'Solving the problem on time, at a number they can defend internally.' : 'Closing a profitable customer who stays.') : 'The numbers, the precedent, and not being surprised.'}, o||{});
+}
+function campTermDoc(L, title){
+  const rows=Object.values(L.terms||{}).map(t=>`• ${cap1(t.label)}: ${t.text}${t.src==='team'?' (agreed by your team)':t.src==='default'?' (settled after the meeting)':''}`);
+  return rows.length ? `${title||'SIGNED TERMS'}\n${rows.join('\n')}` : '';
+}
+const campRd = (v,g) => { g=g||1; return +(Math.round(v/g)*g).toFixed(4) };
+
+/* ---------- the six episode builders ---------- */
+function campEp1(X, IN){
+  const C=X.C, buyer=X.oth==='buyer', needs=campNeeds(X);
+  return {title:`First Meeting — ${X.them}`, desc:`Build rapport with ${C.first} and find out what ${X.them} really needs before any terms are discussed.`,
+    brief:`${X.me} and ${X.them} are exploring ${X.F.deal}. This is your first conversation with ${C.name}, ${C.role}. Nothing is on the table yet. What you learn today decides how much room you have when the terms are negotiated.`,
+    mandate:`Do not quote terms today.\nFind out at least three of: their main problem, their deadline, the number they are working with, who signs off, and what really drives the decision.\nAgree a clear next step.`,
+    goals:['Build rapport before business','Uncover their main problem and their deadline','Uncover the number, the sign-off process or the real driver','Ask open questions — at least three','Agree a concrete next step'],
+    goalRules:['rapport','hidden:pain,deadline','hiddenany:budget,decision,driver','openq:3','nextstep'],
+    personas:[campPersona(X,'C',0)], issues:[], hidden:needs.map(({card,keysAdd,...h})=>h),
+    topics:[{id:'pitch',keys:'\\bwe (offer|provide|speciali[sz]e|help|have worked|work with|can (help|deliver|improve|supply|support))|\\bour (company|team|clients|customers|approach|experience|process|product|products|services|solution)',owner:0,needEvidence:true,
+        say:["Okay, that's more concrete. I like that.","That's useful — thank you."],doubt:["Everyone tells me that. What makes you different?","Do you have an example I can check?"]},
+      {id:'process',keys:'next step|proposal|timeline for (the|a) decision|how (do|would) you (like|want) to proceed|evaluation',owner:0,say:["Send me something in writing first. Then we can talk terms properly.","A short proposal, then a meeting on the terms. That's how we usually do it."]}],
+    kb:campKB(X,0),
+    agenda:[{p:0,text:buyer?`So, tell me a bit about ${X.me}. What do you do best?`:`So, tell me a bit about ${X.me}. What are you looking for?`,tag:'pitch'},{p:0,text:buyer?"How would you work with a company like ours?":"How do you usually work with a supplier like us?"},{p:0,text:"What would you need from us to move this forward?"},{p:0,text:"What would the next step look like on your side?",tag:'next'}],
+    greeting:`Hi {name}, ${C.first} here from ${X.them}. Thanks for making the time.`,
+    opening:[[0,`Hi {name}, ${C.first} here from ${X.them}. Thanks for setting this up. I know a little about ${X.me}, but not much — where would you like to start?`]],
+    closing:[[0,"Good. This was more useful than I expected, {name}. Send me that follow-up, and let's talk terms next."]],
+    onNext:[0,"That works. Send me a short summary of what you understood, and we'll go from there."],
+    phrases:[["What's the biggest challenge you're facing with this at the moment?","Opening up their real problem"],["Could you walk me through how the decision will be made?","Mapping the sign-off process"],["What would make this a success for you personally?","Finding the real driver"],["Do you have a number in mind that we should be working towards?","Asking about budget politely"],["As a next step, I'll send you a short summary by Thursday.","Closing with a concrete action"]].concat(X.R.phrases||[]).slice(0,6),
+    firstMail: buyer ? [0,`Introductory call — ${X.them} and ${X.me}`,[`Thanks for getting in touch about ${X.F.prod}.`,`Before we speak, it would help to know a little about how ${X.me} works with companies like ours. I have about thirty minutes.`]]
+                     : [0,`Introductory call — ${X.them} and ${X.me}`,[`Thank you for your enquiry about ${X.F.prod}.`,`I'd be glad to talk it through. Before we speak, could you tell me a little about what you're looking for?`]],
+    followUp:["Thanks for the conversation today.","Could you send me a short note summarising what you understood about our situation, with your proposed next step? It will help me brief my team."]};
+}
+function campEp2Issues(X){
+  const R=X.R, focus=R.focus||[], out=R.outside||[];
+  const ids=[...new Set(['price','volume','pay'].concat(focus, out, ['change']))].filter(id=>CAMP_ISSUES[id]).slice(0,8);
+  return ids.map(id=>campIssue(id, X, {weight: out.includes(id)?1 : focus.includes(id)?3 : id==='price'?2 : id==='change'?1 : (CAMP_ISSUES[id].w||1), outside:out.includes(id)}));
+}
+function campEp2(X, IN){
+  const C=X.C, lv=brLevel(X.c.difficulty), needs=campNeeds(X), found=needs.filter(h=>IN.needs[h.id]), issues=campEp2Issues(X);
+  const vals=CAMP_VALUES[X.oth], outs=issues.filter(i=>i.outside), mine=issues.filter(i=>!i.outside&&i.id!=='change');
+  const pr=mine.filter(i=>i.unit!=='option').sort((a,b)=>(b.weight-a.weight)||((b.id==='price')-(a.id==='price')))[0]||issues[0];
+  const cards=found.filter(h=>h.card).map(h=>[h.card[0],'Movement on '+pr.label.replace(/^the /,''),h.card[2]]).concat(vals.slice(0,found.length>=2?1:2).map(v=>[v[0],'Movement on '+pr.label.replace(/^the /,''),v[1]])).slice(0,4);
+  pr.trades=[...new Set(needs.filter(h=>h.card).map(h=>h.card[2]).concat(vals.map(v=>v[1])))].join('|'); pr.tradeBonus=(pr.step||1)*(found.length>=2?1.5:1);
+  const trust=IN.trust==null?50:IN.trust, warm=trust>=60;
+  const doc=`DRAFT TERMS — ${X.them.toUpperCase()}\n${cap1(X.F.deal)}\n\n`+issues.map((is,i)=>`${i+1}. ${cap1(is.label)} — ${cap1(fmtVal(is,is.open))}`).join('\n');
+  const hintClause = lv===0 ? '\nAsk for a price-review clause: as drafted, prices are fixed whatever happens to costs or exchange rates.' : lv===1 ? '\nRead every line of their draft — including what it does not protect you against.' : '';
+  return {title:`The Term Sheet — ${X.them}`, desc:`${C.first} has sent ${poss(X.them)} draft terms. Negotiate them — anything you leave untouched is settled close to their position.`,
+    brief:`${C.first} has sent ${poss(X.them)} draft terms for ${X.F.deal} (see the document). Today you negotiate them. Points you do not settle today are closed by email afterwards, close to their position.`,
+    mandate:mine.map(campMandateLine).join('\n')+(outs.length?`\nNot your call — check with your team before agreeing: ${outs.map(i=>i.label).join(', ')}.`:'')+(found.length?`\nFrom your first meeting: ${found.map(h=>h.recap).join('; ')}.`:'\nYou learned little about their needs in the first meeting — ask before you offer.')+hintClause,
+    goals:['Set the agenda and the order of the issues','Trade — every concession gets something back','Stay inside your limits','Protect the contract against future cost or currency changes'].concat(outs.length?['Leave the points outside your authority to your team']:[],['Summarise what was agreed']),
+    goalRules:['agenda','trade','limits','agreed:change'].concat(outs.length?['deferred']:[],['summary']),
+    personas:[campPersona(X,'C',0)], issues, hidden:needs.filter(h=>!IN.needs[h.id]).map(({card,keysAdd,...h})=>h), tradeCards:cards,
+    topics:[{id:'redline',keys:'redline|in writing|wording|mark.?up|revised (draft|terms)',owner:0,say:["Send me your proposed wording and I'll turn it around quickly."]}],
+    kb:campKB(X,1), doc,
+    agenda:mine.slice().sort((a,b)=>b.weight-a.weight).slice(0,3).map(is=>({p:0,text:`Where do you stand on ${is.label}?`,tag:is.id})).concat(outs.slice(0,1).map(is=>({p:0,text:`While we're here — can you confirm ${is.label} today as well?`,tag:is.id}))),
+    pressure:[[0,"I do have another proposal on my desk, to be honest."],[0,"I need to take something to my management this week."]],
+    greeting: warm ? `Good to see you again, {name}.` : `Hello again, {name}.`,
+    opening:[[0, warm ? `Good to see you again, {name}. Thanks for the follow-up after our first call — it helped. You've seen our draft. Where would you like to start?` : `Hello again, {name}. You've seen our draft terms. I'd like to get through them today — where do you want to start?`]],
+    closing:[[0,"Good. I'll have the contract drawn up on that basis. Thanks, {name}."]], onNext:[0,"Fine. I'll put what we agreed in writing — please confirm it by email."],
+    phrases:[["Could we agree the order of the points first?","Structuring the negotiation"],["If you can move on that, we can be flexible on this.","Trading, not giving"],["That's beyond what I can agree today.","Protecting your limit"],["I'd need to check that with my team before I commit.","Deferring a point outside your authority"],["What happens to the price if costs or exchange rates move sharply?","Raising a future risk"],["Let me confirm what we've agreed so far.","Summarising"]],
+    firstMail:[0,`Draft terms — ${X.F.prod}`,["As promised, our draft terms are in the document panel.","Our position is as set out there. Let me know which points you would like to discuss when we meet."]]};
+}
+function campProblem(X){ return X.F.problems[X.c.seed % X.F.problems.length] }
+function campShock(X){ return X.F.shocks[Math.floor(X.c.seed/7) % X.F.shocks.length] }
+function campEp3(X, IN){
+  const C=X.C, P=campProblem(X), by=P[0], rel= by==='shared' ? 'shared' : by===X.side ? 'me' : 'them';
+  const trust=IN.trust==null?50:IN.trust, cap=(IN.terms.sla&&IN.terms.sla.v<999?IN.terms.sla.v:15), h=v=>Math.max(.5,campRd(v,.5));
+  const doc=campTermDoc(IN)+`\n\nINCIDENT\n${cap1(P[2])}. ${cap1(P[3])}.`;
+  const comm={id:'comm',keys:'update|daily|weekly|report|call you|communicat\\w*|point of contact|check.?in|let you know|every (day|morning|evening|week)|status',owner:0,say:["Regular updates until this is closed — yes. Who sends them?","Good. I want to hear about problems from you first, not from my own team."]};
+  const prevent={id:'prevent',keys:"prevent|won'?t happen again|never happen|process change|lesson|going forward|in future|from now on|root cause|corrective",owner:0,say:["Good. What exactly will change?","I'll hold you to that."]};
+  const base={title:`The Problem — ${cap1(P[1])}`, personas:[campPersona(X,'C',0)], doc, kb:campKB(X,2), hidden:[], topics:[comm,prevent], smalltalk:false,
+    closing:[[0,"Okay. Put it in writing today, please. Thanks, {name}."]], onNext:[0,"Fine. Send me that in writing today."]};
+  if(rel==='me') return Object.assign(base,{desc:`${cap1(P[2])}. The cause is on your side — own it and fix it.`,
+    brief:`Three months into the contract: ${P[2]}. ${cap1(P[3])}. The cause is on ${poss(X.me)} side, and ${C.first} has asked for an urgent call.`,
+    mandate:`Own the problem first. Give specific dates.\nRemedy: aim for a credit of ${h(cap*.4)}% · do not go above ${h(cap*.7)}% (the contract caps it at ${cap}%).`,
+    goals:['Take ownership — no excuses','Explain the cause briefly and factually','Commit to specific recovery dates','Agree a fair remedy within the contract','Set up a communication plan'],
+    goalRules:['apology','topic:cause','commitment','agreed:remedy','topic:comm'], demandDates:true, startMood:-1,
+    issues:[{id:'remedy',label:'the remedy',keys:'credit|compensat\\w*|penalt\\w*|refund|remedy|damages|make (it|this) (right|good)',owner:0,unit:'pct',better:'up',open:cap,target:h(cap*.7),reserve:h(cap*(trust>=60?.3:.5)),limit:h(cap*.7),myTarget:h(cap*.4),step:Math.max(1,cap/5),weight:2,range:[0,60],fmt:'a credit of {v}% on the affected order',
+      trades:'expedit\\w*|air freight|priority|free replacement|extra (support|inspection|capacity)|on.?site|dedicated',tradeBonus:Math.max(1,cap/5),explain:"It's what the contract lets us claim when this happens.",why:"the contract gives us that right.",defend:["The contract allows the full amount, and frankly we've earned it.","We've had real costs because of this."],ask:"fix it fast, and I can be reasonable about the amount."}],
+    topics:[{id:'cause',keys:'what happened (was|is)|the (reason|cause)|because|bottleneck|internal|our (team|process|side|supplier|system)|sign.?off|shortage|error|mistake|failed',owner:0,say:["So that's what happened. Why did I hear it from my own team first?","Okay. And why did nobody tell me sooner?"]},comm,prevent],
+    hidden:[{id:'pressure',keys:'pressure|your (ceo|boss|management)|internally|on your side|how (is|are) (this|things) (affecting|for you)',owner:0,unlock:'trust',guard:["That's my problem, not yours."],reveal:`Honestly? My management asks me about this every day. I chose ${X.me} — this reflects on me.`,recap:`${C.first} is under pressure internally — the choice of ${X.me} was theirs`,hint:'What pressure are they under?'}],
+    agenda:[{p:0,text:"What exactly is the situation right now?"},{p:0,text:"When will it be fixed?",tag:'commitment'},{p:0,text:"How will I know things are on track?",tag:'comm'},{p:0,text:"And what about the remedy the contract gives us?",tag:'remedy'}],
+    opening:[[0,`{name}. I'll be direct — ${P[2]}, and I heard about it from my own team, not from you. ${cap1(P[3])}. What happened?`]],
+    phrases:[["I'm sorry — that's on us, and I take responsibility.","Owning the problem"],["Here's what happened, briefly.","Explaining without excuses"],["You'll have it by Wednesday at noon.","Committing to a date"],["Under the contract, a credit is fair. What I'd propose is…","Offering a remedy"],["I'll send you an update every day at five until it's closed.","Rebuilding trust"]],
+    firstMail:[0,`URGENT — ${P[1]}`,[`I have just learned that ${P[2]}. Nobody from your side told me.`,`${cap1(P[3])}. I need to know what happened and when it will be fixed. Please call me today.`]]});
+  if(rel==='them') return Object.assign(base,{desc:`${cap1(P[2])}. The cause is on their side — get it fixed without damaging the relationship.`,
+    brief:`Three months into the contract: ${P[2]}. ${cap1(P[3])}. The cause is on ${poss(X.them)} side. You need it fixed, with dates — without damaging the relationship you have built.`,
+    mandate:`State facts, not blame.\nFix: aim for 14 days · limit 21 days.\nRemedy: aim for a credit of ${h(cap*.5)}% · accept no less than ${h(cap*.25)}% (the contract allows up to ${cap}%).`,
+    goals:['State the problem with facts, without attacking','Find out the real cause','Get a dated commitment to fix it','Agree a remedy under the contract','Keep the relationship intact'],
+    goalRules:['evidence:1','hidden:cause','agreed:fix','agreed:remedy','calm'],
+    issues:[{id:'fix',label:'the deadline for fixing it',keys:'deadline|by when|how (soon|long)|fix(ed)? (it )?(by|within|in)|resolve[sd]?|sort(ed)? out|days',owner:0,unit:'days',better:'up',open:45,target:30,reserve:14,limit:21,myTarget:14,step:7,roundTo:1,weight:3,range:[1,120],fmt:'fixed within {v} days',explain:"How long we need to put it right.",why:"we have to do it properly, not twice.",defend:["I can't promise faster without knowing the root cause.","We need time to do this properly."],ask:"help me with a little flexibility on your side, and I can push my team harder."},
+      {id:'remedy',label:'the remedy',keys:'credit|compensat\\w*|penalt\\w*|refund|remedy|damages|make (it|this) (right|good)',owner:0,unit:'pct',better:'down',open:0,target:h(cap*.2),reserve:h(cap*(trust>=60?.6:.4)),limit:h(cap*.25),myTarget:h(cap*.5),step:Math.max(1,cap/5),weight:2,range:[0,60],fmt:'a credit of {v}% on the affected order',explain:"What we give back because of this.",why:"we're already paying to fix it.",defend:["We're already carrying the cost of fixing this.","I'd rather put the money into solving it."],ask:"give me a reasonable number, and I'll take it to my management today."}],
+    hidden:[{id:'cause',keys:'what happened|why (did|was|were)|cause|how did (this|it)|root cause|went wrong|reason',owner:0,unlock:'open',guard:["We're still looking into it.","It's complicated."],reveal:"Honestly? That one is on us. Someone on our side missed it, and nobody flagged it until it was too late.",recap:'they admit an internal handover failed',hint:'What actually caused it?'}],
+    agenda:[{p:0,text:"So — what do you need from us?"},{p:0,text:"What deadline are you working to on your side?",tag:'fix'},{p:0,text:"Are you going to invoke the contract on this?",tag:'remedy'}],
+    opening:[[0,`Hi {name}. I think I know why you asked for this call. Go ahead.`]],
+    phrases:[["I'd like to walk you through what we're seeing on our side.","Stating facts without blame"],["Help me understand what happened.","Asking for the cause"],["We need this resolved by the fifteenth. Can you commit to that?","Asking for a dated commitment"],["Under the contract we're entitled to a credit. I'd suggest…","Raising the remedy calmly"],["I value how we've worked together, which is why I'm raising this directly.","Protecting the relationship"]],
+    firstMail:[0,`Re: ${P[1]}`,["I got your message, and I understand you want to talk.","I'm free this afternoon. Let's go through it on a call."]]});
+  return Object.assign(base,{desc:`${cap1(P[2])}. Both sides contributed — share the cost and fix the process.`,
+    brief:`Three months into the contract: ${P[2]}. ${cap1(P[3])}. Both sides contributed. The cost has to be shared, and the process fixed, before it damages the relationship.`,
+    mandate:`Establish the facts on both sides first.\nYour share of the cost: aim for 35% · limit 50%.`,
+    goals:['Set out the facts on both sides without blame','Get them to acknowledge their part','Agree how the cost is shared','Agree what changes so it does not happen again','Confirm next steps in writing'],
+    goalRules:['evidence:1','hidden:cause','agreed:split','topic:prevent','nextstep'],
+    issues:[{id:'split',label:'your share of the cost',keys:'share|split|of the cost|fifty.fifty|50.?50|half|percent|%',owner:0,unit:'pct',better:'up',open:80,target:60,reserve:trust>=60?40:50,limit:50,myTarget:35,step:10,weight:3,range:[0,100],fmt:'{v}% of the cost on your side',explain:"How the cost of putting this right is divided between us.",why:"most of this started on your side.",defend:["Most of this started on your side.","I can't take half of this to my management."],ask:"show me exactly where our part went wrong, and I can move."}],
+    hidden:[{id:'cause',keys:'your (side|part|team|role)|what happened|why (did|was|were)|cause|how did (this|it)|root cause|went wrong|both',owner:0,unlock:'open',guard:["From where I sit, this started with you.","Let's not turn this into a blame game."],reveal:"If I'm honest, our side should have caught it earlier too. That part is on us.",recap:'they accept part of the responsibility',hint:'Will they acknowledge their part?'}],
+    agenda:[{p:0,text:"How do you see what happened?"},{p:0,text:"So how do you propose we share the cost?",tag:'split'},{p:0,text:"What changes on your side so this doesn't happen again?",tag:'prevent'}],
+    opening:[[0,`Hi {name}. Thanks for making the time. I'd rather sort this out between the two of us than through lawyers. How do you see it?`]],
+    phrases:[["Let's set out what happened on both sides first.","Establishing facts"],["I think we both had a part in this.","Sharing responsibility"],["I'd propose we split the cost sixty–forty.","Proposing a cost split"],["From now on, every change notice gets a written acknowledgement.","Agreeing a process fix"],["I'll confirm this in writing this afternoon.","Closing with a next step"]],
+    firstMail:[0,`${cap1(P[1])} — we need to talk`,[`You will have seen the report: ${P[2]}.`,`${cap1(P[3])}. I would like to agree how we handle this before it goes any further. Can we speak today?`]]});
+}
+function campEp4(X, IN){
+  const C=X.C, Sn=X.Sn, K=campShock(X), m=K[3], rel=K[0]===X.side?'me':'them', clause=!!IN.flags.clause, trust=IN.trust==null?50:IN.trust;
+  const pr=campIssue('price',X), myUp=pr.better==='down', h=v=>Math.max(.5,campRd(v,.5)), word=(rel==='me')===myUp?'surcharge':'discount';
+  const doc=campTermDoc(IN)+`\n\nWHAT HAS CHANGED\n${cap1(K[2])}.`;
+  const base={title:`The Shock — ${cap1(K[1])}`, personas:[campPersona(X,'C',0)], doc, kb:campKB(X,3), smalltalk:false,
+    closing:[[0,`Good. I'll set up the meeting with ${Sn.first}. Thanks, {name}.`]], onNext:[0,`Agreed. I'll set up the meeting with ${Sn.first} and send you the invitation.`]};
+  const clauseKeys='clause|contract (says|allows|provides)|review clause|the agreement|terms we signed|fixed (price|for the term)|under the contract|entitled|obliged|hold (you|us) to';
+  if(rel==='me') return Object.assign(base,{desc:`${cap1(K[2])}. At the signed terms the deal no longer works for you.`,
+    brief:`Nine months in: ${K[2]}. This hits ${X.me}: at the signed terms, the contract is no longer workable. ${clause?'Your contract includes a joint price-review clause.':'Your contract fixes prices for the whole term — there is no review clause.'} Today is not the renegotiation. Explain the impact, agree an interim arrangement, and set up the renegotiation meeting.`,
+    mandate:`Explain the impact with numbers.\nInterim (60 days): aim for a ${word} of ${h(m*.6)}% · accept no less than ${h(m*.3)}%.\n${clause?'Use the review clause — it obliges both sides to sit down.':'You have no contractual right here. Ask as a partner; do not threaten.'}`,
+    goals:['Explain the impact with numbers, not just a request','Use the contract correctly — what it does and does not say','Find out what they could accept, and who decides','Agree an interim arrangement','Set up the renegotiation meeting'],
+    goalRules:['topic:data','topic:clause','hidden:gate,options','agreed:interim','nextstep'],
+    issues:[{id:'interim',label:'the interim arrangement',keys:'interim|temporary|surcharge|for now|in the meantime|60 days|sixty days|bridge|short.term|adjust\\w*|percent|%',owner:0,unit:'pct',better:'down',open:0,target:h(m*.25),reserve:h(m*(clause?.7:trust>=60?.5:.3)),limit:h(m*.3),myTarget:h(m*.6),step:1,weight:2,range:[0,40],fmt:`a temporary ${word} of {v}% for 60 days`,
+      trades:CAMP_VALUES[X.oth].map(v=>v[1]).join('|'),tradeBonus:1,explain:"A temporary adjustment while we work out a proper answer.",why:"my budget for the year is already approved.",defend:["My budget is already approved for the year.","I can't change the price on a phone call."],ask:"show me the numbers, and give me something I can take upstairs."}],
+    hidden:[{id:'gate',keys:'who (decides|approves|signs)|decision|approv\\w*|sign.?off|authori\\w*|budget|your (cfo|management|boss|director)',owner:0,unlock:'open',guard:["It isn't only up to me."],reveal:`I'll be honest: my budget for this year is fixed. Anything above it has to go to ${Sn.name}, our ${Sn.title}.`,recap:`anything above budget goes to ${Sn.name}, the ${Sn.title}`,hint:'Who has to approve a change?'},
+      {id:'options',keys:'what (could|would|can) you (accept|live with|do)|in return|in exchange|what would (help|make)|make it easier|options?|alternativ\\w*|flexib\\w*',owner:0,unlock:'trust',guard:["I'd need to think about that.","Let's see your proposal first."],reveal:"If the price has to move, a longer term or a firmer commitment from you would make it much easier to sell internally.",recap:'a longer term or firmer commitment would make a change easier to sell',hint:'What would make a change acceptable to them?'}],
+    topics:[{id:'clause',keys:clauseKeys,owner:0,say:clause?["Yes — the review clause is there, and I accept it applies. We have to sit down properly.","You're right that the contract allows a review. That doesn't settle the number, though."]:["I've read it again. There's nothing in the contract about this — prices are fixed for the term.","With respect, we signed fixed prices. I'm not obliged to reopen anything."]},
+      {id:'data',keys:'cost|margin|numbers|data|breakdown|impact|figures|per (unit|cent)|increase[sd]?|rose|risen|up by',owner:0,needEvidence:true,say:["Okay — with those figures I can at least explain it internally.","That's clearer. Send me the breakdown in writing."],doubt:["I can't take 'costs went up' to my management. What does it mean in numbers?","How much, exactly? And since when?"]}],
+    agenda:[{p:0,text:"So what exactly are you asking for?",tag:'interim'},{p:0,text:"What does it mean in numbers?",tag:'data'},{p:0,text:"And what does our contract say about this?",tag:'clause'},{p:0,text:"How do you want to take this forward?",tag:'next'}],
+    opening:[[0,`Hi {name}. I've seen the news about ${K[1]}. I assume that's why we're talking. Tell me where you stand.`]],
+    phrases:[["I'd like to walk you through what this means in numbers.","Explaining an impact"],[clause?"Under the review clause, we're both obliged to sit down and look at this.":"I know the contract doesn't oblige you to do anything. I'm asking as a partner.","Using the contract correctly"],["What would make a change easier for you to take upstairs?","Finding what they can accept"],["As a bridge, could we agree a temporary adjustment for sixty days?","Proposing an interim arrangement"],["Could we set up a meeting with your finance team next week?","Setting up the renegotiation"]],
+    firstMail:[0,`Re: ${K[1]}`,["I saw the news. I assume this affects you.","Before you send me anything formal, let's talk. I would rather hear it from you directly."]]});
+  return Object.assign(base,{desc:`${cap1(K[2])}. ${C.first} is asking to revisit the terms.`,
+    brief:`Nine months in: ${K[2]}. This hits ${X.them}, and ${C.first} has written asking to revisit the terms. ${clause?'Your contract includes a joint price-review clause, so you are obliged to sit down.':'Your contract fixes prices for the whole term — you are not obliged to change anything.'} Today is not the renegotiation. Understand the impact, agree an interim arrangement, and set up the renegotiation meeting.`,
+    mandate:`Ask before you answer.\nInterim (60 days): aim for a ${word} of ${h(m*.25)}% · do not go above ${h(m*(clause?.6:.4))}%.\nGive nothing for free — find out what they can offer in return.`,
+    goals:['Understand the real impact — ask before you answer','Be clear about what the contract says, without threatening','Find out what they could offer in return','Agree an interim arrangement within your limit','Set up the renegotiation meeting'],
+    goalRules:['openq:2','topic:clause','hidden:real,options','agreed:interim','nextstep'],
+    issues:[{id:'interim',label:'the interim arrangement',keys:'interim|temporary|relief|for now|in the meantime|60 days|sixty days|bridge|short.term|adjust\\w*|percent|%',owner:0,unit:'pct',better:'up',open:m,target:h(m*.7),reserve:h(m*.25),limit:h(m*(clause?.6:.4)),myTarget:h(m*.25),step:1,weight:2,range:[0,40],fmt:`a temporary ${word} of {v}% for 60 days`,
+      explain:"Temporary relief while we work out a proper answer.",why:"at the current terms we lose money on every order.",defend:["At the current terms we lose money on every order.","We need real relief, not a gesture."],ask:"tell me what you'd want in return — a longer term, perhaps."}],
+    hidden:[{id:'real',keys:'really|honest\\w*|long.?term|how (bad|serious)|what happens if|plan|intend|future|stay|commit\\w*|extend',owner:0,unlock:'trust',guard:["It's serious. That's all I can say.","We're looking at every option."],reveal:"Between us — we're not trying to get out of the contract. If we can get through the next two quarters, we want to extend.",recap:'they want to extend, if they get short-term relief',hint:'How serious is it — and what do they really intend?'},
+      {id:'options',keys:'in return|in exchange|what (could|would|can) you (offer|give|do)|offer us|something back|trade|options?|alternativ\\w*',owner:0,unlock:'open',guard:["I was hoping you'd tell me what you need."],reveal:"We could offer a longer term, or earlier payment, in return for some relief now.",recap:'they can offer a longer term or earlier payment in return',hint:'What can they offer in return?'}],
+    topics:[{id:'clause',keys:clauseKeys,owner:0,say:clause?["Yes — and that's exactly the clause I'm relying on. It says we both sit down.","I'm glad we put the review clause in. This is what it's for."]:["I know the contract fixes the price. I'm asking as a partner, not as a lawyer.","You're right, you could simply hold us to it. I'm hoping you won't."]},
+      {id:'theirdata',keys:'numbers|data|breakdown|impact|figures|how much|what does (it|that) mean|margin|cost',owner:0,say:["The short version: at current terms we lose money on every order.","I can send you the breakdown before the meeting — I have nothing to hide."]}],
+    agenda:[{p:0,text:"Can you help us with something temporary while we sort this out?",tag:'interim'},{p:0,text:"What would you need from us to make that possible?",tag:'options'},{p:0,text:"How do you want to take this forward?",tag:'next'}],
+    opening:[[0,`Thanks for taking the call, {name}. You've seen my email. I won't dress it up — ${K[2]}, and at the current terms we have a real problem.`]],
+    phrases:[["Before I respond, could you walk me through the impact on your side?","Asking before answering"],[clause?"The review clause says we sit down together, and I'm happy to do that.":"Strictly speaking, the contract doesn't require a change — but I'd like to find a way.","Being clear about the contract"],["If we help now, what could you offer in return?","Asking for a trade"],["As a bridge, we could agree a temporary adjustment for sixty days.","Proposing an interim arrangement"],["Let's set up a proper meeting with your finance team.","Setting up the renegotiation"]],
+    firstMail:[0,`Request to review our terms — ${K[1]}`,[`I am writing because ${K[2]}.`,"At the current terms this is very difficult for us. I would like to discuss a review. Could we speak this week?"]]});
+}
+function campRenegIssues(X, IN){
+  const K=campShock(X), m=K[3]/100, rel=K[0]===X.side?'me':'them', clause=!!IN.flags.clause, trust=IN.trust==null?50:IN.trust;
+  const pr=campIssue('price',X,{weight:3}), g=pr.roundTo||1, old=(IN.terms.price&&IN.terms.price.v!=null)?IN.terms.price.v:campRd((pr.limit+pr.myTarget)/2,g), sgn=pr.better==='down'?1:-1;   // sgn: direction that is good for the learner
+  const broken=(IN.promises||[]).filter(p=>p.kept===false).length, leaks=(IN.leaks||[]).length;
+  let R=.45+(clause?.25:0)+(trust>=65?.1:0)+Math.min(.15,(IN.goodwill||0)*.05)-broken*.1-Math.min(.1,leaks*.05)+(IN.needs.driver?.05:0);
+  R=campClamp(R, clause?.5:.3, .95);
+  const mv=f=>campRd(old*(1+sgn*m*f),g), mvT=f=>campRd(old*(1-sgn*m*f),g);
+  if(rel==='me'){ let res=mv(R), lim=mv(clause?.5:.3); if(res===old) res=campRd(old+sgn*g,g); if(lim===old) lim=campRd(old+sgn*g,g); if(sgn*(lim-res)>0) lim=res;
+    Object.assign(pr,{open:old,target:campRd(old+(res-old)*.4,g),reserve:res,limit:lim,myTarget:mv(.85)}) }
+  else Object.assign(pr,{open:mvT(1),target:mvT(.7),reserve:mvT(.2),limit:mvT(clause?.6:.4),myTarget:mvT(.2)});
+  pr.label='the new '+pr.label.replace(/^the /,''); pr.keys+='|new (price|rate|fee)|adjust\\w*|increase|reduction|decrease';
+  pr.trades=CAMP_VALUES[X.oth].map(v=>v[1]).join('|'); pr.tradeBonus=(pr.step||g)*(1+Math.min(1,(IN.goodwill||0)*.5));
+  pr.needsReason=true;
+  pr.why = rel==='me' ? "we signed a contract, and I budgeted on it." : (K[0]==='buyer' ? "at the old terms the project no longer pays for itself." : "our costs have moved, and we can't absorb all of it.");
+  pr.defend = rel==='me' ? ["We signed a contract. I budgeted on that number.","Why should your cost problem become my cost problem?"] : ["We need real relief, or the business case falls apart.","At the old terms, this contract loses us money every month."];
+  pr.ask = rel==='me' ? "give me something in return — a longer term, or a commitment I can show the board." : "tell me what you need from us in return, and we'll look at it.";
+  const ph={id:'phase',label:'the effective date',keys:'effective|takes? effect|appl(y|ies) from|start(s|ing)? (date|from)|from when|phase.?in|days|months?',owner:0,unit:'days',weight:2,step:30,roundTo:15,range:[0,365],fmt:'effective in {v} days',
+    explain:"When the new terms start to apply.",why:rel==='me'?"my budget for this year is already set.":"every month at the old terms costs us money.",defend:rel==='me'?["My budget for this year is already set."]:["Every month at the old terms costs us money."],ask:"help me on the number, and I can move on the date."};
+  Object.assign(ph, rel==='me' ? {better:'up',open:180,target:120,reserve:30,limit:90,myTarget:30} : {better:'down',open:15,target:30,reserve:90,limit:30,myTarget:90});
+  const out=[pr,ph];
+  if(!clause && rel==='me'){ const ch=campIssue('change',X,{weight:2}); ch.label='a price-review clause for the future'; out.push(ch) }
+  return {issues:out, rel, K, R, clause, old, pr0:campIssue('price',X)};
+}
+function campEp5(X, IN){
+  const C=X.C, Sn=X.Sn, G=campRenegIssues(X, IN), K=G.K, rel=G.rel, pr=G.issues[0], trust=IN.trust==null?50:IN.trust, ally=trust>=60, lv=brLevel(X.c.difficulty);
+  const needs=campNeeds(X), found=needs.filter(h=>IN.needs[h.id]), vals=CAMP_VALUES[X.oth];
+  const cards=vals.slice(0, IN.flags.knowsOptions?4:2).map(v=>[v[0], rel==='me'?'A better number or an earlier start':'A smaller concession from you', v[1]]);
+  const broken=(IN.promises||[]).filter(p=>p.kept===false).length, pressure=[[0,"I have a board meeting on Friday. I need this closed, one way or the other."]];
+  if((IN.leaks||[]).length) pressure.unshift([0,`You told ${C.first} yourself that you're under pressure to keep this deal. So let's be realistic.`]);
+  if(broken) pressure.unshift([0,`And frankly, after ${broken} missed follow-up${broken>1?'s':''} from your side, I'm less inclined to be flexible.`]);
+  const doc=campTermDoc(IN,'CURRENT SIGNED TERMS')+`\n\nWHAT HAS CHANGED\n${cap1(K[2])}.\n\nON THE TABLE\n${rel==='me'?`${X.me} is asking to change ${pr.label.replace(/^the new /,'the ')} from ${fmtVal(pr,G.old)}.`:`${X.them} is asking to change ${pr.label.replace(/^the new /,'the ')} from ${fmtVal(pr,G.old)} to ${fmtVal(pr,pr.open)}.`}`;
+  const P0=campPersona(X,'Sn',0), P1=campPersona(X,'C',1,{stance:ally?'ally':'skeptic', cares: ally?'Wants this to work — will back you if you give them something to back.':'Not convinced. Will stay quiet unless you rebuild trust.'});
+  return {title:`The Renegotiation — ${X.them}`, desc:`${Sn.name}, their ${Sn.title}, joins the table. One meeting to agree the new terms.`,
+    brief:`${Sn.name}, ${poss(X.them)} ${Sn.title}, has joined to settle the change to the contract. ${C.first} is in the room too. ${rel==='me'?`You are asking to move ${pr.label.replace(/^the new /,'the ')} from ${fmtVal(pr,G.old)}.`:`They are asking to move ${pr.label.replace(/^the new /,'the ')} from ${fmtVal(pr,G.old)} to ${fmtVal(pr,pr.open)}.`} ${G.clause?'The review clause in your contract obliges both sides to negotiate.':'There is no review clause, so everything depends on the relationship and on what you can trade.'}`,
+    mandate:((X.R.outside||[]).includes('price')?`Your director has delegated this negotiation to you, within these limits.\n`:'')+G.issues.map(campMandateLine).join('\n')+`\n${rel==='me'?'Justify every number. Offer something in return.':'Give nothing without getting something back.'}`+(found.length&&lv<=2?`\nWhat you know: ${found.map(h=>h.recap).join('; ')}.`:''),
+    goals:['Open with a clear, structured proposal','Justify your numbers with evidence','Trade — give nothing without getting something','Agree the new terms inside your mandate','Summarise the new terms accurately'],
+    goalRules:['agenda','evidence:2','trade','agreed:price','summary'],
+    personas:[P0,P1], issues:G.issues, tradeCards:cards, doc, kb:campKB(X,4), kbOwner:{company:1,past:1,whyus:1}, smalltalk:false,
+    hidden:needs.filter(h=>!IN.needs[h.id]&&(h.id==='driver'||h.id==='deadline')).map(({card,keysAdd,...h})=>Object.assign(h,{owner:1})).concat([
+      {id:'walk',keys:'alternativ\\w*|other (supplier|vendor|partner|customer|option)s?|switch\\w*|replace|walk away|if we (can.?t|don.?t) agree|what happens if',owner:1,unlock:'trust',guard:["We always have options."],reveal:rel==='me'?`Between us — switching away from you would cost us six months. ${Sn.first} knows that.`:`Between us — we don't have a real alternative lined up. ${Sn.first} would rather fix this than walk.`,recap:'walking away would be costly for them',hint:'How strong is their alternative?'}]),
+    topics:[{id:'value',keys:'value|relationship|track record|how we (handled|worked)|partnership|long.?term|so far|this year',owner:1,say:ally?[`That's fair, ${Sn.first}. They've been straight with us all year.`,"To be fair, they fixed the earlier problem properly."]:["We've had our ups and downs this year.","I'd rather let the numbers speak."]}],
+    agenda:[{p:0,text:rel==='me'?"So what number are you asking for, and why?":"So how far can you move, and when?",tag:'price'},{p:0,text:"And from when would it apply?",tag:'phase'},{p:1,text:ally?"What could you offer that would help us get this approved?":"What exactly do we get out of this?"}],
+    pressure, opening:[[0,`{name}, ${Sn.name} — I'm ${poss(X.them)} ${Sn.title}. ${C.first} has briefed me. ${rel==='me'?"You want to change a signed contract. Convince me.":"We need relief on this contract, and I'd like to leave today with a number."}`],[1, ally?`And for what it's worth, {name} — I've told ${Sn.first} how you handled things earlier this year. I want this to work.`:`Hello, {name}.`]],
+    closing:[[0,"Good. Have the amendment drafted, and we'll sign next week."],[1,"Thanks, {name}. I'll be in touch about the paperwork."]], onNext:[0,"Fine. Send the amendment in writing and we'll review it."],
+    phrases:[["I'd like to cover three things: the number, the start date, and what we offer in return.","Opening with a structure"],["Our costs have risen by nine percent; we're asking you to share half of that.","Justifying a number"],["If we extend the term by a year, could you accept that figure?","Trading for value"],["That's beyond what I'm authorised to agree.","Holding your mandate"],["So, to confirm the new terms: …","Summarising accurately"]],
+    firstMail:[0,`Renegotiation meeting — agenda`,[`${C.first} has briefed me on the situation, and I will join the meeting.`,"Please come with a concrete proposal: the number, the start date, and what you offer in return. I would like to close this in one meeting."]]};
+}
+function campEp6(X, IN){
+  const C=X.C, Sn=X.Sn, G=campRenegIssues(X, X.c.eps[4].in||IN), rn=IN.reneg||{agreed:{},pos:{}}, trust=IN.trust==null?50:IN.trust, ally=trust>=60;
+  const open=G.issues.filter(is=>rn.agreed[is.id]==null);
+  const rebate={id:'rebate',label:'the signing rebate',keys:'rebate|signing (bonus|discount)|one.?off|goodwill gesture|one more thing|sweetener|percent|%',owner:0,unit:'pct',better:'up',open:2,target:1,reserve:0,limit:1,myTarget:0,step:1,weight:2,range:[0,10],fmt:'a one-off rebate of {v}%',
+    trades:'case study|reference|testimonial|press release|joint announcement|early (payment|renewal)|prepay\\w*|referral|renew\\w*|extend\\w*',tradeBonus:1,explain:"A one-off gesture on signing. Nothing more.",why:"the board likes to see a win.",defend:["It's a small thing, and it would make the board happy.","Two percent, one time. Surely that's not a deal-breaker."],ask:"if not the rebate, give me something else I can show the board."};
+  const P0=campPersona(X,'Sn',0), P1=campPersona(X,'C',1,{stance:ally?'ally':'skeptic'});
+  const terms=campTermDoc(IN,'TERMS AGREED SO FAR');
+  return {title:`The Closing — ${X.them}`, desc:`The paperwork is ready. One last request, the final terms, and the signature.`,
+    brief:`The amendment is drafted and ${Sn.first} wants to sign. Expect a last-minute request. Confirm every term accurately${open.length?`, close what is still open (${open.map(i=>i.label).join(', ')})`:''}, and agree the next steps.`,
+    mandate:`Do not give a rebate for free: nothing is the target, 1% is the limit — and only in exchange for something.\nConfirm each agreed term exactly as it stands in the document.`+(open.length?'\n'+open.map(campMandateLine).join('\n'):''),
+    goals:['Handle the last-minute request without giving value away','Confirm every agreed term accurately'].concat(open.length?['Close the points still open']:[],['Agree signature and next steps','End on a positive note for the relationship']),
+    goalRules:['agreed:rebate','summary'].concat(open.length?['agreed:'+open.map(i=>i.id).join(',')]:[],['nextstep','topic:thanks']),
+    personas:[P0,P1], issues:G.issues.concat([rebate]), doc:terms, kb:campKB(X,5), kbOwner:{company:1,past:1,whyus:1}, smalltalk:false,
+    preAgreed:Object.assign({},rn.agreed), prePos:Object.assign({},rn.pos),
+    tradeCards:[['A small rebate (max 1%)','A named case study or joint announcement','case study|reference|testimonial|press release|joint announcement'],['A small rebate (max 1%)','Early payment or an early renewal','early (payment|renewal)|prepay\\w*|renew\\w*|extend\\w*']],
+    hidden:[], topics:[{id:'thanks',keys:'thank\\w*|appreciat\\w*|pleasure|look(ing)? forward|great working|enjoyed',owner:1,say:ally?["Likewise, {name}. It hasn't always been easy, but I'd do it again.","Thank you. I mean that."]:["Thank you. Let's hope the next year is quieter.","Likewise."]}],
+    agenda:[{p:0,text:"One last thing before we sign — I'd like a one-off signing rebate of two percent. Call it a goodwill gesture.",tag:'rebate'},{p:1,text:"Could you walk us through the final terms, so we're all hearing the same thing?",tag:'summary'},{p:0,text:"And what are the next steps on your side?",tag:'next'}],
+    opening:[[0,`{name}, good to see you. The paperwork is nearly ready, so let's keep this short.`],[1, ally?"Good to see you, {name}. Nearly there.":"Hello, {name}."]],
+    closing:[[0,"Good. We'll sign on your written confirmation. Thank you, {name}."],[1, ally?"Thanks, {name}. Here's to a quieter year.":"Thanks, {name}."]], onNext:[0,"Good. Send the final confirmation in writing and we'll sign."],
+    phrases:[["I can't offer that as a gesture, but I could look at it in exchange for a case study.","Handling a last-minute request"],["Let me confirm the final terms, point by point.","Summarising before signature"],["I'll send the confirmation today; could you sign by Friday?","Agreeing next steps"],["Thank you — it hasn't always been easy, and I appreciate how you've handled it.","Closing warmly"],["I look forward to the next phase.","Ending on a positive note"]],
+    firstMail:[0,`Signature — final call`,["The amendment is drafted. I have a few minutes this week to close it out.","One point I would like to raise when we speak. Nothing dramatic."]],
+    followUp:["Thanks for today.","Please send the final confirmation email listing every agreed term. We will sign on your confirmation."]};
+}
+
+/* ---------- assemble an episode into a scenario (cached; deterministic for a given input snapshot) ---------- */
+const CAMP_CACHE = new Map();
+function campBuild(c, n){
+  const ep=c.eps[n]; if(!ep || !ep.in) return null;
+  const key=c.id+':'+n+':'+(ep.rev||0); if(CAMP_CACHE.has(key)) return CAMP_CACHE.get(key);
+  const X=campCtx(c); if(!X) return null;
+  const IN=ep.in, part=[campEp1,campEp2,campEp3,campEp4,campEp5,campEp6][n](X, IN);
+  const ci = n>=4 ? 1 : 0, t0 = IN.trust;
+  const sc=Object.assign({id:campSid(c,n), tag:`Campaign · ${n+1} of 6`, role:X.myTitle, hidden:[], topics:[], issues:[], agenda:[], _kb:true, _brief:true, campaign:{id:c.id, ep:n, contact:ci}}, part);
+  sc.startEmo={};
+  if(t0!=null){ const adj = n===2 && sc.demandDates ? -22 : 0; sc.startEmo[ci]={trust:campClamp(t0+adj,6,95)} }
+  if(n===4 && IN.flags.knowsGate) sc.startEmo[0]={trust:48};
+  if(n===5 && IN.senior!=null) sc.startEmo[0]={trust:campClamp(IN.senior,10,95)};
+  sc.campaign.trust0 = sc.startEmo[ci] ? sc.startEmo[ci].trust : Math.round(30+sc.personas[ci].traits.warmth*40);
+  sc.goals=sc.goals.slice(0,6); sc.goalRules=sc.goalRules.slice(0,6);
+  CAMP_CACHE.set(key, sc); return sc;
+}
+function campScenarios(){
+  if(!authed()) return [];
+  const out=[]; Object.values(campAll()).forEach(c=>{ if(c.status==='abandoned') return; c.eps.forEach((e,n)=>{ if(e.in){ const s=campBuild(c,n); if(s) out.push(s) } }) });
+  return out;
+}
+
+/* ---------- create / advance ---------- */
+function campNew(role, field, side, difficulty){
+  const prev=campActive(); if(prev){ prev.status='abandoned'; campPut(prev) }
+  const c={id:'c'+Date.now().toString(36), v:1, role, field, side, difficulty, seed:Math.floor(Math.random()*1e9), created:Date.now(), status:'active', ep:0,
+    L:{trust:null, senior:null, rapport:40, cred:45, goodwill:0, needs:{}, leaks:[], terms:{}, items:[], promises:[], flags:{}, history:[], chain:[]}, eps:CAMP_EPS.map(()=>({done:false}))};
+  c.eps[0].in=campSnap(c.L); campPut(c); return c;
+}
+/* the follow-up email after an episode is how promises are kept */
+function campBridgeDone(c, n){ const cs=getCase(campSid(c,n), false), e=c.eps[n]; if(!cs||!e||!e.endedAt) return false; return cs.emails.some(m=>m.me && m.t>e.endedAt) }
+function campUnlock(c, n){   // freeze the ledger snapshot that episode n is built from
+  const L=c.L, prev=n-1;
+  if(prev>=0 && !c.eps[prev].bridged){
+    const ok=campBridgeDone(c, prev); c.eps[prev].bridged=ok?'kept':'skipped';
+    (L.promises||[]).forEach(p=>{ if(p.ep===prev && p.kept==null) p.kept=ok });
+    if(L.trust!=null) L.trust=campClamp(L.trust+(ok?4:-5),5,95);
+    if(ok && prev===0 && L.trust!=null){ const X=campCtx(c), cs=getCase(campSid(c,0),false), mine=cs.emails.filter(m=>m.me&&m.t>c.eps[0].endedAt).map(m=>m.body).join(' '), w=CONTENT(mine);
+      const hit=campNeeds(X).filter(h=>L.needs[h.id] && [...CONTENT(h.recap)].filter(x=>w.has(x)).length>=2).length;
+      if(hit>=2){ L.trust=campClamp(L.trust+3,5,95); L.chain.push({ep:0, good:1, text:`Your follow-up reflected ${hit} of their needs accurately — trust +3.`}) } }
+    L.chain.push({ep:prev, good:ok?1:-1, text: ok?`You sent the follow-up after Episode ${prev+1} — trust +4.`:`No follow-up email after Episode ${prev+1} — trust −5${(L.promises||[]).some(p=>p.ep===prev)?', and a promise left open':''}.`});
+  }
+  c.eps[n].in=campSnap(L); c.eps[n].rev=(c.eps[n].rev||0)+1; c.ep=Math.max(c.ep,n); campPut(c);
+}
+function campOpenEp(n){
+  const c=campActive(); if(!c) return;
+  if(n>0 && !c.eps[n-1].done){ toast('Finish the previous episode first.'); return }
+  if(!c.eps[n].in){
+    if(n>0 && !campBridgeDone(c,n-1) && !confirm(`You haven't replied to the follow-up email from Episode ${n}.\n\nSkipping it costs trust, and any promise you made stays open. Continue anyway?`)) return;
+    campUnlock(c, n);
+  }
+  cfg.difficulty=c.difficulty; $('segDiff').querySelectorAll('button').forEach(b=>b.classList.toggle('on',b.dataset.v===c.difficulty)); showDiffHint();
+  openSetup(campSid(c,n));
+}
+function campOpenMail(n){ const c=campActive(); if(!c) return; if(!c.eps[n].in){ campOpenEp(n); if(!c.eps[n].in) return } openThread(campSid(c,n)) }
+function campRedo(n){
+  const c=campActive(); if(!c || !c.eps[n].done) return; if(c.eps[n+1] && c.eps[n+1].in){ toast('The next episode has already started.'); return }
+  if(!confirm(`Redo Episode ${n+1}? Its result, emails and ledger changes will be cleared.`)) return;
+  c.L=campSnap(c.eps[n].in); c.eps[n]={done:false, in:c.eps[n].in, rev:(c.eps[n].rev||0)+1}; if(c.status==='done') c.status='active';
+  const cs=loadCases(); delete cs[campSid(c,n)]; LS.set(caseKey(), cs); campPut(c); renderCampaign(); toast('Episode reset');
+}
+function campAbandon(){ const c=campActive(); if(!c || !confirm('Abandon this campaign? Your progress in it will be closed.')) return; c.status='abandoned'; campPut(c); renderCampaign() }
+function campWalk(){
+  const c=campActive(); if(!c) return;
+  if(!confirm('Walk away from the deal?\n\nThe campaign ends here. Whether that was the right call depends on the terms on the table and on your alternative.')) return;
+  c.status='walked'; c.walkedAt=c.ep; campPut(c); campFinish(c);
+}
+
+/* ---------- harvest: what an episode writes into the ledger ---------- */
+const CAMP_LEAK=/\b(we (really |badly )?need this (deal|contract)|we (have|'ve got) no (other|alternative)|no other (option|supplier|customer|partner)s?|you'?re our only|our only (option|supplier|customer|partner)|my (boss|ceo|director|manager) (wants|needs|is pushing|expects)|under (a lot of |huge |real )?pressure|we must (sign|close)|we have to (sign|close)|desperate|can'?t afford to lose)\b/i;
+const CAMP_PROMISE=/\b(i|we)('ll| will| can| am going to| are going to|'m going to|'re going to)\b[^.?!]{0,70}\b(send|share|deliver|provide|confirm|get back|update|call|email|prepare|draft|have (it|them|that|this))\b/i;
+const CAMP_DEFER=/\b(check (that |this |it )?with|talk to|speak (to|with)|consult|run (it|this|that) (by|past)|take (it|this|that) (back )?to|get back to you|need (approval|sign.?off)|not (my|mine) (call|decision)|outside my (authority|remit|mandate)|our (legal|finance|sales|commercial) (team|department|colleagues|people)|my (director|manager|boss|team|colleagues?))\b/i;
+function campItemScore(is, v){
+  if(is.unit==='option') return v<=.01 ? 1 : v<=.5 ? .5 : -.4;
+  if(isUnl(is,v)) return -1;
+  if(is.limit==null || is.myTarget==null || is.limit===is.myTarget) return (is.limit!=null && better(is, v, is.limit)) ? -.5 : .6;
+  return campClamp((v-is.limit)/(is.myTarget-is.limit), -1, 1.2);
+}
+function campHarvest(c, n, rec){
+  const sc=S.sc, st=S.eng, L=c.L, E=st.events||[], T=st.learnerTurns||[], fb=rec.fb||{};
+  const has=k=>E.some(e=>e.kind===k), cnt=k=>E.filter(e=>e.kind===k).length, tc=k=>T.filter(t=>t.a&&t.a[k]).length;
+  const ci=sc.campaign.contact, txt=T.map(t=>t.t).join(' '), carry=[], t0=sc.campaign.trust0;
+  const X=campCtx(c);
+  /* relationship */
+  const damp={easy:.6,medium:.5,hard:.45,veryhard:.4}[c.difficulty]||.5;
+  L.trust=Math.round(campClamp(t0+(st.emo[ci].trust-t0)*damp,5,95)); if(sc.personas.length>1) L.senior=Math.round(campClamp(50+(st.emo[0].trust-50)*damp,5,95));
+  carry.push({good:L.trust>t0?1:L.trust<t0?-1:0, text:`Trust with ${X.C.first}: ${t0} → ${L.trust}`});
+  L.rapport=campClamp(L.rapport + (has('smalltalk')?6:0) + (st.flags.askedBack?4:0) + Math.min(6,tc('empathy')*3) + Math.min(6,(st.flags.listening||0)*2) - cnt('aggressive')*6 - (has('shortsmall')?3:0), 0, 100);
+  L.cred=campClamp(L.cred + Math.min(9,tc('evidence')*3) + Math.min(6,tc('reason')*2) + Math.min(8,cnt('goodanswer')*4) + (has('summary')?4:0) - 5*(cnt('vague')+cnt('misquote')+cnt('retract')+cnt('limit')) - 4*cnt('excuse'), 0, 100);
+  /* leaks & promises */
+  sentences(txt).forEach(s=>{ const m=s.match(CAMP_LEAK); if(m && L.leaks.length<4 && !L.leaks.some(x=>x.text===m[0].toLowerCase())) L.leaks.push({ep:n, text:m[0].toLowerCase()}) });
+  if(L.leaks.some(x=>x.ep===n)) carry.push({good:-1, text:'You revealed pressure on your own side — they will remember it.'});
+  const prom=sentences(txt).filter(s=>CAMP_PROMISE.test(s) && nlu(s).commitDate).slice(0,3);
+  prom.forEach(s=>L.promises.push({ep:n, text:s.slice(0,140), kept:null}));
+  if(prom.length) carry.push({good:0, text:`${prom.length} dated promise${prom.length>1?'s':''} made — keep ${prom.length>1?'them':'it'} with your follow-up email.`});
+  /* terms */
+  const put=(is, v, src)=>{ const s=campItemScore(is, v), ok= is.unit==='option' ? v<=.5+1e-9 : !(is.limit!=null && (isUnl(is,v) || better(is, v, is.limit)));
+    const t={id:is.id, label:is.label, v, text:fmtVal(is,v), src, ep:n, score:+s.toFixed(2), w:is.weight||1, ok};
+    L.items=L.items.filter(i=>!(i.ep===n&&i.id===is.id)); L.items.push(t); return t };
+  const agreedHere=(sc.issues||[]).filter(is=>st.agreed[is.id]!=null && !(sc.preAgreed&&sc.preAgreed[is.id]!=null));
+  if(n===0){
+    Object.keys(st.revealed||{}).forEach(k=>{ if(st.revealed[k]) L.needs[k]=true });
+    const nn=Object.keys(L.needs).length; carry.push({good:nn>=3?1:nn?0:-1, text:`Needs uncovered: ${nn} of 5 — each one opens a trade card in the next episode.`});
+    L.chain.push({ep:0, good:nn>=3?1:nn>=1?0:-1, text:`Episode 1: you uncovered ${nn} of 5 needs${nn?` (${campNeeds(X).filter(h=>L.needs[h.id]).map(h=>h.recap).slice(0,2).join('; ')})`:''}.`});
+  }
+  if(n===1){
+    Object.keys(st.revealed||{}).forEach(k=>{ if(st.revealed[k]) L.needs[k]=true });
+    let over=0, defer=CAMP_DEFER.test(txt);
+    (sc.issues||[]).forEach(is=>{
+      const g=is.roundTo||1; let v=st.agreed[is.id], src='you';
+      if(v==null){
+        if(is.outside){ src='team'; v = is.unit==='option' ? .5 : campRd((is.limit+is.myTarget)/2, g) }
+        else { src='default'; const pos=st.issues[is.id]?st.issues[is.id].pos:is.open; v = is.unit==='option' ? pos : (isUnl(is,pos) ? pos : campRd((pos+is.limit)/2, g)) }
+      } else if(is.outside && !defer){ over++ }
+      L.terms[is.id]=put(is, v, src);
+    });
+    if(over){ L.flags.overstep=(L.flags.overstep||0)+over; L.cred=campClamp(L.cred-5*over,0,100); carry.push({good:-1, text:`You agreed ${over} point${over>1?'s':''} outside your authority without checking with your team.`}) }
+    L.flags.clause = !!(L.terms.change && L.terms.change.v<=.5+1e-9);
+    const mine=Object.values(L.terms).filter(t=>t.src==='you'), left=Object.values(L.terms).filter(t=>t.src==='default'&&t.id!=='change');
+    carry.push({good:mine.length>=3?1:0, text:`Signed: ${mine.length} point${mine.length===1?'':'s'} negotiated by you${left.length?`, ${left.length} settled afterwards near their position`:''}.`});
+    const bad=Object.values(L.terms).filter(t=>t.src==='you'&&!t.ok); if(bad.length) carry.push({good:-1, text:`Outside your limit: ${bad.map(t=>t.label).join(', ')}.`});
+    carry.push({good:0, text:`Price adjustment in the signed contract: ${L.terms.change?L.terms.change.text:'—'}.`});
+  }
+  if(n===2){
+    agreedHere.forEach(is=>put(is, st.agreed[is.id], 'you'));
+    const gw = L.trust-t0>=8 ? 2 : L.trust-t0>=1 ? 1 : 0; L.goodwill+=gw;
+    if(gw) carry.push({good:1, text:`Goodwill earned: +${gw} — it buys flexibility when the terms are reopened.`});
+    else carry.push({good:-1, text:'No goodwill earned from how the problem was handled.'});
+    L.chain.push({ep:2, good:gw?1:-1, text:`Episode 3: the problem ${gw?'was handled well — goodwill +'+gw:'left the relationship weaker'} (trust ${t0} → ${L.trust}).`});
+  }
+  if(n===3){
+    agreedHere.forEach(is=>put(is, st.agreed[is.id], 'you'));
+    if(st.revealed.options) L.flags.knowsOptions=true; if(st.revealed.gate) L.flags.knowsGate=true; if(st.revealed.real) L.flags.knowsReal=true;
+    carry.push({good:st.agreed.interim!=null?1:0, text: st.agreed.interim!=null ? `Interim arrangement agreed: ${fmtVal(sc.issues[0], st.agreed.interim)}.` : 'No interim arrangement — the old terms keep running until the renegotiation.'});
+    L.chain.push({ep:3, good:L.flags.clause?1:-1, text: L.flags.clause ? 'Episode 4: the review clause you negotiated in Episode 2 obliged both sides to sit down.' : 'Episode 4: no review clause in the contract from Episode 2 — you had to rely on the relationship alone.'});
+  }
+  if(n===4){
+    const G=campRenegIssues(X, c.eps[4].in);
+    L.reneg={agreed:{}, pos:{}};
+    sc.issues.forEach(is=>{ if(st.agreed[is.id]!=null){ L.reneg.agreed[is.id]=st.agreed[is.id]; const t=put(is, st.agreed[is.id], 'you'); if(is.id==='price') L.terms.price=Object.assign({},t,{label:G.pr0.label}); else L.terms[is.id]=t; if(is.id==='change') L.flags.clause=st.agreed.change<=.5+1e-9 } else if(st.issues[is.id]) L.reneg.pos[is.id]=st.issues[is.id].pos });
+    const pr=sc.issues[0];
+    carry.push({good:st.agreed.price!=null?(L.terms.price.ok?1:-1):0, text: st.agreed.price!=null ? `New terms: ${fmtVal(pr, st.agreed.price)}${L.terms.price.ok?'':' — outside your mandate'}.` : 'No agreement on the number yet — it stays open for the closing.'});
+    L.chain.push({ep:4, good:G.R>=.6?1:-1, text:`Episode 5: their walk-away was ${fmtVal(pr, pr.reserve)}. ${G.clause?'The review clause':'The missing review clause'}, trust at ${c.eps[4].in.trust==null?'–':c.eps[4].in.trust}, goodwill ${c.eps[4].in.goodwill||0} and ${(c.eps[4].in.promises||[]).filter(p=>p.kept===false).length} broken promise(s) set that number.`});
+  }
+  if(n===5){
+    agreedHere.forEach(is=>{ const t=put(is, st.agreed[is.id], 'you'); if(is.id!=='rebate'){ if(is.id==='price'){ L.terms.price=Object.assign({},t,{label:campIssue('price',X).label}) } else L.terms[is.id]=t } });
+    const still=sc.issues.filter(is=>is.id!=='rebate' && st.agreed[is.id]==null);
+    still.forEach(is=>{ const pos=st.issues[is.id].pos, g=is.roundTo||1, v= is.unit==='option' ? pos : campRd((pos+is.limit)/2, g); const t=put(is, v, 'default'); if(is.id==='price') L.terms.price=Object.assign({},t,{label:campIssue('price',X).label}); else L.terms[is.id]=t });
+    if(still.length){ L.flags.unresolved=still.length; carry.push({good:-1, text:`${still.length} point${still.length>1?'s':''} still open at signature — settled near their position.`}) }
+    if(st.agreed.rebate==null){ L.items=L.items.filter(i=>!(i.ep===5&&i.id==='rebate')) }
+    if(has('summary')) L.flags.summaryOk=true; if(has('misquote')) L.flags.misquote=true;
+    carry.push({good:has('summary')?1:has('misquote')?-1:0, text: has('summary')?'Final terms confirmed accurately.':has('misquote')?'Your summary of the final terms contained an error.':'The final terms were never confirmed out loud.'});
+  }
+  L.history=L.history.filter(h=>h.ep!==n); L.history.push({ep:n, trust:L.trust, score:fb.overall||0, level:fb.level||'', met:(fb.goals||[]).filter(g=>g.status==='met').length, goals:(fb.goals||[]).length, date:Date.now()});
+  L.history.sort((a,b)=>a.ep-b.ep);
+  return carry;
+}
+function campAfterMeeting(rec){
+  const meta=S.sc.campaign, c=campGet(meta.id); if(!c) return;
+  const n=meta.ep, X=campCtx(c);
+  rec.camp={id:c.id, ep:n, label:`Episode ${n+1} of 6 · ${CAMP_EPS[n].t}`, carry:[], counted:false};
+  if(c.eps[n].done || c.status!=='active'){ rec.camp.note='This episode was already completed — this run was practice and did not change the campaign.'; return }
+  if(S.log.filter(l=>l.me).length<3){ rec.camp.note='Too short to count — speak at least three times to complete the episode.'; return }
+  rec.camp.carry=campHarvest(c, n, rec); rec.camp.counted=true;
+  c.eps[n].done=true; c.eps[n].endedAt=Date.now(); c.eps[n].score=(rec.fb&&rec.fb.overall)||0;
+  if(n===5){ c.status='done' }
+  campPut(c);
+  if(n===5) campFinish(c);
+}
+
+/* ---------- outcome: three axes → one of six endings ---------- */
+function campOutcome(c){
+  const L=c.L, items=L.items||[], wsum=items.reduce((a,i)=>a+i.w,0);
+  const dv=Math.round(campClamp(50+45*(wsum?items.reduce((a,i)=>a+i.score*i.w,0)/wsum:0),0,100));
+  const broken=(L.promises||[]).filter(p=>p.kept===false).length;
+  const rel=Math.round(campClamp(.7*(L.trust==null?50:L.trust)+.15*L.rapport+.15*L.cred+(L.goodwill||0)*2-broken*4,0,100));
+  const risks=[];
+  if(c.eps[1].done && !L.flags.clause) risks.push([30,'No price-review clause — the next shock will hit the same way']);
+  items.filter(i=>!i.ok&&i.src==='you').forEach(i=>risks.push([10,`${cap1(i.label)} agreed outside your limit`]));
+  if(L.flags.overstep) risks.push([8*L.flags.overstep,'Points agreed outside your authority']);
+  if(broken) risks.push([8*broken,`${broken} follow-up${broken>1?'s':''} not sent`]);
+  if((L.leaks||[]).length) risks.push([Math.min(18,6*L.leaks.length),'You revealed pressure on your own side']);
+  if(L.flags.misquote) risks.push([10,'The final summary contained an error']);
+  if(L.flags.unresolved) risks.push([15,'Points still open at signature']);
+  if(c.eps[5].done && !L.flags.summaryOk && !L.flags.misquote) risks.push([6,'The final terms were never confirmed out loud']);
+  const risk=Math.min(100, risks.reduce((a,r)=>a+r[0],0));
+  const done=c.eps.filter(e=>e.done), avg=done.length?Math.round(done.reduce((a,e)=>a+(e.score||0),0)/done.length):0;
+  let key, title, text;
+  if(c.status==='walked'){ if(dv<45 || rel<30){ key='walk'; title='Smart Walk-away'; text='The terms on the table were worse than your alternative, and you had the discipline to leave. Not every deal should be signed.' } else { key='collapse'; title='Collapse'; text='You walked away from terms that were better than your alternative. The deal was there to be made.' } }
+  else if(rel<35 && dv<55){ key='collapse'; title='Collapse'; text='The contract is signed, but the relationship is broken. They will not renew, and they will tell others why.' }
+  else if(dv>=75 && rel>=62 && risk<30){ key='partner'; title='Strategic Partner'; text='Strong terms, a strong relationship and a contract that can survive the next surprise. They are already talking about expanding the deal.' }
+  else if(dv>=68 && rel<48){ key='bitter'; title='Bitter Win'; text='You won the terms and lost the room. The contract will run its course — and then they will look elsewhere.' }
+  else if(dv>=50 && rel>=50 && risk<=50){ key='solid'; title='Solid Renewal'; text='A fair deal both sides can live with. Nothing spectacular, nothing fragile — and a relationship worth keeping.' }
+  else { key='fragile'; title='Fragile Compromise'; text= risk>50 ? 'You have a signature, but the contract is exposed. The next surprise will reopen everything.' : 'You have a signature, but you gave away more than the mandate allowed. The deal holds only while nothing goes wrong.' }
+  const overall=Math.round(campClamp(.4*avg+.3*dv+.3*rel-risk*.1,0,100));
+  return {dv, rel, risk, risks:risks.map(r=>r[1]), avg, overall, key, title, text};
+}
+function campArcData(c){
+  const X=campCtx(c), L=c.L, O=campOutcome(c);
+  return {id:c.id, role:X?X.R.name:c.role, field:X?X.F.name:c.field, side:c.side, me:X?X.me:'', them:X?X.them:'', contact:X?X.C.name:'', difficulty:c.difficulty, status:c.status, outcome:O,
+    history:L.history, chain:L.chain, items:L.items, terms:Object.values(L.terms||{}), needs:Object.keys(L.needs||{}).length, promises:L.promises, leaks:L.leaks, goodwill:L.goodwill, rapport:L.rapport, cred:L.cred, trust:L.trust,
+    eps:c.eps.map((e,i)=>({t:CAMP_EPS[i].t, done:!!e.done, score:e.score||0, bridged:e.bridged||''}))};
+}
+function campFinish(c){
+  const arc=campArcData(c), O=arc.outcome;
+  const rec={id:Date.now(), kind:'arc', date:new Date().toISOString(), title:`Campaign — ${arc.them} (${O.title})`, tag:'Campaign', difficulty:c.difficulty, name:myName(), role:arc.role,
+    metrics:{duration:0, turns:0, share:0, wpm:null, avgLen:0, longest:0, fTotal:0, fillers:{}, myWords:0}, fb:{overall:O.overall, level:O.title, headline:O.title, summary:O.text}, log:[], arc};
+  if(!c.arcSaved){ c.arcSaved=true; campPut(c); gas('reports.save',{record:rec}).catch(()=>{}) }
+  if(c.status==='walked') openArc(c.id);
+}
+
+/* ---------- UI: builder, hub, arc report ---------- */
+let campSel = {role:'sales', field:'saas', side:'provider', difficulty:'medium'};
+function openCampaign(){ go('campaign'); renderCampaign(); campPull() }
+function campPick(k, v){
+  campSel[k]=v; const R=campRoles().find(r=>r.id===campSel.role);
+  if(R && !R.sides.includes(campSel.side)) campSel.side=R.sides[0];
+  renderCampaign();
+}
+function campStart(){
+  const cur=campActive(); if(cur && !confirm('You already have a campaign in progress. Starting a new one closes it. Continue?')) return;
+  const c=campNew(campSel.role, campSel.field, campSel.side, campSel.difficulty); CAMP_CACHE.clear(); renderCampaign(); window.scrollTo(0,0); toast('Campaign started — Episode 1 is ready');
+}
+function campBar(label, v, note){ return `<div class="bar"><div><span>${esc(label)}${note?`<small style="display:block;color:var(--dim);font-size:11px;font-weight:400">${esc(note)}</small>`:''}</span><b>${v==null?'–':v}</b></div><i><u style="width:${v==null?0:v}%"></u></i></div>` }
+function renderCampaign(){
+  const c=campActive(), el=$('campBody'); if(!el) return;
+  if(!c){ el.innerHTML=renderCampBuilder(); return }
+  const X=campCtx(c); if(!X){ el.innerHTML=`<div class="empty">This campaign uses a role or field pack that is no longer installed.<br><br><button class="btn danger" onclick="campAbandon()">Close it</button></div>`; return }
+  const L=c.L, needs=campNeeds(X), K=campShock(X), P=campProblem(X);
+  const terms=Object.values(L.terms||{});
+  const epCard=(e,n)=>{
+    const meta=CAMP_EPS[n], unlocked=!!e.in, avail= n===0 || c.eps[n-1].done, cs=unlocked?getCase(campSid(c,n),false):null, unread=cs?cs.unread:0;
+    const bridge = e.done ? (e.bridged==='kept' || campBridgeDone(c,n) ? 'sent' : e.bridged==='skipped' ? 'skipped' : 'due') : '';
+    const state = e.done ? 'done' : avail ? 'now' : 'lock';
+    const sc0 = unlocked ? campBuild(c,n) : null;
+    return `<div class="cp-ep ${state}">
+      <div class="cp-n">${e.done?'✓':n+1}</div>
+      <div class="cp-b"><div class="cp-t"><b>${esc(sc0?sc0.title:meta.t)}</b>${e.done?`<span class="pill on">${e.score}</span>`:state==='now'?'<span class="pill on">Ready</span>':'<span class="pill">Locked</span>'}</div>
+        <p>${esc(sc0?sc0.desc:meta.s)}</p>
+        ${state==='lock'?'':`<div class="cp-steps">
+          <button class="lnk" onclick="campOpenMail(${n})">✉ ${e.done?(bridge==='sent'?'Follow-up sent':bridge==='skipped'?'Follow-up skipped':'Send your follow-up'):'Their email'}${unread?` <span class="badge">${unread}</span>`:''}</button>
+          ${e.done?'':`<button class="btn gold" onclick="campOpenEp(${n})">🎙 ${unlocked?'Open the meeting':'Start episode'} →</button>`}
+          ${e.done&&!(c.eps[n+1]&&c.eps[n+1].in)?`<button class="lnk" style="color:var(--muted)" onclick="campRedo(${n})">Redo</button>`:''}
+        </div>`}
+        ${e.done&&bridge==='due'&&n<5?`<div class="cp-note">Reply to ${esc(X.C.first)}'s follow-up before the next episode — it keeps your promises and protects trust.</div>`:''}
+        ${e.done&&bridge==='due'&&n===5?`<div class="cp-note">Send the final confirmation email to complete the paperwork.</div>`:''}
+      </div></div>`;
+  };
+  const finished=c.eps[5].done;
+  el.innerHTML=`
+    <div class="hero cp-hero"><div><div class="eyebrow">Campaign · ${esc(dlabel(c.difficulty))}</div><h1>${esc(X.them)}<br><em>one client, six meetings.</em></h1></div>
+      <div><p>You are <b style="color:#fff">${esc(X.myTitle)}</b>, negotiating ${esc(X.F.deal)} with ${esc(X.C.name)}. Everything you say carries forward.</p>
+      <div class="cp-chips"><span>${esc(X.R.name)}</span><span>${esc(X.F.name)}</span><span>${c.side==='provider'?'Provider side':'Buyer side'}</span></div></div></div>
+    <div class="cp-grid">
+      <div><div class="section-h" style="margin-top:26px"><h2>Episodes</h2><span>${c.eps.filter(e=>e.done).length} / 6</span></div>
+        ${c.eps.map(epCard).join('')}
+        <div class="cp-foot">${finished?`<button class="btn gold" onclick="openArc('${c.id}')">View the Arc Report →</button>`:''}
+          ${c.ep>=4&&!finished?`<button class="btn danger" onclick="campWalk()">Walk away from the deal</button>`:''}
+          <button class="btn ghost" onclick="campAbandon()">${finished?'Close and start a new campaign':'Abandon campaign'}</button></div>
+      </div>
+      <div><div class="section-h" style="margin-top:26px"><h2>Deal Ledger</h2><span>carries forward</span></div>
+        <div class="pane cp-ledger">
+          ${campBar('Trust', L.trust, `with ${X.C.first} — moves slowly, decides how far they bend`)}
+          ${campBar('Rapport', L.rapport, 'small talk, empathy, listening')}
+          ${campBar('Credibility', L.cred, 'evidence, accuracy, staying inside your authority')}
+          <div class="cp-kv"><span>Goodwill</span><b>${L.goodwill||0}</b></div>
+          <label style="margin-top:16px">Needs map · ${Object.keys(L.needs).length} / 5</label>
+          <ul class="bfind">${needs.map(h=>L.needs[h.id]?`<li class="got">✓ <b>${esc(h.hint)}</b> <span>${esc(h.recap)}</span></li>`:`<li class="lock">🔒 ${esc(h.hint)}</li>`).join('')}</ul>
+          ${terms.length?`<label style="margin-top:16px">Term sheet</label><table class="bptbl"><tbody>${terms.map(t=>`<tr><td>${esc(cap1(t.label))}</td><td class="${t.ok?'r-in':'r-out'}">${esc(t.text)}</td><td class="r-open" style="white-space:nowrap">${t.src==='you'?'you':t.src==='team'?'team':'default'}</td></tr>`).join('')}</tbody></table>`:''}
+          ${(L.promises||[]).length?`<label style="margin-top:16px">Promise log</label><ul class="bgoals">${L.promises.map(p=>`<li class="${p.kept===true?'met':p.kept===false?'':'partial'}"><i>${p.kept===true?'✓':p.kept===false?'✕':'~'}</i>“${esc(p.text)}” <span style="color:var(--dim)">· Ep ${p.ep+1}</span></li>`).join('')}</ul>`:''}
+          ${(L.leaks||[]).length?`<div class="cp-note" style="margin-top:14px">They heard you say: “${esc(L.leaks.map(x=>x.text).join('”, “'))}”.</div>`:''}
+        </div>
+        ${c.eps[2].in?`<div class="pane cp-ledger" style="margin-top:14px"><label>Story so far</label><ul class="pts">${[c.eps[2].in?`Month 3 — ${P[1]}: ${P[2]}.`:null, c.eps[3].in?`Month 9 — ${K[1]}: ${K[2]}.`:null].filter(Boolean).map(x=>`<li>${esc(x)}</li>`).join('')}</ul></div>`:''}
+      </div>
+    </div>`;
+  updateBadges();
+}
+function renderCampBuilder(){
+  const roles=campRoles(), fields=campFields(), R=roles.find(r=>r.id===campSel.role)||roles[0], F=fields.find(f=>f.id===campSel.field)||fields[0];
+  if(!R.sides.includes(campSel.side)) campSel.side=R.sides[0];
+  const X=campCtx({role:R.id, field:F.id, side:campSel.side, seed:1, difficulty:campSel.difficulty});
+  const past=Object.values(campAll()).filter(c=>c.status==='done'||c.status==='walked').sort((a,b)=>b.updated-a.updated).slice(0,6);
+  const iss=campEp2Issues(X);
+  return `
+    <div class="hero cp-hero"><div><div class="eyebrow">Campaign · linked scenarios</div><h1>One client.<br><em>Six meetings.</em></h1></div>
+      <div><p>Pick your role and your field. You follow one deal from the first handshake to the final signature — and what you say in each meeting changes the next.</p>
+      <div class="steps"><span><b>01</b>Role</span><span><b>02</b>Field</span><span><b>03</b>Play the arc</span></div></div></div>
+    <div class="cp-grid">
+      <div>
+        <div class="section-h" style="margin-top:26px"><h2>Your role</h2><span>${roles.length} roles</span></div>
+        <div class="cp-pick">${roles.map(r=>`<button class="${r.id===R.id?'on':''}" onclick="campPick('role','${esc(r.id)}')">${esc(r.name)}</button>`).join('')}</div>
+        <div class="section-h" style="margin-top:26px"><h2>Your field</h2><span>${fields.length} fields</span></div>
+        <div class="cp-pick">${fields.map(f=>`<button class="${f.id===F.id?'on':''}" onclick="campPick('field','${esc(f.id)}')">${esc(f.name)}</button>`).join('')}</div>
+        <div class="row" style="margin-top:26px">
+          <div><label>Your side of the deal</label><div class="seg">${['provider','buyer'].map(s=>`<button class="${campSel.side===s?'on':''}" ${R.sides.includes(s)?'':'disabled style="opacity:.35"'} onclick="campPick('side','${s}')">${s==='provider'?'Provider':'Buyer'}</button>`).join('')}</div>
+            <div class="hint">${R.sides.length<2?`${esc(R.name)} sits on the ${R.sides[0]} side.`:'Play the same deal from either side of the table.'}</div></div>
+          <div><label>Difficulty</label><div class="seg">${Object.keys(DIFF).map(d=>`<button class="${campSel.difficulty===d?'on':''}" onclick="campPick('difficulty','${d}')">${DIFF[d].label}</button>`).join('')}</div>
+            <div class="hint">${esc(DIFF[campSel.difficulty].hint)}</div></div>
+        </div>
+        <div class="section-h" style="margin-top:30px"><h2>The arc</h2><span>6 episodes</span></div>
+        ${CAMP_EPS.map((e,i)=>`<div class="cp-ep lock"><div class="cp-n">${i+1}</div><div class="cp-b"><div class="cp-t"><b>${e.t}</b></div><p>${e.s}</p></div></div>`).join('')}
+        <div class="cp-foot"><button class="btn ghost" onclick="campPackDownload()">Download campaign pack (Excel)</button><span class="hint">Edit roles and fields in Excel, then drop the file on the Meetings page to add your own.</span></div>
+      </div>
+      <div><div class="section-h" style="margin-top:26px"><h2>Your deal</h2><span>preview</span></div>
+        <div class="pane cp-ledger">
+          <div class="brief" style="margin-bottom:14px">You are <b>${esc(X.myTitle)}</b> — ${esc(X.meDesc)}. You will negotiate ${esc(F.deal)} with <b>${esc(X.C.name)}</b>, ${esc(X.C.role)} (${esc(X.themDesc)}).</div>
+          <label>You own</label><ul class="goals" style="margin-bottom:14px">${iss.filter(i=>i.weight>=3).map(i=>`<li>${esc(cap1(i.label))}</li>`).join('')||'<li>Every commercial point</li>'}</ul>
+          <label>Outside your authority</label><ul class="goals" style="margin-bottom:14px">${iss.filter(i=>i.outside).map(i=>`<li>${esc(cap1(i.label))} — check with your team</li>`).join('')||'<li>Nothing — you can decide everything yourself</li>'}</ul>
+          <label>You are measured on</label><div class="hint" style="margin:0 0 18px;font-size:13.5px;color:var(--ink2)">${esc(cap1(R.kpi||''))}</div>
+          <button class="btn gold" style="width:100%" onclick="campStart()">Start the campaign →</button>
+        </div>
+        ${past.length?`<div class="section-h" style="margin-top:26px"><h2>Finished</h2><span>${past.length}</span></div>${past.map(c=>{ const O=campOutcome(c), Y=campCtx(c); return `<div class="hist" onclick="openArc('${c.id}')"><div class="sc">${O.overall}</div><div style="flex:1;min-width:0"><b>${esc(O.title)}</b><small>${esc(Y?Y.them+' · '+Y.R.name:'')} · ${new Date(c.updated).toLocaleDateString()}</small></div><span class="chev">→</span></div>` }).join('')}`:''}
+      </div>
+    </div>`;
+}
+
+/* trust curve: one series, six points — direct labels, hover detail, table below */
+function campCurve(arc){
+  const H=arc.history||[]; if(!H.length) return '';
+  const W=900, Ht=240, px=44, py=30, x=i=>px+(W-2*px)*(i/5), y=v=>Ht-py-(Ht-2*py)*(v/100);
+  const pts=H.map(h=>[x(h.ep), y(h.trust), h]);
+  const grid=[0,25,50,75,100].map(v=>`<line x1="${px}" x2="${W-px}" y1="${y(v)}" y2="${y(v)}" stroke="#eae6dd" stroke-width="1"/><text x="${px-8}" y="${y(v)+4}" text-anchor="end" font-size="11" fill="#9aa19c">${v}</text>`).join('');
+  const xl=[0,1,2,3,4,5].map(i=>`<text x="${x(i)}" y="${Ht-6}" text-anchor="middle" font-size="11" fill="#7b807c">Ep ${i+1}</text>`).join('');
+  const path=pts.map((p,i)=>(i?'L':'M')+p[0].toFixed(1)+' '+p[1].toFixed(1)).join(' ');
+  const dots=pts.map(p=>`<g class="cp-dot"><circle cx="${p[0]}" cy="${p[1]}" r="14" fill="transparent"/><circle cx="${p[0]}" cy="${p[1]}" r="5" fill="#455d50" stroke="#fffefb" stroke-width="2"/><text x="${p[0]}" y="${p[1]-12}" text-anchor="middle" font-size="12" font-weight="700" fill="#252b29">${p[2].trust}</text><title>Episode ${p[2].ep+1} · ${CAMP_EPS[p[2].ep].t} — trust ${p[2].trust}, score ${p[2].score}</title></g>`).join('');
+  return `<svg viewBox="0 0 ${W} ${Ht}" width="100%" role="img" aria-label="Trust after each episode">${grid}${xl}<path d="${path}" fill="none" stroke="#455d50" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/>${dots}</svg>`;
+}
+function renderArc(arc){
+  const O=arc.outcome, C=2*Math.PI*66, off=C*(1-(O.overall||0)/100);
+  const chain=(arc.chain||[]).slice().sort((a,b)=>a.ep-b.ep);
+  const dot=g=>g>0?['y','✓']:g<0?['n','✕']:['p','•'];
+  return `
+  <div class="rep-head">
+    <div class="ring"><svg width="150" height="150"><circle cx="75" cy="75" r="66" fill="none" stroke="#e6eee7" stroke-width="7"/><circle cx="75" cy="75" r="66" fill="none" stroke="#455d50" stroke-width="7" stroke-linecap="round" stroke-dasharray="${C}" stroke-dashoffset="${off}"/></svg><b>${O.overall}<small>ARC</small></b></div>
+    <div><span class="level">${arc.status==='walked'?'Ended by walk-away':'Campaign complete'}</span><h1>${esc(O.title)}</h1><p>${esc(O.text)}</p></div>
+    <div style="text-align:right;color:var(--dim);font-size:12.5px;line-height:1.8">${esc(arc.them)} · ${esc(arc.contact)}<br>${esc(arc.role)}<br>${esc(arc.field)} · ${arc.side==='provider'?'Provider':'Buyer'} · ${esc(dlabel(arc.difficulty))}</div>
+  </div>
+  <div class="kpis" style="grid-template-columns:repeat(4,1fr)">
+    <div class="kpi"><small>Deal value</small><b>${O.dv}</b><span>${O.dv>=75?'Strong terms':O.dv>=50?'Inside your limits':'Value given away'}</span></div>
+    <div class="kpi"><small>Relationship</small><b>${O.rel}</b><span>${O.rel>=62?'They want more':O.rel>=48?'Workable':'Damaged'}</span></div>
+    <div class="kpi"><small>Risk exposure</small><b>${O.risk}</b><span>${O.risk<=30?'Well protected':O.risk<=50?'Some gaps':'Exposed'}</span></div>
+    <div class="kpi"><small>Avg. episode score</small><b>${O.avg}</b><span>${arc.eps.filter(e=>e.done).length} of 6 episodes</span></div>
+  </div>
+  <div class="rgrid">
+    <div class="pane full"><h3>Trust with ${esc(arc.contact.split(' ')[0])}, episode by episode</h3>${campCurve(arc)}
+      <table class="bptbl" style="margin-top:8px"><thead><tr><th>Episode</th><th>Score</th><th>Objectives</th><th>Trust after</th><th>Follow-up</th></tr></thead><tbody>${arc.eps.map((e,i)=>{ const h=(arc.history||[]).find(x=>x.ep===i); return `<tr><td><b>${i+1}. ${esc(e.t)}</b></td><td>${e.done?e.score:'—'}</td><td>${h?h.met+' / '+h.goals:'—'}</td><td>${h?h.trust:'—'}</td><td class="${e.bridged==='kept'?'r-in':e.bridged==='skipped'?'r-out':'r-open'}">${e.bridged==='kept'?'✓ sent':e.bridged==='skipped'?'✕ skipped':'—'}</td></tr>` }).join('')}</tbody></table></div>
+    <div class="pane"><h3>What carried forward</h3>${chain.length?chain.map(x=>{ const [c,i]=dot(x.good); return `<div class="gl"><span class="dot ${c}">${i}</span><div>${esc(x.text)}</div></div>` }).join(''):'<div class="hint">Nothing recorded.</div>'}</div>
+    <div class="pane"><h3>Risk exposure</h3>${O.risks.length?`<ul class="pts">${O.risks.map(r=>`<li>${esc(r)}</li>`).join('')}</ul>`:'<div class="hint">✓ No open risks — the contract is well protected.</div>'}
+      <h3 style="margin-top:20px">Relationship</h3>${campBar('Trust',arc.trust)}${campBar('Rapport',arc.rapport)}${campBar('Credibility',arc.cred)}<div class="hint">Needs uncovered ${arc.needs} / 5 · goodwill ${arc.goodwill||0}</div></div>
+    <div class="pane full"><h3>Every number you negotiated</h3>
+      <table class="bptbl"><thead><tr><th>Episode</th><th>Point</th><th>Result</th><th>How</th><th>Against your mandate</th></tr></thead><tbody>${(arc.items||[]).slice().sort((a,b)=>a.ep-b.ep).map(t=>`<tr><td>Ep ${t.ep+1}</td><td><b>${esc(cap1(t.label))}</b></td><td class="${t.ok?'r-in':'r-out'}">${esc(t.text)}</td><td class="r-open">${t.src==='you'?'negotiated by you':t.src==='team'?'agreed by your team':'settled by default'}</td><td>${t.score>=.9?'At or beyond target':t.score>=.4?'Between limit and target':t.score>=0?'At your limit':'Outside your limit'}</td></tr>`).join('')||'<tr><td colspan="5" class="r-open">No terms were agreed.</td></tr>'}</tbody></table></div>
+    ${(arc.promises||[]).length?`<div class="pane full"><h3>Promise log</h3><ul class="bgoals">${arc.promises.map(p=>`<li class="${p.kept===true?'met':p.kept===false?'':'partial'}"><i>${p.kept===true?'✓':p.kept===false?'✕':'~'}</i>“${esc(p.text)}” <span style="color:var(--dim)">· Episode ${p.ep+1} · ${p.kept===true?'kept':p.kept===false?'not followed up':'open'}</span></li>`).join('')}</ul></div>`:''}
+  </div>
+  <div class="noprint" style="display:flex;gap:12px;padding:10px 0 60px;flex-wrap:wrap">
+    <button class="btn gold" onclick="openCampaign()">Back to the campaign</button>
+    <button class="btn ghost" onclick="window.print()">Save as PDF</button>
+  </div>`;
+}
+function openArc(id){ const c=campGet(id); if(!c) return; $('arcBody').innerHTML=renderArc(campArcData(c)); go('arc') }
+/* shown at the top of an episode's debrief */
+function renderCampPane(k){
+  if(!k) return '';
+  const rows=(k.carry||[]).map(x=>{ const [c,i]=x.good>0?['y','✓']:x.good<0?['n','✕']:['p','•']; return `<div class="gl"><span class="dot ${c}">${i}</span><div>${esc(x.text)}</div></div>` }).join('');
+  return `<div class="pane full cp-carry"><h3>${esc(k.label)} — what carries forward</h3>${k.note?`<div class="hint" style="margin-bottom:10px">${esc(k.note)}</div>`:''}${rows}
+    <div class="noprint" style="margin-top:14px;display:flex;gap:10px;flex-wrap:wrap"><button class="btn gold" onclick="openCampaign()">Continue the campaign →</button>${k.counted&&k.ep<5?`<button class="btn ghost" onclick="openThread('cmp-${esc(k.id)}-${k.ep+1}')">✉ Write your follow-up</button>`:''}</div></div>`;
+}
+
+/* ---------- campaign pack: export / import (Excel) ---------- */
+const CAMP_FCOLS=['id','name','provider_company','buyer_company','provider_description','buyer_description','provider_contact','provider_contact_gender','provider_senior','provider_senior_gender','buyer_contact','buyer_contact_gender','buyer_senior','buyer_senior_gender','product','deal',
+  'price_label','price_unit','price_format','price_keywords','price_provider','price_buyer','price_step','price_round','price_min','price_max',
+  'volume_label','volume_unit','volume_format','volume_keywords','volume_provider','volume_buyer','volume_step','volume_round','volume_min','volume_max',
+  'sla_label','sla_format','pain_says','pain_recap','deadline_says','deadline_recap','driver_says','driver_recap'];
+function campFieldRow(f){
+  const iss=(k)=>{ const d=f[k]||{}; return {[k+'_label']:d.label||'', [k+'_unit']:d.unit||'', [k+'_format']:d.fmt||'', [k+'_keywords']:d.keys?'re:'+d.keys:'', [k+'_provider']:(d.P||[]).join(', '), [k+'_buyer']:(d.B||[]).join(', '), [k+'_step']:d.step??'', [k+'_round']:d.round??'', [k+'_min']:d.range?d.range[0]:'', [k+'_max']:d.range?d.range[1]:''} };
+  return Object.assign({id:f.id, name:f.name, provider_company:f.pco, buyer_company:f.bco, provider_description:f.pd, buyer_description:f.bd,
+    provider_contact:f.pn[0], provider_contact_gender:f.pn[1], provider_senior:f.pn[2], provider_senior_gender:f.pn[3], buyer_contact:f.bn[0], buyer_contact_gender:f.bn[1], buyer_senior:f.bn[2], buyer_senior_gender:f.bn[3],
+    product:f.prod, deal:f.deal, sla_label:(f.sla||{}).label||'', sla_format:(f.sla||{}).fmt||'', pain_says:f.pain[0], pain_recap:f.pain[1], deadline_says:f.deadline[0], deadline_recap:f.deadline[1], driver_says:f.driver[0], driver_recap:f.driver[1]}, iss('price'), iss('volume'));
+}
+async function campPackDownload(){
+  try{ await loadScript(CDN_XLSX) }catch(e){ toast(e.message); return }
+  const wb=XLSX.utils.book_new(), add=(name,cols,rows,w)=>{ const ws=XLSX.utils.aoa_to_sheet([cols].concat(rows.map(r=>cols.map(c=>r[c]??'')))); ws['!cols']=cols.map(()=>({wch:w||22})); XLSX.utils.book_append_sheet(wb, ws, name) };
+  const F=campFields(), R=campRoles();
+  add('Fields', CAMP_FCOLS, F.map(campFieldRow));
+  add('Problems', ['field_id','caused_by','short','what_happened','impact'], F.flatMap(f=>f.problems.map(p=>({field_id:f.id, caused_by:p[0], short:p[1], what_happened:p[2], impact:p[3]}))), 34);
+  add('Shocks', ['field_id','hits','short','what_happened','percent'], F.flatMap(f=>f.shocks.map(p=>({field_id:f.id, hits:p[0], short:p[1], what_happened:p[2], percent:p[3]}))), 34);
+  add('Roles', ['id','name','sides','title_provider','title_buyer','counterpart_when_provider','counterpart_when_buyer','focus','outside','measured_on'], R.map(r=>({id:r.id, name:r.name, sides:r.sides.join(', '), title_provider:(r.title||{}).provider||'', title_buyer:(r.title||{}).buyer||'', counterpart_when_provider:(r.peer||{}).provider||'', counterpart_when_buyer:(r.peer||{}).buyer||'', focus:(r.focus||[]).join(', '), outside:(r.outside||[]).join(', '), measured_on:r.kpi||''})));
+  const guide=[['Sheet','How to fill it'],
+    ['Fields','One row per industry. provider / buyer numbers are "opening, target, walk-away" from that side\'s point of view. The provider must be able to accept what the buyer can pay: provider walk-away ≤ buyer walk-away for price and volume. price_unit / volume_unit: money · pct · units · days · months · years. Format: {v} is the number, e.g. ${v} per unit.'],
+    ['Problems','Three per field (Episode 3). caused_by: provider · buyer · shared. Write what_happened and impact as lower-case clauses — they are dropped into sentences.'],
+    ['Shocks','Three per field (Episode 4). hits: provider · buyer. percent = the size of the price change the shock justifies.'],
+    ['Roles','sides: provider, buyer or both. focus / outside use issue IDs: '+Object.keys(CAMP_ISSUES).join(', ')+'.'],
+    ['Import','Change an id to add a new field or role; keep an id to replace the built-in one. Drop the file on the Meetings page.']];
+  const g=XLSX.utils.aoa_to_sheet(guide); g['!cols']=[{wch:12},{wch:130}]; XLSX.utils.book_append_sheet(wb, g, 'Guide');
+  XLSX.writeFile(wb, 'pactli-campaign-pack.xlsx');
+}
+function campPackImport(wb){
+  const find=n=>{ const k=wb.SheetNames.find(x=>x.trim().toLowerCase()===n); return k?XLSX.utils.sheet_to_json(wb.Sheets[k],{defval:''}):[] };
+  const FR=find('fields'), RR=find('roles'); if(!FR.length && !RR.length) return null;
+  if(FR.length && !('provider_company' in FR[0])) return null;
+  const s=v=>String(v??'').trim(), nums=v=>s(v).split(/\s*[,;]\s*/).map(toNum).filter(x=>x!=null), g=v=>/^f/i.test(s(v))?'f':'m';
+  const PR=find('problems'), SR=find('shocks'), warn=[], fields=[], roles=[];
+  FR.forEach(r=>{ const id=s(r.id).replace(/[^\w-]/g,''); if(!id||!s(r.name)) return;
+    const iss=k=>{ const P=nums(r[k+'_provider']), B=nums(r[k+'_buyer']); const kw=s(r[k+'_keywords']); return clean({label:s(r[k+'_label']), unit:ENUM.unit.includes(s(r[k+'_unit']))?s(r[k+'_unit']):'money', fmt:s(r[k+'_format']), keys:kwToRx(kw), P, B, step:toNum(r[k+'_step']), round:toNum(r[k+'_round']), range:(toNum(r[k+'_min'])!=null&&toNum(r[k+'_max'])!=null)?[toNum(r[k+'_min']),toNum(r[k+'_max'])]:undefined}) };
+    const f={id, name:s(r.name), pco:s(r.provider_company)||'the provider', bco:s(r.buyer_company)||'the buyer', pd:s(r.provider_description)||'the provider', bd:s(r.buyer_description)||'the buyer',
+      pn:[s(r.provider_contact)||'Alex Morgan',g(r.provider_contact_gender),s(r.provider_senior)||'Chris Taylor',g(r.provider_senior_gender)], bn:[s(r.buyer_contact)||'Sam Parker',g(r.buyer_contact_gender),s(r.buyer_senior)||'Jordan Blake',g(r.buyer_senior_gender)],
+      prod:s(r.product)||'the product', deal:s(r.deal)||'a supply agreement', price:iss('price'), volume:iss('volume'), sla:clean({label:s(r.sla_label)||'penalties', fmt:s(r.sla_format)}),
+      pain:[s(r.pain_says),s(r.pain_recap)], deadline:[s(r.deadline_says),s(r.deadline_recap)], driver:[s(r.driver_says),s(r.driver_recap)],
+      problems:PR.filter(p=>s(p.field_id)===id&&s(p.what_happened)).map(p=>[/^p/i.test(s(p.caused_by))?'provider':/^b/i.test(s(p.caused_by))?'buyer':'shared', s(p.short)||'a problem', s(p.what_happened), s(p.impact)||'the project is at risk']),
+      shocks:SR.filter(p=>s(p.field_id)===id&&s(p.what_happened)).map(p=>[/^b/i.test(s(p.hits))?'buyer':'provider', s(p.short)||'a market change', s(p.what_happened), toNum(p.percent)||8])};
+    const bad=[]; ['price','volume'].forEach(k=>{ const d=f[k]; if(!d.label||(d.P||[]).length!==3||(d.B||[]).length!==3) bad.push(k+': a label and three numbers for each side are required') });
+    if(!f.pain[0]||!f.deadline[0]||!f.driver[0]) bad.push('pain / deadline / driver lines are required');
+    if(!f.problems.length) bad.push('add at least one row on the Problems sheet'); if(!f.shocks.length) bad.push('add at least one row on the Shocks sheet');
+    if(bad.length) warn.push(`Field "${f.name}": ${bad.join('; ')}.`); else fields.push(f) });
+  RR.forEach(r=>{ const id=s(r.id).replace(/[^\w-]/g,''); if(!id||!s(r.name)) return;
+    const sides=s(r.sides).toLowerCase().split(/\s*[,;/]\s*/).filter(x=>x==='provider'||x==='buyer'); const ids=v=>s(v).split(/\s*[,;]\s*/).filter(x=>CAMP_ISSUES[x]);
+    roles.push({id, name:s(r.name), sides:sides.length?sides:['provider','buyer'], title:{provider:s(r.title_provider)||s(r.name), buyer:s(r.title_buyer)||s(r.name)}, peer:{provider:s(r.counterpart_when_provider)||'Procurement Lead', buyer:s(r.counterpart_when_buyer)||'Account Director'}, focus:ids(r.focus), outside:ids(r.outside), kpi:s(r.measured_on), phrases:[]}) });
+  /* only keep what differs from the built-in packs */
+  const same=(a,b)=>JSON.stringify(a)===JSON.stringify(b);
+  const cu=campPacks(); let nf=0, nr=0;
+  fields.forEach(f=>{ const b=CAMP_FIELDS.find(x=>x.id===f.id); if(b && same(campFieldRow(b), campFieldRow(f)) && same(b.problems,f.problems) && same(b.shocks,f.shocks)) return; cu.fields=(cu.fields||[]).filter(x=>x.id!==f.id).concat([f]); nf++ });
+  roles.forEach(r=>{ const b=CAMP_ROLES.find(x=>x.id===r.id); if(b){ r.phrases=b.phrases; if(same([b.name,b.sides,b.title,b.peer,b.focus,b.outside,b.kpi],[r.name,r.sides,r.title,r.peer,r.focus,r.outside,r.kpi])) return } cu.roles=(cu.roles||[]).filter(x=>x.id!==r.id).concat([r]); nr++ });
+  LS.set('pactli_camp_packs', cu); CAMP_CACHE.clear();
+  return {fields:nf, roles:nr, warn};
+}
+
+/* ---------- browser / phone Back button ---------- */
+addEventListener('popstate', e=>{
+  const id=e.state&&e.state.s; if(!id) return;
+  if($('room').classList.contains('on') && S && !S.ended){ try{ history.pushState({s:'room'},'') }catch(_){ } toast('Use "Leave & debrief" to end the meeting.'); return }
+  document.querySelectorAll('.modal.on').forEach(m=>m.classList.remove('on'));
+  go._pop=true;
+  try{ if(!authed()) go('login'); else if(id==='login'||id==='room') go('home'); else if(id==='campaign'){ go('campaign'); renderCampaign() } else go(id) } finally { go._pop=false }
+});
 
 /* ---------- PC / Mobile view ---------- */
 function applyView(){
