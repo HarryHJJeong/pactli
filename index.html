@@ -663,14 +663,14 @@ html.mob .btags{position:static;justify-content:flex-start;margin-top:10px}
 html.mob .bfootbar{padding:8px 16px 20px}
 html.mob .bmodal{padding:0}
 html.mob .bcard{border-radius:0}
-html.mob .rbody.bopen .bpanel{display:flex}
-html.mob .bpanel{display:flex!important;position:fixed;left:max(0px,calc(50% - 215px));right:max(0px,calc(50% - 215px));bottom:var(--ctrlH,150px);height:min(58dvh,calc(100dvh - var(--ctrlH,150px) - 70px));
+html.mob .rbody .bpanel,html.mob .rbody.bopen .bpanel{display:flex!important;position:fixed;top:auto;width:auto;left:max(0px,calc(50% - 215px));right:max(0px,calc(50% - 215px));bottom:var(--ctrlH,150px);height:min(58dvh,calc(100dvh - var(--ctrlH,150px) - 70px));
   border:0;border-radius:22px 22px 0 0;box-shadow:0 -10px 34px rgba(12,28,23,.22);z-index:45;transform:translateY(calc(100% + var(--ctrlH,150px) + 20px));transition:transform .25s ease,height .25s ease;width:auto;top:auto}
-html.mob .rbody.bopen .bpanel{transform:none}
-html.mob .bpanel.full{height:calc(100dvh - var(--ctrlH,150px) - 60px)}
+html.mob .rbody.bopen .bpanel{transform:none;bottom:var(--ctrlH,150px)}
+html.mob .rbody .bpanel.full{height:calc(100dvh - var(--ctrlH,150px) - 60px)}
 html.mob .bgrab{display:block;padding:9px 0 3px;cursor:grab}.bgrab i{display:block;width:42px;height:5px;background:#d6d0c2;border-radius:3px;margin:0 auto}
 html.mob #bBody{padding:6px 14px 16px}
-html.mob #bBtn kbd{display:none}
+html.mob #bBtn kbd,html.mob #bBtn span{display:none}
+html.mob #bBody .bhead{order:-3}html.mob #bBody .btarget{order:-2}html.mob #bBody .bnext,html.mob #bBody .bnextbtn{order:-1}
 @media print{
   body{background:#fff}
   .top,.noprint{display:none!important}
@@ -844,7 +844,7 @@ html.mob #bBtn kbd{display:none}
     <span class="rec">LIVE</span>
     <div class="t"><b id="rTitle"></b><small id="rSub"></small></div>
     <div class="timer" id="rTimer">0:00 <small>/ 10:00</small></div>
-    <button class="btn ghost" id="bBtn" onclick="toggleBrief()" title="Your briefing (B)">📋 Briefing<kbd>B</kbd></button>
+    <button class="btn ghost" id="bBtn" onclick="toggleBrief()" title="Your briefing (B)">📋<span> Briefing</span><kbd>B</kbd></button>
     <button class="btn danger" onclick="endMeeting()">Leave &amp; debrief</button>
   </div>
   <div class="tprog"><i id="rProg"></i></div>
@@ -3587,7 +3587,7 @@ function renderBrief(sc, st, mode){
   const P=sc.personas||[], E=st?st.events||[]:[];
   const role = live&&S ? S.role : ($('fRole')&&$('fRole').value.trim()) || sc.role || 'Participant';
   const mand=(sc.mandate||'').trim();
-  const target = mand ? mand.split(/\n+/).filter(Boolean) : sc.discussion ? ['Get the group to a clear, reasoned decision — and make sure every view is heard.'] : (sc.goals||[]).slice(0,1);
+  const target = mand ? mand.split(/\n+/).filter(Boolean) : sc.discussion ? ['Get the group to a clear, reasoned decision — and make sure every view is heard.'] : sc.custom&&S&&S.custom ? [S.custom.slice(0,220)] : sc.desc ? [sc.desc] : (sc.goals||[]).slice(0,1);
   const iss=brIssues(sc), trades=brTrades(sc), finds=brFind(sc), goals=(live?brGoals(sc,st):null);
   const txt=live?brLearnerText():'';
   S && live && (S._brSeen=S._brSeen||{});
