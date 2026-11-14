@@ -560,6 +560,117 @@ html.mob .modal .pane{max-width:410px!important}
   html.mob{background:#e7e3d9}
   html.mob body{max-width:430px;margin:0 auto;min-height:100vh;box-shadow:0 0 0 1px var(--line2),0 30px 80px rgba(37,43,41,.18);background-attachment:scroll}
 }
+
+/* ============ BRIEFING (card · live panel · mobile sheet · plan vs actual) ============ */
+.bmodal{align-items:flex-start;overflow-y:auto;padding:28px 16px}
+.bmodal #briefBody{width:100%;max-width:900px;margin:auto}
+.bcard{background:var(--bg);border-radius:22px;overflow:hidden;box-shadow:0 20px 60px rgba(12,28,23,.25)}
+.bhero{background:var(--hero);color:#fff;padding:24px 28px 22px;position:relative}
+.blogo{font-weight:800;font-size:17px;letter-spacing:-.03em}.blogo i{color:var(--lime);font-style:normal}
+.btags{position:absolute;right:24px;top:22px;display:flex;gap:7px;flex-wrap:wrap;justify-content:flex-end}
+.btags span{font-size:11px;padding:5px 10px;border-radius:20px;background:rgba(255,255,255,.13);font-weight:600}
+.btags span.l{background:var(--lime);color:var(--deep)}
+.bhero h2{font-size:26px;margin:16px 0 4px;color:#fff;letter-spacing:-.03em}
+.brole{color:#cfdcd3;font-size:14px}.brole b{color:#fff}
+.bgoal{margin-top:16px;background:rgba(199,228,139,.13);border-left:3px solid var(--lime);padding:11px 14px;border-radius:8px;font-size:14.5px;line-height:1.5}
+.bgoal small,.btarget small,.bnext small{display:block;font-size:10.5px;letter-spacing:.1em;font-weight:700;margin-bottom:3px}
+.bgoal small{color:var(--lime)}
+.bgrid{padding:22px 26px 8px;display:grid;grid-template-columns:1.15fr 1fr;gap:16px}
+.bgrid .wide2{grid-column:1/-1}
+.bsec{background:#fff;border:1px solid var(--line);border-radius:14px;padding:14px 16px;min-width:0}
+.bsec h4{font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--green);margin:0 0 10px;font-weight:700;display:flex;justify-content:space-between;gap:8px}
+.bsec h4 span{color:var(--dim);letter-spacing:0;text-transform:none;font-weight:600}
+.biss{margin-bottom:14px}.biss:last-child{margin-bottom:0}
+.bit{display:flex;justify-content:space-between;gap:8px;font-size:13.5px;align-items:baseline}
+.bit small{color:var(--dim);font-size:11px;white-space:nowrap}
+.bbar{position:relative;height:9px;background:#ece7db;border-radius:6px;margin:24px 4px 26px}
+.bz{position:absolute;top:0;bottom:0;background:var(--lime);border-radius:6px}
+.btrail{position:absolute;top:3px;height:3px;background:repeating-linear-gradient(90deg,#4b78a8 0 4px,transparent 4px 8px)}
+.bm{position:absolute;top:-6px;width:3px;height:21px;border-radius:2px;margin-left:-1px}
+.bm span{position:absolute;white-space:nowrap;font-size:10.5px;font-weight:700;left:50%;transform:translateX(-50%)}
+.bm.r-top span{bottom:24px}.bm.r-bot span{top:23px}
+.bm.m-tg{background:var(--green)}.bm.m-tg span{color:var(--green)}
+.bm.m-lim{background:var(--bad)}.bm.m-lim span{color:var(--bad)}
+.bm.m-op{background:#a5aea8}.bm.m-op span{color:var(--muted)}
+.bm.m-th{background:#4b78a8;height:25px;top:-8px}.bm.m-th span{color:#fff;background:#4b78a8;padding:1px 6px;border-radius:5px}
+.bm.m-ag{background:var(--ok);height:25px;top:-8px}.bm.m-ag span{color:#fff;background:var(--ok);padding:1px 6px;border-radius:5px}
+.bm.m-me{background:var(--deep);width:12px;height:12px;border-radius:50%;top:-2px;margin-left:-6px;border:2px solid #fff;box-shadow:0 0 0 1px var(--deep)}
+.bfoot{font-size:11.5px;color:var(--muted);margin-top:4px}.bfoot.ok{color:var(--ok);font-weight:600}.bfoot.bad{color:var(--bad);font-weight:600}
+.bopts{display:flex;flex-direction:column;gap:5px;margin-top:8px}
+.bopt{font-size:12.5px;padding:6px 9px;border-radius:8px;background:#f6f3ec;display:flex;gap:7px;align-items:center}
+.bopt i{font-style:normal;font-weight:700;width:12px}.bopt.ok i{color:var(--ok)}.bopt.no{color:var(--dim)}
+.bopt.now{outline:2px solid #4b78a8}.bopt em{margin-left:auto;font-style:normal;font-size:10px;font-weight:700;background:#4b78a8;color:#fff;padding:2px 7px;border-radius:8px;white-space:nowrap}.bopt em.g{background:#a5aea8}
+.btrades{display:flex;flex-direction:column;gap:7px}
+.btc{display:flex;align-items:center;gap:7px;font-size:12.5px}
+.btc span{padding:6px 9px;border-radius:8px;font-weight:600;flex:1;line-height:1.3}
+.btc .give{background:#fbeee9;color:#a2472f}.btc .get{background:#eef6dd;color:#3d5a1e}.btc i{color:var(--dim);font-style:normal}
+.btc.used{opacity:.45}.btc.used span{text-decoration:line-through}
+.bp{display:flex;gap:11px;margin-bottom:11px}.bp:last-child{margin-bottom:0}
+.bav{width:34px;height:34px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:700;color:var(--deep);flex-shrink:0;font-size:12.5px}
+.bn{font-size:13.5px;font-weight:700;display:flex;flex-wrap:wrap;gap:5px;align-items:center}
+.bn em{font-style:normal;font-size:10px;padding:2px 7px;border-radius:10px;font-weight:700}
+.st-lead{background:#e3ecf6;color:#2d5786}.st-skeptic{background:#fbeee9;color:#a2472f}.st-ally{background:#eef6dd;color:#3d5a1e}
+.bmood{font-size:10.5px;font-weight:600;color:var(--muted)}.bmood:before{content:'· '}.bmood.ok{color:var(--ok)}.bmood.bad{color:var(--bad)}
+.br{font-size:12px;color:var(--muted)}.bc{font-size:12.5px;color:var(--ink2);margin-top:3px;line-height:1.4}
+.bdx{display:block;font-size:11.5px;color:var(--muted);margin-top:3px}
+.bfind{list-style:none;margin:0;padding:0}
+.bfind li{font-size:13px;padding:7px 0;border-bottom:1px dashed var(--line);line-height:1.4}.bfind li:last-child{border:0}
+.bfind li.got{background:#eef6dd;border:0;border-radius:8px;padding:7px 9px;margin-bottom:5px}
+.bfind li.got span{color:var(--ink2)}.bfind li.got b{color:#3d5a1e}
+.bfind li em{font-style:normal;font-size:9.5px;background:var(--lime);color:var(--deep);padding:1px 6px;border-radius:8px;font-weight:700;margin-left:6px}
+.bfind li.lock{color:var(--dim)}
+.bgoals{list-style:none;margin:0;padding:0}
+.bgoals li{font-size:13px;padding:5px 0;display:flex;gap:9px;align-items:flex-start;line-height:1.4}
+.bgoals li i{width:16px;height:16px;border:2px solid #a5aea8;border-radius:4px;flex-shrink:0;font-style:normal;font-size:11px;font-weight:800;display:flex;align-items:center;justify-content:center;margin-top:1px}
+.bgoals li.met i{background:var(--ok);border-color:var(--ok);color:#fff}.bgoals li.partial i{border-color:#b8862b;color:#b8862b}
+.bph{display:flex;flex-wrap:wrap;gap:6px}.bph span{font-size:12px;background:#f3f0e8;border:1px solid var(--line);padding:5px 9px;border-radius:8px;font-style:italic}
+.bfootbar{display:flex;justify-content:space-between;align-items:center;gap:14px;padding:12px 26px 24px;flex-wrap:wrap}
+.bfootbar>span{font-size:12px;color:var(--muted);flex:1;min-width:200px}
+/* live panel */
+.bpanel{display:none;border-left:1px solid var(--line);background:var(--bg);min-height:0;flex-direction:column}
+.rbody.bopen{grid-template-columns:1fr 360px 340px}
+.rbody.bopen .bpanel{display:flex}
+#bBody{overflow-y:auto;padding:16px 16px 22px;display:flex;flex-direction:column;gap:10px;flex:1;min-height:0}
+.bgrab{display:none}
+.bhead{display:flex;justify-content:space-between;align-items:center}.bhead b{font-size:15px}
+.bx{font-size:12px;color:var(--muted);border:1px solid var(--line);border-radius:6px;padding:3px 9px;background:#fff;cursor:pointer}
+.btarget{background:var(--hero);color:#fff;border-radius:12px;padding:10px 13px;font-size:13px;line-height:1.45}.btarget small{color:var(--lime)}
+#bBody .bsec{padding:11px 13px}#bBody .bsec h4{font-size:10.5px;margin-bottom:8px}
+#bBody .bbar{margin:22px 4px 24px}
+.bdec{font-size:12.5px;font-weight:600}.bdec span{display:block;font-weight:400;font-style:italic;color:var(--ink2);margin-top:4px}
+.bnext{background:#fff8dd;border:1px solid #f0e2a8;border-radius:12px;padding:10px 13px;font-size:13px;line-height:1.45}.bnext small{color:#9a7a1c}
+.bnextbtn{background:#fff8dd;border:1px dashed #e0cd85;border-radius:12px;padding:10px;font-size:13px;color:#9a7a1c;font-weight:600;cursor:pointer}
+#bBtn{white-space:nowrap}#bBtn.on{background:var(--lime);border-color:var(--lime);color:var(--deep)}
+#bBtn kbd{font:inherit;font-size:10.5px;border:1px solid currentColor;border-radius:4px;padding:0 4px;margin-left:4px;opacity:.6}
+.msg .tx b.num{background:#fff3c4;color:inherit;padding:0 3px;border-radius:3px}
+.msg.me .tx b.num{background:var(--lime);color:var(--deep)}
+@media (max-width:1280px){
+  .rbody.bopen{grid-template-columns:1fr 390px}
+  .rbody.bopen .bpanel{position:fixed;right:0;top:64px;bottom:0;width:350px;z-index:40;box-shadow:-12px 0 40px rgba(12,28,23,.15)}
+}
+/* report: plan vs actual */
+.bptbl{width:100%;border-collapse:collapse;font-size:13px;margin-bottom:14px}
+.bptbl th{text-align:left;font-size:10.5px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);padding:6px 8px;border-bottom:1px solid var(--line)}
+.bptbl td{padding:8px;border-bottom:1px solid var(--line)}
+.bptbl .r-in{color:var(--ok);font-weight:700}.bptbl .r-out{color:var(--bad);font-weight:700}.bptbl .r-open{color:var(--muted)}
+.bpcols{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:18px}
+.bpcols h4{font-size:12px;margin:0 0 6px;color:var(--green)}.bpcols ul{list-style:none;margin:0;padding:0}
+.bpcols li{font-size:13px;padding:3px 0}.bpcols li.n{color:var(--muted)}.bpcols li span{color:var(--ink2)}.bpcols p{font-size:13px;font-style:italic}
+/* mobile */
+html.mob .bgrid{grid-template-columns:1fr;padding:16px}
+html.mob .bhero{padding:20px}.bhero h2{word-break:break-word}
+html.mob .btags{position:static;justify-content:flex-start;margin-top:10px}
+html.mob .bfootbar{padding:8px 16px 20px}
+html.mob .bmodal{padding:0}
+html.mob .bcard{border-radius:0}
+html.mob .rbody.bopen .bpanel{display:flex}
+html.mob .bpanel{display:flex!important;position:fixed;left:max(0px,calc(50% - 215px));right:max(0px,calc(50% - 215px));bottom:var(--ctrlH,150px);height:min(58dvh,calc(100dvh - var(--ctrlH,150px) - 70px));
+  border:0;border-radius:22px 22px 0 0;box-shadow:0 -10px 34px rgba(12,28,23,.22);z-index:45;transform:translateY(calc(100% + var(--ctrlH,150px) + 20px));transition:transform .25s ease,height .25s ease;width:auto;top:auto}
+html.mob .rbody.bopen .bpanel{transform:none}
+html.mob .bpanel.full{height:calc(100dvh - var(--ctrlH,150px) - 60px)}
+html.mob .bgrab{display:block;padding:9px 0 3px;cursor:grab}.bgrab i{display:block;width:42px;height:5px;background:#d6d0c2;border-radius:3px;margin:0 auto}
+html.mob #bBody{padding:6px 14px 16px}
+html.mob #bBtn kbd{display:none}
 @media print{
   body{background:#fff}
   .top,.noprint{display:none!important}
@@ -701,7 +812,7 @@ html.mob .modal .pane{max-width:410px!important}
           </div>
         </div>
         <div style="display:flex;gap:12px;margin-top:28px;flex-wrap:wrap">
-          <button class="btn gold" onclick="startMeeting()">🎙 Enter the meeting →</button>
+          <button class="btn gold" onclick="openBriefing()">🎙 Enter the meeting →</button>
           <button class="btn ghost" onclick="openThread(sc.id)">✉ Email thread <span class="badge" id="setupMailBadge" style="display:none"></span></button>
           <button class="btn ghost" onclick="testVoice()">Test audio</button>
         </div>
@@ -733,6 +844,7 @@ html.mob .modal .pane{max-width:410px!important}
     <span class="rec">LIVE</span>
     <div class="t"><b id="rTitle"></b><small id="rSub"></small></div>
     <div class="timer" id="rTimer">0:00 <small>/ 10:00</small></div>
+    <button class="btn ghost" id="bBtn" onclick="toggleBrief()" title="Your briefing (B)">📋 Briefing<kbd>B</kbd></button>
     <button class="btn danger" onclick="endMeeting()">Leave &amp; debrief</button>
   </div>
   <div class="tprog"><i id="rProg"></i></div>
@@ -765,6 +877,7 @@ html.mob .modal .pane{max-width:410px!important}
       <div class="agenda" id="agenda"></div>
       <div class="agenda" id="emailPane"></div>
     </div>
+    <aside class="bpanel" id="bPanel"><div class="bgrab" onclick="this.parentNode.classList.toggle('full')"><i></i></div><div id="bBody"></div></aside>
   </div>
 </section>
 
@@ -837,6 +950,7 @@ html.mob .modal .pane{max-width:410px!important}
 </section>
 
 <!-- ============ SETTINGS ============ -->
+<div class="modal bmodal" id="briefModal" onclick="if(event.target===this)closeBriefing()"><div id="briefBody"></div></div>
 <div class="modal" id="settings" onclick="if(event.target===this)closeSettings()">
   <div class="pane">
     <h2 style="font-size:30px;margin-bottom:18px">Settings</h2>
@@ -1317,6 +1431,38 @@ function applyScenarioKB(list){
   });
 }
 applyScenarioKB(SCENARIOS);
+
+/* briefing-card data for the built-in scenarios: what the learner sees before / during the meeting */
+const SCENARIO_BRIEF = {
+  discovery:{cares:["Results he can show his CEO quickly — he has been let down by agencies before."],
+    hint:{pain:'What is their biggest problem right now?',budget:'What budget range are they working with?',previous:'Why did the previous agencies fail?',timeline:'How soon do they need results?',decision:'Who else signs off on the decision?'}},
+  negotiation:{cares:["Getting closer to the competitor's price — she needs a number her director will sign.","A safe, on-time rollout. He liked your implementation plan."],
+    hint:{competitor:"What is behind the 20% request?",weakness:"Any doubts about the competitor's experience?",deadline:'When do they need to be live?'},
+    target:{discount:8},
+    trades:[['Up to 10% off','A 2-year contract','two.year|2.year|multi.year|three.year|3.year|longer (term|contract|commitment)'],['Some discount','Upfront payment','upfront|up front|prepay|in advance|pay (in full|annually)'],['Lower price','Reduced scope or a phased rollout','reduc\\w* (the )?scope|phase'],['A small discount','A case study / reference','reference|case study|referral']]},
+  'contract-review':{cares:["Protecting Veritas Health. She drafted the contract and expects you to push back."],
+    target:{pay:30, term:60, noncomp:6}},
+  'contract-negotiation':{cares:["Total cost, and a deal his board will approve.","Data security — and who pays if there is a breach."],
+    hint:{board:'Is there a deadline on their side?',cert:'What would ease the liability concern?'},
+    target:{fee:370000, term:3, credits:10, liab:2},
+    trades:[['A lower annual fee','A 3-year term','three.year|3.year|three years|3 years|multi.year'],['A lower fee','Fixed pricing (price lock)','fixed (price|pricing)|price lock|lock (the )?pric'],['SOC 2 / ISO evidence','A lower breach cap','soc ?2|iso|certif|audit|insurance|pen.?test']]},
+  'mg-negotiation':{cares:["Guaranteed income from the licence, and a strong partner in Korea.","Financial security — he will test your forecast."],
+    hint:{forecast:'Will they accept your sales forecast as realistic?',rival:'Do they have other licensees in the region?'},
+    target:{mg:650000, royalty:10, advance:75000, approval:10},
+    trades:[['A marketing commitment','A lower MG','marketing (commitment|spend|budget)'],['A bank guarantee / letter of credit','A lower MG or a low Year 1','bank guarantee|letter of credit'],['A higher royalty (max 11%)','A lower MG','higher royalty']]},
+  escalation:{cares:["Getting the launch back on track — and never being surprised again."],
+    hint:{ceo:'What pressure is she under?'}},
+  qa:{cares:["Cost, ROI and risk. He will test your numbers.","Strategic fit, and how this compares with other options."]}
+};
+function applyScenarioBrief(list){
+  list.forEach(sc=>{ const b=SCENARIO_BRIEF[sc.id]; if(!b || sc._brief) return; sc._brief=true;
+    (b.cares||[]).forEach((c,i)=>{ if(sc.personas[i] && !sc.personas[i].cares) sc.personas[i].cares=c });
+    Object.entries(b.hint||{}).forEach(([id,t])=>{ const h=(sc.hidden||[]).find(x=>x.id===id); if(h && !h.hint) h.hint=t });
+    Object.entries(b.target||{}).forEach(([id,v])=>{ const is=(sc.issues||[]).find(x=>x.id===id); if(is && is.myTarget==null) is.myTarget=v });
+    if(b.trades && !sc.tradeCards) sc.tradeCards=b.trades;
+  });
+}
+applyScenarioBrief(SCENARIOS);
 const PCOLORS = ['#e6ede6','#e2ecff','#f3eee2','#dff0e4','#e8e2fb','#f8dcd8'];
 const FILLERS = ['um','uh','erm','er','you know','basically','sort of','kind of','i mean','so yeah'];
 
@@ -1493,14 +1639,16 @@ const SCHEMA = {
     ['small_talk','Small talk first','yes / no — open with an icebreaker before business.','e:yesno'],
     ['start_mood','Starting mood','0 = neutral, negative = already upset (e.g. -25 for a complaint).','n'],
     ['presentation','Presentation + Q&A','yes = the learner presents first, then they ask the Questions sheet.','e:yesno'],
-    ['document','Document','Optional text on the table (contract clauses, term sheet, figures).','l']
+    ['document','Document','Optional text on the table (contract clauses, term sheet, figures).','l'],
+    ['trade_cards','Trade cards','Briefing card — one per line: what the learner gives | what they get | optional keywords that show it was used (e.g. "A small discount | A 2-year contract | two-year, 2-year").','l']
   ],
   Personas:[
     ['name','Name','Full name (required).','s'],['role','Job title','e.g. Procurement Lead, Halcyon Retail.','s'],
     ['gender','Voice','m or f.','e:gender'],['stance','Stance','lead (main negotiator) · ally (quietly on your side) · skeptic (challenges claims).','e:stance'],
     ['warmth','Warmth 0–1','How friendly they start.','n'],['patience','Patience 0–1','How long before they get impatient.','n'],['assertiveness','Assertiveness 0–1','How hard they push.','n'],
     ['personality','Personality','What they want, what they hide, where they can concede (also used by the AI option).','l'],
-    ['about','Self-introduction','How they describe themselves when asked about their role. One per line.','l']
+    ['about','Self-introduction','How they describe themselves when asked about their role. One per line.','l'],
+    ['cares','Cares about','Briefing card — one short line on what this person cares about (the learner sees it before the meeting).','s']
   ],
   Issues:[
     ['id','ID','Short ID, e.g. discount, pay, liab.','s'],['label','Label','How they say it: "the discount", "payment terms (3.2)".','s'],
@@ -1510,6 +1658,7 @@ const SCHEMA = {
     ['better_for_them','Better for them','up = a higher number is better for THEM · down = lower is better · auto = decide from the learner\'s first offer.','e:better_for_them'],
     ['open','Their opening','Where they start. Use 999 for "unlimited / no cap".','n'],['target','Their target','What they hope to get.','n'],['reserve','Their walk-away','The furthest they can go.','n'],
     ['your_limit','Learner limit','The learner\'s walk-away (from the mandate) — crossing it is flagged in the debrief.','n'],
+    ['your_target','Learner target','Briefing card — the result the learner should aim for (optional).','n'],
     ['step','Typical step','Usual size of one concession.','n'],['weight','Importance 1–3','3 = must be agreed before the deal is done.','n'],
     ['ask','What they ask for','Said when the learner asks them to be flexible, e.g. "if we committed to two years, what would that do to your price?"','s'],
     ['trade_keywords','They value in exchange','Comma-separated, e.g. two-year, upfront, case study.','s'],['trade_bonus','Trade worth','How much a trade is worth to them, in the issue\'s unit.','n'],
@@ -1522,7 +1671,8 @@ const SCHEMA = {
   Hidden:[
     ['id','ID','Short ID, e.g. budget.','s'],['keywords','Keywords','What the learner must ask about, comma-separated.','s'],['owner','Persona #','Who knows it.','p'],
     ['unlock','Unlock','any · open (open question) · reason (learner gives a reason) · rapport · trust','e:unlock'],
-    ['reveal','Reveal','What they say once it\'s earned.','l'],['guard','Guard lines','What they say before it\'s earned. One per line.','l'],['recap','Recap','Short summary for emails and the debrief.','s']
+    ['reveal','Reveal','What they say once it\'s earned.','l'],['guard','Guard lines','What they say before it\'s earned. One per line.','l'],['recap','Recap','Short summary for emails and the debrief.','s'],
+    ['hint','Briefing hint','Briefing card — what the learner should try to find out, e.g. "What is behind the 20% request?".','s']
   ],
   Topics:[
     ['id','ID','Short ID.','s'],['keywords','Keywords','Comma-separated.','s'],['owner','Persona #','','p'],
@@ -1560,19 +1710,19 @@ function rowsToScenario(base, kids){
   const g = k => String(base[k]??'').trim();
   const personas=(kids.Personas||[]).filter(r=>String(r.name||'').trim()).map((r,i)=>clean({name:String(r.name).trim(), role:String(r.role||'Participant').trim(), gender:/^f/i.test(r.gender)?'f':'m', color:PCOLORS[i%PCOLORS.length],
     stance:ENUM.stance.includes(String(r.stance).trim())?String(r.stance).trim():(i?'ally':'lead'), brief:String(r.personality||'A realistic professional.').trim(),
-    traits:{warmth:toNum(r.warmth)??.5, patience:toNum(r.patience)??.6, assert:toNum(r.assertiveness)??.5}, about:splitLines(r.about)}));
+    traits:{warmth:toNum(r.warmth)??.5, patience:toNum(r.patience)??.6, assert:toNum(r.assertiveness)??.5}, about:splitLines(r.about), cares:String(r.cares||'').trim()}));
   if(!g('title') || !personas.length) return null;
   const issues=(kids.Issues||[]).filter(r=>String(r.id||r.label||'').trim()).map((r,i)=>{
     const unit=ENUM.unit.includes(String(r.unit).trim())?String(r.unit).trim():'pct', id=String(r.id||('issue'+(i+1))).trim();
     const opts = unit==='option' ? splitLines(r.options).map(l=>{ const [sc,lab,kw]=l.split('|').map(x=>(x||'').trim()); return {score:toNum(sc)??.5, label:lab||kw||'option', key:kwToRx(kw||lab)} }) : undefined;
     return clean({id, label:String(r.label||id).trim(), keys:kwToRx(r.keywords||r.label||id), owner:pIdx(r.owner), unit,
       better:ENUM.better_for_them.includes(String(r.better_for_them).trim())?String(r.better_for_them).trim():'auto',
-      open:toNum(r.open), target:toNum(r.target), reserve:toNum(r.reserve), limit:toNum(r.your_limit), step:toNum(r.step), weight:toNum(r.weight)??2,
+      open:toNum(r.open), target:toNum(r.target), reserve:toNum(r.reserve), limit:toNum(r.your_limit), myTarget:toNum(r.your_target), step:toNum(r.step), weight:toNum(r.weight)??2,
       ask:String(r.ask||'').trim(), trades:kwToRx(r.trade_keywords), tradeBonus:toNum(r.trade_bonus), options:opts, explain:String(r.explain||'').trim(), why:String(r.why||'').trim(),
       defend:splitLines(r.defend), fmt:String(r.format||'').trim(), unlimitedLabel:String(r.unlimited_label||'').trim(), never:isYes(r.never)||undefined});
   });
   const hidden=(kids.Hidden||[]).filter(r=>String(r.reveal||'').trim()).map((r,i)=>clean({id:String(r.id||('h'+(i+1))).trim(), keys:kwToRx(r.keywords), owner:pIdx(r.owner),
-    unlock:ENUM.unlock.includes(String(r.unlock).trim())?String(r.unlock).trim():'any', reveal:String(r.reveal).trim(), guard:splitLines(r.guard), recap:String(r.recap||'').trim()}));
+    unlock:ENUM.unlock.includes(String(r.unlock).trim())?String(r.unlock).trim():'any', reveal:String(r.reveal).trim(), guard:splitLines(r.guard), recap:String(r.recap||'').trim(), hint:String(r.hint||'').trim()}));
   const topics=(kids.Topics||[]).filter(r=>String(r.replies||'').trim()).map((r,i)=>clean({id:String(r.id||('t'+(i+1))).trim(), keys:kwToRx(r.keywords), owner:pIdx(r.owner),
     say:splitLines(r.replies), needEvidence:isYes(r.needs_evidence)||undefined, doubt:splitLines(r.doubt)}));
   const agenda=(kids.Agenda||[]).filter(r=>String(r.question||'').trim()).map(r=>clean({p:pIdx(r.persona), text:String(r.question).trim(), tag:String(r.covers||'').trim()}));
@@ -1585,20 +1735,20 @@ function rowsToScenario(base, kids){
   return clean({id, tag:g('category')||'Custom', title:g('title'), desc:g('description')||g('situation').slice(0,110), role:g('your_role'), brief:g('situation'), mandate:g('your_mandate'),
     goals:splitLines(g('goals')).flatMap(x=>x.split(/\s*;\s*/)).filter(Boolean).slice(0,6), goalRules:splitLines(g('goal_checks')), personas, issues, kb:Object.keys(kb).length?kb:undefined, kbOwner:Object.keys(kbOwner).length?kbOwner:undefined, _kb:true, hidden, topics, agenda, pressure, questions, phrases,
     opening:pLines(g('opening')), closing:pLines(g('closing')), onNext:nx, smalltalk:g('small_talk')&&!isYes(g('small_talk'))?false:undefined,
-    startMood:toNum(g('start_mood')), presentation:isYes(g('presentation'))||undefined, doc:g('document'), authored:2});
+    startMood:toNum(g('start_mood')), tradeCards:String(base.trade_cards??'').split(/\r?\n/).map(l=>l.split('|').map(x=>x.trim())).filter(c=>c[0]&&c[1]).map(c=>c[2]?[c[0],c[1],kwToRx(c[2])]:[c[0],c[1]]), presentation:isYes(g('presentation'))||undefined, doc:g('document'), authored:2});
 }
 /* scenario → rows (for export, the editor and the template example) */
 function scenarioToRows(sc){
   const P = i => String((i||0)+1), pl = arr => (arr||[]).map(([p,t])=>`${P(p)}: ${t}`).join('\n');
   const base={id:sc.id, title:sc.title, category:sc.tag, description:sc.desc, your_role:sc.role, situation:sc.brief, your_mandate:sc.mandate||'', goals:(sc.goals||[]).join('\n'),
     goal_checks:(sc.goalRules||[]).join('\n'), opening:pl(sc.opening), closing:pl(sc.closing), next_step_reply:sc.onNext?`${P(sc.onNext[0])}: ${sc.onNext[1]}`:'', small_talk:sc.smalltalk===false?'no':'yes',
-    start_mood:sc.startMood||'', presentation:sc.presentation?'yes':'no', document:sc.doc||''};
+    start_mood:sc.startMood||'', presentation:sc.presentation?'yes':'no', document:sc.doc||'', trade_cards:(sc.tradeCards||[]).map(c=>[c[0],c[1]].concat(c[2]?[rxToKw(c[2])]:[]).join(' | ')).join('\n')};
   const kids={
-    Personas:(sc.personas||[]).map(p=>({name:p.name, role:p.role, gender:p.gender||'m', stance:p.stance||'lead', warmth:p.traits?.warmth??'', patience:p.traits?.patience??'', assertiveness:p.traits?.assert??'', personality:p.brief||'', about:[].concat(p.about||[]).join('\n')})),
+    Personas:(sc.personas||[]).map(p=>({name:p.name, role:p.role, gender:p.gender||'m', stance:p.stance||'lead', warmth:p.traits?.warmth??'', patience:p.traits?.patience??'', assertiveness:p.traits?.assert??'', personality:p.brief||'', about:[].concat(p.about||[]).join('\n'), cares:p.cares||''})),
     Issues:(sc.issues||[]).map(is=>({id:is.id, label:is.label, keywords:rxToKw(is.keys), owner:P(is.owner), unit:is.unit, better_for_them:is.better||'auto', open:is.open??'', target:is.target??'', reserve:is.reserve??'',
-      your_limit:is.limit??'', step:is.step??'', weight:is.weight??'', ask:is.ask||'', trade_keywords:rxToKw(is.trades), trade_bonus:is.tradeBonus??'', options:(is.options||[]).map(o=>`${o.score} | ${o.label} | ${rxToKw(o.key)}`).join('\n'),
+      your_limit:is.limit??'', your_target:is.myTarget??'', step:is.step??'', weight:is.weight??'', ask:is.ask||'', trade_keywords:rxToKw(is.trades), trade_bonus:is.tradeBonus??'', options:(is.options||[]).map(o=>`${o.score} | ${o.label} | ${rxToKw(o.key)}`).join('\n'),
       explain:is.explain||'', why:is.why||'', defend:(is.defend||[]).join('\n'), format:is.fmt||'', unlimited_label:is.unlimitedLabel||'', never:is.never?'yes':'no'})),
-    Hidden:(sc.hidden||[]).map(h=>({id:h.id, keywords:rxToKw(h.keys), owner:P(h.owner), unlock:h.unlock||'any', reveal:h.reveal, guard:(h.guard||[]).join('\n'), recap:h.recap||''})),
+    Hidden:(sc.hidden||[]).map(h=>({id:h.id, keywords:rxToKw(h.keys), owner:P(h.owner), unlock:h.unlock||'any', reveal:h.reveal, guard:(h.guard||[]).join('\n'), recap:h.recap||'', hint:h.hint||''})),
     Topics:(sc.topics||[]).map(t=>({id:t.id, keywords:rxToKw(t.keys), owner:P(t.owner), replies:(t.say||[]).join('\n'), needs_evidence:t.needEvidence?'yes':'no', doubt:(t.doubt||[]).join('\n')})),
     Knowledge:Object.entries(sc.kb||{}).map(([k,v])=>({intent:k, persona:P((sc.kbOwner||{})[k]||0), replies:[].concat(v).join('\n')})),
     Agenda:(sc.agenda||[]).map(a=>({persona:P(a.p), question:a.text, covers:a.tag||''})),
@@ -2119,6 +2269,7 @@ function stopMic(send){
 }
 document.addEventListener('keydown',e=>{
   if(!$('room').classList.contains('on')) return;
+  if(e.code==='KeyB' && !/INPUT|TEXTAREA|SELECT/.test(document.activeElement.tagName) && !e.metaKey && !e.ctrlKey && !e.altKey){ e.preventDefault(); toggleBrief(); return }
   if(e.code==='Space' && document.activeElement.tagName!=='INPUT'){ e.preventDefault(); if(!e.repeat && !$('mic').disabled) toggleMic(); }
 });
 
@@ -2368,7 +2519,7 @@ function bindOffers(sc, st, a, sentLow){
   // option issues & unlimited by keyword
   mentioned.filter(is=>!out.some(o=>o.issue.id===is.id)).forEach(is=>{
     if(is.unit==='option' && is.options){ const opt=is.options.slice().sort((x,y)=>x.score-y.score).find(o=>rx(o.key).test(sentLow)); if(opt && !(!a.propose && sentences(sentLow).every(x=>/\?\s*$/.test(x.trim()))) && (a.propose||a.cond||a.accept||/\b(propose|suggest|would like|'d like|want|prefer|instead|change (it )?to|keep|ask for)\b/.test(sentLow))) out.push({issue:is, v:opt.score, opt}) }
-    else if(/\bunlimited|no cap|uncapped\b/.test(sentLow) && (a.accept||/accept|agree|fine with/.test(sentLow))) out.push({issue:is, v:999});
+    else if(/\bunlimited|no cap|uncapped\b/.test(sentLow) && !a.reject && !/\b(can'?t|cannot|won'?t|not|never|no way|unable to|refuse to)\b[^.]{0,25}\b(accept|agree|live with|fine with)/.test(sentLow) && (a.accept||/accept|agree|fine with/.test(sentLow))) out.push({issue:is, v:999});
   });
   return out;
 }
@@ -3300,6 +3451,258 @@ function engineAnalyze(m, sc, st){
     rewrites:rewrites.slice(0,7).map(({original,better,why})=>({original,better,why})), habits:habits.slice(0,6), moments, rubric,
     phrases:(sc.phrases||[]).map(([phrase,use])=>({phrase,use}))};
 }
+/* =========================================================
+   BRIEFING — one-glance plan: before the meeting (card),
+   during it (live panel / mobile sheet) and in the debrief
+   (plan vs actual). Reads the same scenario data the engine uses.
+   ========================================================= */
+const BR_STANCE = {lead:'Decision maker', skeptic:'Skeptic', ally:'Likely ally'};
+const BR_STOP = new Set(['contract','payment','their','about','with','your','that','this','more','less','lower','higher','price','some','term','terms','from','into','other']);
+function brLevel(d){ return {easy:0, medium:1, hard:2, veryhard:3}[d] ?? 1 }
+function brFirst(n){ return String(n||'').split(' ')[0] }
+function brHuman(id){ return String(id||'').replace(/[-_]+/g,' ').replace(/([a-z])([A-Z])/g,'$1 $2').toLowerCase() }
+function brShort(is, v){
+  if(v==null || v==='') return '—';
+  if(is.unit==='option') return fmtVal(is, v);
+  if(v>=999) return is.unlimitedLabel ? cap1(is.unlimitedLabel) : 'No cap';
+  switch(is.unit){
+    case 'pct': return (+(+v).toFixed(1))+'%';
+    case 'money': return v>=1e6 ? '$'+(+(v/1e6).toFixed(2))+'M' : v>=1e3 ? '$'+(+(v/1e3).toFixed(v%1000?1:0))+'K' : '$'+Math.round(v);
+    case 'days': return Math.round(v)+' days';
+    case 'months': return v+' mo';
+    case 'years': return v+(v===1?' yr':' yrs');
+    case 'multiple': return v+'×';
+    default: return is.fmt ? is.fmt.replace('{v}', v) : String(v);
+  }
+}
+/* which way is good for the LEARNER: 'low' | 'high' | null */
+function brDir(is){ return is.better==='up' ? 'low' : is.better==='down' ? 'high' : null }
+function brOk(is, v){ const d=brDir(is); if(v==null || is.limit==null || !d) return null; if(v>=999 && d==='low') return false; return d==='low' ? v<=is.limit+1e-9 : v>=is.limit-1e-9 }
+function brIssues(sc){ return (sc.issues||[]).filter(is=>!is.never && (is.limit!=null || is.myTarget!=null || is.unit==='option' && (is.options||[]).length)) }
+function brTrades(sc){
+  if((sc.tradeCards||[]).length) return sc.tradeCards.map(c=>Array.isArray(c)?{give:c[0], get:c[1], key:c[2]}:c);
+  const out=[]; (sc.issues||[]).forEach(is=>{ if(!is.trades) return;
+    const kws=(typeof rxToKw==='function' ? rxToKw(is.trades) : '').split(/\s*,\s*/).filter(Boolean);
+    const seen=new Set(); kws.forEach(k=>{ const n=k.replace(/^(two|2|three|3)[ -]?year$/,'multi-year').toLowerCase(); if(seen.has(n)||out.length>=4) return; seen.add(n); out.push({give:'Movement on '+is.label.replace(/^the /,''), get:cap1(n), key:is.trades}) }) });
+  return out.slice(0,4);
+}
+function brFind(sc){
+  if(sc.discussion) return (sc.personas||[]).map((p,k)=>({id:'view'+k, hint:`What does ${brFirst(p.name)} think — and why?`, owner:k}));
+  return (sc.hidden||[]).map(h=>({id:h.id, hint:h.hint || ('Find out about '+brHuman(h.id)), recap:h.recap, owner:h.owner||0}));
+}
+function brMood(st, i){ const t=((st&&st.emo&&st.emo[i])||{}).trust; if(t==null) return null; return t>=62?['ok','on side']:t<=42?['bad','doubtful']:['mid','neutral'] }
+function brMine(st, id){ const o=(st.offers||{})[id]; return o&&o.length ? o[o.length-1] : null }
+function brTheirs(st, is){ const s=st.issues&&st.issues[is.id]; if(!s) return null; return (s.raised || (st.offers[is.id]||[]).length || st.agreed[is.id]!=null) ? s.pos : null }
+function brLearnerText(){ return S && S.log ? S.log.filter(l=>l.me).map(l=>l.text).join(' ').toLowerCase() : '' }
+function brUsed(card, txt){
+  if(!txt) return false;
+  if(card.key){ try{ return new RegExp(card.key,'i').test(txt) }catch(e){} }
+  const ws=(String(card.get).toLowerCase().match(/[a-z0-9][a-z0-9-]{3,}/g)||[]).filter(w=>!BR_STOP.has(w));
+  return ws.length>0 && ws.some(w=>txt.includes(w.replace(/-/g,' ')) || txt.includes(w));
+}
+
+/* ---------- range bar ---------- */
+function brBar(is, st, mode, lv){
+  const d=brDir(is), live=mode==='live'&&st, theirs=live?brTheirs(st,is):null, mine=live?brMine(st,is.id):null, agreed=live&&st.agreed?st.agreed[is.id]:null;
+  const showOpen = lv<=1 && is.open!=null;
+  const vals=[is.limit, is.myTarget, showOpen?is.open:null, theirs, mine, agreed].filter(v=>v!=null && v<999);
+  if(!vals.length) return '';
+  let lo=Math.min(...vals), hi=Math.max(...vals); const pad=(hi-lo)*.2 || Math.max(1,Math.abs(hi)*.2); lo-=pad; hi+=pad; if(lo<0 && vals.every(v=>v>=0)) lo=Math.max(0, lo);
+  const P=v=> v>=999 ? 97 : Math.max(2, Math.min(97, (v-lo)/(hi-lo)*100));
+  let zone='';
+  if(is.limit!=null && d) zone = d==='low' ? `<div class="bz" style="left:0;width:${P(is.limit)}%"></div>` : `<div class="bz" style="left:${P(is.limit)}%;right:0"></div>`;
+  const marks=[]; // [pos, cls, label, row(top|bot), priority]
+  if(agreed!=null) marks.push([P(agreed),'m-ag','Agreed '+brShort(is,agreed),'top',0]);
+  else if(theirs!=null) marks.push([P(theirs),'m-th','Them: '+brShort(is,theirs),'top',1]);
+  if(mine!=null && agreed==null) marks.push([P(mine),'m-me','You: '+brShort(is,mine),'bot',2]);
+  if(is.limit!=null) marks.push([P(is.limit),'m-lim','Limit '+brShort(is,is.limit),'bot',3]);
+  if(is.myTarget!=null) marks.push([P(is.myTarget),'m-tg','Target '+brShort(is,is.myTarget),'top',4]);
+  if(showOpen && theirs==null && agreed==null) marks.push([P(is.open),'m-op',(mode==='live'?'Expected ':'They\'ll open ~')+brShort(is,is.open),'bot',5]);
+  const placed={top:[], bot:[]};
+  marks.sort((a,b)=>a[4]-b[4]).forEach(m=>{ const row=placed[m[3]]; m.hide=row.some(p=>Math.abs(p-m[0])<(mode==='live'?24:17)); if(!m.hide) row.push(m[0]) });
+  let trail='';
+  if(theirs!=null && showOpen && Math.abs(theirs-is.open)>1e-9 && agreed==null){ const a=P(is.open), b=P(theirs); trail=`<div class="btrail" style="left:${Math.min(a,b)}%;width:${Math.abs(a-b)}%"></div>` }
+  const bar=`<div class="bbar">${zone}${trail}${marks.map(([p,c,l,r,,],i)=>`<div class="bm ${c} r-${r}" style="left:${p}%">${marks[i].hide?'':`<span>${esc(l)}</span>`}</div>`).join('')}</div>`;
+  const ok=agreed!=null?brOk(is,agreed):null;
+  let foot='';
+  if(live){
+    if(agreed!=null) foot=`<div class="bfoot ${ok===false?'bad':'ok'}">${ok===false?'✕ Outside your limit':'✓ Agreed within your limit'}</div>`;
+    else if(theirs!=null && mine!=null){ const gap=Math.abs(theirs-mine); foot=`<div class="bfoot">Gap: <b>${is.unit==='pct'?(+gap.toFixed(1))+' pts':brShort(is,gap)}</b>${showOpen&&Math.abs(theirs-is.open)>1e-9?` · they moved ${brShort(is,is.open)} → ${brShort(is,theirs)}`:''}</div>` }
+    else if(theirs!=null && showOpen && Math.abs(theirs-is.open)>1e-9) foot=`<div class="bfoot">They moved ${brShort(is,is.open)} → ${brShort(is,theirs)}</div>`;
+  }
+  return `<div class="biss"><div class="bit"><b>${esc(cap1(is.label))}</b><small>${d==='low'?'lower is better for you':d==='high'?'higher is better for you':''}</small></div>${bar}${foot}</div>`;
+}
+function brOptions(is, st, mode, lv){
+  const live=mode==='live'&&st, cur=live?brTheirs(st,is):null, agreed=live&&st.agreed?st.agreed[is.id]:null;
+  const opts=(is.options||[]).slice().sort((a,b)=>b.score-a.score);
+  return `<div class="biss"><div class="bit"><b>${esc(cap1(is.label))}</b><small>${is.limit!=null?'✓ = acceptable for you':''}</small></div><div class="bopts">${opts.map(o=>{
+    const ok=brOk(is,o.score), isOpen=lv<=1&&Math.abs(o.score-(is.open??-1))<1e-9, now=agreed!=null?Math.abs(o.score-agreed)<1e-9:cur!=null&&Math.abs(o.score-cur)<1e-9;
+    return `<div class="bopt ${ok===true?'ok':ok===false?'no':''} ${now?'now':''}"><i>${ok===true?'✓':ok===false?'✕':'·'}</i>${esc(o.label)}${now?`<em>${agreed!=null?'Agreed':'On the table'}</em>`:isOpen&&!live?'<em class="g">Their ask</em>':''}</div>` }).join('')}</div></div>`;
+}
+
+/* ---------- live goal status (rule-based mode) ---------- */
+function brGoals(sc, st){
+  if(!st || !S || !settings.demo) return null;
+  if(S._brTurn===st.turn && S._brGoals) return S._brGoals;
+  try{ const f=engineAnalyze(localMetrics(), sc, st); S._brGoals=f.goals; S._brTurn=st.turn; return f.goals }catch(e){ return null }
+}
+
+/* ---------- what to try next ---------- */
+function brNext(sc, st){
+  if(!st || !settings.demo || !S) return null;
+  const E=st.events||[], has=k=>E.some(e=>e.kind===k), P=sc.personas||[];
+  const lastQ = st.lastAI && /\?\s*$/.test(st.lastAI) ? P[st.lastAIBy||0] : null;
+  const pre = (t)=> lastQ && st.turn>0 ? `Answer ${brFirst(lastQ.name)} first, then: ${t}` : t;
+  const finds=brFind(sc).filter(f=>!st.revealed[f.id]);
+  const el=S.start?(Date.now()-S.start)/1000/(S.minutes*60):0;
+  if(!st.turn && !sc.discussion && !sc.presentation && !st.flags.agenda) return `Set the agenda: <i>"I'd like to cover ${sc.issues&&sc.issues.length>1?'a few points':'one main point'} today — first …"</i>`;
+  if(sc.discussion){
+    if(!st.flags.position) return pre(`State your view with a reason: <i>"From my point of view, … because …"</i>`);
+    if(finds.length && finds[0].owner) return pre(`Ask ${brFirst(P[finds[0].owner].name)}: <i>"Could you tell me more about your concerns?"</i>`);
+    if(!st.flags.addressed){ const k=P.findIndex(p=>p.stance==='skeptic'); return pre(`Answer ${k>=0?brFirst(P[k].name)+'\'s':'their'} objection: <i>"I see your point, but have you considered …?"</i>`) }
+    if(!st.flags.decision) return pre(`Propose a way forward: <i>"What if we … — would that address your concern?"</i>`);
+    if(!st.flags.summary) return pre(`Sum up: <i>"So, to sum up, we've agreed to …"</i>`);
+    return null;
+  }
+  const iss=brIssues(sc).filter(is=>is.unit!=='option'), open=iss.filter(is=>st.agreed[is.id]==null);
+  const focus=open.find(is=>is.id===st.focus) || open.find(is=>brTheirs(st,is)!=null);
+  if(focus){
+    const th=brTheirs(st,focus), outside=th!=null && brOk(focus,th)===false;
+    if(outside && finds.length && st.questions<2) return pre(`Find out why: <i>"${esc(finds[0].hint.replace(/\?*$/,'?'))}"</i>`);
+    const gave=E.some(e=>/concede|overgive/.test(e.kind)) || (st.offers[focus.id]||[]).length>=2;
+    const cards=brTrades(sc).filter(c=>!brUsed(c,brLearnerText()));
+    if(outside && gave && !has('trade') && cards.length) return pre(`Trade, don't give: <i>"If you can agree to ${esc(cards[0].get.toLowerCase())}, we could look at ${esc(cards[0].give.toLowerCase())}."</i>`);
+    if(outside && cards.length && (st.offers[focus.id]||[]).length) return pre(`Make it conditional: <i>"If you could commit to ${esc(cards[0].get.toLowerCase())}, we could move on ${esc(focus.label)}."</i>`);
+    if(outside) return pre(`Hold your line: <i>"I'm afraid that's beyond what we can do on ${esc(focus.label)}. What we could do is …"</i>`);
+  }
+  if((iss.length && !open.length || el>.8) && !st.flags.summary) return pre(`Close it: <i>"Let me confirm what we've agreed: …"</i>`);
+  if(finds.length && brLevel(S.difficulty)<=1) return pre(`Ask: <i>"${esc(finds[0].hint.replace(/\?*$/,'?'))}"</i>`);
+  const txt=brLearnerText(); const ph=(sc.phrases||[]).find(([p])=>!txt.includes(p.toLowerCase().split(/\s+/).slice(0,3).join(' ')));
+  return ph ? pre(`${esc(ph[1]||'Try')}: <i>"${esc(ph[0])}"</i>`) : null;
+}
+
+/* ---------- the card / panel ---------- */
+function renderBrief(sc, st, mode){
+  const lv=brLevel(mode==='live'&&S?S.difficulty:cfg.difficulty), live=mode==='live';
+  const P=sc.personas||[], E=st?st.events||[]:[];
+  const role = live&&S ? S.role : ($('fRole')&&$('fRole').value.trim()) || sc.role || 'Participant';
+  const mand=(sc.mandate||'').trim();
+  const target = mand ? mand.split(/\n+/).filter(Boolean) : sc.discussion ? ['Get the group to a clear, reasoned decision — and make sure every view is heard.'] : (sc.goals||[]).slice(0,1);
+  const iss=brIssues(sc), trades=brTrades(sc), finds=brFind(sc), goals=(live?brGoals(sc,st):null);
+  const txt=live?brLearnerText():'';
+  S && live && (S._brSeen=S._brSeen||{});
+  const sec=(h,body,extra='')=>body?`<div class="bsec ${extra}"><h4>${h}</h4>${body}</div>`:'';
+  /* ranges */
+  const ranges = iss.length ? iss.map(is=>is.unit==='option'?brOptions(is,st,mode,lv):brBar(is,st,mode,lv)).join('') : '';
+  /* people */
+  const people = P.map((p,i)=>{ const m=live?brMood(st,i):null;
+    const tag = lv<=2 && BR_STANCE[p.stance] ? `<em class="st-${p.stance}">${BR_STANCE[p.stance]}</em>` : '';
+    const disc = live&&sc.discussion ? `<span class="bdx">${st.revealed['view'+i]?'✓ view heard':'view not heard'}${st.flags['addr'+i]?' · ✓ concern answered':''}</span>` : '';
+    return `<div class="bp"><span class="bav" style="background:${p.color||'#ccc'}">${initials(p.name)}</span><div><div class="bn">${esc(p.name)} ${tag}${m?`<span class="bmood ${m[0]}">${m[1]}</span>`:''}</div><div class="br">${esc(p.role||'')}</div>${p.cares&&(!live||lv<=1)?`<div class="bc">${esc(p.cares)}</div>`:''}${disc}</div></div>` }).join('');
+  /* find out */
+  let fo='';
+  if(finds.length){
+    const shown = lv===0 ? finds.length : lv===1 ? Math.min(2, finds.length) : 0;
+    const rows=finds.map((f,i)=>{ const got=live&&st.revealed[f.id];
+      if(got){ if(S&&S._brSeen[f.id]==null) S._brSeen[f.id]=st.turn; const fresh=S&&st.turn-S._brSeen[f.id]<=1;
+        const rec=sc.discussion ? (finds[i].owner!=null ? brFirst(P[f.owner].name)+'\'s view heard' : '') : (f.recap||'found');
+        return sc.discussion ? `<li class="got">✓ <b>${esc(rec)}</b>${fresh?'<em>NEW</em>':''}</li>` : `<li class="got">✓ <b>${esc(f.hint)}</b> <span>${esc(rec)}</span>${fresh?'<em>NEW</em>':''}</li>` }
+      return i<shown || sc.discussion ? `<li>🔍 ${esc(f.hint)}</li>` : null });
+    const hiddenN=rows.filter(r=>r===null).length;
+    fo = rows.filter(Boolean).join('') + (hiddenN ? `<li class="lock">🔒 ${hiddenN} more thing${hiddenN>1?'s':''} to uncover${lv===1?' — hints on Easy':' — ask good questions'}</li>` : '');
+    fo = `<ul class="bfind">${fo}</ul>`;
+  }
+  /* trades */
+  const tr = trades.length ? `<div class="btrades">${trades.map(c=>{ const u=live&&brUsed(c,txt); return `<div class="btc ${u?'used':''}"><span class="give">Give: ${esc(c.give)}</span><i>→</i><span class="get">Get: ${esc(c.get)}</span></div>` }).join('')}</div>` : '';
+  /* goals */
+  const gl = (sc.goals||[]).length ? `<ul class="bgoals">${(sc.goals||[]).map((g,i)=>{ const s=goals&&goals[i]?goals[i].status:null; return `<li class="${s||''}"><i>${s==='met'?'✓':s==='partial'?'~':''}</i>${esc(g)}</li>` }).join('')}</ul>` : '';
+  const metN = goals ? goals.filter(g=>g.status==='met').length : null;
+  /* phrases */
+  const ph = (sc.phrases||[]).slice(0,3).map(([p])=>`<span>"${esc(p)}"</span>`).join('');
+  /* decision (discussion) */
+  const dec = live && sc.discussion ? `<div class="bdec">${st.flags.consensus?'✓ Group is moving towards agreement':st.flags.decision?'Decision proposed — get the others on board':'No decision proposed yet'}${st.decisionText?`<span>"${esc(st.decisionText)}"</span>`:''}</div>` : '';
+  if(live){
+    const nx = lv===0 ? brNext(sc,st) : null;
+    const nxBtn = lv===1 && settings.demo ? `<button class="bnextbtn" onclick="brHint(this)">💡 Need a hint?</button>` : '';
+    return `<div class="bhead"><b>Your briefing</b><button class="bx" onclick="toggleBrief(false)">Hide ›</button></div>
+      <div class="btarget"><small>${mand?'YOUR MANDATE · CONFIDENTIAL':'YOUR GOAL'}</small>${target.map(t=>esc(t)).join('<br>')}</div>
+      ${sec(sc.discussion?'Decision':'',dec)}
+      ${sec('Negotiation range'+(settings.demo?' <span>live</span>':''), ranges)}
+      ${sec(`Progress${metN!=null?` <span>${metN} / ${(sc.goals||[]).length}</span>`:''}`, gl)}
+      ${sec(sc.discussion?'Who\'s been heard':'Find out', fo)}
+      ${sec(`Trade cards${trades.length?` <span>${trades.filter(c=>brUsed(c,txt)).length} used</span>`:''}`, tr)}
+      ${sec('In the room', people)}
+      ${nx?`<div class="bnext"><small>TRY NEXT</small>${nx}</div>`:nxBtn}`;
+  }
+  const note = ['Easy: every hint and a live "Try next" tip.','Medium: two hints; tap for a tip during the meeting.','Hard: their opening number and hints are hidden.','Very Hard: no hints, no stance tags.'][lv];
+  return `<div class="bcard">
+    <div class="bhero">
+      <div class="blogo">pactli<i>.</i></div>
+      <div class="btags"><span>${esc(sc.tag||'Meeting')}</span><span>~${cfg.minutes||10} min</span><span class="l">${esc(dlabel(cfg.difficulty))}</span></div>
+      <h2>${esc(sc.title)}</h2>
+      <div class="brole">You are <b>${esc(role)}</b>${P[0]?` · meeting ${esc(P.map(p=>brFirst(p.name)).join(', '))}`:''}</div>
+      <div class="bgoal"><small>${mand?'YOUR MANDATE · CONFIDENTIAL':'YOUR TARGET OUTCOME'}</small>${target.map(t=>esc(t)).join('<br>')}</div>
+    </div>
+    <div class="bgrid">
+      ${sec('Negotiation range', ranges)}
+      ${sec('Your trade cards', tr)}
+      ${sec('Who\'s in the room', people)}
+      ${sec(sc.discussion?'Hear every view':'Find out during the meeting', fo)}
+      ${sec('You\'ll be evaluated on', gl, ranges&&tr ? 'wide2' : '')}
+      ${sec('Useful phrases', ph?`<div class="bph">${ph}</div>`:'')}
+    </div>
+    <div class="bfootbar"><span>Reopen it anytime with 📋 or the B key · ${esc(note)}</span>
+      <div style="display:flex;gap:10px"><button class="btn ghost" onclick="closeBriefing()">Back</button><button class="btn gold" onclick="closeBriefing();startMeeting()">I'm ready →</button></div></div>
+  </div>`;
+}
+
+function brHint(btn){ if(S) S.briefHints=(S.briefHints||0)+1; btn.outerHTML=`<div class="bnext"><small>TRY NEXT</small>${brNext(S.sc,S.eng)||'Keep going — you\'re on track.'}</div>` }
+
+/* ---------- plan vs actual (stored with the report) ---------- */
+function briefSnapshot(sc, st){
+  if(!sc || !st) return null;
+  const iss=brIssues(sc).map(is=>{ const ag=st.agreed?st.agreed[is.id]:null, th=brTheirs(st,is), mine=brMine(st,is.id), ok=ag!=null?brOk(is,ag):null;
+    return {label:cap1(is.label), target:is.myTarget!=null?brShort(is,is.myTarget):'', limit:is.limit!=null?brShort(is,is.limit):'', open:is.open!=null?brShort(is,is.open):'',
+      result: ag!=null ? brShort(is,ag) : th!=null ? brShort(is,th)+' (their last)' : '—', mine: mine!=null?brShort(is,mine):'', status: ag!=null ? (ok===false?'out':'in') : 'open'} });
+  const finds=brFind(sc).map(f=>({hint:f.hint, found:!!st.revealed[f.id], recap:sc.discussion?'':(f.recap||'')}));
+  const txt=brLearnerText(); const trades=brTrades(sc).map(c=>({give:c.give, get:c.get, used:brUsed(c,txt)}));
+  return {issues:iss, finds, trades, opens:(S&&S.briefOpens)||0, decision:st.decisionText||'', discussion:!!sc.discussion};
+}
+function renderBriefReport(b){
+  if(!b || (!b.issues.length && !b.finds.length && !b.trades.length)) return '';
+  const row=i=>`<tr><td><b>${esc(i.label)}</b></td><td>${esc(i.target||'—')}</td><td>${esc(i.limit||'—')}</td><td>${esc(i.open||'—')}</td><td class="r-${i.status}">${i.status==='in'?'✓ ':i.status==='out'?'✕ ':''}${esc(i.result)}</td></tr>`;
+  const fN=b.finds.filter(f=>f.found).length, tN=b.trades.filter(t=>t.used).length;
+  return `<div class="pane full bplan"><h3>Plan vs actual</h3>
+    ${b.issues.length?`<table class="bptbl"><thead><tr><th>Issue</th><th>Your target</th><th>Your limit</th><th>They opened</th><th>Result</th></tr></thead><tbody>${b.issues.map(row).join('')}</tbody></table>`:''}
+    <div class="bpcols">
+      ${b.finds.length?`<div><h4>${b.discussion?'Views heard':'Found out'} · ${fN}/${b.finds.length}</h4><ul>${b.finds.map(f=>`<li class="${f.found?'y':'n'}">${f.found?'✓':'✕'} ${esc(f.hint)}${f.found&&f.recap?` — <span>${esc(f.recap)}</span>`:''}</li>`).join('')}</ul></div>`:''}
+      ${b.trades.length?`<div><h4>Trade cards used · ${tN}/${b.trades.length}</h4><ul>${b.trades.map(t=>`<li class="${t.used?'y':'n'}">${t.used?'✓':'·'} Give ${esc(t.give.toLowerCase())} → get ${esc(t.get.toLowerCase())}</li>`).join('')}</ul></div>`:''}
+      ${b.decision?`<div><h4>Decision proposed</h4><p>"${esc(b.decision)}"</p></div>`:''}
+    </div>
+    <div class="hint">Briefing opened ${b.opens}× during the meeting.</div></div>`;
+}
+
+/* ---------- UI glue ---------- */
+function openBriefing(){
+  if(sc.custom && !$('fCustom').value.trim()){ toast('Describe the meeting first.'); return }
+  if(sc.needsTopic && !$('fTopic').value.trim()){ toast('Add your presentation topic first.'); return }
+  $('briefBody').innerHTML = renderBrief(sc, null, 'pre'); $('briefModal').classList.add('on'); $('briefModal').scrollTop=0;
+}
+function closeBriefing(){ $('briefModal').classList.remove('on') }
+function refreshBrief(){ if(!S || !S.sc) return; const b=$('bBody'); if(!b) return; const y=b.scrollTop; b.innerHTML=renderBrief(S.sc, S.eng, 'live'); b.scrollTop=y }
+function toggleBrief(on){
+  const rb=document.querySelector('#room .rbody'); if(!rb) return;
+  const want = on==null ? !rb.classList.contains('bopen') : !!on;
+  rb.classList.toggle('bopen', want); $('bBtn').classList.toggle('on', want); $('bPanel').classList.remove('full');
+  if(want){ if(S) S.briefOpens=(S.briefOpens||0)+1; refreshBrief(); placeSheet() }
+  LS.set('pactli_brief_open', want?'1':'0');
+}
+function placeSheet(){ const c=document.querySelector('#room .ctrl'); if(c) $('bPanel').style.setProperty('--ctrlH', c.offsetHeight+'px') }
+(function(){ let y0=null;
+  document.addEventListener('touchstart',e=>{ if(e.target.closest && e.target.closest('.bgrab')) y0=e.touches[0].clientY },{passive:true});
+  document.addEventListener('touchend',e=>{ if(y0==null) return; const dy=e.changedTouches[0].clientY-y0; y0=null; const p=$('bPanel');
+    if(dy<-40) p.classList.add('full'); else if(dy>40){ if(p.classList.contains('full')) p.classList.remove('full'); else toggleBrief(false) } },{passive:true});
+})();
 
 /* =========================================================
    EMAIL — every scenario is a "case" whose negotiation state is shared
@@ -3597,6 +4000,7 @@ function startMeeting(){
     `<label>Your objectives</label><ul class="goals" style="margin-bottom:22px">${S.goals.map(g=>`<li>${esc(g)}</li>`).join('')}</ul>`+
     (S.doc?`<label>Document${S.docName?' · '+esc(S.docName):''}</label><div class="docbox" style="max-height:none">${esc(S.doc)}</div>`:'');
   go('room');
+  S.briefOpens=0; S._brSeen={}; { const pref=LS.get('pactli_brief_open'); toggleBrief(document.documentElement.classList.contains('mob') ? false : pref!=='0') }
   S.start = Date.now();
   S.timer = setInterval(tick,1000); tick();
   addLog('sys','Meeting started');
@@ -3615,11 +4019,12 @@ function setTile(i,cls){const t=$('tile-'+i); if(!t) return; t.classList.remove(
 function addLog(kind, text, persona){
   const f=$('feed'); const d=document.createElement('div');
   if(kind==='sys'){ d.className='msg sys'; d.innerHTML=`<div class="tx">${esc(text)}</div>` }
-  else if(kind==='me'){ d.className='msg me'; d.innerHTML=`<div class="who">${esc(S.name)}</div><div class="tx">${esc(text)}</div>` }
-  else { d.className='msg'; d.innerHTML=`<div class="who"><i style="background:${persona.color}"></i>${esc(persona.name)}</div><div class="tx">${settings.captions?esc(text):'<span style="color:var(--dim)">(captions hidden)</span>'}</div>` }
+  else if(kind==='me'){ d.className='msg me'; d.innerHTML=`<div class="who">${esc(S.name)}</div><div class="tx">${hlNum(esc(text))}</div>` }
+  else { d.className='msg'; d.innerHTML=`<div class="who"><i style="background:${persona.color}"></i>${esc(persona.name)}</div><div class="tx">${settings.captions?hlNum(esc(text)):'<span style="color:var(--dim)">(captions hidden)</span>'}</div>` }
   f.appendChild(d); f.scrollTop=f.scrollHeight;
   if(kind!=='sys') S.log.push({speaker: kind==='me'?S.name:persona.name, me:kind==='me', text, t:Math.round((Date.now()-S.start)/1000)});
 }
+function hlNum(h){ return h.replace(/(\$\s?\d[\d,.]*\s?(?:k|K|M|million|thousand)?|\b\d+(?:\.\d+)?\s?(?:%|percent\b|per ?cent\b))/g,'<b class="num">$1</b>') }
 function sideTab(i,btn){
   document.querySelectorAll('.tabs button').forEach(b=>b.classList.remove('on'));btn.classList.add('on');
   $('feed').style.display=i?'none':'block'; $('agenda').classList.toggle('on',i===1); $('emailPane').classList.toggle('on',i===2);
@@ -3649,7 +4054,7 @@ async function aiTurn(userContent){
   }
   S.personas.forEach((_,i)=>setTile(i,''));
   S.lastAI = out.turns||[];
-  S.skip=false;
+  S.skip=false; try{ refreshBrief() }catch(e){ console.warn(e) }
   for(const t of S.lastAI){
     const idx = personaIdx(t.speaker), p=S.personas[idx];
     addLog('ai', t.text, p);
@@ -3745,6 +4150,7 @@ async function endMeeting(auto){
   }
   const cse = S.caseId ? getCase(S.caseId,false) : null;
   const record = {id:Date.now(), date:new Date().toISOString(), title:S.title, tag:S.tag, difficulty:S.difficulty, name:S.name, role:S.role, metrics:m, fb, log:S.log,
+    brief: settings.demo ? briefSnapshot(S.sc, S.eng) : null,
     emails: cse ? cse.emails.slice(-8).map(e=>({me:e.me,from:e.from,to:e.to,subject:e.subject,body:e.body.slice(0,1200),t:e.t,fromP:e.fromP,check:e.check})) : []};
   caseAfterMeeting();
   curReport=null; renderReport(record); showDelBtn();
@@ -3775,6 +4181,7 @@ function renderReport(r){
     ${f.rubric?`<div class="pane"><h3>Evaluation · ${f.rubric.Overall}/100</h3>${[['Content / Relevance','Relevant content that directly addresses the issue'],['Logic / Development','Reasonable arguments with adequate reasons and examples'],['Delivery','Expressions, grammar & usage, fluency']].map(([k,d])=>`<div class="bar"><div><span>${esc(k)}<small style="display:block;color:var(--dim);font-size:11px;font-weight:400">${d}</small></span><b>${f.rubric[k]}</b></div><i><u style="width:${f.rubric[k]}%"></u></i></div>`).join('')}</div>`:''}
     <div class="pane"><h3>Skill breakdown</h3>${Object.entries(f.scores||{}).map(([k,v])=>`<div class="bar"><div><span>${esc(k)}</span><b>${v}</b></div><i><u style="width:${v}%"></u></i></div>`).join('')}</div>
     <div class="pane"><h3>Objectives</h3>${(f.goals||[]).map(g=>{const [c,i]=st(g.status);return `<div class="gl"><span class="dot ${c}">${i}</span><div>${esc(g.goal)}<small>${esc(g.note)}</small></div></div>`}).join('')}</div>
+    ${r.brief?renderBriefReport(r.brief):''}
     <div class="pane"><h3>What worked</h3><ul class="pts">${(f.strengths||[]).map(s=>`<li>${esc(s)}</li>`).join('')}</ul></div>
     <div class="pane"><h3>Focus next time</h3><ul class="pts">${(f.improvements||[]).map(s=>`<li>${esc(s)}</li>`).join('')}</ul></div>
     ${(f.moments&&f.moments.length)?`<div class="pane"><h3>Key moments</h3>${f.moments.map(x=>{const [c,i]=x.good>0?['y','✓']:x.good<0?['n','✕']:['p','•'];return `<div class="gl"><span class="dot ${c}">${i}</span><div>${esc(x.text)}<small>${settings.fb==='ko'?'':'Turn'} ${x.turn}</small></div></div>`}).join('')}</div>`:''}
