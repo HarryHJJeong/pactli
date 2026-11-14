@@ -663,14 +663,27 @@ html.mob .btags{position:static;justify-content:flex-start;margin-top:10px}
 html.mob .bfootbar{padding:8px 16px 20px}
 html.mob .bmodal{padding:0}
 html.mob .bcard{border-radius:0}
-html.mob .rbody .bpanel,html.mob .rbody.bopen .bpanel{display:flex!important;position:fixed;top:auto;width:auto;left:max(0px,calc(50% - 215px));right:max(0px,calc(50% - 215px));bottom:var(--ctrlH,150px);height:min(58dvh,calc(100dvh - var(--ctrlH,150px) - 70px));
-  border:0;border-radius:22px 22px 0 0;box-shadow:0 -10px 34px rgba(12,28,23,.22);z-index:45;transform:translateY(calc(100% + var(--ctrlH,150px) + 20px));transition:transform .25s ease,height .25s ease;width:auto;top:auto}
-html.mob .rbody.bopen .bpanel{transform:none;bottom:var(--ctrlH,150px)}
-html.mob .rbody .bpanel.full{height:calc(100dvh - var(--ctrlH,150px) - 60px)}
-html.mob .bgrab{display:block;padding:9px 0 3px;cursor:grab}.bgrab i{display:block;width:42px;height:5px;background:#d6d0c2;border-radius:3px;margin:0 auto}
-html.mob #bBody{padding:6px 14px 16px}
-html.mob #bBtn kbd,html.mob #bBtn span{display:none}
-html.mob #bBody .bhead{order:-3}html.mob #bBody .btarget{order:-2}html.mob #bBody .bnext,html.mob #bBody .bnextbtn{order:-1}
+/* mobile live briefing: in-flow sheet between the chat and the controls — latest messages stay visible above it */
+html.mob .rbody .bpanel{display:none!important}
+html.mob .rbody.bopen .bpanel{display:flex!important;position:relative;inset:auto;width:auto;order:3;flex:0 0 auto;height:calc((100dvh - 58px - var(--ctrlH,170px)) * .64);
+  border:0;border-radius:22px 22px 0 0;box-shadow:0 -10px 30px rgba(12,28,23,.16);z-index:6;margin-top:-14px;background:var(--bg)}
+html.mob .rbody.bopen .tiles,html.mob .rbody.bopen .tabs{display:none}
+html.mob .rbody.bopen .side{border-top:none}
+html.mob .rbody.bopen .feed{padding-bottom:26px}
+html.mob .ctrl{order:4}
+html.mob .bgrab{display:none}
+html.mob #bBody{padding:0 14px 16px;gap:9px}
+html.mob #bBody .bhead{order:-3;position:sticky;top:0;z-index:2;background:var(--bg);margin:0 -14px;padding:14px 16px 11px;border-bottom:1px solid var(--line)}
+html.mob #bBody .btarget{display:none}
+html.mob #bBody .bnext,html.mob #bBody .bnextbtn{order:-1}
+html.mob #bBody .bgoals li.met{display:none}
+html.mob #bBtn{display:none}
+.bbtn2{display:none}
+html.mob .bbtn2{display:flex;flex-direction:column;gap:1px;background:#eef6dd;border-color:#c7e48b;color:#3d5a1e;font-size:17px;line-height:1}
+html.mob .bbtn2 small{font-size:8.5px;font-weight:800;letter-spacing:.03em}
+html.mob .bbtn2.on{background:var(--lime);border-color:var(--lime)}
+.bhead .bchip{font-size:11px;font-weight:700;background:var(--lime);color:var(--deep);padding:4px 9px;border-radius:10px;margin-left:auto;margin-right:8px;white-space:nowrap}
+.bhead .bclose{width:30px;height:30px;border-radius:50%;background:#efece4;border:0;font-size:14px;font-weight:700;color:var(--ink2);cursor:pointer;flex-shrink:0;display:flex;align-items:center;justify-content:center}
 @media print{
   body{background:#fff}
   .top,.noprint{display:none!important}
@@ -855,6 +868,7 @@ html.mob #bBody .bhead{order:-3}html.mob #bBody .btarget{order:-2}html.mob #bBod
         <div class="interim" id="interim"></div>
         <div class="status" id="status">Connecting…</div>
         <div class="cbtns">
+          <button class="round bbtn2" id="bBtn2" title="Your briefing" onclick="toggleBrief()">📋<small>BRIEF</small></button>
           <button class="round" title="Skip voice" onclick="skipSpeech()"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M5 5l9 7-9 7V5zm10 0h3v14h-3z"/></svg></button>
           <button class="mic" id="mic" onclick="toggleMic()" disabled>
             <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 15a3 3 0 0 0 3-3V6a3 3 0 0 0-6 0v6a3 3 0 0 0 3 3zm5-3a5 5 0 0 1-10 0H5a7 7 0 0 0 6 6.92V21h2v-2.08A7 7 0 0 0 19 12h-2z"/></svg>
@@ -3624,7 +3638,9 @@ function renderBrief(sc, st, mode){
   if(live){
     const nx = lv===0 ? brNext(sc,st) : null;
     const nxBtn = lv===1 && settings.demo ? `<button class="bnextbtn" onclick="brHint(this)">💡 Need a hint?</button>` : '';
-    return `<div class="bhead"><b>Your briefing</b><button class="bx" onclick="toggleBrief(false)">Hide ›</button></div>
+    const key=iss.filter(is=>is.unit!=='option'&&is.limit!=null&&brDir(is)).sort((x,y)=>(y.weight||2)-(x.weight||2))[0];
+    const chip = key ? `Target ${brDir(key)==='low'?'≤':'≥'}${brShort(key,key.limit)}` : sc.discussion ? (st.flags.consensus?'Agreement ✓':'Reach a decision') : '';
+    return `<div class="bhead"><b>Your briefing</b>${chip?`<span class="bchip">${esc(chip)}</span>`:'<span style="margin-left:auto"></span>'}<button class="bclose" onclick="toggleBrief(false)" title="Close" aria-label="Close briefing">✕</button></div>
       <div class="btarget"><small>${mand?'YOUR MANDATE · CONFIDENTIAL':'YOUR GOAL'}</small>${target.map(t=>esc(t)).join('<br>')}</div>
       ${sec(sc.discussion?'Decision':'',dec)}
       ${sec('Negotiation range'+(settings.demo?' <span>live</span>':''), ranges)}
@@ -3693,8 +3709,9 @@ function refreshBrief(){ if(!S || !S.sc) return; const b=$('bBody'); if(!b) retu
 function toggleBrief(on){
   const rb=document.querySelector('#room .rbody'); if(!rb) return;
   const want = on==null ? !rb.classList.contains('bopen') : !!on;
-  rb.classList.toggle('bopen', want); $('bBtn').classList.toggle('on', want); $('bPanel').classList.remove('full');
-  if(want){ if(S) S.briefOpens=(S.briefOpens||0)+1; refreshBrief(); placeSheet() }
+  rb.classList.toggle('bopen', want); $('bBtn').classList.toggle('on', want); if($('bBtn2')) $('bBtn2').classList.toggle('on', want); $('bPanel').classList.remove('full');
+  if(want){ if(S) S.briefOpens=(S.briefOpens||0)+1; placeSheet(); refreshBrief() }
+  requestAnimationFrame(()=>{ const f=$('feed'); if(f) f.scrollTop=f.scrollHeight });
   LS.set('pactli_brief_open', want?'1':'0');
 }
 function placeSheet(){ const c=document.querySelector('#room .ctrl'); if(c) $('bPanel').style.setProperty('--ctrlH', c.offsetHeight+'px') }
