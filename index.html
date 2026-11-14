@@ -225,7 +225,10 @@ details summary{cursor:pointer;color:var(--muted);font-size:12.5px;letter-spacin
 .hist{display:flex;align-items:center;gap:18px;padding:18px 20px;background:var(--panel);border:1px solid var(--line);border-radius:14px;margin-bottom:10px;cursor:pointer;transition:.2s;box-shadow:var(--sh)}
 .hist:hover{border-color:var(--gold2)}
 .hist .sc{font-family:var(--serif);font-size:32px;font-weight:700;color:var(--gold);width:56px}
-.hist b{display:block}
+.hist b{display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.hist>div{min-width:0}
+.hist small{display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.hist{min-width:0;max-width:100%}
 .hist small{color:var(--dim);font-size:12px}
 .empty{color:var(--dim);text-align:center;padding:60px 0}
 
@@ -1002,10 +1005,10 @@ html.mob #meSheet .pane{max-width:430px!important;border-radius:22px 22px 0 0;pa
 <section class="screen" id="inbox">
   <div class="wrap">
     <div class="top">
-      <div class="brand" onclick="go('home')"><b>pactli<i>.</i></b><span>Inbox</span></div>
+      <div class="brand" onclick="go('home')"><b>pactli<i>.</i></b><span>Email</span></div>
       <div class="nav"><button onclick="go('home')">← Home</button></div>
     </div>
-    <div class="section-h"><h2>Inbox</h2><span id="inboxCount"></span></div>
+    <div class="section-h"><h2>Email</h2><span id="inboxCount"></span></div>
     <p class="hint" style="margin:-8px 0 18px">Each scenario has its own email thread. What you agree or uncover by email carries into the voice meeting — and after each meeting, a follow-up email lands here.</p>
     <div id="inboxList" style="padding-bottom:60px"></div>
   </div>
@@ -1016,7 +1019,7 @@ html.mob #meSheet .pane{max-width:430px!important;border-radius:22px 22px 0 0;pa
   <div class="wrap">
     <div class="top">
       <div class="brand" onclick="go('home')"><b>pactli<i>.</i></b><span>Email</span></div>
-      <div class="nav"><button onclick="openInbox()">← Inbox</button></div>
+      <div class="nav"><button onclick="openInbox()">← Email</button></div>
     </div>
     <div class="thread-head">
       <div><div class="eyebrow" id="thTag"></div><h2 id="thTitle"></h2><div class="hint" id="thSub"></div></div>
@@ -4126,7 +4129,7 @@ async function caseAfterMeeting(){
       mails=await aiEmails(getCase(S.caseId), "The voice meeting above has just ended. Write ONE follow-up email from the main counterpart: thank them briefly, summarise only what was actually agreed, list any open points, and ask the learner to confirm or respond.");
       const cc=getCase(S.caseId); cc.awaitConfirm=true; cc.emails.push(...mails); cc.unread+=mails.length; putCase(cc);
     }
-    if(mails.length) setTimeout(()=>toast(`✉ New email from ${mails[0].from} — check your Inbox`,4500),1500);
+    if(mails.length) setTimeout(()=>toast(`✉ New email from ${mails[0].from} — check Email`,4500),1500);
   }catch(e){}
 }
 
@@ -4507,7 +4510,7 @@ function logout(){
 }
 function renderNav(){
   const u = session.user;
-  const items = [['home',NI('chat'),'Meetings',"go('home')"],['campaign',NI('flag'),'Campaign','openCampaign()'],['inbox',NI('mail'),'Inbox','openInbox()'],['history',NI('clock'),'History','openHistory()']].concat(u.admin?[['admin',NI('clip'),'Admin','openAdmin()']]:[]);
+  const items = [['home',NI('chat'),'Meetings',"go('home')"],['campaign',NI('flag'),'Campaign','openCampaign()'],['inbox',NI('mail'),'Email','openInbox()'],['history',NI('clock'),'History','openHistory()']].concat(u.admin?[['admin',NI('clip'),'Admin','openAdmin()']]:[]);
   const bdg = t => t==='inbox' ? '<span class="badge" data-badge style="display:none"></span>' : '';
   $('sideNav').innerHTML = '<div class="nav-group">Practice</div>'+items.slice(0,4).map(([t,i,l,f])=>`<button class="ni" data-tab="${t}" onclick="${f}"><span class="ico">${i}</span>${l}${bdg(t)}</button>`).join('')
     + (u.admin?'<div class="nav-group">Director</div>'+items.slice(4).map(([t,i,l,f])=>`<button class="ni" data-tab="${t}" onclick="${f}"><span class="ico">${i}</span>${l}</button>`).join(''):'')
