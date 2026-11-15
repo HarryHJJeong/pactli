@@ -773,6 +773,15 @@ html.mob #meSheet{align-items:flex-end;padding:0}
 html.mob #meSheet .pane{max-width:430px!important;border-radius:22px 22px 0 0;padding-bottom:calc(18px + env(safe-area-inset-bottom))!important;animation:shup .25s ease}
 @keyframes shup{from{transform:translateY(40px);opacity:.4}to{transform:none;opacity:1}}
 
+/* PC: the same "Me" sheet as a centred card, plus a small sync line in the sidebar */
+html:not(.mob) #meSheet .me-grab{display:none}
+html:not(.mob) #meSheet .pane{max-width:380px}
+#sideSync{display:flex;align-items:center;gap:7px;width:100%;margin:8px 0 2px;padding:7px 9px;border-radius:10px;font-size:11.5px;font-weight:600;color:inherit;opacity:.78;text-align:left;background:rgba(255,255,255,.07)}
+#sideSync:hover{opacity:1;background:rgba(255,255,255,.13)}
+#sideSync .nvi{width:15px;height:15px;flex-shrink:0;--nvi-ac:#c7e48b}
+#sideSync span{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0}
+#sideSync.warn{color:#f3c9a5;opacity:1}
+
 /* ===== Phone fit — nothing may be wider than the screen ===== */
 .rgrid{grid-template-columns:repeat(2,minmax(0,1fr))}
 .rgrid>*,.cp-grid>*,.setup>*,.hero>*,.row>*{min-width:0}
@@ -1147,6 +1156,7 @@ html.mob body{overflow-x:hidden}
   <div id="sideNav"></div>
   <div class="sidebar-foot">
     <strong id="sideName"></strong><div id="sideRole"></div>
+    <button id="sideSync" onclick="syncManual()"><svg class="nvi" viewBox="0 0 24 24" aria-hidden="true"><path d="M5.2 10.2a7 7 0 0 1 12.3-2.6l1.5 1.7"/><path d="M19.2 5.4v4h-4"/><path d="M18.8 13.8a7 7 0 0 1-12.3 2.6L5 14.7"/><path d="M4.8 18.6v-4h4"/><circle class="ac" cx="12" cy="12" r="1.6"/></svg><span>Syncing…</span></button>
     <div class="sbtns"><button onclick="setView('mobile')">📱 Mobile</button><button onclick="logout()">Sign out</button></div>
   </div>
 </aside>
@@ -4807,7 +4817,7 @@ async function gas(action, data={}){
    Each record is one key: case:<id> · camp:<id> · custom:<id> · settings · packs · name
    ========================================================= */
 let syncServer = null;      // null = unknown, false = the member server has no sync actions yet
-let syncBusy = false, syncAgain = false, syncT = null, syncMute = false, syncAt = 0, syncErr = '';
+let syncBusy = false, syncAgain = false, syncT = null, syncMute = false, syncAt = 0, syncErr = '', syncOffAt = 0, syncFails = 0;
 const SYNC_GLOBAL = ['pactli_custom','pactli_settings','pactli_camp_packs','pactli_name'];
 const syncUid = () => (session&&session.user&&session.user.id)||'';
 const syncRaw = (k,v) => { syncMute=true; try{ LS.set(k,v) } finally { syncMute=false } };
@@ -4852,7 +4862,8 @@ function syncRefresh(){
   try{ if($('inbox').classList.contains('on')) openInbox() }catch(e){}
 }
 async function syncNow(){
-  if(syncServer===false || !authed()) return false;
+  if(!authed()) return false;
+  if(syncServer===false){ if(Date.now()-syncOffAt < 600000) return false; syncServer = null }   // an old server may have been updated since — look again now and then
   if(syncLive()){ syncSoon(8000); return false }                 // never swap state under a live meeting
   if(syncBusy){ syncAgain=true; return false }
   syncBusy = true; let ok = false;
@@ -4881,26 +4892,30 @@ async function syncNow(){
       batch.forEach(b=>{ meta[b.key] = {u:(p.stamps&&p.stamps[b.key])||Date.now(), h:pend[b.key]} });
       syncRaw(mk, meta);
     }
-    syncRaw(mk, meta); syncAt = Date.now(); syncErr = ''; ok = true;
+    syncRaw(mk, meta); syncAt = Date.now(); syncErr = ''; syncFails = 0; ok = true;
     if(changed) syncRefresh();
   }catch(e){
     syncErr = e.message||'Sync failed';
-    if(syncServer===null && !/reach the member server|expired|sign in/i.test(syncErr)) syncServer = false;
+    if(/^Unknown action/i.test(syncErr)){ syncServer = false; syncOffAt = Date.now(); syncErr = '' }     // only a server that truly lacks sync turns it off
+    else if(authed()){ syncFails++; clearTimeout(syncT); syncT = setTimeout(syncNow, Math.min(120000, 4000*Math.pow(2, syncFails))) }   // a passing hiccup: try again shortly
   }
-  syncBusy = false;
+  syncBusy = false; syncPaint();
   if(syncAgain){ syncAgain=false; syncSoon(600) }
   return ok;
 }
-function syncSoon(ms){ if(syncServer===false) return; clearTimeout(syncT); syncT = setTimeout(syncNow, ms||2500) }
+function syncSoon(ms){ clearTimeout(syncT); syncT = setTimeout(syncNow, ms||2500) }
 function syncTouch(k){ if(syncMute || !authed()) return; if(k===caseKey() || k===campKey() || SYNC_GLOBAL.includes(k)) syncSoon() }
 function syncStatus(){
   if(syncServer===false) return 'Sync is off — the member server needs the sync update';
-  if(syncErr) return 'Sync paused — '+syncErr;
+  if(syncErr) return 'Sync paused — retrying ('+syncErr.replace(/\.$/,'')+')';
   if(!syncAt) return 'Syncing…';
   const s = Math.round((Date.now()-syncAt)/1000);
   return 'Synced across your devices · '+(s<60?'just now':s<3600?Math.round(s/60)+' min ago':Math.round(s/3600)+' h ago');
 }
-async function syncManual(){ if(syncServer===false) syncServer=null; busy(true,'Syncing','Matching this device with your account…'); const ok=await syncNow(); busy(false); toast(ok?'Everything is up to date':syncStatus(), 3200) }
+/* the PC sidebar shows the same status as the Me sheet */
+function syncPaint(){ const e=$('sideSync'); if(!e) return; const s=syncStatus(); e.querySelector('span').textContent = s.replace('Synced across your devices · ','Synced · ').replace(/ — .*/,''); e.title = s+' — click to sync now'; e.classList.toggle('warn', syncServer===false || !!syncErr) }
+setInterval(()=>{ try{ syncPaint() }catch(e){} }, 30000);
+async function syncManual(){ if(syncServer===false){ syncServer=null; syncOffAt=0 } busy(true,'Syncing','Matching this device with your account…'); clearTimeout(syncT); for(let i=0;i<80&&syncBusy;i++) await new Promise(r=>setTimeout(r,100)); const ok=await syncNow(); busy(false); toast(ok?'Everything is up to date':syncStatus(), 3200) }
 document.addEventListener('visibilitychange', ()=>{ if(!authed()) return; if(document.hidden){ clearTimeout(syncT); syncNow() } else if(Date.now()-syncAt > 20000) syncNow() });
 window.addEventListener('online', ()=>{ if(authed()) syncSoon(500) });
 
@@ -4990,7 +5005,7 @@ function renderNav(){
   const bdg = t => t==='inbox' ? '<span class="badge" data-badge style="display:none"></span>' : '';
   $('sideNav').innerHTML = '<div class="nav-group">Practice</div>'+items.slice(0,4).map(([t,i,l,f])=>`<button class="ni" data-tab="${t}" onclick="${f}"><span class="ico">${i}</span>${l}${bdg(t)}</button>`).join('')
     + (u.admin?'<div class="nav-group">Director</div>'+items.slice(4).map(([t,i,l,f])=>`<button class="ni" data-tab="${t}" onclick="${f}"><span class="ico">${i}</span>${l}</button>`).join(''):'')
-    + '<div class="nav-group">Account</div><button class="ni" onclick="openSettings()"><span class="ico">'+NI('gear')+'</span>Settings</button>';
+    + '<div class="nav-group">Account</div><button class="ni" onclick="openMe()"><span class="ico">'+NI('face')+'</span>Me</button>';
   $('sideName').textContent = u.name||u.id;
   $('sideRole').textContent = [u.title,u.company].filter(Boolean).join(' · ') || (u.admin?'Admin':'Member');
   const tabs = items.filter(x=>x[0]!=='admin').concat([['admin',NI('face'),'Me','openMe()']]);   // admin & settings live in the "Me" sheet
@@ -5104,7 +5119,7 @@ function openMe(){
     + `<button class="me-it" onclick="$('meSheet').classList.remove('on');syncManual()"><span class="ico">${NI('sync')}</span><span style="min-width:0">Sync now<small style="display:block;font-weight:500;font-size:12px;color:var(--muted);margin-top:2px">${esc(syncStatus())}</small></span><span class="chev">›</span></button>`
     + it('gear','Settings','openSettings()')
     + (u.admin ? it('clip','Admin','openAdmin()') : '')
-    + it('screen','Switch to PC view',"setView('pc')")
+    + (document.documentElement.classList.contains('mob') ? it('screen','Switch to PC view',"setView('pc')") : it('screen','Switch to mobile view',"setView('mobile')"))
     + it('out','Sign out','logout()','bad');
   $('meSheet').classList.add('on');
 }
