@@ -10,7 +10,7 @@
 <meta name="theme-color" content="#293e36">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Noto+Sans+KR:wght@400;500;700;900&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400..900&display=swap" media="print" onload="this.media='all'">
 <style>
 :root{
   /* Worqend palette */
@@ -1614,7 +1614,7 @@ const FILLERS = ['um','uh','erm','er','you know','basically','sort of','kind of'
    ========================================================= */
 const LS = {
   get:(k,d)=>{try{const v=localStorage.getItem(k);return v===null?d:JSON.parse(v)}catch(e){return d}},
-  set:(k,v)=>{try{localStorage.setItem(k,JSON.stringify(v));return true}catch(e){toast('Storage is full — delete some custom scenarios.');return false}}
+  set:(k,v)=>{try{localStorage.setItem(k,JSON.stringify(v));try{syncTouch(k)}catch(_){};return true}catch(e){toast('Storage is full — delete some custom scenarios.');return false}}
 };
 let settings = Object.assign({lang:'en-US',rate:'1',fb:'en',auto:true,captions:true,demo:true}, LS.get('pactli_settings',{}));
 if(!settings.v2){ settings.demo=true; settings.v2=1; LS.set('pactli_settings',settings) }   // the rule engine is now the default
@@ -1674,11 +1674,11 @@ async function delCustom(id,e){
   e.stopPropagation();
   const s = allSc().find(x=>x.id===id); if(!s) return;
   if(!confirm(s.shared?'Delete this shared scenario for all members?':'Delete this scenario?')) return;
-  if(s.shared){ try{ await gas('scenarios.delete',{id}); shared = shared.filter(x=>x.id!==id) }catch(err){ toast(err.message); return } }
+  if(s.shared){ try{ await gas('scenarios.delete',{id}); swrDrop('scenarios.list'); shared = shared.filter(x=>x.id!==id) }catch(err){ toast(err.message); return } }
   else LS.set('pactli_custom', customs().filter(x=>x.id!==id));
   renderCards(); toast('Scenario deleted');
 }
-async function loadShared(){ try{ shared = (await gas('scenarios.list')).scenarios||[] }catch(e){ shared=[] } }
+async function loadShared(force){ try{ if(force) swrDrop('scenarios.list'); shared = (await gasSWR('scenarios.list',{}, ()=>loadShared().then(renderCards))).scenarios||[] }catch(e){ if(!shared.length) shared=[] } }
 
 /* =========================================================
    SETUP
@@ -2090,7 +2090,7 @@ function renderEditor(){
 async function edSave(andTest){
   const s=edBuild(); if(!s){ toast('Add a title and at least one named persona.'); return }
   const w=validateScenario(s); if(w.length && !confirm(`There ${w.length===1?'is 1 warning':'are '+w.length+' warnings'}:\n\n• ${w.slice(0,6).join('\n• ')}\n\nSave anyway?`)) return;
-  if(isAdmin()){ s.mine=false; s.createdBy=session.user.id; try{ busy(true,'Saving','Sharing with members…'); await gas('scenarios.save',{scenario:s}); shared=shared.filter(x=>x.id!==s.id).concat([s]) }catch(e){ busy(false); toast('Could not save: '+e.message,4500); return } busy(false) }
+  if(isAdmin()){ s.mine=false; s.createdBy=session.user.id; try{ busy(true,'Saving','Sharing with members…'); await gas('scenarios.save',{scenario:s}); swrDrop('scenarios.list'); shared=shared.filter(x=>x.id!==s.id).concat([s]) }catch(e){ busy(false); toast('Could not save: '+e.message,4500); return } busy(false) }
   else { s.mine=true; if(!LS.set('pactli_custom', customs().filter(x=>x.id!==s.id).concat([s]))) return }
   ED.origId=s.id; ED.src=isAdmin()?'shared':'mine'; renderCards(); toast(isAdmin()?'Saved — shared with all members':'Saved');
   { const cs=loadCases(); if(cs[s.id]){ delete cs[s.id]; LS.set(caseKey(),cs) } }   // the old case state no longer matches the scenario
@@ -2263,7 +2263,7 @@ async function importFiles(files){
   if(!added.length) return;
   if(isAdmin()){
     busy(true,'Sharing with members','Saving to the member server…');
-    try{ for(const s of added){ s.mine=false; s.createdBy=session.user.id; await gas('scenarios.save',{scenario:s}); shared.push(s) } }
+    try{ for(const s of added){ s.mine=false; s.createdBy=session.user.id; await gas('scenarios.save',{scenario:s}); swrDrop('scenarios.list'); shared.push(s) } }
     catch(e){ busy(false); toast('Could not share: '+e.message,4500); return }
     busy(false);
   } else if(!LS.set('pactli_custom', customs().concat(added))) return;
@@ -4646,7 +4646,7 @@ async function endMeeting(auto){
   if(S.sc && S.sc.campaign && settings.demo){ try{ campAfterMeeting(record) }catch(e){ console.warn(e) } }
   caseAfterMeeting();
   curReport=null; renderReport(record); showDelBtn();
-  gas('reports.save',{record}).then(r=>{ if(r&&r.rowId){ curReport={rowId:r.rowId,from:'history'}; showDelBtn() } }).catch(e=>toast('Could not save to your history: '+e.message,4500));
+  gas('reports.save',{record}).then(r=>{ if(r&&r.rowId){ histAdd(r.rowId, record); curReport={rowId:r.rowId,from:'history'}; showDelBtn() } }).catch(e=>toast('Could not save to your history: '+e.message,4500));
 }
 function retryReport(){ if(S){ S.ended=false; endMeeting(true) } }
 function cleanup(){ clearInterval(S.timer); speechSynthesis.cancel(); if(recOn) stopMic(false) }
@@ -4696,31 +4696,75 @@ function sayBack(t){ speechSynthesis.cancel(); speak(t,{gender:'f'},0) }
 /* =========================================================
    HISTORY & SETTINGS
    ========================================================= */
+/* =========================================================
+   SPEED — show what we already have, refresh quietly behind it
+   · gasSWR: answers instantly from the last result, then re-checks the server and redraws only if something changed
+   · report store: a debrief is immutable, so once seen it opens instantly (memory + IndexedDB)
+   ========================================================= */
+const SWR = {};
+const swrUid = () => (session&&session.user&&session.user.id)||'';
+const swrKey = (a,d) => swrUid()+'|'+a+'|'+JSON.stringify(d||{});
+const swrLS = k => 'pactli_swr_'+k.replace(/[^a-z0-9]+/gi,'_');
+const SWR_KEEP = {'reports.list':1, 'scenarios.list':1};          // small lists worth keeping between visits
+function swrPeek(a,d){ const k=swrKey(a,d); if(SWR[k]) return SWR[k].v; if(SWR_KEEP[a] && !(d&&d.all)){ const v=LS.get(swrLS(k), null); if(v){ SWR[k]={v,fresh:false}; return v } } return null }
+function swrPut(a,d,v){ const k=swrKey(a,d); SWR[k]={v,fresh:false}; if(SWR_KEEP[a] && !(d&&d.all)){ try{ localStorage.setItem(swrLS(k), JSON.stringify(v)) }catch(e){} } }
+function swrDrop(prefix){ Object.keys(SWR).forEach(k=>{ if(k.split('|')[1].indexOf(prefix)===0) delete SWR[k] }) }
+async function gasSWR(action, data, redraw){
+  const k = swrKey(action,data), hit = swrPeek(action,data);
+  if(hit && SWR[k].fresh){ SWR[k].fresh=false; return hit }
+  if(hit){
+    if(!SWR[k].busy){ SWR[k].busy=true;
+      gas(action,data).then(r=>{ const ch = JSON.stringify(r)!==JSON.stringify(hit); swrPut(action,data,r); if(ch && redraw && swrKey(action,data)===k){ SWR[k].fresh=true; redraw() } }).catch(()=>{ if(SWR[k]) SWR[k].busy=false }); }
+    return hit;
+  }
+  const r = await gas(action,data); swrPut(action,data,r); return r;
+}
+
+/* ---------- report store ---------- */
+const REP = new Map(); let repDB = null;
+try{ const q=indexedDB.open('pactli',1); q.onupgradeneeded=()=>q.result.createObjectStore('reports'); q.onsuccess=()=>{ repDB=q.result }; q.onerror=()=>{} }catch(e){}
+const repKey = id => swrUid()+'|'+id;
+function repPut(rowId, record){ if(!rowId||!record) return; REP.set(repKey(rowId), record); if(REP.size>40) REP.delete(REP.keys().next().value);
+  try{ if(repDB) repDB.transaction('reports','readwrite').objectStore('reports').put(record, repKey(rowId)) }catch(e){} }
+function repDel(rowId){ REP.delete(repKey(rowId)); try{ if(repDB) repDB.transaction('reports','readwrite').objectStore('reports').delete(repKey(rowId)) }catch(e){} }
+function repGet(rowId){ const k=repKey(rowId); if(REP.has(k)) return Promise.resolve(REP.get(k));
+  return new Promise(res=>{ if(!repDB) return res(null); try{ const q=repDB.transaction('reports').objectStore('reports').get(k); q.onsuccess=()=>{ if(q.result) REP.set(k,q.result); res(q.result||null) }; q.onerror=()=>res(null) }catch(e){ res(null) } }) }
+async function repFetch(rowId){ const c=await repGet(rowId); if(c) return c; const {record}=await gas('reports.get',{rowId}); repPut(rowId, record); return record }
+/* warm the newest debriefs while the member is looking at the list */
+function repWarm(list){ (list||[]).slice(0,3).forEach((r,i)=>setTimeout(()=>{ if(authed()) repFetch(r.rowId).catch(()=>{}) }, 400+i*900)) }
+/* keep the cached history list in step with what just happened, without a round trip */
+function histPatch(fn){ const cur=swrPeek('reports.list',{}); if(!cur) return; swrPut('reports.list',{}, {reports:fn((cur.reports||[]).slice())}) }
+function histAdd(rowId, r){ repPut(rowId, r);
+  histPatch(a=>[{rowId, date:r.date, userId:swrUid(), name:(session.user.name||''), scenario:r.title, difficulty:r.difficulty, overall:r.fb&&r.fb.overall, level:r.fb&&r.fb.level, duration:r.metrics&&r.metrics.duration}].concat(a.filter(x=>x.rowId!==rowId))) }
+function histRemove(rowId){ repDel(rowId); histPatch(a=>a.filter(x=>x.rowId!==rowId)) }
+function histDraw(h){
+  $('histCount').textContent = h.length+' session'+(h.length===1?'':'s');
+  $('histList').innerHTML = h.length? h.map(r=>`<div class="hist" onclick="showHist('${esc(r.rowId)}','history')"><div class="sc">${r.overall??'–'}</div><div style="flex:1;min-width:0"><b>${esc(r.scenario)}</b><small>${new Date(r.date).toLocaleDateString()} · ${esc(dlabel(r.difficulty))} · ${fmt(r.duration||0)} · ${esc(r.level||'')}</small></div><button class="delbtn" title="Delete" onclick="event.stopPropagation();delReport('${esc(r.rowId)}','history')">Delete</button><span class="chev">→</span></div>`).join('') : '<div class="empty">No meetings yet. Your debriefs will appear here.</div>';
+}
 async function openHistory(){
-  go('history'); $('histCount').textContent=''; $('histList').innerHTML='<div class="empty">Loading…</div>';
-  try{
-    const h=(await gas('reports.list',{})).reports||[];
-    $('histCount').textContent = h.length+' session'+(h.length===1?'':'s');
-    $('histList').innerHTML = h.length? h.map(r=>`<div class="hist" onclick="showHist('${esc(r.rowId)}','history')"><div class="sc">${r.overall??'–'}</div><div style="flex:1;min-width:0"><b>${esc(r.scenario)}</b><small>${new Date(r.date).toLocaleDateString()} · ${esc(dlabel(r.difficulty))} · ${fmt(r.duration||0)} · ${esc(r.level||'')}</small></div><button class="delbtn" title="Delete" onclick="event.stopPropagation();delReport('${esc(r.rowId)}','history')">Delete</button><span class="chev">→</span></div>`).join('') : '<div class="empty">No meetings yet. Your debriefs will appear here.</div>';
-  }catch(e){ $('histList').innerHTML=`<div class="empty">${esc(e.message)}</div>` }
+  go('history');
+  if(!swrPeek('reports.list',{})){ $('histCount').textContent=''; $('histList').innerHTML='<div class="empty">Loading…</div>' }
+  try{ const h=(await gasSWR('reports.list',{}, ()=>{ if($('history').classList.contains('on')) openHistory() })).reports||[]; histDraw(h); repWarm(h) }
+  catch(e){ $('histList').innerHTML=`<div class="empty">${esc(e.message)}</div>` }
 }
 let curReport=null;
 async function showHist(rowId, from){
-  busy(true,'Opening report');
-  try{ const {record}=await gas('reports.get',{rowId}); curReport={rowId, from:from||'history'}; renderReport(record); go('report'); showDelBtn() }catch(e){ toast(e.message) }
-  busy(false);
+  let record = await repGet(rowId);
+  if(!record){ busy(true,'Opening report'); try{ record = await repFetch(rowId) }catch(e){ busy(false); toast(e.message); return } busy(false) }
+  curReport={rowId, from:from||'history'}; renderReport(record); go('report'); showDelBtn();
 }
-function showDelBtn(){ const b=$('repDel'); if(b) b.style.display = curReport ? '' : 'none' }
 async function delReport(rowId, from){
   if(!confirm('Delete this meeting report? This can\'t be undone.')) return;
-  busy(true,'Deleting');
-  try{
-    await gas('reports.delete',{rowId}); toast('Report deleted');
-    if(curReport && curReport.rowId===rowId) curReport=null;
-    busy(false);
-    if(from==='admin'){ admReports=admReports.filter(r=>r.rowId!==rowId); go('admin'); drawSessions() } else openHistory();
-  }catch(e){ busy(false); toast(e.message,4000) }
+  const keep = swrPeek('reports.list',{});
+  histRemove(rowId); if(curReport && curReport.rowId===rowId) curReport=null;
+  if(from==='admin'){ const old=admReports; admReports=admReports.filter(r=>r.rowId!==rowId); go('admin'); drawSessions(); swrDrop('reports.list');
+    gas('reports.delete',{rowId}).then(()=>toast('Report deleted')).catch(e=>{ admReports=old; drawSessions(); toast(e.message,4000) }); return }
+  if(keep) histDraw((swrPeek('reports.list',{})||{reports:[]}).reports); go('history');
+  gas('reports.delete',{rowId}).then(()=>toast('Report deleted')).catch(e=>{ if(keep) swrPut('reports.list',{},keep); toast(e.message,4000); openHistory() });
 }
+/* right after sign-in, while the home screen is already usable */
+function warmUp(){ setTimeout(()=>{ if(authed()) gasSWR('reports.list',{}).then(r=>repWarm(r.reports)).catch(()=>{}) }, 1200) }
+function showDelBtn(){ const b=$('repDel'); if(b) b.style.display = curReport ? '' : 'none' }
 function openSettings(){
   $('setLang').value=settings.lang; $('setRate').value=settings.rate; $('setFb').value=settings.fb;
   $('setAuto').classList.toggle('on',settings.auto); $('setCap').classList.toggle('on',settings.captions); $('setDemo').classList.toggle('on',settings.demo);
@@ -4754,6 +4798,111 @@ async function gas(action, data={}){
   if(j.error) throw new Error(j.error);
   return j;
 }
+
+/* =========================================================
+   CROSS-DEVICE SYNC
+   Everything a member builds up — email cases, campaigns, own scenarios, settings —
+   is mirrored to the member server (sync.pull / sync.push) under their ID, so signing in
+   on another phone or PC picks up exactly where they left off.
+   Each record is one key: case:<id> · camp:<id> · custom:<id> · settings · packs · name
+   ========================================================= */
+let syncServer = null;      // null = unknown, false = the member server has no sync actions yet
+let syncBusy = false, syncAgain = false, syncT = null, syncMute = false, syncAt = 0, syncErr = '';
+const SYNC_GLOBAL = ['pactli_custom','pactli_settings','pactli_camp_packs','pactli_name'];
+const syncUid = () => (session&&session.user&&session.user.id)||'';
+const syncRaw = (k,v) => { syncMute=true; try{ LS.set(k,v) } finally { syncMute=false } };
+const syncHash = v => { const t=JSON.stringify(v); let h=5381; for(let i=0;i<t.length;i++) h=((h<<5)+h+t.charCodeAt(i))|0; return t.length+'.'+(h>>>0) };
+const syncEmpty = v => v==null || v==='' || (typeof v==='object' && !Object.keys(v).length) || (v.fields && v.roles && !v.fields.length && !v.roles.length);
+const syncLive = () => !!(S && !S.ended);
+
+function syncSnap(){
+  const m = {};
+  const cs = LS.get(caseKey(), {}); for(const id in cs) m['case:'+id] = cs[id];
+  const ca = LS.get(campKey(), {}); for(const id in ca) m['camp:'+id] = ca[id];
+  customs().forEach(x=>{ if(x && x.id) m['custom:'+x.id] = x });
+  const st = LS.get('pactli_settings', {}), pk = LS.get('pactli_camp_packs', null), nm = LS.get('pactli_name','');
+  if(!syncEmpty(st)) m.settings = st;
+  if(!syncEmpty(pk)) m.packs = pk;
+  if(!syncEmpty(nm)) m.name = nm;
+  return m;
+}
+function syncApply(key, val){
+  const i = key.indexOf(':'), t = i<0?key:key.slice(0,i), id = i<0?'':key.slice(i+1);
+  if(t==='case' || t==='camp'){ const k = t==='case'?caseKey():campKey(), a = LS.get(k, {}); if(val==null) delete a[id]; else a[id]=val; syncRaw(k, a) }
+  else if(t==='custom'){ const a = customs().filter(x=>x.id!==id); if(val!=null) a.push(val); syncRaw('pactli_custom', a) }
+  else if(t==='settings'){ if(val!=null){ syncRaw('pactli_settings', val); Object.assign(settings, val) } }
+  else if(t==='packs'){ syncRaw('pactli_camp_packs', val||{fields:[],roles:[]}) }
+  else if(t==='name'){ syncRaw('pactli_name', val||'') }
+}
+/* a shared browser: keep one member's own scenarios / settings from leaking into the next member's account */
+function syncOwner(){
+  const uid = syncUid(), prev = LS.get('pactli_sync_owner', '');
+  if(!uid || prev===uid) return;
+  if(prev){ const o={}; SYNC_GLOBAL.forEach(k=>{ const v=localStorage.getItem(k); if(v!==null) o[k]=v }); syncRaw('pactli_stash_'+prev, o);
+    SYNC_GLOBAL.forEach(k=>localStorage.removeItem(k));
+    const back = LS.get('pactli_stash_'+uid, null); if(back) Object.keys(back).forEach(k=>localStorage.setItem(k, back[k]));
+    settings = Object.assign({lang:'en-US',rate:'1',fb:'en',auto:true,captions:true,demo:true,v2:1}, LS.get('pactli_settings',{})); }
+  syncRaw('pactli_sync_owner', uid);
+}
+function syncRefresh(){
+  try{ if(typeof CAMP_CACHE!=='undefined') CAMP_CACHE.clear() }catch(e){}
+  try{ updateBadges() }catch(e){}
+  try{ renderCards() }catch(e){}
+  try{ if($('campaign').classList.contains('on')) renderCampaign() }catch(e){}
+  try{ if($('inbox').classList.contains('on')) openInbox() }catch(e){}
+}
+async function syncNow(){
+  if(syncServer===false || !authed()) return false;
+  if(syncLive()){ syncSoon(8000); return false }                 // never swap state under a live meeting
+  if(syncBusy){ syncAgain=true; return false }
+  syncBusy = true; let ok = false;
+  try{
+    syncOwner();
+    const uid = syncUid(), mk = 'pactli_sync_'+uid, meta = LS.get(mk, {});
+    const known = {}; for(const k in meta) known[k] = meta[k].u;
+    const r = await gas('sync.pull', {known}); syncServer = true;
+    if(syncUid()!==uid) return false;
+    let snap = syncSnap(), changed = false;
+    for(const it of (r.items||[])){
+      const loc = snap[it.key], lh = loc===undefined ? '' : syncHash(loc), m = meta[it.key];
+      const dirty = lh !== (m ? m.h : '');                         // changed on this device since the last sync
+      if(dirty && loc!==undefined && (loc.updated||0) >= (it.at||it.updated||0)) continue;   // this device is newer — it is pushed below
+      syncApply(it.key, it.json==null ? null : it.json);
+      meta[it.key] = {u:it.updated, h: it.json==null ? '' : syncHash(it.json)}; changed = true;
+    }
+    snap = syncSnap();
+    const out = [], pend = {};
+    for(const k in snap){ const h = syncHash(snap[k]); if(!meta[k] || meta[k].h!==h){ out.push({key:k, at:snap[k].updated||Date.now(), json:snap[k]}); pend[k]=h } }
+    for(const k in meta) if(meta[k].h!=='' && !(k in snap)){ out.push({key:k, at:Date.now(), json:null}); pend[k]='' }
+    for(let i=0; i<out.length; ){
+      const batch = []; let size = 0;
+      while(i<out.length && (!batch.length || size < 300000)){ size += JSON.stringify(out[i]).length; batch.push(out[i++]) }
+      const p = await gas('sync.push', {items:batch});
+      batch.forEach(b=>{ meta[b.key] = {u:(p.stamps&&p.stamps[b.key])||Date.now(), h:pend[b.key]} });
+      syncRaw(mk, meta);
+    }
+    syncRaw(mk, meta); syncAt = Date.now(); syncErr = ''; ok = true;
+    if(changed) syncRefresh();
+  }catch(e){
+    syncErr = e.message||'Sync failed';
+    if(syncServer===null && !/reach the member server|expired|sign in/i.test(syncErr)) syncServer = false;
+  }
+  syncBusy = false;
+  if(syncAgain){ syncAgain=false; syncSoon(600) }
+  return ok;
+}
+function syncSoon(ms){ if(syncServer===false) return; clearTimeout(syncT); syncT = setTimeout(syncNow, ms||2500) }
+function syncTouch(k){ if(syncMute || !authed()) return; if(k===caseKey() || k===campKey() || SYNC_GLOBAL.includes(k)) syncSoon() }
+function syncStatus(){
+  if(syncServer===false) return 'Sync is off — the member server needs the sync update';
+  if(syncErr) return 'Sync paused — '+syncErr;
+  if(!syncAt) return 'Syncing…';
+  const s = Math.round((Date.now()-syncAt)/1000);
+  return 'Synced across your devices · '+(s<60?'just now':s<3600?Math.round(s/60)+' min ago':Math.round(s/3600)+' h ago');
+}
+async function syncManual(){ if(syncServer===false) syncServer=null; busy(true,'Syncing','Matching this device with your account…'); const ok=await syncNow(); busy(false); toast(ok?'Everything is up to date':syncStatus(), 3200) }
+document.addEventListener('visibilitychange', ()=>{ if(!authed()) return; if(document.hidden){ clearTimeout(syncT); syncNow() } else if(Date.now()-syncAt > 20000) syncNow() });
+window.addEventListener('online', ()=>{ if(authed()) syncSoon(500) });
 
 /* Local preview backend — same actions as Code.gs, stored in this browser only. Not secure; for previewing. */
 function localGas(action, d){
@@ -4806,8 +4955,8 @@ function localGas(action, d){
     case 'scenarios.list': return {scenarios:db.scenarios};
     case 'scenarios.save': need(); db.scenarios=db.scenarios.filter(s=>s.id!==d.scenario.id).concat([d.scenario]); save(); return {ok:true};
     case 'scenarios.delete': need(); db.scenarios=db.scenarios.filter(s=>s.id!==d.id); save(); return {ok:true};
-    case 'campaigns.save': db.campaigns=(db.campaigns||[]).filter(x=>!(x.userId===me.id&&x.id===d.campaign.id)).concat([{userId:me.id,id:d.campaign.id,json:d.campaign}]).slice(-80); save(); return {ok:true};
-    case 'campaigns.list': return {campaigns:(db.campaigns||[]).filter(x=>x.userId===me.id).map(x=>x.json)};
+    case 'sync.pull': { const k=d.known||{}; return {items:(db.sync||[]).filter(x=>x.userId===me.id && x.updated>(k[x.key]||0)).map(({userId,...x})=>x)} }
+    case 'sync.push': { const stamps={}; db.sync=db.sync||[]; (d.items||[]).forEach(it=>{ const u=Date.now(); db.sync=db.sync.filter(x=>!(x.userId===me.id&&x.key===it.key)); db.sync.push({userId:me.id,key:it.key,updated:u,at:it.at||u,json:it.json==null?null:it.json}); stamps[it.key]=u }); save(); return {ok:true,stamps}; }
   }
   throw new Error('Unknown action.');
 }
@@ -4826,13 +4975,13 @@ async function doLogin(){
   $('lgBtn').disabled=false; $('lgBtn').textContent='Sign in →';
 }
 async function afterLogin(){
-  renderNav(); renderCards(); go('home');
+  renderNav(); { const c=swrPeek('scenarios.list',{}); if(c) shared=c.scenarios||[] } renderCards(); go('home');
+  syncNow(); warmUp();
   await loadShared(); renderCards();
-  campPull().then(renderCards);
 }
 function logout(){
   if(S && !S.ended){ S.ended=true; try{cleanup()}catch(e){} }
-  session=null; LS.set('pactli_session', null); shared=[]; CAMP_CACHE.clear(); campServer=null;
+  session=null; LS.set('pactli_session', null); shared=[]; CAMP_CACHE.clear(); clearTimeout(syncT); syncServer=null; syncAt=0; syncErr='';
   go('login');
 }
 function renderNav(){
@@ -4870,7 +5019,7 @@ async function renderAdmin(){
   const b=$('admBody'); b.innerHTML='<div class="empty">Loading…</div>';
   try{
     if(admTab==='members'){
-      admUsers=(await gas('users.list')).users||[];
+      admUsers=(await gasSWR('users.list',{}, ()=>{ if($('admin').classList.contains('on')&&admTab==='members') renderAdmin() })).users||[];
       b.innerHTML = `<div class="admbar"><span class="hint">${admUsers.length} member${admUsers.length===1?'':'s'} · click a row to edit</span><button class="btn gold" onclick="editMember()">+ Add member</button></div>
       <div class="tblw"><table class="tbl"><thead><tr><th>Member</th><th>Title · Company</th><th>Sessions</th><th>Avg score</th><th>Last sign-in</th><th>Status</th></tr></thead><tbody>
       ${admUsers.map((u,i)=>`<tr style="cursor:pointer" onclick="editMember(${i})"><td><b>${esc(u.name||u.id)}</b><small>${esc(u.id)}${u.admin?' · admin':''}</small></td>
@@ -4878,7 +5027,7 @@ async function renderAdmin(){
         <td>${u.avg!=null?`<span class="sc">${u.avg}</span>`:'–'}</td><td>${u.lastLogin?new Date(u.lastLogin).toLocaleDateString():'–'}</td>
         <td><span class="pill ${u.active?'on':''}">${u.active?'Active':'Inactive'}</span></td></tr>`).join('')}</tbody></table></div>`;
     } else if(admTab==='sessions'){
-      admReports=(await gas('reports.list',{all:true})).reports||[];
+      admReports=(await gasSWR('reports.list',{all:true}, ()=>{ if($('admin').classList.contains('on')&&admTab==='sessions') renderAdmin() })).reports||[];
       drawSessions();
     } else {
       await loadShared(); renderCards();
@@ -4914,7 +5063,7 @@ async function saveMember(){
   const user={id:$('mId').value.trim(),name:$('mName').value.trim(),email:$('mEmail').value.trim(),title:$('mTitle').value.trim(),company:$('mCompany').value.trim(),notes:$('mNotes').value.trim(),
     active:$('mActive').classList.contains('on'),admin:$('mAdmin').classList.contains('on')};
   try{
-    await gas('users.save',{user,password:$('mPw').value,isNew:!editing});
+    await gas('users.save',{user,password:$('mPw').value,isNew:!editing}); swrDrop('users.list');
     $('memModal').classList.remove('on'); toast(editing?'Member updated':'Member added');
     if(editing && editing.id===session.user.id){ session.user=Object.assign(session.user,user); LS.set('pactli_session',session); renderNav() }
     renderAdmin();
@@ -4922,7 +5071,7 @@ async function saveMember(){
 }
 async function delMember(){
   if(!editing || !confirm(`Delete ${editing.name||editing.id}? Their past session records stay in the sheet.`)) return;
-  try{ await gas('users.delete',{id:editing.id}); $('memModal').classList.remove('on'); toast('Member deleted'); renderAdmin() }catch(e){ toast(e.message) }
+  try{ await gas('users.delete',{id:editing.id}); swrDrop('users.list'); $('memModal').classList.remove('on'); toast('Member deleted'); renderAdmin() }catch(e){ toast(e.message) }
 }
 
 
@@ -4944,12 +5093,15 @@ const NAVI = {
   gear:'<path d="M4.5 8h7.5M17.5 8h2M4.5 16h2M12 16h7.5"/><circle class="ac" cx="14.8" cy="8" r="2.4"/><circle cx="14.8" cy="8" r="2.4"/><circle class="ac" cx="9.2" cy="16" r="2.4"/><circle cx="9.2" cy="16" r="2.4"/>',
   /* Sign out & layout */
   out:'<path d="M14 4.5h3a2.5 2.5 0 0 1 2.5 2.5v10a2.5 2.5 0 0 1-2.5 2.5h-3"/><path d="M10.5 8.2L6.7 12l3.8 3.8M6.9 12h8"/>',
+  /* Sync: two arrows chasing each other round a dot */
+  sync:'<path d="M5.2 10.2a7 7 0 0 1 12.3-2.6l1.5 1.7"/><path d="M19.2 5.4v4h-4"/><path d="M18.8 13.8a7 7 0 0 1-12.3 2.6L5 14.7"/><path d="M4.8 18.6v-4h4"/><circle class="ac" cx="12" cy="12" r="1.6"/>',
   screen:'<rect x="3.5" y="5" width="17" height="11" rx="2.5"/><path d="M9 20h6M12 16v4"/>'
 };
 const NI = k => `<svg class="nvi" viewBox="0 0 24 24" aria-hidden="true">${NAVI[k]||''}</svg>`;
 function openMe(){
   const u=(session&&session.user)||{}, it=(ico,label,fn,cls)=>`<button class="me-it ${cls||''}" onclick="$('meSheet').classList.remove('on');${fn}"><span class="ico">${NI(ico)}</span>${label}<span class="chev">›</span></button>`;
   $('meBody').innerHTML = `<div class="me-head"><span class="av">${initials(u.name||u.id)}</span><div><b>${esc(u.name||u.id||'')}</b><small>${esc([u.title,u.company].filter(Boolean).join(' · ')||(u.admin?'Admin':'Member'))}</small></div></div>`
+    + `<button class="me-it" onclick="$('meSheet').classList.remove('on');syncManual()"><span class="ico">${NI('sync')}</span><span style="min-width:0">Sync now<small style="display:block;font-weight:500;font-size:12px;color:var(--muted);margin-top:2px">${esc(syncStatus())}</small></span><span class="chev">›</span></button>`
     + it('gear','Settings','openSettings()')
     + (u.admin ? it('clip','Admin','openAdmin()') : '')
     + it('screen','Switch to PC view',"setView('pc')")
@@ -5258,16 +5410,10 @@ const campSid = (c,n) => 'cmp-'+c.id+'-'+(n+1);
 const campClamp = (v,a,b) => Math.max(a,Math.min(b,v));
 const poss = n => n+(/s$/i.test(n)?"'":"'s");
 
-/* progress is kept in this browser and, when the member server supports it, mirrored there (campaigns.save / campaigns.list) */
-let campServer = null;   // null = unknown, false = server has no campaign actions
-async function campPush(c){ if(campServer===false || !authed()) return; try{ await gas('campaigns.save',{campaign:c}); campServer=true }catch(e){ if(campServer===null) campServer=false } }
-async function campPull(){
-  if(campServer===false || !authed()) return;
-  try{ const r=await gas('campaigns.list',{}); campServer=true; const a=campAll(); let ch=false;
-    (r.campaigns||[]).forEach(c=>{ if(c&&c.id&&(!a[c.id]||(c.updated||0)>(a[c.id].updated||0))){ a[c.id]=c; ch=true } });
-    if(ch){ LS.set(campKey(), a); CAMP_CACHE.clear(); if($('campaign').classList.contains('on')) renderCampaign() }
-  }catch(e){ if(campServer===null) campServer=false }
-}
+/* progress is kept in this browser and mirrored to the member's account by the sync layer (sync.js) */
+let campServer = null;   // kept for older call sites
+function campPush(c){ syncSoon(1200) }
+function campPull(){ return syncNow() }
 
 /* ---------- context: who is who in this campaign ---------- */
 function campCtx(c){
