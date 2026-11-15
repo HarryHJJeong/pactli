@@ -782,6 +782,13 @@ html:not(.mob) #meSheet .pane{max-width:380px}
 #sideSync span{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0}
 #sideSync.warn{color:#f3c9a5;opacity:1}
 
+/* close (x) button on every pop-up */
+.modal .pane{position:relative}
+.mx{position:sticky;top:0;float:right;margin:-4px -6px 0 10px;width:34px;height:34px;border-radius:50%;display:flex;align-items:center;justify-content:center;color:var(--muted);background:#f3f1ea;z-index:2}
+.mx:hover{background:#e9e6dc;color:var(--ink)}
+.mx svg{width:16px;height:16px;fill:none;stroke:currentColor;stroke-width:2.2;stroke-linecap:round}
+html.mob #meSheet .mx{margin-top:10px}
+
 /* ===== Phone fit — nothing may be wider than the screen ===== */
 .rgrid{grid-template-columns:repeat(2,minmax(0,1fr))}
 .rgrid>*,.cp-grid>*,.setup>*,.hero>*,.row>*{min-width:0}
@@ -1103,7 +1110,7 @@ html.mob body{overflow-x:hidden}
 <!-- ============ SETTINGS ============ -->
 <div class="modal bmodal" id="briefModal" onclick="if(event.target===this)closeBriefing()"><div id="briefBody"></div></div>
 <div class="modal" id="settings" onclick="if(event.target===this)closeSettings()">
-  <div class="pane">
+  <div class="pane"><button class="mx" aria-label="Close" title="Close" onclick="closeSettings()"><svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
     <h2 style="font-size:30px;margin-bottom:18px">Settings</h2>
     <div class="row">
       <div><label>Speech recognition</label><select id="setLang"><option value="en-US">English (US)</option><option value="en-GB">English (UK)</option><option value="en-AU">English (AU)</option></select></div>
@@ -1132,7 +1139,7 @@ html.mob body{overflow-x:hidden}
 
 <!-- ============ MEMBER MODAL ============ -->
 <div class="modal" id="memModal" onclick="if(event.target===this)this.classList.remove('on')">
-  <div class="pane" style="max-width:580px">
+  <div class="pane" style="max-width:580px"><button class="mx" aria-label="Close" title="Close" onclick="$('memModal').classList.remove('on')"><svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
     <h2 id="memTitle" style="font-size:30px;margin-bottom:18px">Add member</h2>
     <div class="row"><div><label>ID</label><input id="mId" autocapitalize="off" placeholder="e.g. jiwoo.kim"></div><div><label>Password</label><input id="mPw"></div></div>
     <div class="row"><div><label>Name</label><input id="mName"></div><div><label>Email</label><input id="mEmail"></div></div>
@@ -1147,7 +1154,7 @@ html.mob body{overflow-x:hidden}
     </div>
   </div>
 </div>
-<div class="modal" id="meSheet" onclick="if(event.target===this)this.classList.remove('on')"><div class="pane me-pane"><div class="me-grab"></div><div id="meBody"></div></div></div>
+<div class="modal" id="meSheet" onclick="if(event.target===this)this.classList.remove('on')"><div class="pane me-pane"><button class="mx" aria-label="Close" title="Close" onclick="$('meSheet').classList.remove('on')"><svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg></button><div class="me-grab"></div><div id="meBody"></div></div></div>
 <div class="busy-ov" id="busy"><div class="spin"></div><h2 id="busyT">Reading your file</h2><p id="busyP"></p></div>
 <!-- ============ APP SHELL ============ -->
 <aside id="sidebar">
@@ -6168,6 +6175,7 @@ addEventListener('popstate', e=>{
   try{ if(!authed()) go('login'); else if(id==='login'||id==='room') go('home'); else if(id==='campaign'){ go('campaign'); renderCampaign() } else go(id) } finally { go._pop=false }
 });
 
+document.addEventListener('keydown',e=>{ if(e.key==='Escape'){ const m=[...document.querySelectorAll('.modal.on')].pop(); if(m){ m.id==='settings'?closeSettings():m.classList.remove('on') } } });
 /* ---------- PC / Mobile view ---------- */
 function applyView(){
   const pref = LS.get('pactli_view','auto');
