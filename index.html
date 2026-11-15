@@ -2988,7 +2988,7 @@ function engineTurn(sc, st, text, channel){
   if(rep && !st.flags.repWarned){ st.flags.repWarned=true; feelAll(st,-3,-8); add(5,[ln(lead, fresh(st,'rep',["You've already made that point. Is there anything new?","I think you said that already — what else can you offer?"]))]) }
   // ---- closing / bye / summary
   if(st.closing && channel!=='email') return {lines: closeLines(sc,st), end:true};
-  if(whole.bye && st.turn>=3 && channel!=='email'){ st.closing=true; return {lines: closeLines(sc,st), end:true} }
+  if(whole.bye && st.turn>=3 && channel!=='email'){ st.closing=true; return {lines: stFarewell(sc, st, whole, closeLines(sc,st)), end:true} }
   if(whole.summary && st.turn>=3 && sc.discussion && st.flags.decision && !st.flags.consensus && channel!=='email'){ const sk=sc.personas.findIndex(p=>p.stance==='skeptic'); ev(st,'noconsensus','Tried to close before everyone agreed.',-1); return {lines:[ln(lead, `Before we close — ${firstNameOf(sc.personas[sk>0?sk:0].name)} isn't on board yet. How would you address that concern?`)]} }
   if(whole.summary && st.turn>=3 && sc.discussion && !st.flags.decision && channel!=='email'){ st.flags.summary=true; return {lines:[ln(lead, "Before we wrap up — what's your actual recommendation? We still need a decision.")]} }
   if(whole.summary && st.turn>=3 && !(sc.presentation && st.phase===0)){
@@ -3005,6 +3005,8 @@ function engineTurn(sc, st, text, channel){
   // ---- they invited a summary and the learner just said "yes"
   if(st.sumInvite && !whole.summary && whole.n<=8 && (whole.accept||/\b(sure|okay|ok|yes|let me|go ahead)\b/.test(whole.low)) && !bindOffers(sc,st,whole,whole.low).length){ st.sumInvite=false; return {lines:[ln(lead, fresh(st,'gosum',["Go ahead.","Please — go ahead.","Sure, let's hear it."]))], noExtras:true} }
   if(whole.summary) st.sumInvite=false;
+  // ---- the learner opens with small talk themselves
+  if(channel!=='email' && !(st.expect&&st.expect.type==='smalltalk') && stInitiates(sc, st, whole)){ st.flags.icebreak=true; st.stBy=(sc.campaign&&sc.campaign.contact)||0; st.st2=stInit(sc, st, true); st.expect={type:'smalltalk'}; st.pendingOpen=null; ev(st,'stlead','Opened with small talk yourself — a confident, friendly start.',1) }
   // ---- small talk answer
   if(st.expect && st.expect.type==='smalltalk' && channel!=='email'){ const r=smalltalkTurn(sc, st, whole); if(r) return {lines:r, noExtras:true}; if(st.pendingOpen==null){} }
   // ---- clarification request from the learner
@@ -3238,34 +3240,339 @@ const ICEBREAK = [
   "Have you had a chance to grab lunch, or are you running on coffee like me?",
   "Any plans for the holidays coming up?",
   "How do you usually spend your free time when things are quieter?",
-  "Is it just me, or has this summer been hotter than last year?",
+  "Has the weather been as strange where you are as it has been here?",
   "Have you been anywhere good to eat around here?"
 ];
-const ST_POS = /\b(good|great|fine|nice|fun|relax\w*|enjoy\w*|amazing|wonderful|lovely|not bad|pretty good|excited|happy|interesting|beautiful|delicious)\b/;
-const ST_NEG = /\b(busy|tired|exhausted|hectic|crazy|rough|stress\w*|sick|bad|terrible|awful|hard|tough|long|overwhelm\w*|swamped)\b/;
-const ST_REACT = {
-  pos:["Oh, nice — that sounds good.","Ha, lucky you.","That sounds great, actually.","Good for you."],
-  neg:["Oh no — I know the feeling.","Ah, one of those weeks.","Sorry to hear that. Hopefully it calms down soon.","Yeah, it's that time of year, isn't it?"],
-  mix:["Glad to hear it — busy is good, I suppose.","Ha, good busy, I hope.","Nice. Busy, but good — that's the best kind of week."],
-  mid:["Oh, really? Interesting.","Ha, fair enough.","Right, I see.","Okay — sounds like a normal week, then."]
+
+/* =========================================================
+   SMALL TALK v2 — a real exchange instead of a one-line gate.
+   · the counterpart picks up the TOPIC and the DETAIL you mention
+     (a place, a sport, a dish, a show) and asks a follow-up
+   · every counterpart has a life of their own (a coherent profile and
+     an ongoing story) and answers when you ask back
+   · you can open with small talk yourself, even when they don't
+   · in a campaign, what you tell them is remembered next episode,
+     and their own story moves on between episodes
+   Topic and phrase coverage is tuned to how Korean professionals
+   actually open a conversation (weekend, gym, food, trips, work dinners,
+   family, weather) — patterns only, no personal data.
+   ========================================================= */
+const stHash = s => { let h=0; s=String(s||''); for(let i=0;i<s.length;i++) h=(h*31+s.charCodeAt(i))>>>0; return h };
+const ST_PLACES = /\b(seoul|busan|jeju|gangneung|sokcho|gyeongju|jeonju|yeosu|incheon|daegu|daejeon|gwangju|suwon|pangyo|gangnam|hongdae|itaewon|seongsu|jamsil|yangpyeong|chuncheon|gapyeong|the han river|japan|tokyo|osaka|fukuoka|kyoto|sapporo|okinawa|china|shanghai|beijing|hong kong|taiwan|taipei|vietnam|da nang|hanoi|thailand|bangkok|singapore|bali|guam|hawaii|los angeles|new york|san francisco|london|paris|europe|australia|sydney|canada|vancouver|the us|the states|america|spain|italy|germany|france|switzerland)\b/;
+const ST_NOT_PLACE = new Set(['I','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday','Sunday','January','February','March','April','May','June','July','August','September','October','November','December','Netflix','YouTube','English','Korean','Christmas','Chuseok','Seollal','New','Year','Lunar','TOEIC','OPIc','IELTS','Instagram','Coupang','Duolingo','Yes','No','Well','Actually','Not','Pretty','Good','Great','Fine','Thanks','Thank','Hi','Hello','So','And','But','Oh','Yeah','It','We','My','The','Last','This','Next','On','In','At','How','What','Mr','Ms','Disney','Disneyland']);
+const ST_TITLE = s => s.replace(/\b[a-z]/g, c=>c.toUpperCase()).replace(/\bThe (Us|States|Han River)\b/g, m=>'the '+m.slice(4)).replace(/\bUs\b/,'US');
+const ST_SPORT = [[/\b(marathon)\b/,'marathon training'],[/\b(ran|run|running|jog\w*)\b/,'running'],[/\b(gym|work(ed|ing)? out|workout|leg day|weights?|crossfit)\b/,'the gym'],[/\byoga\b/,'yoga'],[/\bpilates\b/,'Pilates'],[/\bsw[aiu]m\w*\b/,'swimming'],[/\bgolf\w*\b/,'golf'],[/\btennis\b/,'tennis'],[/\bbadminton\b/,'badminton'],[/\bhik(e|ed|ing)\b/,'hiking'],[/\bclimb\w*\b/,'climbing'],[/\b(cycl\w*|bik(e|ed|ing))\b/,'cycling'],[/\b(football|soccer|futsal)\b/,'football'],[/\bbasketball\b/,'basketball'],[/\bbaseball\b/,'baseball'],[/\bski\w*|snowboard\w*\b/,'skiing']];
+const ST_FOOD = /\b(lamb|hot ?pot|pasta|lasagna|tacos?|sushi|ramen|ramyeon|noodles|fried chicken|chicken|pizza|korean bbq|bbq|barbecue|samgyeopsal|steak|brunch|dumplings?|tteokbokki|kimchi stew|bibimbap|curry|seafood|sashimi|burgers?|dessert|cake|bread|pastr(y|ies)|coffee|wine|beer|makgeolli|soju)\b/;
+/* topics, most specific first */
+const ST2_TOPICS = [
+  {id:'celebrate', rx:/\b(birthday|wedding|anniversary|got (promoted|married|engaged)|promotion|honeymoon|new (house|apartment|flat|job|baby)|moved (in|house|to)|graduat\w*)\b/},
+  {id:'travel',    rx:/\b(trip|travel\w*|flew|flight|vacation|went to|been to|visited|going to (japan|jeju|busan|europe|the us|china|vietnam|thailand)|abroad|overseas|airport|jet ?lag|sightseeing|resort|road trip)\b/},
+  {id:'exercise',  rx:/\b(gym|work(ed|ing)? out|workout|ran|run|running|jog\w*|marathon|yoga|pilates|sw[aiu]m\w*|golf\w*|tennis|badminton|hik(e|ed|ing)|climb\w*|cycl\w*|bik(e|ed|ing)|crossfit|football|soccer|futsal|basketball|baseball|leg day|exercis\w*|ski\w*|snowboard\w*)\b/},
+  {id:'pets',      rx:/\b(my (cat|dog|puppy|kitten)|(cat|dog|puppy|kitten)s?\b)/},
+  {id:'family',    rx:/\b(my (son|daughter|kids?|children|child|wife|husband|parents?|mom|mother|dad|father|family|baby|brother|sister|in-?laws|girlfriend|boyfriend|partner)|family (trip|dinner|gathering)|sports day|school (event|play|festival))\b/},
+  {id:'shows',     rx:/\b(netflix|disney ?plus|drama|series|movie|film|youtube|watch(ed|ing)?|episode|season \d|reading|read a|novel|(a|the|this|that) book|books|webtoon|gam(e|es|ing)|concert|musical|exhibition)\b/},
+  {id:'food',      rx:/\b(ate|eat|eating|had (lunch|dinner|brunch|breakfast)|restaurant|caf[eé]|bakery|delicious|tasty|foodie|cook(ed|ing)?|all.you.can.eat|lamb|hot ?pot|pasta|lasagna|tacos?|sushi|ramen|ramyeon|noodles|chicken|pizza|bbq|barbecue|samgyeopsal|steak|brunch|dessert|coffee)\b/},
+  {id:'health',    rx:/\b(dentist|caught a cold|a cold|flu|sick|fever|sore throat|back pain|hospital|clinic|doctor|medicine|headache|allerg\w*|rhinitis|injur\w*|check.?up|not feeling (well|great))\b/},
+  {id:'study',     rx:/\b(toeic|opic|ielts|toefl|english (class|study|lesson)s?|studying|exam|certificat\w*|mba|online course|duolingo|learning (french|japanese|chinese|spanish|english|to))\b/},
+  {id:'workbusy',  rx:/\b(busy|overtime|worked late|deadline|quarter.?end|year.?end|month.?end|back.to.back|swamped|hectic|workload|team dinner|work dinner|company (dinner|gathering|event|workshop)|team gathering|hoesik|drank|drinking|hangover|business trip|audit|closing)\b/},
+  {id:'commute',   rx:/\b(traffic|subway|commut\w*|drove|bus|running late|stuck|parking|far to come|took a taxi)\b/},
+  {id:'weather',   rx:/\b(weather|freezing|cold|chilly|hot|humid|rain\w*|snow\w*|typhoon|monsoon|fine dust|sunny|heat ?wave|cherry blossoms?|autumn leaves)\b/},
+  {id:'rest',      rx:/\b(nothing (special|much|new)|not much|stay(ed)? (at )?home|slept|sleep|rest(ed|ing)?|relax\w*|did(n'?t| not) do (much|anything)|lazy|as usual|home ?body|quiet (one|weekend|week))\b/}
+];
+const ST2_REACT = {
+  celebrate:{d:["Oh — congratulations! That's a big one.","Oh, lovely. Congratulations."]},
+  travel:{x:["Oh, {x} — nice. I've heard good things.","{X}! I'm jealous. I haven't been anywhere in months.","Ah, {x}. That's been on my list for years."], d:["Oh, nice — a change of scene always helps.","Lucky you. I could do with a few days away myself."], f:["Oh, exciting — something to look forward to.","{X}? Lucky you. That'll be here before you know it."]},
+  exercise:{x:["Oh, {x} — good for you. I keep telling myself I'll start.","{X}, nice. That's more discipline than I've got at the moment.","Ha — {x}. I'm impressed."], neg:["Ouch. I know that feeling the day after.","Ha — the day after is always worse, isn't it?"]},
+  pets:{d:["Oh, I'm always happy to talk about pets.","Ha — who's really in charge at home, then?"]},
+  family:{x:["Ah, nice — time with your {x} is never wasted.","That sounds like a proper weekend, with your {x}."], d:["Family time — that's what weekends are for.","That sounds nice, actually."]},
+  shows:{x:["Oh, {x} — I keep hearing about that.","{X}? Everyone's been telling me to watch that."], d:["Ha — a good series will eat a whole weekend.","Nothing wrong with that. I need something new to watch, actually."]},
+  food:{x:["Oh, {x} — now I'm hungry.","{X}? Good choice. You're making me regret my sandwich.","Mm, {x}. I haven't had that in ages."], d:["Now I'm hungry.","A good meal fixes most things, in my experience."]},
+  health:{d:["Oh no — I hope you're feeling better now.","Ah, I'm sorry to hear that. Nothing serious, I hope?"]},
+  study:{d:["Good for you — I admire anyone who studies after a full day's work.","That takes discipline. I've been 'about to start' a course for two years."]},
+  workbusy:{d:["Ah, one of those weeks. I know the feeling.","Sounds familiar — it's that time of year for us too.","Ha — busy is better than quiet, I suppose. Mostly."], hang:["Ha — I've been there. Team dinners are dangerous.","Oh dear. I hope today's being kind to you."]},
+  commute:{d:["Oh, the traffic. It's the same everywhere, I promise.","Ah — well, thanks for making it anyway."]},
+  weather:{neg:["I know — I wasn't ready for it this year.","It's the same here. I've given up dressing for it."], d:["Ha — at least it's something to talk about.","Lovely. Make the most of it, I say."]},
+  rest:{d:["Honestly, that sounds perfect.","Sometimes that's exactly what you need.","A quiet one. I'm slightly envious."]},
+  none:{pos:["Oh, nice — glad to hear it.","Good — that's what I like to hear."], neg:["Oh no — I know the feeling.","Ah, sorry to hear that."], mid:["Oh, really?","Ha, fair enough.","Right, I see."]}
 };
-const ST_MINE = ["Mine's been busy — back-to-back meetings, mostly. But good.","Not bad, thanks. A bit hectic, but I can't complain.","Pretty quiet, actually — I managed a long walk on Sunday.","Busy! We've got a lot going on this quarter."];
-const ST_BRIDGE = ["Anyway — shall we get into it?","Okay, let's make the most of the time.","Right, let's get started."];
+const ST2_ASK = {
+  celebrate:["Did you do anything special for it?","How did you celebrate?"],
+  travel:["Was that for work, or a proper holiday?","How long were you there?","What was the best part?"],
+  travelF:["When do you leave?","Have you been before, or is it your first time?"],
+  exercise:["How long have you been doing that?","Is that a regular thing, or a new resolution?","Are you training for something, or just keeping fit?"],
+  pets:["What's the name?","How long have you had them?"],
+  family:["Do you get much time together, with work being what it is?","Do they keep you busy?"],
+  kids:["How old are they?","Do they keep you busy at weekends?"],
+  shows:["Is it any good? I need something new.","What's it about — without spoilers?"],
+  food:["Was it good? I'm always after a recommendation.","Do you cook yourself, or are you more of an eat-out person?","Is that near here?"],
+  health:["Are you feeling better now?"],
+  study:["How long have you been doing that?","What made you start?"],
+  workbusy:["Is this your busy season, or is it always like that?","Is it the good kind of busy, at least?"],
+  hang:["How late did it go?","Was it at least a good night?"],
+  commute:["How long does it normally take you?"],
+  weather:["Is it always like this at this time of year?","Does it get much worse than this?"],
+  rest:["Did you at least get outside, or was it a proper sofa weekend?","Busy week before that, then?"],
+  none:["What do you do when you're not working, by the way?","Anything nice planned for the weekend?"]
+};
+const ST2_ACK = {pos:["Ha — good for you.","That sounds great, actually.","Nice. I'll take that as a recommendation.","Lovely."], neg:["Ah, that's a shame.","Oh dear. Well — onwards.","I hear you."], mid:["Ha — fair enough.","That makes sense.","Right — good to know."]};
+const ST2_RESCUE = ["Fair enough — quiet is underrated. Did you get outside at all, or was it a sofa weekend?","Ha — a person of few words. Busy week, or a calm one?","Okay! Anything good to eat lately, at least? I always ask."];
+const ST2_BRIDGE = ["Anyway — shall we get into it?","Right — I could talk about this all day, but let's make the most of the time.","Okay, we should probably do some work."];
+const ST2_BRIDGE_LED = ["Anyway — where would you like to start?","Right — shall we get into it?","Okay. So — over to you."];
+const ST2_SELF_BRIDGE = /\b(shall we (get|start|begin|dive|move|talk|look|go|discuss|turn)|let'?s (get (started|down|into)|start|begin|dive in|move on|talk about)|get down to business|(so|anyway|right),? (about|regarding|as for|on to|let'?s)|i (know|guess) you'?re busy|i won'?t take (too )?much of your time)\b/;
+const ST2_BIZ = /\b(challenges?|problems?|project|budget|pric(e|es|ing)|contract|terms|proposal|deadline|timeline|decision|company|business|products?|services?|customers?|clients?|data|solution|requirements?|goals?|priorit\w*|need from|looking for|agenda|supplier|vendor|partnership|order|delivery|shipment|invoice|campaign|platform|licen[cs]e)\b/;
+const ST2_ASKBACK = /\b(and you|how about you|what about you|and yourself|yourself\?|how (was|is|has been|were) yours|you\?$)/;
+const ST2_PICK = /\b(sounds?|wow|really|oh|ha|nice|good luck|congrat\w*|that'?s (great|funny|nice|tough|impressive|rough|amazing|a lot)|no way|seriously|i can imagine|me too|same here|lucky|poor you|hope (it|she|he|they|you))\b/;
+/* what the learner can ask the counterpart → which part of their life answers it */
+const ST2_PQ = [
+  ['kfood',  /\bkorean (food|bbq|barbecue)\b|\b(do you|can you) (like|eat|handle) (spicy|kimchi|soju)\b|\btried (kimchi|soju|korean)\b/],
+  ['korea',  /\b(been to|visit(ed)?|first time in|ever been to|like|enjoy\w*) (korea|seoul|busan)\b|\bhow do you (like|find) (korea|seoul|it here)\b/],
+  ['city',   /\bwhere (are you|do you) (based|live|living|located|from|calling from)\b|\bwhich (city|office|country)\b|\bwhere('?s| is) (home|that)\b/],
+  ['thread', null],
+  ['family', /\b(do you have|have you got|any) (kids|children|family|a family)\b|\byour (kids|children|family|son|daughter|wife|husband)\b|\bare you married\b/],
+  ['sport',  /\bdo you (exercise|work ?out|run|play|do) (any )?(sports?|regularly|golf|tennis|yoga)?\b|\bany (sports?|hobbies)\b|\byour hobb\w*\b|\bfree time\b|\bspare time\b|\bwhen you'?re not working\b|\bto relax\b|\bdo you (play|run|swim|hike|golf|cycle|ski)\b/],
+  ['show',   /\b(watch\w*|seen|netflix|series|movies?|read\w*|books?) .{0,24}\b(you|lately|recently|recommend\w*)\b|\bdo you watch\b|\bhave you (seen|watched)\b/],
+  ['food',   /\b(favou?rite|like|into|recommend\w*) .{0,16}\b(food|restaurants?|dish|cuisine|coffee|eat)\b|\bhad lunch\b|\bdo you (cook|drink coffee|like spicy)\b|\bwhat (did|do) you (eat|have)\b/],
+  ['travel', /\b(how was|how'?s) (your|the) (flight|trip|journey|travel\w*)\b|\bdo you travel\b|\bany (trips?|travel|holidays?|vacation) (planned|coming)\b|\bjet ?lag\w*\b|\btravel (much|a lot|often)\b/],
+  ['plan',   /\b(any|what are your|got any|have any|doing anything) .{0,14}\b(plans?|planned)\b|\bplans? for (the|this) (weekend|holidays?|summer|winter|break)\b|\bdoing anything (nice|fun|special)\b/],
+  ['weather',/\bhow'?s the weather\b|\bweather (like )?(there|over there|where you are)\b|\b(cold|hot|raining|snowing) (there|where you are)\b/],
+  ['work',   /\b(are you|been|keeping) (very |really |so |too )?busy\b|\bhow'?s (work|business|everything at work|things at work)\b|\bbusy (time|season|period|week|month)\b/],
+  ['commute',/\bdid you (have|come) far\b|\bhow was (the|your) (commute|traffic|drive)\b|\bwork(ing)? from home\b/],
+  ['weekend',/\bhow (was|were|is|'s|has) (your|the) (weekend|week|day|morning|afternoon|evening|holidays?|vacation|break|new year|chuseok)\b|\bhow have you been\b|\bhow are (you|things)\b|\bhow'?s (it going|life|everything|things)\b|\bdo anything (nice|fun|special)\b|\bwhat did you (do|get up to) (at|on|over|last|this|yesterday)\b|\b(have|had) a (good|nice) (weekend|week|holiday|break)\b/]
+];
+/* six coherent lives — one per counterpart, chosen by name so it never changes */
+const ST2_LIFE = [
+ {id:'runner', weekend:"Quiet one — I did a long run on Sunday and then absolutely nothing, which was the plan.", sport:"I run. Slowly, but I run — I've signed up for a 10K, so now I have to.", food:"I'm easy, though I could happily eat noodles every day of the week.", show:"I'm late to everything — I've just started a series everyone else finished two years ago.", travel:"A fair bit for work, not enough for fun. I'm trying to fix that this year.", family:"It's me, my partner, and a bike that takes up half the hallway.", plan:"A long run on Saturday, weather permitting, and then as little as possible.",
+  keys:/\b(10 ?k|the race|your run(ning)?|the running|your training|the training)\b/, beats:["I've signed up for a 10K in the spring, so I'm supposed to be training.","Training's going… slowly. I ran eight kilometres last week without stopping, which is a record for me.","The 10K is three weeks away. I've stopped telling people my target time.","I finished the 10K! Fifty-eight minutes. Not fast, but I'm calling it a win."]},
+ {id:'parent', weekend:"Mostly on the side of a football pitch — both my kids play, so that's my Saturdays gone.", sport:"These days I mostly watch my kids play football. I used to play tennis, a long time ago.", food:"I love cooking at the weekend — it's the only time nobody's in a hurry.", show:"With two kids it's mostly animated films, I'm afraid. I know them all by heart.", travel:"We try to get away once a year as a family. Nothing fancy — the coast, usually.", family:"Two kids — nine and twelve. They keep me busy.", plan:"My daughter has a match on Saturday, so I'll be the one shouting from the sideline.",
+  keys:/\b(tournament|football|soccer|your (daughter|kids?|children)|the (match|game|team)|captain)\b/, beats:["My daughter's team has a tournament coming up — she's talked about nothing else for weeks.","The tournament? They reached the semi-final. She's still not speaking to the referee.","New season now — my daughter's been made captain, so I get tactical advice at breakfast.","They won the league last weekend. I may have cried a little. Don't tell anyone."]},
+ {id:'renovator', weekend:"Covered in paint, mostly. We're redoing the kitchen and I foolishly offered to do some of it myself.", sport:"Does carrying boxes count? Honestly, I walk a lot, and that's about it.", food:"Ask me again when I have a kitchen. Right now it's a lot of takeaway.", show:"I watch far too many home-renovation shows — which is exactly how I got into this mess.", travel:"Not this year — every spare penny is going into the kitchen.", family:"My partner and I, and a kitchen that's currently a building site.", plan:"More painting. There is always more painting.",
+  keys:/\b(kitchen|renovat\w*|paint\w*|building site|worktops?)\b/, beats:["We've just started renovating the kitchen. They say six weeks. I don't believe them.","The kitchen is on week nine of six. We've been washing dishes in the bathtub.","The kitchen's nearly there — the worktops go in next week, apparently.","The kitchen is finished! I cooked a proper meal in it on Sunday. Worth every week."]},
+ {id:'dog', weekend:"Long walks, mostly. We got a puppy recently, so my weekends belong to her now.", sport:"Walking the dog is my exercise now — she needs about three hours a day, which is more than I do.", food:"I'm a breakfast person. A good bakery will get me out of bed at any hour.", show:"More podcasts than television these days — they go well with dog walks.", travel:"Less than I used to — it's harder with a dog. But we've found some good places close to home.", family:"My partner, and a puppy who thinks she runs the house.", plan:"There's a hiking trail I want to try with the dog, if it stays dry.",
+  keys:/\b(puppy|your dog|the dog)\b/, beats:["We've just got a puppy. She's eaten two pairs of shoes and a phone charger so far.","The puppy's started training classes. Top of the class at everything except coming back when called.","The puppy has doubled in size. She still thinks she fits on my lap.","The dog's finally calmed down — she slept through a whole dinner party last week."]},
+ {id:'cook', weekend:"I had a cooking class on Saturday — I'm working my way through dishes I can't pronounce.", sport:"I swim twice a week. It's the only place my phone can't reach me.", food:"Anything spicy. The more it hurts, the happier I am.", show:"Too many cooking shows. I tell myself it's research.", travel:"I plan trips around food, if I'm honest. The sights come second.", family:"I live on my own — which my friends with kids tell me is a luxury.", plan:"Cooking class again on Saturday. This week it's fresh pasta, so wish me luck.",
+  keys:/\b(cooking (class|course)|the (class|course)|your cooking|dumplings?|recipe)\b/, beats:["I've started a cooking class — last week was dumplings. Mine looked terrible and tasted fine.","The cooking class is going well — I made a curry from scratch and nobody complained.","I cooked for eight people last weekend. Nobody was ill, so I'm calling it a success.","I finished the cooking course — I got a certificate and everything. It's on the fridge."]},
+ {id:'mover', weekend:"Packing boxes. We're moving next month and I had no idea we owned this much stuff.", sport:"I cycle to work when the weather lets me. It clears my head before the first meeting.", food:"I'm a coffee-and-pastry person in the morning, and useless before it.", show:"I'm rewatching an old detective series. I already know who did it, and I don't care.", travel:"Nothing until the move is done — then somewhere warm, with no boxes.", family:"My partner, and a very old cat who dislikes change. Moving is going to be fun.", plan:"More packing. I've started labelling boxes 'miscellaneous', which is a bad sign.",
+  keys:/\b(the move|moving (flat|house|home|in|day)|new (place|flat|apartment|home)|unpack\w*|boxes)\b/, beats:["We're moving next month. I keep finding things in cupboards I don't remember buying.","We've moved! I can't find anything, but the new place has a balcony, so I don't mind.","Still unpacking, if I'm honest. There's one room we just keep the door closed on.","I finally unpacked the last box. It only took four months."]}
+];
+const ST2_GEN = {
+  koreaV:["I have, a couple of times — mostly meeting rooms and airports, I'm sorry to say. I'd like to see more than that.","Not yet, and it's high on my list. Where should I start?"],
+  kfood:["I love it — though I've learned to ask how spicy 'a little spicy' really is.","Yes! Korean barbecue especially. I'm still working on the chopsticks."],
+  kfoodL:["I grew up on it, so I'm biased — but yes, obviously."],
+  koreaL:["I've lived here most of my life — and I still find new places to eat every month."],
+  city:["I'm based in {city}. Do you know it?","{city} — I've been here about eight years now."],
+  cityNone:["We're a bit spread out, actually — I work from home half the week."],
+  weather:["Grey, mostly. I've stopped checking the forecast.","Not bad today, actually — which never lasts."],
+  work:["Busy — but the good kind, mostly. It's that time of year for us.","Non-stop, if I'm honest. This call is the calmest part of my day."],
+  commute:["I'm at home today, so the commute was about ten steps.","Not far — though I was nearly late anyway, which is a talent."],
+  study:["I keep meaning to learn another language. I have three apps on my phone and I haven't opened one since March."]
+};
+const ST2_KR = /^(seoul|pangyo|suwon|changwon|busan|incheon|daejeon)$/i;
+function stLife(sc, p){
+  const P=sc.personas[p]||{}, base=stHash(P.name), L=ST2_LIFE[(base + p) % ST2_LIFE.length];
+  const ep = sc.campaign ? [0,1,2,2,2,3][sc.campaign.ep] : 0;
+  return {L, city:P.city||'', beat:L.beats[Math.min(ep, L.beats.length-1)], h:base};
+}
+function stInit(sc, st, led){
+  const p=st.stBy||0, warm=((sc.personas[p]||{}).traits||{}).warmth||.5;
+  let max={easy:4, medium:3, hard:2, veryhard:1}[S.difficulty]||3; if(warm>=.6) max++; if(warm<.4) max=Math.max(1,max-1); if(led) max=Math.max(1,max-1);
+  return {n:0, max, led:!!led, asked:{}, shared:{}, gain:0, facts:[], last:null, rescued:false, heard:!!(sc.stHeard), cb:!!sc.icebreak};
+}
+function stDetect(low, raw){
+  let x='', place='';
+  const pl=low.match(ST_PLACES); if(pl) place=ST_TITLE(pl[1]);
+  if(!place){ const re=/\b(?:to|in|at|around|near|from|visit(?:ed)?) ((?:[A-Z][a-zA-Z'-]+)(?: [A-Z][a-zA-Z'-]+)?)/g; let m; while((m=re.exec(raw||''))){ const w=m[1].split(' ')[0]; if(!ST_NOT_PLACE.has(w)){ place=m[1]; break } } }
+  const t=ST2_TOPICS.find(x=>x.rx.test(low) && (x.id!=='travel' || place || /\b(trip|travel\w*|flew|flight|vacation|abroad|overseas|airport|jet ?lag|sightseeing|resort)\b/.test(low))), id=t?t.id:'none';
+  const future=/\b(going to|will|i'?m (going|flying|leaving|planning|visiting|taking)|next (week|month|weekend|year)|this (weekend|friday|saturday|sunday)|tomorrow|planning (to|a)|looking forward|about to|soon|upcoming|have to book)\b/.test(low) && !/\b(went|was|were|did|ate|had|visited|came back|got back)\b/.test(low);
+  if(id==='travel'||id==='celebrate') x=place;
+  else if(id==='exercise'){ const s=ST_SPORT.find(([r])=>r.test(low)); x=s?s[1]:'' }
+  else if(id==='food'){ const f=low.match(ST_FOOD); x=f?f[1]:'' }
+  else if(id==='family'||id==='pets'){ const r=low.match(/\bmy (son|daughter|kids?|children|wife|husband|parents?|mom|mother|dad|father|family|baby|brother|sister|girlfriend|boyfriend|partner|cat|dog|puppy|kitten)\b/); x=r?r[1]:(id==='pets'?(low.match(/\b(cat|dog|puppy|kitten)\b/)||[])[1]||'':'') }
+  else if(id==='shows'){ const m=(raw||'').match(/(?:watch(?:ed|ing)|saw|seen|read(?:ing)?|finished|started|binge\w*)\s+(?:a |an |the |this |that |some )?((?:[A-Z][\w'’]+)(?:[ -](?:[A-Z][\w'’]+|of|the|in|and|a)){0,4})/); if(m && !ST_NOT_PLACE.has(m[1].split(' ')[0])) x=m[1].replace(/ (of|the|in|and|a)$/,'') }
+  const neg=/\b(tired|exhausted|hectic|rough|stress\w*|sick|terrible|awful|tough|overwhelm\w*|swamped|pain\w*|sore|hurt\w*|boring|bored|annoy\w*|worse|hangover|freezing|expensive|failed|bad)\b/.test(low) && !/\bnot (too |that |very |so )?(bad|tired|busy)\b/.test(low);
+  const pos=/\b(good|great|fine|nice|fun|relax\w*|enjoy\w*|amazing|wonderful|lovely|not bad|pretty good|excited|happy|interesting|beautiful|delicious|tasty|proud|loved?|best|perfect|doing well)\b/.test(low);
+  return {id, x, place, future, tone: neg&&pos?'mid':neg?'neg':pos?'pos':'mid', hang:/\b(hangover|drank too much|too much (to drink|alcohol)|drinking)\b/.test(low), kid:/\bmy (son|daughter|kids?|children|child|baby)\b/.test(low)};
+}
+function stPersonal(low, life, S2, whole){
+  if(life.L.keys.test(low) && (S2.toldThread||S2.heard) && (whole.q || /\b(your|good luck|hope|did (she|he|they|it|you))\b/.test(low))) return 'thread';
+  for(const [k,r] of ST2_PQ){ if(r && r.test(low)) return k }
+  return null;
+}
+function stShare(sc, st, p, key){
+  const life=stLife(sc,p), L=life.L, S2=st.st2; let s;
+  if(key==='weekend' && sc.campaign && sc.campaign.ep>0) key='thread';        // their story has moved on since last time
+  if(S2.shared[key]){ const alt=['thread','plan','weekend','sport','food'].find(k=>!S2.shared[k]); key = alt || 'more' }
+  if(key==='thread') s=life.beat;
+  else if(key==='kfood') s=fresh(st,'stkf', ST2_KR.test(life.city)?ST2_GEN.kfoodL:ST2_GEN.kfood);
+  else if(key==='korea') s=fresh(st,'stkr', ST2_KR.test(life.city)?ST2_GEN.koreaL:ST2_GEN.koreaV);
+  else if(key==='city') s=life.city ? fresh(st,'stcity',ST2_GEN.city).replace('{city}',life.city) : ST2_GEN.cityNone[0];
+  else if(L[key]) s=L[key];
+  else if(ST2_GEN[key]) s=fresh(st,'stg'+key,ST2_GEN[key]);
+  else s=fresh(st,'stmore',["That's really all there is to tell, I'm afraid — I'm not that interesting.","Honestly, that's about it. Work fills in the rest."]);
+  S2.shared[key]=1; S2.sharedNow=true; if(key==='thread'||key==='weekend'||key==='family'||key==='plan'||key==='sport') S2.last={key, rx:L.keys};
+  if(key==='thread'||key==='weekend'||key==='family'||key==='plan') S2.toldThread=true;
+  return s;
+}
+const stFill = (s, x) => s.replace(/\{X\}/g, x ? x.charAt(0).toUpperCase()+x.slice(1) : '').replace(/\{x\}/g, x||'');
+function stReact(st, d){
+  const R=ST2_REACT[d.id]||ST2_REACT.none; let pool;
+  if(d.id==='none') pool=R[d.tone];
+  else if(d.id==='workbusy' && d.hang) pool=R.hang;
+  else if(d.id==='travel' && d.future) pool=d.x ? [R.f[1]] : [R.f[0]];
+  else if(d.x && R.x) pool=R.x;
+  else if(d.tone==='neg' && R.neg) pool=R.neg;
+  else pool=R.d||R.x||ST2_REACT.none.mid;
+  return stFill(fresh(st,'str'+d.id,pool), d.x).replace(/^, /,'').replace(/\s+—\s+—/,' —');
+}
+/* is the learner starting small talk on their own? (used when the counterpart didn't open with any) */
+function stInitiates(sc, st, whole){
+  if(sc.smalltalk===false || sc.presentation || sc.discussion || sc.demandDates || sc.startMood<0 || st.flags.icebreak || st.turn>2) return false;
+  if(whole.agenda || whole.propose || whole.ents.length) return false;
+  const low=whole.low;
+  if(whole.howareyou || ST2_PQ.some(([k,r])=>r&&r.test(low))) return true;                                   // an explicit personal question
+  if(issuesMentioned(sc, low).length || (sc.hidden||[]).some(h=>rx(h.keys).test(low))) return false;
+  return whole.smalltalk || (ST2_TOPICS.some(t=>t.id!=='workbusy'&&t.id!=='study'&&t.rx.test(low)) && /\b(weekend|yesterday|last night|this morning|last week|these days|recently|today|lately)\b/.test(low));
+}
 function smalltalkTurn(sc, st, whole){
-  st.expect=null; const p=st.stBy||0, low=whole.low;
-  const askBack0=/\b(and you|how about you|what about you|yourself|how (was|is|has been) yours|you\?)\b/.test(low);
-  const business = !askBack0 && (whole.agenda || (whole.propose && whole.n>4) || (issuesMentioned(sc,low).length && (whole.q||whole.ents.length)) || ((sc.hidden||[]).some(h=>rx(h.keys).test(low)) && whole.q));
-  const pend=(st.pendingOpen||[]).map((x,i)=>ln(x[0], i? x[1] : x[1].replace(/^(hi|hello|good (morning|afternoon|evening))\b[^.!?—]*[.!?—,]\s*/i,'').replace(/^(thanks?|thank you) (you )?for [^.!?]*[.!?]\s*/i,'')||x[1])).filter(l=>l.t); st.pendingOpen=null;
-  if(business){ ev(st,'skipsmall','Went straight to business without small talk.',0); return null }   // process normally
-  const askBack=/\b(and you|how about you|what about you|yourself|how (was|is|has been) yours|you\?)\b/.test(low);
-  const negH = ST_NEG.test(low) && !/\bnot (too |that |very )?(busy|bad|tired)\b/.test(low), posH = ST_POS.test(low);
-  const tone = negH && posH ? 'mix' : negH ? 'neg' : posH ? 'pos' : 'mid';
-  const out=[];
-  if(whole.n<=3){ ev(st,'shortsmall','Gave a one-word answer to small talk — add a detail and ask back.',-1); out.push(ln(p, fresh(st,'stshort',["Ha, okay.","Right.","Fair enough."]))) }
-  else { feelAll(st, whole.n>=8?4:2, 1); ev(st,'smalltalk',askBack?'Built rapport with small talk and asked back.':'Engaged in small talk before business.',1); out.push(ln(p, fresh(st,'streact'+tone, ST_REACT[tone]))) }
-  if(askBack){ st.flags.askedBack=true; feel(st,p,+3,0); out.push(ln(p, fresh(st,'stmine',ST_MINE))) }
-  if(pend.length) out.push(...pend); else out.push(ln(0, fresh(st,'stbridge',ST_BRIDGE)));
+  const p=st.stBy||0, low=whole.low, raw=((st.learnerTurns||[]).slice(-1)[0]||{}).t||'';
+  const S2 = st.st2 || (st.st2=stInit(sc, st, false));
+  const askBack=ST2_ASKBACK.test(low), life=stLife(sc,p); let pq=stPersonal(low, life, S2, whole);
+  const bridgeNow = ST2_SELF_BRIDGE.test(low) && !askBack && !pq && S2.n>=1;
+  const business = !bridgeNow && !askBack && !pq && (whole.agenda || (whole.q && ST2_BIZ.test(low)) || (whole.propose && whole.n>4) || (issuesMentioned(sc,low).length && (whole.q||whole.ents.length)) || ((sc.hidden||[]).some(h=>rx(h.keys).test(low)) && whole.q));
+  const mkPend=()=>{ const o=(st.pendingOpen||[]).filter((x,i)=>!(i>0 && x[0]===p)).map((x,i)=>ln(x[0], i? x[1] : x[1].replace(/^(hi|hello|good (morning|afternoon|evening))\b[^.!?—]*[.!?—,]\s*/i,'').replace(/^\{name\},? good to see you( again)?[.!,]\s*/i,'').replace(/^good to see you( again)?,? \{name\}[.!,]\s*/i,'').replace(/^(thanks?|thank you) (you )?for [^.!?]*[.!?]\s*/i,'')||x[1])).filter(l=>l.t); st.pendingOpen=null; return o };
+  const done=()=>{ st.expect=null };
+  if(business){ if(!S2.n) ev(st,'skipsmall','Went straight to business without small talk.',0); done(); st.pendingOpen=null; return null }
+  S2.n++; S2.sharedNow=false;
+  const d=stDetect(low, raw), out=[], selfBridge=ST2_SELF_BRIDGE.test(low) && !askBack && !pq;
+  if(S2.cb && S2.n===1 && d.id!=='health'){ d.id='none'; d.x='' }                                   // answering "how was …?" about something they told us before
+  if(!pq && !askBack && !selfBridge && S2.last && whole.q && d.id==='none') pq = (/\bhow old\b/.test(low) && life.L.id==='parent' && !S2.shared.family) ? 'family' : S2.shared.thread ? 'plan' : 'thread';   // a follow-up question about what the counterpart just shared
+  const warm=((sc.personas[p]||{}).traits||{}).warmth||.5;
+  const gain=v=>{ const g=Math.min(v, (S.difficulty==='easy'?12:10)-S2.gain); if(g>0){ S2.gain+=g; feelAll(st,g,1) } };
+  /* did they pick up on what the counterpart just shared? */
+  if(S2.last && !S2.picked && (S2.last.rx.test(low) || (whole.q && pq) || (ST2_PICK.test(low) && whole.n>=3))){ S2.picked=true; gain(3); ev(st,'stpick','Picked up on what they told you about themselves — that is how rapport is built.',1) }
+  /* remembered their story from an earlier meeting */
+  if(pq==='thread' && S2.heard && !S2.toldThread && !S2.memory){ S2.memory=true; feel(st,p,5,2); ev(st,'stmemory','Remembered something personal they told you last time, and asked about it.',1) }
+  if(pq && !S2.askedEv){ S2.askedEv=true; ev(st,'stask','Asked them a personal question instead of only answering.',1) }
+  if(askBack||pq) st.flags.askedBack=true;
+  /* remember what the learner said (for later episodes) — never health */
+  if(d.id!=='none' && d.id!=='health' && d.id!=='rest' && d.id!=='weather' && d.id!=='commute' && d.id!=='workbusy' && S2.facts.length<3 && !S2.facts.some(f=>f.id===d.id)) S2.facts.push({id:d.id, x:d.x||'', place:d.place||'', future:!!d.future, kid:d.kid});
+  const nothing=/\b(nothing (special|much|new)|not much|same as usual|as usual|so-?so)\b/.test(low) && whole.n<=7 && !pq && !askBack;
+  const short = (whole.n<=3 && !pq && !askBack && !selfBridge) || (nothing && S2.n===1);
+  if(selfBridge){
+    if(!S2.engaged && whole.n>=6){ S2.engaged=true; ev(st,'smalltalk','Engaged in small talk before business.',1) }
+    ev(st,'stbridge','Moved from small talk to business yourself — a smooth, confident transition.',1); done();
+    const pend=mkPend(); out.push(ln(p, fresh(st,'stok',["Sure — let's.","Yes, let's do that.","Good idea."]))); if(pend.length) out.push(...pend); return out;
+  }
+  if(short){
+    if(!S2.shortEv && S2.n===1){ S2.shortEv=true; ev(st, nothing?'stnothing':'shortsmall', nothing?'"Nothing special" closes the conversation — offer one small detail instead.':'Gave a one-word answer to small talk — add a detail and ask back.', -1) }
+    if(!S2.rescued && S2.n===1 && S2.max>1 && warm>=.4){ S2.rescued=true; out.push(ln(p, fresh(st,'strescue',ST2_RESCUE))); return out }   // a second, easier question
+    out.push(ln(p, fresh(st,'stshort',["Ha, okay.","Right.","Fair enough."])));
+  } else {
+    if(!S2.engaged){ S2.engaged=true; ev(st,'smalltalk', S2.led?'Opened with small talk yourself and kept it going.':(askBack||pq)?'Built rapport with small talk and asked back.':'Engaged in small talk before business.',1) }
+    gain(whole.n>=8?4:2);
+    const answeredFollow = S2.pendingQ && d.id===S2.pendingQ; S2.pendingQ=null;
+    /* 1) react to what they said */
+    if(d.id!=='none' || !pq || (S2.cb && S2.n===1 && whole.n>=4)) out.push(ln(p, (S2.n>1 && (answeredFollow || d.id==='none')) ? fresh(st,'stack'+d.tone, ST2_ACK[d.tone]) : stReact(st, d)));
+    /* 2) answer their question / share something back, or 3) ask a follow-up */
+    if(pq||askBack){
+      const key = pq || ({exercise:'sport',food:'food',shows:'show',travel:'travel',family:'family',pets:'family',workbusy:'work',weather:'weather',commute:'commute',study:'study',rest:'weekend',celebrate:'weekend',none:'weekend'}[d.id]||'weekend');
+      let s=stShare(sc, st, p, key);
+      if(S2.led && S2.n===1 && warm>=.4 && !/\?$/.test(s) && d.id==='none') s+=' How about you?';
+      if(key==='work' && d.id==='workbusy' && out.length) out[out.length-1].t=fresh(st,'stsame',["Ha — same here.","Sounds familiar."]);
+      out.push(ln(p, s));
+    } else if(S2.n<S2.max){
+      const qk = d.id==='travel'&&d.future ? 'travelF' : d.id==='family'&&d.kid ? 'kids' : d.id==='workbusy'&&d.hang ? 'hang' : d.id;
+      const canAsk = d.id!=='health' && !S2.asked[d.id] && (d.id!=='none' || S2.n===1), canShare = warm>=.45 && !Object.keys(S2.shared).length;
+      const share=()=>{ const key={exercise:'sport',food:'food',shows:'show',travel:'travel',family:'family',pets:'family'}[d.id]||'thread'; out.push(ln(p, fresh(st,'stfunny',["Funny you should say that — ","Well, since we're sharing — ","I'll tell you mine, then: "])+stShare(sc, st, p, key).replace(/^[A-Z](?=[a-z' ])/, c=>c==='I'?c:c.toLowerCase()))) };
+      if(S2.n>1 && canShare) share();
+      else if(canAsk){ S2.asked[d.id]=1; S2.pendingQ=d.id; out.push(ln(p, fresh(st,'stq'+qk, ST2_ASK[qk]||ST2_ASK.none))) }
+      else if(canShare) share();
+    }
+  }
+  /* bridge to business when the budget is used up or nothing kept it going */
+  const open = !!S2.pendingQ || (out.length && /\?\s*$/.test(out[out.length-1].t));
+  if(open && S2.n>=S2.max && !S2.ext){ S2.ext=true; S2.max=S2.n+1 }            // they just asked something — let the learner answer first
+  if(!(open || (S2.sharedNow && S2.n<S2.max))){
+    done(); const pend=mkPend();
+    if(pend.length){ pend[0].t = fresh(st,'stbr',["Anyway.","Right — to business.","Okay, we should probably do some work."]) + ' ' + pend[0].t; out.push(...pend) }
+    else out.push(ln(S2.led?p:0, fresh(st,'stbridge', S2.led?ST2_BRIDGE_LED:ST2_BRIDGE)));
+  }
   return out;
+}
+/* a friendly goodbye gets a friendly answer */
+function stFarewell(sc, st, whole, lines){
+  const low=whole.low, m=low.match(/\bhave a (good|great|nice|lovely) (weekend|evening|day|night|week|trip|holiday|one|rest of)|\benjoy (your|the) (weekend|evening|trip|holiday|day|rest)|\btake care\b|\bsafe (trip|travels|flight)\b/);
+  const p=(sc.campaign&&sc.campaign.contact)||0, life=stLife(sc,p), luck=/\bgood luck\b/.test(low) && (life.L.keys.test(low) || (st.st2&&st.st2.toldThread));
+  if(!(m||luck) || !lines || !lines.length) return lines;
+  ev(st,'stbye','Ended on a friendly, personal note.',1); feelAll(st,2,0);
+  const tail = luck ? (m ? " You too — and thanks, I'll need the luck." : " And thanks — I'll need the luck.") : m[2] ? ` You too — enjoy the ${m[2]==='one'||m[2]==='rest of'?'rest of the day':m[2]}.` : " You too — take care.";
+  const i=lines.map(l=>l.p).lastIndexOf(p); const k=i>=0?i:lines.length-1; lines[k]=ln(lines[k].p, lines[k].t+tail); return lines;
+}
+/* natural-English swaps for expressions Korean speakers often carry over */
+const ST_FIX = [
+  [/\b(company|team) gathering\b/i, "a team dinner", "'Gathering' sounds formal — say 'a team dinner' or 'a work dinner'."],
+  [/\bplay(ed|ing)? with (my |some )?friends?\b/i, "hung out with friends", "Adults 'hang out' or 'catch up' with friends; children 'play'."],
+  [/\b(ate|eat|eating|eaten) (the |my |some )?medicine\b/i, "took some medicine", "In English you 'take' medicine."],
+  [/\b(have|had|got) a promise\b/i, "I have plans", "A 'promise' is a vow — for an appointment with friends, say 'I have plans'."],
+  [/\b(take|took|taking|taken) a rest\b/i, "got some rest", "'Get some rest' or 'take a break' is more natural."],
+  [/\bi was (so |very |really |a bit )?boring\b/i, "I was bored", "'Boring' describes the thing; 'bored' describes how you felt."],
+  [/\bmy condition (is|was|isn'?t|wasn'?t)\b/i, "I'm not feeling great", "Talk about how you feel: 'I'm (not) feeling great today.'"],
+  [/\bso-?so\b/i, "Not bad", "'So-so' is rare in natural English — try 'Not bad' or 'It was okay'."],
+  [/\bi'?m fine,? thank you,? and you\b/i, "Pretty good, thanks. How about you?", "The textbook reply sounds stiff — keep it light."],
+  [/\beye shopping\b/i, "window shopping", "The English phrase is 'window shopping'."],
+  [/\bone-?room\b/i, "a studio", "A one-room apartment is 'a studio'."],
+  [/\bsalary ?man\b/i, "an office worker", "Say 'I work in an office' or name your role."],
+  [/\bhealth (club|center|centre)\b|\bdid health\b/i, "the gym", "It's 'the gym' — 'I went to the gym'."],
+  [/\bhand ?phone\b/i, "my phone", "Say 'phone' or 'mobile'."],
+  [/\bSNS\b/, "social media", "'SNS' isn't used in English — say 'social media'."],
+  [/\b(went|go|going) to (the |a )?hospital\b/i, "went to see a doctor", "For anything minor, say 'see a doctor' — 'hospital' sounds like an emergency."],
+  [/\bdrank (too much|a lot of) alcohol\b/i, "had a few too many", "Lighter and more natural in small talk: 'I had a few too many.'"],
+  [/\bnothing special\b/i, "Not much — a quiet one. I mostly …", "Follow it with one small detail so the other person has something to ask about."],
+  [/\bhouse chore\b/i, "some chores", "It's 'chores' or 'housework'."]
+];
+function stReport(sc, st){
+  const S2=st.st2, E=st.events||[], has=k=>E.some(e=>e.kind===k), T=(st.learnerTurns||[]).map(t=>t.t);
+  const fixes=[]; T.forEach(t=>ST_FIX.forEach(([r,better,why])=>{ const m=t.match(r); if(m && fixes.length<4 && !fixes.some(f=>f.better===better)) fixes.push({said:m[0], better, why}) }));
+  if(!S2 && !has('skipsmall') && !fixes.length) return null;
+  const could = sc.smalltalk!==false && !sc.presentation && !sc.discussion && !sc.demandDates && !(sc.startMood<0);
+  const checks=[]; const add=(ok,label,tip)=>checks.push({ok,label,tip});
+  if(S2 && !S2.engaged && has('skipsmall')){
+    add(-1, 'Took up their small talk', 'They opened with a friendly question and you went straight to the agenda. Give it one line first: "Pretty good, thanks — busy week. How about you?"');
+  } else if(S2){
+    add(has('smalltalk')&&!has('shortsmall')&&!has('stnothing') ? 1 : has('smalltalk') ? 0 : -1, 'Answered with a detail, not one word', '"Pretty good — I finally got out for a hike on Sunday." One concrete detail gives them something to ask about.');
+    add(st.flags.askedBack ? 1 : -1, 'Asked back, or asked them something', '"How about you?" is fine; a specific question is better: "Do you get out of the city much at weekends?"');
+    add(has('stpick')||has('stmemory') ? 1 : Object.keys(S2.shared||{}).length ? -1 : 0, 'Picked up on what they said', 'React before you move on: "Week nine of six? That sounds painful." Then ask one follow-up.');
+    add(has('stbridge') ? 1 : 0, 'Led the move to business', 'Take the transition yourself: "Anyway — I know you\'re busy. Shall we get started?"');
+    if(S2.led) add(1, 'Opened with small talk yourself', '');
+    if(has('stmemory')) add(1, 'Remembered something from last time', '');
+    if(has('stbye')) add(1, 'Ended on a friendly note', '');
+  } else if(has('skipsmall') || could){
+    add(-1, 'Opened with small talk', could ? 'They did not open with small talk, and neither did you. One line is enough: "Before we start — how has your week been?"' : '');
+  }
+  return {checks, fixes};
+}
+function renderSt(s){
+  if(!s || (!s.checks.length && !s.fixes.length)) return '';
+  const ic=o=>o>0?['y','✓']:o<0?['n','✕']:['p','•'];
+  return `<div class="pane"><h3>Small talk</h3>${s.checks.map(c=>{ const [k,i]=ic(c.ok); return `<div class="gl"><span class="dot ${k}">${i}</span><div>${esc(c.label)}${c.ok<=0&&c.tip?`<div class="hint" style="margin-top:3px">${esc(c.tip)}</div>`:''}</div></div>` }).join('')}
+    ${s.fixes.length?`<h3 style="margin-top:18px">Sound more natural</h3>${s.fixes.map(f=>`<div class="rw"><div class="o">${esc(f.said)}</div><div class="b"><span>${esc(f.better)}</span></div><div class="hint">${esc(f.why)}</div></div>`).join('')}`:''}</div>`;
+}
+/* campaign: what to bring up next time, from what they told us */
+function stCallback(small, life){
+  const f=(small&&small.facts||[]).slice().reverse().find(f=>f.x||f.place||f.id==='study'||f.id==='pets') ;
+  if(f){
+    const x=f.x||f.place;
+    if(f.id==='travel' && f.future && x) return `How was ${x}, by the way? You were about to go when we last spoke.`;
+    if(f.id==='travel' && x) return `I looked up ${x} after our last call, by the way — now I want to go. How have you been?`;
+    if(f.id==='exercise' && x) return `Are you still keeping up with ${x}? I was impressed last time.`;
+    if(f.id==='family' && x) return `How's your ${x} doing, by the way?`;
+    if(f.id==='pets') return `How's the ${x||'pet'}, by the way?`;
+    if(f.id==='study') return "How's the studying going, by the way?";
+    if(f.id==='shows' && x) return `I started ${x} after you mentioned it, by the way. How have you been?`;
+    if(f.id==='food' && x) return `You've had me craving ${x} since our last call. How have you been?`;
+    if(f.id==='celebrate') return "Has life calmed down since the celebrations? How have you been?";
+  }
+  if(small && small.heard && life) return `Oh — an update since last time: ${life.beat.replace(/^[A-Z]/,c=>c.toLowerCase())} Anyway, how have you been?`;
+  return '';
 }
 
 /* ---------- public API ---------- */
@@ -3274,12 +3581,12 @@ function engineOpen(sc, st, emails){
   let o = sc.opening ? sc.opening.map(x=>ln(x[0],x[1])) : null;
   if(!o) o=[ln(0, S.doc ? "Hi {name}, thanks for joining. I've got the document in front of me. Where would you like to start?" : S.custom ? "Hi {name}, thanks for making the time. So — let's get into it. What did you want to discuss today?" : "Hi {name}, thanks for making the time. Shall we get started?")];
   const sent=emails||0;
-  const warm = !sent && !sc.presentation && !sc.demandDates && !(sc.startMood<0) && sc.smalltalk!==false && (S.difficulty==='easy'||S.difficulty==='medium'||(S.difficulty==='hard'&&Math.random()<.5));
+  const warm = !sent && !sc.presentation && !sc.demandDates && !(sc.startMood<0) && sc.smalltalk!==false && (S.difficulty==='easy'||S.difficulty==='medium'||(S.difficulty==='hard'&&(sc.icebreak||Math.random()<.5)));
   if(warm){
-    const ally=(sc.personas||[]).findIndex(x=>x.stance==='ally'); st.stBy = ally>0 && Math.random()<.5 ? ally : 0;
+    const ally=(sc.personas||[]).findIndex(x=>x.stance==='ally'); st.stBy = sc.campaign ? sc.campaign.contact : ally>0 && Math.random()<.5 ? ally : 0;
     st.pendingOpen = o.map(x=>[x.p,x.t]);
     const hi = sc.greeting || "Hi {name}, thanks for coming in.";
-    o=[ln(0, hi)]; if(st.stBy) o.push(ln(st.stBy, "Hi, {name}. "+rnd(ICEBREAK))); else o[0].t+=' '+rnd(ICEBREAK);
+    o=[ln(0, hi)]; const ice=sc.icebreak||rnd(ICEBREAK); if(st.stBy) o.push(ln(st.stBy, "Hi, {name}. "+ice)); else o[0].t+=' '+ice; st.st2=stInit(sc, st, false);
     st.expect={type:'smalltalk'}; st.flags.icebreak=true;
   }
   if(sent){
@@ -3496,6 +3803,7 @@ function engineAnalyze(m, sc, st){
     vague:[t=>"You'll have it by Thursday at 5 p.m., and I'll update you at noon tomorrow.", L('Replace "ASAP / soon" with a specific day and time.','')],
     aggressive:[t=>"I understand where you're coming from, but I see it differently.", L('Disagree without attacking — it keeps them listening.','')],
     shortsmall:[t=>"Pretty good, thanks — busy, but in a good way. How about you?", L('Small talk: answer + one detail + ask back.','')],
+    stnothing:[t=>"Not much — a quiet one. I finally caught up on sleep. How about you?", L('Give one small detail, then ask back.','')],
     vagueanswer:[t=>"The short answer is yes — we expect to break even in month 14, based on our pilot.", L('Answer directly first, then add a number or reason.','')],
     offtopic:[t=>"Coming back to the terms — our position on [issue] is …, because …", L('Keep every turn linked to the agenda or an open issue.','')],
     belowreserve:[t=>"Given [reason], we'd like to propose [number]. How close can you get to that?", L('An extreme number with no reason isn\'t taken seriously — anchor with a justification.','')]
@@ -3596,7 +3904,9 @@ function engineAnalyze(m, sc, st){
   if(has('apology')) S1.push(L('You owned the problem and apologised before explaining.',''));
   if(has('commit')) S1.push(L('You committed to specific dates instead of "ASAP".',''));
   if(cnt('goodanswer')>=2) S1.push(L(`You answered ${cnt('goodanswer')} questions directly, with numbers or reasons.`,''));
-  if(has('smalltalk')) S1.push(L(st.flags.askedBack?'Good small talk — you answered with detail and asked back.':'You engaged in small talk before getting down to business.',st.flags.askedBack?'':''));
+  if(has('stmemory')) S1.push(L('You remembered something personal from last time and asked about it.',''));
+  else if(has('stpick')) S1.push(L('You picked up on what they told you about themselves — real rapport, not a formula.',''));
+  else if(has('smalltalk')) S1.push(L(st.flags.askedBack?'Good small talk — you answered with detail and asked back.':'You engaged in small talk before getting down to business.',st.flags.askedBack?'':''));
   if(st.openQs>=2) S1.push(L(`You asked ${st.openQs} open questions (what / how / why) to keep them talking.`,''));
   if((st.flags.explained||0)>=1) S1.push(L('You asked for clarification instead of guessing.',''));
   if(tc('reason')>=2) S1.push(L('You backed your points with reasons.',''));
@@ -3624,7 +3934,7 @@ function engineAnalyze(m, sc, st){
   const summary = L(`You spoke ${m.turns} times (${m.myWords} words, ${m.share}% of the conversation), met ${met} of ${goals.length} objectives, with ${goodN} strong and ${badN} weak moments.${deal}`,
     '');
   return {overall, level:lv+' · rule-based', headline, summary, scores:sc6, goals, strengths:S1.slice(0,4), improvements:S2.slice(0,5),
-    rewrites:rewrites.slice(0,7).map(({original,better,why})=>({original,better,why})), habits:habits.slice(0,6), moments, rubric,
+    rewrites:rewrites.slice(0,7).map(({original,better,why})=>({original,better,why})), habits:habits.slice(0,6), moments, rubric, smalltalk:stReport(sc, st),
     phrases:(sc.phrases||[]).map(([phrase,use])=>({phrase,use}))};
 }
 /* =========================================================
@@ -4368,6 +4678,7 @@ function renderReport(r){
     ${r.brief?renderBriefReport(r.brief):''}
     <div class="pane"><h3>What worked</h3><ul class="pts">${(f.strengths||[]).map(s=>`<li>${esc(s)}</li>`).join('')}</ul></div>
     <div class="pane"><h3>Focus next time</h3><ul class="pts">${(f.improvements||[]).map(s=>`<li>${esc(s)}</li>`).join('')}</ul></div>
+    ${f.smalltalk?renderSt(f.smalltalk):''}
     ${(f.moments&&f.moments.length)?`<div class="pane"><h3>Key moments</h3>${f.moments.map(x=>{const [c,i]=x.good>0?['y','✓']:x.good<0?['n','✕']:['p','•'];return `<div class="gl"><span class="dot ${c}">${i}</span><div>${esc(x.text)}<small>${settings.fb==='ko'?'':'Turn'} ${x.turn}</small></div></div>`}).join('')}</div>`:''}
     ${(f.habits&&f.habits.length)?`<div class="pane"><h3>Speaking habits</h3><ul class="pts">${f.habits.map(h=>`<li>${esc(h)}</li>`).join('')}</ul><div class="hint" style="margin-top:10px">${settings.fb==='ko'?'':'Checked against habits that come up often for Korean speakers in real class transcripts.'}</div></div>`:''}
     <div class="pane full"><h3>Say it better</h3>${(f.rewrites||[]).map(w=>`<div class="rw"><div class="o">${esc(w.original)}</div><div class="b"><span>${esc(w.better)}</span>${playBtn(w.better)}</div><div class="w">${esc(w.why)}</div></div>`).join('')}</div>
@@ -4929,6 +5240,9 @@ const CAMP_VALUES = {
   provider:[['A longer term','longer (term|contract|commitment)|multi.?year|(two|three|four|five|2|3|4|5).year|extend\\w*'],['A higher volume commitment','(more|higher|bigger|larger) (volume|commitment|order)|volume commitment|minimum order|commit to'],['Faster payment or prepayment','prepay\\w*|pay(ment)? (up ?front|in advance|early|within (15|30))|net (15|30)|upfront'],['A reference or case study','case study|reference|testimonial|logo|press release|referral|joint announcement']]
 };
 
+/* where each side's people are based — [provider, buyer] — used in small talk */
+const CAMP_LOC = {semi:['Pangyo','Austin'], saas:['Seattle','Dallas'], mfg:['Changwon','Stuttgart'], cpg:['Seoul','Singapore'], game:['Montreal','Pangyo'], bio:['Seoul','Hamburg'], logi:['Long Beach','Suwon'], fin:['Seoul','Seoul'], energy:['Seoul','Lisbon'], beauty:['Seoul','Lyon'], fnb:['Seoul','Chicago'], ads:['London','Madrid']};
+
 /* ---------- storage ---------- */
 const campUser = () => (session&&session.user&&session.user.id)||'guest';
 const campKey = () => 'pactli_camps_'+campUser();
@@ -5026,7 +5340,8 @@ function campKB(X, ep){
 }
 function campPersona(X, who, i, o){
   const p=X[who], lead=who==='C';
-  return Object.assign({name:p.name, role:p.role, gender:p.gender, color:PCOLORS[i%PCOLORS.length], stance:'lead',
+  const loc=(typeof CAMP_LOC!=='undefined'&&CAMP_LOC[X.F.id])||[], city=loc[X.oth==='provider'?0:1]||'';
+  return Object.assign({name:p.name, role:p.role, gender:p.gender, city, color:PCOLORS[i%PCOLORS.length], stance:'lead',
     traits: lead ? {warmth:.55,patience:.6,assert:.55} : {warmth:.3,patience:.45,assert:.8},
     brief: lead ? `Your day-to-day contact at ${X.them} for the whole deal. Professional and fair; opens up when asked well and shown respect.` : `Senior decision-maker at ${X.them}. Direct, numbers-driven, short on time. Moves only for evidence or a trade.`,
     about: lead ? [`I'm ${p.role.split(',')[0]} at ${X.them}. This one is on my desk from start to finish.`] : [`I'm the ${X.Sn.title}. Anything that changes a signed contract ends up with me.`],
@@ -5235,7 +5550,7 @@ function campEp6(X, IN){
     mandate:`Do not give a rebate for free: nothing is the target, 1% is the limit — and only in exchange for something.\nConfirm each agreed term exactly as it stands in the document.`+(open.length?'\n'+open.map(campMandateLine).join('\n'):''),
     goals:['Handle the last-minute request without giving value away','Confirm every agreed term accurately'].concat(open.length?['Close the points still open']:[],['Agree signature and next steps','End on a positive note for the relationship']),
     goalRules:['agreed:rebate','summary'].concat(open.length?['agreed:'+open.map(i=>i.id).join(',')]:[],['nextstep','topic:thanks']),
-    personas:[P0,P1], issues:G.issues.concat([rebate]), doc:terms, kb:campKB(X,5), kbOwner:{company:1,past:1,whyus:1}, smalltalk:false,
+    personas:[P0,P1], issues:G.issues.concat([rebate]), doc:terms, kb:campKB(X,5), kbOwner:{company:1,past:1,whyus:1}, smalltalk:ally?undefined:false, greeting:'{name}, good to see you.',
     preAgreed:Object.assign({},rn.agreed), prePos:Object.assign({},rn.pos),
     tradeCards:[['A small rebate (max 1%)','A named case study or joint announcement','case study|reference|testimonial|press release|joint announcement'],['A small rebate (max 1%)','Early payment or an early renewal','early (payment|renewal)|prepay\\w*|renew\\w*|extend\\w*']],
     hidden:[], topics:[{id:'thanks',keys:'thank\\w*|appreciat\\w*|pleasure|look(ing)? forward|great working|enjoyed',owner:1,say:ally?["Likewise, {name}. It hasn't always been easy, but I'd do it again.","Thank you. I mean that."]:["Thank you. Let's hope the next year is quieter.","Likewise."]}],
@@ -5262,6 +5577,7 @@ function campBuild(c, n){
   if(n===5 && IN.senior!=null) sc.startEmo[0]={trust:campClamp(IN.senior,10,95)};
   sc.campaign.trust0 = sc.startEmo[ci] ? sc.startEmo[ci].trust : Math.round(30+sc.personas[ci].traits.warmth*40);
   sc.goals=sc.goals.slice(0,6); sc.goalRules=sc.goalRules.slice(0,6);
+  sc.stHeard=!!(IN.small&&IN.small.heard); if(n>0 && sc.smalltalk!==false) sc.icebreak=stCallback(IN.small, stLife(sc, ci));
   CAMP_CACHE.set(key, sc); return sc;
 }
 function campScenarios(){
@@ -5335,8 +5651,16 @@ function campHarvest(c, n, rec){
   const damp={easy:.6,medium:.5,hard:.45,veryhard:.4}[c.difficulty]||.5;
   L.trust=Math.round(campClamp(t0+(st.emo[ci].trust-t0)*damp,5,95)); if(sc.personas.length>1) L.senior=Math.round(campClamp(50+(st.emo[0].trust-50)*damp,5,95));
   carry.push({good:L.trust>t0?1:L.trust<t0?-1:0, text:`Trust with ${X.C.first}: ${t0} → ${L.trust}`});
-  L.rapport=campClamp(L.rapport + (has('smalltalk')?6:0) + (st.flags.askedBack?4:0) + Math.min(6,tc('empathy')*3) + Math.min(6,(st.flags.listening||0)*2) - cnt('aggressive')*6 - (has('shortsmall')?3:0), 0, 100);
+  L.rapport=campClamp(L.rapport + (has('smalltalk')?6:0) + (st.flags.askedBack?4:0) + (has('stpick')?3:0) + (has('stmemory')?5:0) + (has('stlead')?2:0) + (has('stbye')?2:0) + Math.min(6,tc('empathy')*3) + Math.min(6,(st.flags.listening||0)*2) - cnt('aggressive')*6 - (has('shortsmall')?3:0), 0, 100);
   L.cred=campClamp(L.cred + Math.min(9,tc('evidence')*3) + Math.min(6,tc('reason')*2) + Math.min(8,cnt('goodanswer')*4) + (has('summary')?4:0) - 5*(cnt('vague')+cnt('misquote')+cnt('retract')+cnt('limit')) - 4*cnt('excuse'), 0, 100);
+  /* small talk memory: what you told them, and whether you heard their story */
+  if(st.st2){ L.small=L.small||{facts:[],heard:false};
+    st.st2.facts.forEach(f=>{ L.small.facts=L.small.facts.filter(x=>x.id!==f.id); L.small.facts.push(Object.assign({ep:n},f)) }); L.small.facts=L.small.facts.slice(-6);
+    if(st.st2.toldThread) L.small.heard=true;
+    const told=st.st2.facts.map(f=>f.x||f.place||f.id).filter(Boolean);
+    if(has('stmemory')) carry.push({good:1, text:`You remembered ${X.C.first}'s story from last time and asked about it — that is how trust is built.`});
+    if(told.length) carry.push({good:0, text:`${X.C.first} will remember what you mentioned (${told.join(', ')}).`});
+    if(st.st2.toldThread && !c.eps[n].done) carry.push({good:0, text:`${X.C.first} told you something personal — ask about it next time.`}) }
   /* leaks & promises */
   sentences(txt).forEach(s=>{ const m=s.match(CAMP_LEAK); if(m && L.leaks.length<4 && !L.leaks.some(x=>x.text===m[0].toLowerCase())) L.leaks.push({ep:n, text:m[0].toLowerCase()}) });
   if(L.leaks.some(x=>x.ep===n)) carry.push({good:-1, text:'You revealed pressure on your own side — they will remember it.'});
@@ -5518,6 +5842,7 @@ function renderCampaign(){
           <ul class="bfind">${needs.map(h=>L.needs[h.id]?`<li class="got">✓ <b>${esc(h.hint)}</b> <span>${esc(h.recap)}</span></li>`:`<li class="lock">🔒 ${esc(h.hint)}</li>`).join('')}</ul>
           ${terms.length?`<label style="margin-top:16px">Term sheet</label><table class="bptbl"><tbody>${terms.map(t=>`<tr><td>${esc(cap1(t.label))}</td><td class="${t.ok?'r-in':'r-out'}">${esc(t.text)}</td><td class="r-open" style="white-space:nowrap">${t.src==='you'?'you':t.src==='team'?'team':'default'}</td></tr>`).join('')}</tbody></table>`:''}
           ${(L.promises||[]).length?`<label style="margin-top:16px">Promise log</label><ul class="bgoals">${L.promises.map(p=>`<li class="${p.kept===true?'met':p.kept===false?'':'partial'}"><i>${p.kept===true?'✓':p.kept===false?'✕':'~'}</i>“${esc(p.text)}” <span style="color:var(--dim)">· Ep ${p.ep+1}</span></li>`).join('')}</ul>`:''}
+          ${(L.small&&(L.small.facts.length||L.small.heard))?`<label style="margin-top:16px">Small talk</label><div class="hint" style="margin:0;font-size:13px;color:var(--ink2)">${L.small.facts.length?`${esc(X.C.first)} remembers: ${esc(L.small.facts.map(f=>f.x||f.place||f.id).join(' · '))}.`:''} ${L.small.heard?`You know about: ${esc({runner:'the 10K',parent:"their daughter's football",renovator:'the kitchen renovation',dog:'the puppy',cook:'the cooking class',mover:'the move'}[stLife(campBuild(c,Math.min(c.ep,5))||{personas:[{name:X.C.name}]},0).L.id]||'their story')} — ask how it is going.`:''}</div>`:''}
           ${(L.leaks||[]).length?`<div class="cp-note" style="margin-top:14px">They heard you say: “${esc(L.leaks.map(x=>x.text).join('”, “'))}”.</div>`:''}
         </div>
         ${c.eps[2].in?`<div class="pane cp-ledger" style="margin-top:14px"><label>Story so far</label><ul class="pts">${[c.eps[2].in?`Month 3 — ${P[1]}: ${P[2]}.`:null, c.eps[3].in?`Month 9 — ${K[1]}: ${K[2]}.`:null].filter(Boolean).map(x=>`<li>${esc(x)}</li>`).join('')}</ul></div>`:''}
