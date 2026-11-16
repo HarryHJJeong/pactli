@@ -2796,6 +2796,7 @@ function nlu(text){
     hedge: (low.match(/\b(maybe|perhaps|i think|i guess|kind of|sort of|probably|might)\b/g)||[]).length,
     smalltalk: has(low,/\b(weather|weekend|holiday|how was your (trip|flight|week)|coffee)\b/)
   };
+  nluPlus(a, text);
   a.anyIntent = a.q||a.greet||a.agenda||a.empathy||a.apology||a.propose||a.cond||a.reason||a.accept||a.reject||a.summary||a.nextstep||a.bye||a.commitDate||a.ents.length;
   return a;
 }
@@ -3178,18 +3179,19 @@ function handleHidden(sc, st, h, a){
   if((st._tr||[]).includes('H:'+h.id)) return [];
   tr(st,'H:'+h.id);
   st.asked[h.id]=(st.asked[h.id]||0)+1;
-  if(st.revealed[h.id]) return [ln(h.owner||0, fresh(st,'again'+h.id,["As I said, "+(/^I\b/.test(h.recap||h.reveal)?(h.recap||h.reveal):low1(h.recap||h.reveal)).replace(/([^.!?])$/,'$1.'),"I think I've covered that one."]))];
+  if(st.revealed[h.id]) return [ln(h.owner||0, fresh(st,'again'+h.id,["As I said, "+talkAgain(h).replace(/([^.!?])$/,'$1.'),"Like I said: "+talkAgain(h).replace(/([^.!?])$/,'$1.')]))];
   if(unlocked(h,a,st)){ st.revealed[h.id]=true; feel(st,h.owner||0,+3,+3); ev(st,'reveal',`Uncovered: ${h.recap||h.id}.`,1); if(st.flags['g_'+h.id]) ev(st,'rephrase','Rephrased a question after a guarded answer — and got the information.',1); return [ln(h.owner||0, h.reveal)] }
   st.flags['g_'+h.id]=true;
   return [ln(h.owner||0, fresh(st,'guard'+h.id, h.guard||["I'd rather not get into that yet."]))];
 }
 function handleTopic(sc, st, tp, a){
+  if(a && a.promise && !a.q && !tp.needEvidence){ tr(st,'A:promise'); st.flags['t_'+tp.id]=true; return [ln(tp.owner||0, fresh(st,'promack',["Great — I'll look out for it.","Good. I'll watch for your email.","Thanks — that would help."]))] }
   tr(st,'T:'+tp.id);
   st.topicsSaid[tp.id]=(st.topicsSaid[tp.id]||0)+1; st.flags['t_'+tp.id]=true;
   if(tp.needEvidence && !(a.evidence||a.reason||st.flags['ok_'+tp.id])) return [ln(tp.owner||0, fresh(st,'doubt'+tp.id, tp.doubt||["Can you give me an example?"]))];
   if(tp.needEvidence) st.flags['ok_'+tp.id]=true;
   const left=tp.say.filter(x=>!st.usedSet.has('topic'+tp.id+'|'+x));
-  if(!left.length) return [ln(tp.owner||0, fresh(st,'topicdone',["I think I've said what I can on that.","Like I said — that's our view on it.","We've covered that, I think."]))];
+  if(!left.length) return [ln(tp.owner||0, a && a.promise && !a.q ? fresh(st,'promack',["Great — I'll look out for it.","Good. I'll watch for your email.","Thanks — that would help."]) : a && !a.q ? fresh(st,'topicok',["Understood.","Okay, good.","That works."]) : fresh(st,'topicdone',["I think I've said what I can on that.","Like I said — that's our view on it.","We've covered that, I think."]))];
   return [ln(tp.owner||0, fresh(st,'topic'+tp.id, tp.say))];
 }
 function personaByName(sc, low){ return (sc.personas||[]).findIndex(p=>new RegExp('\\b'+p.name.split(' ')[0].toLowerCase()+'\\b').test(low)) }
@@ -3272,12 +3274,13 @@ function rankMatches(sc, st, a, sl){
     if(p.kind==='T' && (st.topicsSaid[p.ref.id]||0)>= (p.ref.say||[]).length) s*=.5;
     if(s>0) out.push({p,s,hit});
   });
-  return out.sort((x,y)=>y.s-x.s);
+  return talkRankFix(sc, sl, out);
 }
 const kbLines = (sc, id) => (sc.kb && sc.kb[id]) ? [].concat(sc.kb[id]) : null;
 const kbOwner = (sc, id, def) => (sc.kbOwner && sc.kbOwner[id]!=null) ? sc.kbOwner[id] : def;
 function openIssues(sc, st){ return (sc.issues||[]).filter(is=>!is.never && st.agreed[is.id]==null).sort((x,y)=>(y.weight||1)-(x.weight||1)) }
 function kbAnswer(sc, st, id, a, sl, addr){
+  if(!kbLines(sc,id) && (KB_ALIAS[id] || TALK_GENERIC[id])){ const r0 = KB_ALIAS[id] ? kbAnswer(sc, st, KB_ALIAS[id], a, sl, addr) : null; if(r0 && r0.length) return r0; if(TALK_GENERIC[id]){ tr(st,'K:'+id); return [ln(addr>=0?addr:0, fresh(st,'gen'+id,TALK_GENERIC[id]))] } return r0 }
   tr(st,'K:'+id);
   const lead=0, p=addr>=0?addr:kbOwner(sc,id,lead), per=sc.personas[p]||sc.personas[0], mood=moodOf(st,p), say=t=>[ln(p,t)];
   const fromKB = kbLines(sc,id); const isM=issuesMentioned(sc, sl)[0]; const is=isM || (sc.issues||[]).find(i=>i.id===st.focus) || openIssues(sc,st)[0];
@@ -3309,18 +3312,154 @@ function kbAnswer(sc, st, id, a, sl, addr){
   // topic-like intents without content: route to a matching topic, else none
   return null;
 }
-/* question-aware fallback: engaged, not evasive */
+/* =========================================================
+   CONVERSATION QUALITY — answer first, never reply with nothing, keep the thread
+   · questions asked as statements ("I want to know your budget") are understood as questions
+   · more kinds of ordinary first-meeting questions are recognised (how things are today, goals, what they are looking for, scale, how it works, pricing model, capacity)
+   · when the counterpart cannot answer, they say so and ask what you mean, or tell you what they can — never just "Good question."
+   · when you are the one asking, they answer and let you lead; they come back to their own question later
+   · "Can you answer my question?" gets an apology and a straight answer
+   ========================================================= */
+const TALK_IQ = /\b(i(?:'d| would)? (?:really |just |also )?(?:like|love|want|need|wish|hope) to (?:know|understand|hear|ask|learn|find out|get (?:a sense|an idea)|check)|i(?:'m| am) (?:curious|wondering|interested (?:to know|in knowing|in hearing|to hear))|i (?:was )?wonder(?:ing)?\b|(?:can|could|may|might) i ask|let me ask|(?:can|could|would|will) you (?:please |kindly |just )?(?:tell|share|explain|describe|walk|give me|let me know|show|say)|tell me|let me know|help me understand|walk me through|any (?:specific |particular |other |special )?[a-z]+(?: [a-z]+){0,3} (?:you (?:want|need|have|prefer|expect|are)|in mind|on your side)\b|what(?:'s| is| are| about) (?:the|your) )/;
+const TALK_ACK = /^(\s*(cool|great|nice|good|i see|got it|right|all ?right|perfect|fair enough|understood|thanks?|thank you|wow|awesome|interesting|makes sense|noted|mm+|hmm+|oh|ah|uh.?huh|good to know|that'?s (good|great|helpful|interesting|clear)|very (good|clear|helpful))\b[\s,.!]*)+$/i;
+const TALK_META = /\b((can|could|will|would) you (please |just |actually |kindly )?answer|you (didn'?t|did not|haven'?t|have not|never|don'?t|do not|aren'?t|are not) (really |actually |even )?(answer|answering|answered|reply|replied|respond|responded)|that'?s not (what i asked|an answer|my question|what i meant)|not (really )?answering|answer (me|my questions?|the questions?)\b|i (just )?asked you|you'?re avoiding|stop avoiding|you keep (asking|avoiding|changing)|why (won'?t|don'?t|aren'?t|can'?t) you (answer|tell))/;
+const TALK_PROMISE = /(\b(i'?ll|i will|we'?ll|we will|let me|i'?m going to|i am going to|i'?d be happy to|i can)|^\s*will) (\w+ )?(write|send|email|e-mail|share|prepare|draft|put together|get back|follow up|come back|forward|provide)\b/;
+function nluPlus(a, text){
+  const low=a.low;
+  a.iq = (TALK_IQ.test(low) || /\b(want|need|like|love|wish) to \w+ (more )?(about )?your\b/.test(low)) && !a.propose;
+  a.askMe = /\b((anything|something|what) (else )?(do )?you(?:'d| would)? (like|want|need) to (ask|know)|do you have (any |some )?(more |other )?questions|any (more |other )?questions (for me|from you|from your side|on your side)|(anything|something) (else )?you (want|need|would like) from me|what (else )?(can|could|should) i (tell|explain to|share with) you)\b/.test(low);
+  if(a.iq){ a.q = true; a.open = true }
+  a.ackOnly = a.n<=5 && TALK_ACK.test(String(text).trim()) && !a.accept && !a.q;
+  a.metaQ = TALK_META.test(low);
+  a.promise = TALK_PROMISE.test(low) && !/\?\s*$/.test(String(text).trim());
+  if(a.iq && a.agenda && a.n<=22) a.agenda = false;          // "First, I'd like to know …" is a question, not an agenda
+}
+Object.assign(CONCEPTS, {
+  state:/\b(current(ly)?|at the moment|right now|as it stands|existing|set-?up|situation|raw|clean|organi[sz]ed|well.?organi[sz]ed|structured|messy|in (good|bad) shape|how (do|are) you (currently |now |today )?(do|doing|handl\w*|manag\w*|deal\w*|us(e|ing)|run\w*|track\w*|stor\w*|work\w*|get\w*|buy\w*|sourc\w*|ship\w*|sell\w*)|what (tools?|systems?|software|platforms?|suppliers?|vendors?|agenc\w+|process\w*|carriers?|products?) (do|are|have) you|who (do|are) you (use|using|work|working|buy|buying|ship|shipping)|what (do|are) you (use|using) (now|today|at the moment)|what does (it|that|your \w+) look like (now|today))\b/,
+  goal:/\b(what (do|would|are) you (want|like|hope|hoping|trying|aim\w*|plan\w*|looking) to (do|achieve|get|accomplish|see|change|improve|solve|gain|reach)|what are you (hoping|trying|aiming) (for|to)|what.{0,25}(do with|use (it|them|this|that|those|these|the data) for)|end goal|ultimately|(six|twelve|6|12) months from now|a year from now|your vision|what (is|are) (your|the) (goal|aim|objective)s?)\b/,
+  solution:/\b((what|which|any)\b.{0,30}\b(solutions?|products?|services?|features?|options?|approach|kind of (help|support|partner|supplier|vendor|agency))\b.{0,30}\b(you|in mind|want|need|looking|prefer|interested)|what (are you|you'?re) looking for|what (exactly )?do you (need|want|expect) from (us|a (supplier|vendor|partner|provider|agency))|ideal (solution|supplier|partner|vendor|agency)|what would the (ideal|perfect|right) \w+ look like)\b/,
+  criteria:/\b(how (will|would|do|are) you (going to )?(choos\w*|decid\w* between|evaluat\w*|compar\w*|select\w*|judg\w*|pick\w*)|criteria|what (matters|counts) (when|in) (choos|select|pick)\w*|shortlist|what are you comparing)\b/,
+  scale:/\b(how (many|much|big|large)\b.{0,40}\b(stores?|users?|customers?|employees?|people|units?|orders?|volume|data|records?|sites?|locations?|shipments?|containers?|projects?|sellers?|transactions?|accounts?|cards?|plants?)|what (size|volume|scale|quantit\w+)|how big is|what kind of volumes?)\b/,
+  how:/\b(how (does|would|will|do) (it|that|this|the \w+|your \w+)( \w+)? (work|run|operate|integrate|fit)|how (do|would) you (implement|deliver|roll ?out|onboard|set (it|this) up|get started|work with)|implementation|roll.?out|onboard\w*|integrat\w*|what does the process look like|how long does (it|implementation|delivery|setup|set-up) take|how do we get started)\b/,
+  pricing:/\b(pric(e|ing) (model|structure|list)|how (do|does) (you|your|the) (pric|charg)\w*|what (do|does) (it|this|you) (cost|charge)|how much (is|does|do) (it|this|you)\b|ballpark|rough (price|figure|number|cost|idea of (the )?(price|cost))|rate card|what are your (prices?|rates?|fees?))\b/,
+  capacity:/\b(capacity|lead times?|how (fast|quickly|soon) can you (deliver|ship|start|supply|begin)|can you (deliver|supply|handle|scale)|availability|in stock|allocation|when (can|could) you (start|deliver|ship))\b/
+});
+/* word-level vocabulary for each kind of question, so differently worded questions land on the same answer */
+const TALK_LEX = {
+  problem:/\b(problems?|issues?|challeng\w+|difficult\w+|troubles?|bother\w*|struggl\w+|pain ?points?|headaches?|worr(y|ies|ied)|frustrat\w+|obstacles?|bottlenecks?|hard(est)?( part)?|tough(est)?( part)?|worst|stress\w*|weak(est)? points?|annoy\w+|suffer\w*|burdens?|time.?consuming|inefficien\w+|keeps? you (up|awake)|not (working|going) well|unhappy|dissatisf\w+|complain\w*)\b/,
+  state:/\b((current(ly)?|nowadays|today|these days|at the moment|at present|presently|existing|so far)\b.{0,40}\b(us(e|ing|ed)|do(ing)?|handl\w+|manag\w+|work\w*|situation|set-?up|systems?|tools?|vendor|supplier|process|going|look)|(us(e|ing)|doing|handl\w+|manag\w+|working|going)\b.{0,40}\b(current(ly)?|now|nowadays|today|these days|at the moment|at present|so far)|how (is|are) (it|this|the work|things|they) (done|handled|managed|going)|at present|as.?is|what(?:'s| is) your (current )?(situation|set-?up|status)|your situation (now|today)|(raw|clean|organi[sz]ed|messy|structured)\b)/,
+  goal:/\b(goals?|purpose|aims?|objectives?|achiev\w+|results? (do|would|are) you|outcomes?|vision|ambition|hop(e|ing) (to|for)|want to (do|get|achieve|see|improve|change) (with|from|by|in|after)|(change|improvement|difference)s? (do |would )?you (want|expect|hope|like)|(after|in) (six|twelve|three|6|12|3) months|a year (from now|later)|final goal|expect (from this|to get|out of)|what for)\b/,
+  solution:/\b(look(ing)? for|features?|functions?|requirements?|specs?|specifications?|must.?haves?|kind of (product|service|partner|supplier|vendor|help|solution)|ideal (solution|supplier|partner|vendor|agency|provider)|(want|expect) from (a |an |your )(supplier|vendor|partner|provider|agency))\b/,
+  time:/\b(by when|until when|deadlines?|target dates?|(what|which) date|is it urgent|in a (hurry|rush)|time ?limit|timeline|time ?frame|launch\w*|ready by|due( date)?|start date|how soon|how (long|much time) do (you|we) have|go.?live|(finish|complete|done|ready)(ed|d)? by|when (do|does|is|are|will|would|should|must) (you|it|the|this|that|everything))\b/,
+  budget:/\b(budget\w*|how much money|funds?|spend(ing)?|afford|(expected|target|ideal|reasonable|acceptable) (price|cost)|price (range|point|level|expectation|in mind)|cost (do|did|would) you expect|(number|figure|amount) in mind|how much (can|could|would|are|will) you|willing to pay)\b/,
+  decide:/\b(decision.?makers?|approv\w+|sign.?off|final say|your (boss|manager|director)|who else|authori[sz]\w+|permission|green ?light|who (decides|approves|signs))\b/,
+  priority:/\b(most important|key (factor|point|thing|driver|priority)|matters? (most|to you)|care (about|most)|value (most|the most)|main (factor|reason)|what counts|number one)\b/,
+  past:/\b(previous(ly)?|last (vendor|supplier|agency|partner|provider|time|project)|in the past|experience[sd]? with|have you (ever )?(had|tried|used|worked with)|did you (ever )?(try|use|work with)|bad experiences?|trouble with (the|your) (last|previous|old))\b/,
+  scale:/\b(how (many|big|large)\b.{0,30}\b(stores?|users?|people|customers?|clients?|employees?|staff|locations?|sites?|branches|units?|orders?|accounts?|containers?|cards?|shipments?|transactions?|sellers?|plants?|compan\w+|team|project|volume|scale|business|operation)|(what|the) (size|scale) (of|is)|how large is|volumes?|quantit\w+|headcount)\b/,
+  rival:/\b(other (compan\w+|suppliers?|vendors?|agenc\w+|providers?|options?|partners?|candidates?)|compar\w+ (us|them|offers|with)|compet\w+|someone else|anyone else|alternatives?|also (meeting|talking|speaking|considering)|shortlist\w*)\b/,
+  criteria:/\b((select\w*|choos\w+|evaluat\w+|pick\w*|judg\w+|assess\w*)\b.{0,30}\b(partner|supplier|vendor|agency|provider|us|compan\w+|offers?|proposals?)|criteri\w+|(important|matters?) when)\b/,
+  how:/\b(how\b.{0,40}\b(works?|operat\w+|implement\w*|roll.?out|integrat\w+|get started|set up)|(set-?up|implementation|installation|onboarding|delivery) (period|time|schedule|process)|process after|after (the )?(contract|signing)|what (are|is) the (steps?|process|procedure)|steps? (after|to|for)|what happens (after|next|when we sign|once we sign)|after (we|you) sign|onboard\w+|implementation|explain (how|your|the) (service|product|solution|system|platform|it))\b/,
+  pricing:/\b(pric(e|es|ing)\b.{0,25}\b(model|structure|list|decided|calculated|work)|price list|cost structure|how (do )?you (charge|bill|price)|how (we|i) (pay|are charged)|how (is|are) (the |your )?(pric|fee|cost)\w*|how (do|does) (you|your|the) (pric|charg)\w*|rates?\b|fees?\b|discounts?|quot(e|ation)|how much (is|does|do|would|will) (it|this|that|you|the)|ballpark|rough (price|figure|number|cost|idea))\b/,
+  capacity:/\b(capacity|lead ?times?|how (fast|quick\w*|soon|long)\b.{0,25}\b(deliver\w*|ship\w*|start|supply|take)|availab\w+|in stock|enough (capacity|stock|people|resources)|handle (our|the|that|this) (volume|order|demand)|when (can|could|would) you (start|deliver|ship|begin))\b/,
+  customer:/\b(who (are|is) your (customers?|clients?)|your (other |existing |current |main )?(customers?|clients?)|compan(y|ies) (are |do )?you('re| are)? (work|working) with|who (else )?do you work with|references?|case stud\w+|success stor\w+|track record|big names?|well.?known (compan\w+|clients?|customers?|brands?)|(talk|speak) to (one of |some of )?your (clients?|customers?)|similar (projects?|compan\w+|customers?|clients?)|customers? like (us|ours))\b/,
+  support:/\b(support\w*|after.?sales|after.?care|defects?|errors?|bugs?|breakdowns?|malfunction\w*|faulty|take care of (us|our|the)|look after (us|our)|help (us|me) after|service level|training|maintenance|help ?desk|go(es)? wrong|who (helps?|fixes|do we call)|if (it|something|anything) (breaks?|fails?)|if we have (a |an |any )?(problem|issue|trouble)s?|warranty)\b/,
+  differ:/\b(your (main |biggest )?(strengths?|advantages?|edge)|what is your strength|better than|different from|how are you different|stand out|sets? you apart|why (should|would) (we|i) (choose|pick|work with|go with|buy from)|why are you better|what makes you)\b/,
+  team:/\b(contact person|point of contact|main contact|day.to.day|account manager|who (is|will be|would be) (my|our) contact|who (would|will|do) (we|i) (work|deal|speak|talk) with|who is on your team|team size)\b/,
+  flex:/\b(possible to (change|adjust|modify|negotiate)|can (we|you) (change|adjust|negotiate)|(terms?|conditions?|price|prices|contract) (be |are |is )?(adjust\w+|chang\w+|negotia\w+|modif\w+|flexib\w+)|adjustable|negotiable)\b/,
+  role:/\b(your (position|job|title|role)|what position|what (is|'s) your (job|title|position)|(are you|you are) (responsible|in charge)|what are you (responsible|in charge))\b/,
+  company:/\b(what kind of (company|business|firm)|what (does|do) (your company|you|it) (do|make|sell)|about your (company|business)|your (company|business)('s)? (main )?(business|product)s?)\b/,
+  more:/\b(anything (i missed|i should know|more)|did i miss (anything|something)|what else should)\b/,
+  opinion:/\b(how do you feel about|your (feeling|impression)s?|how (is|was) (it|this|our conversation) so far)\b/
+};
+Object.keys(TALK_LEX).forEach(k=>{ CONCEPTS[k] = CONCEPTS[k] ? new RegExp(CONCEPTS[k].source+'|'+TALK_LEX[k].source, 'i') : TALK_LEX[k] });
+['state','goal','solution','criteria','scale','how','pricing','capacity','differ'].forEach(k=>{ KB_INTENTS[k]={c:[k], re:TALK_LEX[k]} });
+['past','rival','customer','support','team','flex','more','opinion','role','company'].forEach(k=>{ if(KB_INTENTS[k]) KB_INTENTS[k].re = KB_INTENTS[k].re ? new RegExp(KB_INTENTS[k].re.source+'|'+TALK_LEX[k].source,'i') : TALK_LEX[k] });
+let TALK_MIN = 2;
+const TALK_NEW = new Set(['state','goal','solution','criteria','scale','how','pricing','capacity','differ','budget']);   // general first-meeting questions: never pre-empt a point that is on the table
+KB_INTENTS.budget = {c:['budget']};
+/* honest, human answers for questions a scenario has no specific fact for */
+const TALK_GENERIC = {
+  budget:["I'd rather not put a number on it yet. Tell me what you have in mind, and I'll tell you if we're close.","Let's not start with our number. What are you proposing?"],
+  goal:["In short: an agreement we can both defend internally, with no surprises later.","A result I can explain to my management in two minutes. That's the honest answer."]
+};
+const KB_ALIAS = { goal:'success', criteria:'priority', scale:'company', solution:'need', differ:'rival' };
+
+/* something true the counterpart can offer when they could not answer the question as asked (at most once a meeting) */
+function talkVolunteer(sc, st){
+  const h=(sc.hidden||[]).find(h=>!st.revealed[h.id] && (h.unlock==='any'||h.unlock==='open') && h.reveal);
+  if(h){ st.revealed[h.id]=true; ev(st,'volunteer',`They volunteered this after an unclear question: ${h.recap||h.id}.`,0); return {p:h.owner||0, t:h.reveal} }
+  const t=(sc.topics||[]).find(t=>!t.needEvidence && !st.topicsSaid[t.id] && (t.say||[]).length);
+  if(t){ st.topicsSaid[t.id]=1; st.flags['t_'+t.id]=true; return {p:t.owner||0, t:fresh(st,'topic'+t.id,t.say)} }
+  return null;
+}
+/* a question we have no answer for: be honest, then either give something real or ask what they mean */
 function questionFallback(sc, st, a, p){
-  const low=a.low, mood=moodOf(st,p), o=openIssues(sc,st)[0], tie=o?` For me, the bigger question right now is ${o.label}.`:'';
-  let pool;
-  if(/^\s*who\b/.test(low)) pool=["That would mostly be me, with input from my team.","Me, mainly — I'll loop in others if needed."];
-  else if(/^\s*when\b/.test(low)) pool=["I'd have to check the exact date and come back to you.","Soon — I can confirm the exact timing after this call."];
-  else if(/^\s*how (many|much)\b/.test(low)) pool=["I don't have the exact figure in front of me — I can get back to you on that.","I'd need to check the numbers, honestly."];
-  else if(/^\s*why\b/.test(low)) pool=o&&o.why?[`Mainly because ${low1(o.why).replace(/\.$/,'')}.`]:["It's mostly about managing risk on our side.","It comes down to what we've been asked to deliver internally."];
-  else if(/^\s*(is|are|do|does|did|can|could|will|would|have|has)\b/.test(low)) pool=mood==='warm'?["I think so, yes — though it depends on the details.","Probably, yes. Why do you ask?"]:mood==='neutral'?["Possibly. It depends on the details.","Not necessarily — it depends on what we agree today."]:["Not really, no.","I wouldn't count on it."];
-  else pool=["Good question.","That's a fair question.","Hmm, let me think about that."];
-  tr(st,'F:q2');
-  return [ln(p, fresh(st,'qf',pool)+(/^\s*(who|when|how (many|much))\b/.test(low)||!tie||Math.random()<.4?'':tie))];
+  const low=a.low, mood=moodOf(st,p), o=openIssues(sc,st)[0];
+  tr(st,'F:q2'); st.flags.lastUnans=a.t; const n = st.flags.fbN = (st.flags.fbN||0)+1;
+  let lead='', closed=false;
+  if(/^\s*who\b/.test(low)){ lead=fresh(st,'qfwho',["That would mostly be me, with input from my team.","Me, mainly — I'll bring in others if needed."]); closed=true }
+  else if(/^\s*when\b/.test(low)){ lead=fresh(st,'qfwhen',["I'd have to check the exact date and come back to you.","I can confirm the exact timing after this call."]); closed=true }
+  else if(/^\s*how (many|much)\b/.test(low)){ lead=fresh(st,'qfnum',["I don't have the exact figure in front of me — I can get back to you on that.","I'd need to check the numbers, honestly."]); closed=true }
+  else if(/^\s*why\b/.test(low)){ lead=o&&o.why&&issuesMentioned(sc, low).includes(o) ? `Mainly because ${low1(o.why).replace(/\.$/,'')}.` : fresh(st,'qfwhy',["It's mostly about managing risk on our side.","It comes down to what we've been asked to deliver internally."]); closed=true }
+  else if(/^\s*(is|are|do|does|did|can|could|will|would|have|has|was|were)\b/.test(low))
+    lead = /\bor\b/.test(low) ? fresh(st,'qfor',["A bit of both, to be honest.","Somewhere in between, honestly.","It's a mix, really."])
+         : fresh(st,'qfyn', mood==='warm' ? ["I think so, yes — though it depends on the details.","Probably, yes."] : mood==='neutral' ? ["I can't give you a clear yes or no on that yet.","Hard to say at this point, honestly."] : ["Not really, no.","I wouldn't count on it."]);
+  if(closed) return [ln(p, lead)];
+  if(n>=2 && !st.flags.volN){ const v=talkVolunteer(sc, st); if(v){ st.flags.volN=1;
+    return [ln(v.p, (lead || fresh(st,'qfv',["I can't answer that exactly.","That's not something I have a ready answer for."])) + ' ' + fresh(st,'qfv2',["What I can tell you is this:","Here's what I do know:"]) + ' ' + v.t)] } }
+  return [ln(p, (lead || fresh(st,'qfl',["I'm not sure I follow.","Hmm — I'm not sure how to answer that.","I don't want to give you a vague answer."])) + ' ' + fresh(st,'qfc',["What exactly would you like to know?","Could you put that another way?","What's behind the question?","Can you be a bit more specific?","Which part matters most to you?"]))];
+}
+/* "Can you answer my question?" */
+function talkMeta(sc, st, a, lead){
+  tr(st,'M:meta');
+  const sorry=fresh(st,'metasorry',["Sorry — you're right, I didn't really answer.","Fair enough. Let me be more direct.","You're right. Let me try again."]);
+  const last=st.flags.lastUnans; st.flags.lastUnans=null;
+  if(last){ const b=nlu(last); b.q=true; b.open=true;
+    const r=rankMatches(sc, st, b, b.low).filter(x=>x.s>=1 && (x.p.kind!=='K' || kbLines(sc,x.p.ref.id)) && (x.p.kind!=='T' || !x.p.ref.needEvidence))[0];
+    let out=null; if(r) out = r.p.kind==='H' ? handleHidden(sc, st, r.p.ref, b) : r.p.kind==='T' ? handleTopic(sc, st, r.p.ref, b) : kbAnswer(sc, st, r.p.ref.id, b, b.low, -1);
+    if(out && out.length) return [ln(out[0].p, sorry+' '+out[0].t)].concat(out.slice(1)) }
+  if(!st.flags.fbN && !(sc.hidden||[]).some(h=>st.flags['g_'+h.id])) return [ln(lead, fresh(st,'metanone',["I thought I had — which question did I miss?","I'm trying to. Which one would you like me to come back to?"]))];
+  const g=(sc.hidden||[]).find(h=>st.flags['g_'+h.id] && !st.revealed[h.id]);
+  if(g) return [ln(g.owner||lead, sorry+' '+fresh(st,'metag',["Some things I can't share this early — it isn't only my decision. Ask me anything else and I'll be straight with you.","There are one or two things I have to keep back for now. On everything else, I'll give you a direct answer."]))];
+  const v=!st.flags.volN && talkVolunteer(sc, st); if(v){ st.flags.volN=1; return [ln(v.p, sorry+' '+v.t)] }
+  return [ln(lead, sorry+' '+fresh(st,'metaq',["What would you most like to know?","Ask me again, and I'll give you a straight answer."]))];
+}
+function talkAck(sc, st, a, lead){ tr(st,'A:ack'); return [ln(st.lastAIBy!=null?st.lastAIBy:lead, fresh(st,'ackr',["Good.","Okay.","Great.","All right."]))] }
+/* bookkeeping at the start of a turn: who is asking, and did they skip our question? */
+function talkTurn(sc, st, whole, text){
+  whole.asking = !!(whole.q && !whole.metaQ && !whole.propose && !whole.ents.length && !whole.accept);
+  if(whole.asking) st.flags.qRun=(st.flags.qRun||0)+1; else if(!whole.ackOnly) st.flags.qRun=0;
+  if(st.flags.agQ){ st.flags.askedBack2=st.flags.askedBack2||{}; const said=sentences(text).filter(s=>!nlu(s).q).join(' '); const w=(said.match(/[A-Za-z0-9']+/g)||[]).length;
+    if(whole.asking && w<6 && !st.flags.askedBack2[st.flags.agQ]){ st.flags.ignQ=st.flags.agQ; st.flags.ignAt=st.turn } st.flags.agQ=null }
+  if(st.flags.ignQ && (st.turn-(st.flags.ignAt||0) > 3 || (sc.issues||[]).some(is=>st.agreed[is.id]!=null && st.flags.ignQ.toLowerCase().includes(String(is.label).toLowerCase())))) st.flags.ignQ=null;
+}
+/* when to bring in the counterpart's own question */
+function paceAgenda(sc, st, a){
+  const T=st._tr||[];
+  if(T.some(x=>/^F:|^M:/.test(x))) return null;                       // a non-answer speaks for itself
+  const asked = !!(a && a.q && !a.propose && !a.ents.length && !a.accept) && !sc.demandDates && !sc.presentation;
+  if(asked && (st.flags.qRun||0) < 3) return null;                     // they are asking: answer, and let them lead
+  let q=null;
+  if(st.flags.ignQ){ q=ln(0, fresh(st,'backq',["Coming back to my question:","I've answered a few of yours, so let me come back to mine:","Before we go on, one from me:"])+' '+st.flags.ignQ); (st.flags.askedBack2=st.flags.askedBack2||{})[st.flags.ignQ]=1; st.flags.ignQ=null }
+  else { q=nextAgenda(sc, st); if(q && asked) q=ln(q.p, fresh(st,'myturn',["Can I ask you something as well?","Now, a question from my side.","Let me ask you one, too."])+' '+q.t) }
+  if(!q && T.includes('A:ack') && !(sc.issues||[]).length) q=ln(0, fresh(st,'anyelse',["Is there anything else you'd like to ask me?","Anything else on your side?","What else would be useful for you to know?"]));
+  if(q){ st.flags.qRun=0; const m=q.t.match(/[^.!?:—]*\?\s*$/); st.flags.agQ = m ? cap1(m[0].trim()) : null }
+  return q;
+}
+
+/* "Anything you'd like to ask me?" — the question is pointed the other way */
+function talkAskMe(sc, st, lead){
+  tr(st,'A:askme'); const q=nextAgenda(sc, st);
+  if(q){ st.flags.qRun=0; return [ln(q.p, fresh(st,'askme',["Yes, actually.","There is one thing.","Since you ask —"])+' '+q.t)] }
+  return [ln(lead, fresh(st,'askmeno',["No — I think I have what I need for now. Thank you.","Nothing more from my side at this point."]))];
+}
+const talkAgain = h => { const s=String(h.reveal||h.recap||'').replace(/^(alright|okay|well|honestly|look|to be (open|honest|frank) with you)[^—:]*[—:]\s*/i,'').split(/(?<=[.!?])\s+/)[0]||''; return low1(s).replace(/^i\b/,'I') };
+
+/* when a question is clearly about the past, about support or about how prices are set, a "problem" / "decision" keyword in it should not pull the answer elsewhere */
+function talkRankFix(sc, sl, out){
+  const past=TALK_LEX.past.test(sl) && kbLines(sc,'past'), sup=TALK_LEX.support.test(sl) && kbLines(sc,'support'), pr=TALK_LEX.pricing.test(sl) && kbLines(sc,'pricing');
+  if(past||sup||pr) out.forEach(r=>{ if(r.p.kind==='H') r.s*=.45; if(r.p.kind==='K' && ((past&&r.p.ref.id==='past')||(sup&&r.p.ref.id==='support')||(pr&&r.p.ref.id==='pricing'))) r.s+=2 });
+  return out.sort((x,y)=>y.s-x.s);
 }
 
 /* ---------- 4. Dialogue: main turn ---------- */
@@ -3384,6 +3523,9 @@ function engineTurn(sc, st, text, channel){
   }
   // ---- per-sentence processing
   const sents = sentences(text); const handledIssues=new Set(), handledHidden=new Set(), handledTopics=new Set();
+  talkTurn(sc, st, whole, text);
+  if(whole.metaQ && !whole.ents.length) return {lines: talkMeta(sc, st, whole, lead)};
+  if(whole.askMe && !whole.ents.length && !(st.expect && st.expect.type==='smalltalk')) return {lines: talkAskMe(sc, st, lead)};
   { const cp = corrPre(sc, st, whole, bindOffers(sc, st, whole, whole.low)); if(cp){ R.push({pri:30, lines:cp.lines}); handledIssues.add(cp.issue); if(whole.n<=14) return {lines:cp.lines} } }
   let offersMade=0;
   const turnOffers = bindOffers(sc, st, whole, whole.low); let handledK=false;
@@ -3420,14 +3562,16 @@ function engineTurn(sc, st, text, channel){
     const isMent = issuesMentioned(sc, sl).filter(i=>!handledIssues.has(i.id));
     if(isMent.length && !/\bwhy\b/.test(sl) && (a.explainReq || (a.q && /\bmean|what is|what are|how does\b/.test(sl)))){ const is=isMent[0]; tr(st,'X:'+is.id); handledIssues.add(is.id); st.flags.explained=(st.flags.explained||0)+1; st.flags['x_'+is.id]=true; is.raisedBy=1; st.issues[is.id].raised=true; st.focus=is.id; add(32,[ln(is.owner||0, is.explain||`It's about ${is.label}.`)]); return }
     // meaning-based routing for questions: hidden info, topics and general business questions
-    const ranks = rankMatches(sc, st, a, sl).filter(r=>!(r.p.kind==='H'&&handledHidden.has(r.p.ref.id)) && !(r.p.kind==='T'&&handledTopics.has(r.p.ref.id)));
+    const ranks = rankMatches(sc, st, a, sl).filter(r=>!(r.p.kind==='H'&&handledHidden.has(r.p.ref.id)) && !(r.p.kind==='T'&&handledTopics.has(r.p.ref.id)) && !(r.p.kind==='T' && r.p.ref.needEvidence && a.q && !a.evidence && !a.propose) && !(r.p.kind==='K' && isMent.length && TALK_NEW.has(r.p.ref.id)) && !(r.p.kind==='T' && !r.hit && a.whyQ));
     const best = ranks[0];
     const issueNamed = isMent.length && !(best && best.hit) && !/^\s*(?:so,? |and |but )?(who|when)\b/.test(sl);
     const issueWhy = (issueNamed || isMent.length && (a.whyQ || /\b(why|concern|worried|problem|change|necessary|need (\d|ninety|thirty|that|this|to own))\b/.test(sl))) && !(best && best.p.kind==='K' && /^(flex|need|priority|opinion)$/.test(best.p.ref.id));
     for(const best of ranks.slice(0,3)){
-    if(!(a.q && best && (best.hit || best.s>=2) && !issueWhy && !handledK && !(a.agenda && !best.hit) && !(a.askPosition && !best.hit && (sc.issues||[]).length))) break;
+    if(!(a.q && best && (best.hit || best.s>=TALK_MIN) && !issueWhy && !handledK && !(a.agenda && !best.hit) && !(a.askPosition && !best.hit && (sc.issues||[]).length))) break;
       let out=null;
-      if(best.p.kind==='H'){ handledHidden.add(best.p.ref.id); out=handleHidden(sc, st, best.p.ref, Object.assign({},a,{open:a.open||whole.open,reason:whole.reason||a.reason})) }
+      if(best.p.kind==='H'){ handledHidden.add(best.p.ref.id); out=handleHidden(sc, st, best.p.ref, Object.assign({},a,{open:a.open||whole.open,reason:whole.reason||a.reason}));
+        const also=ranks.find(r=>r.p.kind==='H' && r.hit && r.p.ref!==best.p.ref && !handledHidden.has(r.p.ref.id) && best.hit);
+        if(also && out && out.length){ handledHidden.add(also.p.ref.id); out=out.concat(handleHidden(sc, st, also.p.ref, Object.assign({},a,{open:a.open||whole.open,reason:whole.reason||a.reason}))) } }
       else if(best.p.kind==='T'){ handledTopics.add(best.p.ref.id); out=handleTopic(sc, st, best.p.ref, Object.assign({},a,{evidence:whole.evidence||a.evidence,reason:whole.reason||a.reason})) }
       else { const tp=(sc.topics||[]).find(t=>!handledTopics.has(t.id) && profiles(sc).P.find(x=>x.ref===t).con.has(best.p.ref.id));
         out = tp && !kbLines(sc,best.p.ref.id) ? (handledTopics.add(tp.id), handleTopic(sc, st, tp, a)) : kbAnswer(sc, st, best.p.ref.id, a, sl, addr); if(out) handledK=true }
@@ -3466,7 +3610,7 @@ function engineTurn(sc, st, text, channel){
       add(20,[ln(is.owner||0, fresh(st,'def'+is.id,is.defend||[`What did you have in mind on ${is.label}?`]) + (a.reason?'':' '+fresh(st,'whyask',["Why is that a problem for you?","What would you propose instead?","What exactly worries you?"])))]); return;
     }
     // topics
-    const tpHits=(sc.topics||[]).filter(t=>!handledTopics.has(t.id) && rx(t.keys).test(sl)); const rr=tpHits.length>1?rankMatches(sc,st,a,sl):[];
+    const tpHits=(sc.topics||[]).filter(t=>!handledTopics.has(t.id) && rx(t.keys).test(sl) && !(t.needEvidence && a.q && !a.evidence && !a.propose && !/\b(we|our|i)\b/.test(sl))); const rr=tpHits.length>1?rankMatches(sc,st,a,sl):[];
     const tp=tpHits.sort((x,y)=>((rr.find(r=>r.p.ref===y)||{s:0}).s)-((rr.find(r=>r.p.ref===x)||{s:0}).s))[0];
     if(tp){ handledTopics.add(tp.id); add(a.q||a.explainReq?31:15, handleTopic(sc, st, tp, Object.assign({},a,{evidence:whole.evidence||a.evidence,reason:whole.reason||a.reason}))); return }
   });
@@ -3491,11 +3635,13 @@ function engineTurn(sc, st, text, channel){
     add(18,[ln(p, m==='warm'? "Let's not get there. I'm sure we can find a solution." : fresh(st,'threat',["That's your choice. But I don't think you'll find a better partner.","Then I suppose we both have alternatives."]))]) }
   // ---- fallback when nothing matched
   if(!R.length){
-    if(whole.n<3 && !whole.accept && !whole.reject && !whole.ents.length){ st.flags.unclear=(st.flags.unclear||0)+1; add(5,[ln(st.lastAIBy||lead, frT(st,'clar',["Sorry, I didn't quite catch that. Could you say that again?","Sorry — could you repeat that?","I'm not sure I followed. Could you rephrase that?"]))]) }
+    if(whole.ackOnly && !(st.expect && /offer|confirm|proposal|justify|correct|number/.test(st.expect.type))) add(5, talkAck(sc, st, whole, lead));
+    else if(whole.promise && !whole.q){ tr(st,'A:promise'); add(5,[ln(lead, fresh(st,'promack',["Great — I'll look out for it.","Good. I'll watch for your email.","Thanks — that would help."]))]) }
+    else if(whole.n<3 && !whole.accept && !whole.reject && !whole.ents.length){ st.flags.unclear=(st.flags.unclear||0)+1; add(5,[ln(st.lastAIBy||lead, frT(st,'clar',["Sorry, I didn't quite catch that. Could you say that again?","Sorry — could you repeat that?","I'm not sure I followed. Could you rephrase that?"]))]) }
     else if(whole.accept && st.expect && st.expect.type==='question' && /\b(can|could|will|would) you (put|send|share|confirm|write|get|follow)\b[^?]*\?\s*$/i.test(st.lastAI)) add(5,[ln(st.lastAIBy||lead, frT(st,'yesreq',["Great, thank you.","Perfect — thanks.","Good, I'll look out for it."]))]);
     else if(whole.accept && st.expect && st.expect.type==='question') add(5,[ln(st.lastAIBy||lead, frT(st,'yesmore',["Good. Could you say a bit more about that?","Okay — how exactly?","Great. What would that look like?"]))]);
     else if((whole.accept||whole.reject) && whole.n<=4) add(5,[ln(st.lastAIBy||lead, frT(st,'short',["Could you say a bit more about that?","Okay — can you expand on that?","Why do you say that?"]))]);
-    else if(whole.propose) add(5,[ln(addr>=0?addr:lead, frT(st,'prop', whole.reason||whole.cond ? ["That's an interesting idea. What would it look like in practice?","Okay, that could work. What would you need from us?","I like the direction. Can you be more specific?"] : ["That's a start, but why should we agree to that?","Hmm. What's in it for us?","I'm not convinced yet. Can you explain the reasoning?"]))]);
+    else if(whole.propose && !(whole.q && /\?\s*$/.test(String(text).trim()) && !whole.ents.length && !whole.reason && !whole.cond)) add(5,[ln(addr>=0?addr:lead, frT(st,'prop', whole.reason||whole.cond ? ["That's an interesting idea. What would it look like in practice?","Okay, that could work. What would you need from us?","I like the direction. Can you be more specific?"] : ["That's a start, but why should we agree to that?","Hmm. What's in it for us?","I'm not convinced yet. Can you explain the reasoning?"]))]);
     else if(whole.q) add(5, questionFallback(sc, st, whole, addr>=0?addr:(st.lastAIBy||lead)));
     else if(whole.evidence||whole.reason){ const sk=sc.personas.findIndex(x=>x.stance==='skeptic'); add(5,[ln(lead, frT(st,'reasonack',["Okay, that's a fair point.","That's useful context.","I see where you're coming from."]))].concat(sk>0&&!whole.evidence&&Math.random()<.5?[ln(sk, fresh(st,'skep',["What's that based on?","Do you have data to support that?"]))]:[])) }
     else if(!whole.anyIntent && whole.n>3 && (sc.issues||[]).length){ feelAll(st,0,-4); st.flags.offtopic=(st.flags.offtopic||0)+1; if(st.flags.offtopic<=3) ev(st,'offtopic','Went off-topic: "'+text.slice(0,60)+(text.length>60?'…':'')+'"',-1); add(5,[ln(lead, frT(st,'offtopic',{warm:["Ha — fair. But let's get back to the open points, shall we?","Interesting! Coming back to the deal, though — where are you on the terms?","I hear you. Let's park that and get back to what's still open."],neutral:["Let's stay focused — what's your position on the open points?","I'm not sure how that helps us here. Can we get back to the terms?","Okay. And how does that relate to what we're discussing?","Let's keep to the agenda, if that's okay."],cold:["I'm not sure how that's relevant.","Can we stick to the terms, please?","We don't have much time. What's your position?"],angry:["That's not helpful. What are you offering?","Let's not waste time. The terms, please."]}[moodOf(st,lead)]))]) }
@@ -3525,7 +3671,8 @@ function checkSummary(sc, st, whole){
   if(!out.length) ev(st,'summary','Summarised the agreement accurately.',1);
   return out;
 }
-function closeLines(sc, st){ return (sc.closing||[[0,"Thanks, {name}. Let's follow up as discussed."]]).map(([p,t])=>ln(p,t)) }
+function closeLines(sc, st){ if(sc.closingLow && (sc.hidden||[]).length && (sc.hidden||[]).filter(h=>st.revealed[h.id]).length<2) return sc.closingLow.map(([p,t])=>ln(p,t));
+  return (sc.closing||[[0,"Thanks, {name}. Let's follow up as discussed."]]).map(([p,t])=>ln(p,t)) }
 function recapList(sc, st){
   if(sc.discussion) return st.decisionText ? ['Decision proposed: '+st.decisionText.replace(/^(so,? |okay,? |well,? )/i,'').replace(/[.!?]*$/,'')] : [];
   const out=[];
@@ -3565,11 +3712,11 @@ function composeTurns(sc, st, res, opts){
   const lead=0, mood=moodOf(st,lead), a=opts.a;
   if(!opts.noExtras){
     if(a && a.n>70 && /hard/.test(S.difficulty) && !st.closing && !sc.presentation){ feel(st,lead,0,-4); lines.unshift(ln(lines[0]?lines[0].p:lead, S.difficulty==='veryhard'?"Let me stop you there.":"Sorry to cut in —")) }
-    else if(a && lines.length && Math.random()<.4 && !/^(okay|ok|right|hmm|well|look|so|thanks|thank|great|good|sorry|fair|i see|let me|that|we already|like i|as i|again|hold on|yes|no\b|sure|of course|just|it means|our|we|i'm|i am|i appreciate|i hear|fine|ha\b|glad|nice|oh\b|honestly|alright|got it)/i.test(lines[0].t)) lines[0]={p:lines[0].p, t:fresh(st,'ack'+((sc.personas[lines[0].p]||{}).acks?'P':''),(sc.personas[lines[0].p]||{}).acks||ACKS[moodOf(st,lines[0].p)])+' '+lines[0].t};
+    else if(a && lines.length && Math.random()<.4 && !(st._tr||[]).some(x=>/^F:|^A:|^M:/.test(x)) && !(a.q && !a.propose) && !/^(okay|ok|right|hmm|well|look|so|thanks|thank|great|good|sorry|fair|i see|let me|that|we already|like i|as i|again|hold on|yes|no\b|sure|of course|just|it means|our|we|i'm|i am|i appreciate|i hear|fine|ha\b|glad|nice|oh\b|honestly|alright|got it)/i.test(lines[0].t)) lines[0]={p:lines[0].p, t:fresh(st,'ack'+((sc.personas[lines[0].p]||{}).acks?'P':''),(sc.personas[lines[0].p]||{}).acks||ACKS[moodOf(st,lines[0].p)])+' '+lines[0].t};
     { const P0=sc.personas[lead]||{}; if(P0.tics && !st.closing && st.expect && st.expect.type==='offer' && lines.length && lines[lines.length-1].p===lead && st.turn-(st.flags.ticAt||-9)>=3 && Math.random()<.55){ st.flags.ticAt=st.turn; const L=lines[lines.length-1], q=L.t.match(/^(.*[.!])\s+([^.!?]*\?)\s*$/); const tic=fresh(st,'tic',P0.tics); lines[lines.length-1]={p:L.p, t:q ? q[1]+' '+tic+' '+q[2] : L.t+' '+tic} } }
     // keep the meeting moving with an agenda question
     if(!st.closing && !st.endNow && !lines.some(l=>/\?\s*$/.test(l.t)) && !sc.presentation && !(st.expect && (st.expect.type==='offer'||st.expect.type==='justify') && st.expect.t===st.turn)){
-      const q=nextAgenda(sc, st); if(q) lines.push(q);
+      const q=paceAgenda(sc, st, a); if(q) lines.push(q);
     }
     // pressure tactics on hard / very hard
     const pr=sc.pressure||[];
@@ -6036,6 +6183,39 @@ const CAMP_SENIOR = [
  {traits:{warmth:.35,patience:.7,assert:.6}, brief:'Detail-minded. Has read every clause and will test whether you have too.'}
 ];
 
+/* =========================================================
+   FACT CARDS — what the counterpart can simply tell you when you ask
+   b: the counterpart is the BUYER   → [how things are today, what they want to achieve, what they are looking for, what went wrong before, the scale]
+   p: the counterpart is the PROVIDER → [how it works, how they price, capacity / lead time, who their customers are, support]
+   Written to hold for every company pair of the field.
+   ========================================================= */
+const CAMP_FACTS = {
+semi:{b:["Right now we run inference on general-purpose GPUs from one supplier. They work, but the power bill is brutal and we wait months for stock.","We want to cut the cost of each inference job and stop depending on a single supplier.","Cards that drop into our existing racks, with software our engineers can actually use. Nothing exotic.","We tested another accelerator last year. The hardware was fine, but the software tools were not ready.","We'd start with a few thousand cards a year across our sites, and grow if the first hall goes well."],
+  p:["We ship sample cards first, your engineers test them for four to six weeks, and then we agree a delivery schedule by quarter.","We price per card, and the price depends on yearly volume and how firm the commitment is.","We book wafer capacity about six months ahead, so what we can deliver depends on how early you commit.","Mostly cloud providers and a few research labs. I can arrange a reference call once we are further along.","You get a named field engineer for the first six months, and software updates every quarter."]},
+saas:{b:["The loyalty app, the tills, the online shop, the email tool and customer service each keep their own records. Some of it is clean; a lot of it is duplicated.","One view of each customer, so marketing can send offers that match what people actually buy in store.","A platform our marketing team can run without calling IT every day, and that connects to the tills we already have.","We tried to build this in-house two years ago. It took eighteen months, and nobody used it.","Several million loyalty accounts, and around forty people who would use the platform every week."],
+  p:["We connect your systems one by one, usually starting with loyalty and online. Most customers see their first unified profiles in eight to ten weeks.","It's an annual licence based on the number of customer profiles, plus a one-off fee for implementation.","We can start within a month. The pace usually depends on how quickly your IT team gives us access.","Mostly retailers with stores and an online shop. A few are about your size.","A customer success manager, training for your team, and support during your business hours."]},
+mfg:{b:["We buy housings from one supplier in Europe today. Quality is acceptable, but they've been late three times this year.","A second source we can rely on before the new model goes into full production.","A supplier who can hold our tolerances, pass our audit, and ship every week without drama.","We once moved a part to a cheaper supplier and spent a year fixing quality problems. I don't want to repeat that.","Tens of thousands of housings a year once the line is at full speed, and fewer in the first year."],
+  p:["We start with tooling and sample parts, you approve them, and then we ramp up over about three months.","We quote per part. Tooling is charged separately, and the part price follows volume and the aluminium index.","We have one line free now. A second line needs about five months' notice.","Two car makers and several battery-pack companies, mostly in Korea and Europe.","A quality engineer is assigned to your programme, and we can keep safety stock near your plant."]},
+cpg:{b:["We sell two competing brands in this category today. Sales are steady, but the margins are thin and the range looks tired.","A fresh product that brings people into the stores and earns a better margin than what's on the shelf now.","A brand that supports us with marketing, delivers on time, and takes back what doesn't sell.","We launched an imported brand two years ago. It sold well for a month, and then the supplier couldn't restock.","We'd start in about a third of our stores and roll out to the rest if the first quarter goes well."],
+  p:["We ship from Korea by sea, you receive at your distribution centre, and we plan promotions together each quarter.","There's a wholesale price per unit with volume tiers, and a marketing fund we agree separately.","Our factory can supply a launch order in about ten weeks. Repeat orders are faster.","Retail chains in Korea and a few other Asian markets. You would be one of our first big partners in your region.","In-store display materials, staff training, and a local service partner for warranty repairs."]},
+game:{b:["We publish six titles in Korea today. Two of them are getting old, and we need something new for next year.","A title that can reach the top twenty in Korea and stay there for more than a season.","A studio that will localise properly, hit the dates, and let us shape the Korean marketing.","We licensed a Western game before, and the studio was slow to approve anything. The launch slipped twice.","We'd plan for a few hundred thousand players in the first year, with a marketing budget to match."],
+  p:["We deliver a localised build, you run the servers and the marketing, and we review revenue together every month.","A minimum guarantee up front, then a revenue share. The split depends on how much marketing you commit.","The Korean build could be ready about four months after signing.","We work with publishers in North America and Europe. Korea would be our first market in Asia.","A dedicated producer for Korea, regular content updates, and live support during launch week."]},
+bio:{b:["We distribute a competing rapid test today. Hospitals like it, but the supplier keeps raising the price.","A reliable second product, so we're not dependent on one manufacturer.","A test with solid clinical data, the right approvals, and a manufacturer who answers the phone.","We took on a new test three years ago, and the approval took a year longer than promised.","We supply a few hundred hospitals and clinics. We'd start with the largest thirty."],
+  p:["We handle the regulatory file together, train your sales team, and ship every month under cold chain.","A transfer price per box, with tiers by annual volume. Exclusivity changes the numbers.","Current capacity covers your first year. Beyond that, we'd need a forecast six months ahead.","Hospital groups in Korea, and distributors in a few other countries.","Product training, a clinical specialist for hospital visits, and a hotline for technical questions."]},
+logi:{b:["We ship most of our volume with one carrier on yearly rates. Last peak season they left our containers on the dock twice.","Space we can count on in peak season, and one person who can tell us where our cargo is.","Guaranteed space, a fixed rate for the year, and tracking our planners can trust.","We switched to a cheaper forwarder once. We saved on the rate and lost it again in delays.","A few thousand containers a year, with a heavy peak before the holidays."],
+  p:["You give us a forecast each month, we reserve space on fixed sailings, and you get one contact for bookings and problems.","A rate per container for the year, with a fuel surcharge that moves with the index.","We can guarantee space if we have your forecast four weeks ahead.","Mostly Asian exporters shipping to the US west coast: electronics, auto parts and consumer goods.","A dedicated account desk, weekly reports, and warehousing near the port if you need it."]},
+fin:{b:["We use one payment provider today. It works, but the fees are high and payouts to our sellers take too long.","Lower cost per transaction and faster payouts, without a single failed checkout during the switch.","A gateway that's stable at peak, pays sellers quickly, and has people we can reach when something breaks.","Our current provider had two outages on big sale days. Sellers still remind me.","Several million transactions a month, with big spikes on sale days."],
+  p:["Your developers connect to our interface, we run both systems side by side for a few weeks, and then you switch over.","A percentage of each transaction, and the rate comes down as volume goes up.","The platform handles far more than your peak. Going live usually takes six to eight weeks.","Online marketplaces and subscription services, mostly in Korea.","Round-the-clock monitoring, a named technical contact, and a service-level agreement on uptime."]},
+energy:{b:["The land and the permits are in place. Financing closes once we have a construction contract the banks accept.","The plant connected to the grid on time, at a fixed price our lenders are comfortable with.","One contractor who takes responsibility for the whole plant, with guarantees the banks will accept.","On our last project the contractor finished four months late, and we paid for it.","This is the first of three plants we plan to build over the next four years."],
+  p:["We take the whole job: engineering, equipment and construction, with one project manager on site.","A fixed lump-sum price, paid against milestones.","We could mobilise a site team about eight weeks after signing.","Power companies and developers in Korea, Southeast Asia and the Middle East.","A two-year warranty period, and an operations contract if you want one."]},
+beauty:{b:["Korean skincare is about a tenth of our sales, spread over a dozen small brands. None of them has real support behind it.","One or two strong Korean brands that customers ask for by name.","A brand with a clear story, reliable stock, and a budget for marketing in our stores.","We listed a trendy brand last year. It sold out, and then we waited three months for more.","We'd launch in our biggest stores and online first, and then roll out to the rest."],
+  p:["We ship from Korea every month, train your store teams, and plan launches with you each season.","A wholesale price list with a retailer margin, plus a marketing contribution we agree each year.","We can supply a launch order within about eight weeks.","Retailers in Korea, Japan and the United States. Europe is new for us.","Testers and display units, staff training, and content for your online shop."]},
+fnb:{b:["We buy Korean sauces from a local importer today. The quality changes from batch to batch.","A consistent product we can put on menus and shelves in every location.","A manufacturer who can supply both our kitchens and our stores, with labels that meet our rules.","We had a supplier run out of stock in the middle of a promotion. That was a bad week.","Dozens of locations today, and we're opening more every year."],
+  p:["We produce to your forecast, ship by sea every month, and keep some stock in a warehouse near you.","A price per case, with tiers by annual volume.","Our plant has room for your first-year volume. Larger orders need about three months' notice.","Food-service groups and grocery chains in Korea and a few export markets.","Recipe development with your chefs, help with label rules, and a contact who answers within a day."]},
+ads:{b:["We have a global campaign, but nothing made for Korea yet. Our local team is three people.","People in Korea should know the name before the first cars arrive, and book test drives.","An agency that understands Korean media and can run the whole launch, not just make films.","In another market we hired a famous agency and got beautiful work that sold nothing.","It's a twelve-month launch across television, digital and events."],
+  p:["We start with a strategy workshop, agree the plan for the year, and then report results every month.","A monthly retainer for the core team, with production and media billed at cost.","We'd put a dedicated team of eight on the account, starting next month.","Global brands entering Korea, mostly in cars, technology and consumer goods.","A senior account director as your single contact, and a Korean media team in-house."]}
+};
+
 /* ---------- storage ---------- */
 const campUser = () => (session&&session.user&&session.user.id)||'guest';
 const campKey = () => 'pactli_camps_'+campUser();
@@ -6125,11 +6305,12 @@ function campNeeds(X){
     budget:'budget|spend|invest|how much (can|could|would|do)|price range|afford|pricing (limit|flexib\\w*)|discount|room on price|best price',
     decision:'decision|decide|who else|stakeholder|sign.?off|approv\\w*|involved|who (makes|signs)',
     driver:'priorit\\w*|most important|matters? most|really (want|need|care)|care about|ideal outcome|key (thing|driver)|behind (this|the)|drives?|what would make'};
+  if(typeof TALK_LEX!=='undefined'){ K.pain+='|'+TALK_LEX.problem.source; K.deadline+='|'+TALK_LEX.time.source; K.budget+='|'+TALK_LEX.budget.source; K.decision+='|'+TALK_LEX.decide.source; K.driver+='|'+TALK_LEX.priority.source }
   const dec={id:'decision',unlock:'open',guard:["It goes through the usual process.","A few people are involved."],reveal:`I make the recommendation. But ${Sn.name}, our ${Sn.title}, signs off anything of this size.`,recap:`${Sn.name}, their ${Sn.title}, signs off`,hint:'Who else signs off on the decision?'};
   const list = X.oth==='buyer' ? [
     {id:'pain',unlock:'any',reveal:F.pain[0],recap:F.pain[1],hint:'What is their biggest problem right now?',card:['A guarantee on what hurts them most','A firmer price','guarantee|warrant\\w*|commit(ment)? (to|on)|penalt\\w*']},
     {id:'deadline',unlock:'any',reveal:F.deadline[0],recap:F.deadline[1],hint:'What is their deadline?',card:['Delivery in time for their deadline','A firmer price','expedit\\w*|fast.?track|priority|in time for|before (the|your)|by (the end of|march|april|may|june|july|august|september|october|november)']},
-    {id:'budget',unlock:'trust',guard:["We're still working that out. I'd rather hear your proposal first.","I'm not going to put a number on the table this early."],reveal:`Alright, since you asked — realistically, our number for ${pr.label} is around ${fmtVal(pr,pr.target)}. A little more, if the case is strong.`,recap:`their number for ${pr.label} is around ${fmtVal(pr,pr.target)}`,hint:'What number are they really working with?',card:['Phased or deferred payments','Your price target','phase\\w*|instal\\w*|defer\\w*|spread|quarterly']},
+    {id:'budget',unlock:'trust',guard:["We're still working that out. I'd rather hear your proposal first.","I'm not going to put a number on the table this early.","I can't give you a number before I've seen what you propose. Give me a rough idea of the cost, and I'll tell you if we're far apart."],reveal:`Alright, since you asked — realistically, our number for ${pr.label} is around ${fmtVal(pr,pr.target)}. A little more, if the case is strong.`,recap:`their number for ${pr.label} is around ${fmtVal(pr,pr.target)}`,hint:'What number are they really working with?',card:['Phased or deferred payments','Your price target','phase\\w*|instal\\w*|defer\\w*|spread|quarterly']},
     dec,
     {id:'driver',unlock:'trust',guard:["It's a business decision, like any other.","I'd rather keep that to myself for now."],reveal:F.driver[0],recap:F.driver[1],hint:'What is really driving this decision?',card:['A longer commitment built around what really drives them','More volume or a longer term','multi.?year|longer (term|commitment)|(two|three|four|2|3|4).year|secure\\w*|guaranteed (supply|capacity|allocation|space)|exclusiv\\w*']}
   ] : [
@@ -6143,12 +6324,33 @@ function campNeeds(X){
 }
 function campKB(X, ep){
   const buyer=X.oth==='buyer';
-  return {company:[`We're ${X.themDesc}.`,`${X.them} is ${X.themDesc} — and this project matters to us.`],
+  return Object.assign({company:[`We're ${X.themDesc}.`,`${X.them} is ${X.themDesc} — and this project matters to us.`],
     whyus: buyer ? ["Your name came up when we looked at alternatives. I wanted to hear it from you directly.","A colleague mentioned your work. I'd rather judge for myself."] : [`A customer like ${X.me} is exactly who we want to work with here.`],
     opinion: ["It sounds sensible so far. I'd like to see it on paper.","I like that you're asking questions before telling me what I need."],
     standard:["Our terms are standard — but standard isn't the same as fixed."],
     need: ep===0 ? ["Something I can explain to my management in two minutes."] : ["A reason I can take upstairs — or something in return."],
-    past: buyer ? ["We've been let down before, so I'm careful this time."] : ["We've had customers sign and then not deliver the volume. That's why we ask for commitments."]};
+    flex: ep===0 ? ["Nothing is fixed yet — we haven't put any terms on the table. Send me a proposal and we'll see where we are.","We haven't got to terms yet. I'm open, within reason."] : undefined,
+    past: buyer ? ["We've been let down before, so I'm careful this time."] : ["We've had customers sign and then not deliver the volume. That's why we ask for commitments."]},
+    campFactKB(X, buyer));
+}
+/* the counterpart's fact card: plain answers to ordinary first-meeting questions */
+function campFactKB(X, buyer){
+  const F=((typeof CAMP_FACTS!=='undefined') && CAMP_FACTS[X.F.id]) || null, f=F ? (buyer?F.b:F.p) : null, o={};
+  if(buyer){
+    if(f){ o.state=[f[0]]; o.goal=[f[1]]; o.success=[f[1]]; o.solution=[f[2]]; o.past=[f[3]]; o.scale=[f[4]] }
+    o.rival=["We're talking to two other suppliers. I'd rather not say who.","You're not the only company we're speaking to, if that's the question."];
+    o.criteria=["Reliability first, then the total cost, then how easy you are to work with.","Whoever I can trust to deliver. Price matters, but it comes second."];
+    o.team=["On my side it's me and a small project team. Others join when we get to the contract."];
+    o.customer=[`Our customers? That depends on the day — but they notice quickly when something goes wrong on our side.`];
+  } else {
+    if(f){ o.how=[f[0]]; o.pricing=[f[1]]; o.capacity=[f[2]]; o.customer=[f[3]]; o.support=[f[4]]; o.quality=[f[3]] }
+    if(f) o.differ=[`Honestly? How we look after customers once the contract is signed. ${f[4]}`,`We don't over-promise. ${f[0]}`];
+    o.rival=["You'll find cheaper offers. You won't find many that deliver what they promise.","There are alternatives, of course. Ask them what happens when something goes wrong."];
+    o.scale=[`We're ${X.themDesc}. Big enough to deliver, small enough that you'd matter to us.`];
+    o.team=["You'd deal with me day to day, with a delivery team behind me."];
+    o.success=["A customer who is still with us in three years. That's how I'm measured."]; o.goal=o.success;
+  }
+  return o;
 }
 function campPersona(X, who, i, o){
   const p=X[who], lead=who==='C';
@@ -6176,12 +6378,13 @@ function campEp1(X, IN){
     personas:[campPersona(X,'C',0)], issues:[], hidden:needs.map(({card,keysAdd,...h})=>h),
     topics:[{id:'pitch',keys:'\\bwe (offer|provide|speciali[sz]e|help|have worked|work with|can (help|deliver|improve|supply|support))|\\bour (company|team|clients|customers|approach|experience|process|product|products|services|solution)',owner:0,needEvidence:true,
         say:["Okay, that's more concrete. I like that.","That's useful — thank you."],doubt:["Everyone tells me that. What makes you different?","Do you have an example I can check?"]},
-      {id:'process',keys:'next step|proposal|timeline for (the|a) decision|how (do|would) you (like|want) to proceed|evaluation',owner:0,say:["Send me something in writing first. Then we can talk terms properly.","A short proposal, then a meeting on the terms. That's how we usually do it."]}],
+      {id:'process',keys:'next steps?|proposal|timeline for (the|a) decision|how (do|would|should) (you|we) (like to |want to )?(proceed|move forward|go forward)|evaluation|(send|prepare|bring)\\b.{0,20}\\b(you|next|meeting)|what (should|do|shall) (i|we) (send|prepare|bring|do next)|next meeting',owner:0,say:["Send me something in writing first. Then we can talk terms properly.","A short proposal, then a meeting on the terms. That's how we usually do it."]}],
     kb:campKB(X,0),
     agenda:[{p:0,text:buyer?`So, tell me a bit about ${X.me}. What do you do best?`:`So, tell me a bit about ${X.me}. What are you looking for?`,tag:'pitch'},{p:0,text:buyer?"How would you work with a company like ours?":"How do you usually work with a supplier like us?"},{p:0,text:"What would you need from us to move this forward?"},{p:0,text:"What would the next step look like on your side?",tag:'next'}],
     greeting:`Hi {name}, ${C.first} here from ${X.them}. Thanks for making the time.`,
     opening:[[0,`Hi {name}, ${C.first} here from ${X.them}. Thanks for setting this up. I know a little about ${X.me}, but not much — where would you like to start?`]],
     closing:[[0,"Good. This was more useful than I expected, {name}. Send me that follow-up, and let's talk terms next."]],
+    closingLow:[[0,"Thanks, {name}. I don't think we got to the heart of it today, but send me that follow-up and we'll take it from there."]],
     onNext:[0,"That works. Send me a short summary of what you understood, and we'll go from there."],
     phrases:[["What's the biggest challenge you're facing with this at the moment?","Opening up their real problem"],["Could you walk me through how the decision will be made?","Mapping the sign-off process"],["What would make this a success for you personally?","Finding the real driver"],["Do you have a number in mind that we should be working towards?","Asking about budget politely"],["As a next step, I'll send you a short summary by Thursday.","Closing with a concrete action"]].concat(X.R.phrases||[]).slice(0,6),
     firstMail: buyer ? [0,`Introductory call — ${X.them} and ${X.me}`,[`Thanks for getting in touch about ${X.F.prod}.`,`Before we speak, it would help to know a little about how ${X.me} works with companies like ours. I have about thirty minutes.`]]
