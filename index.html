@@ -4962,6 +4962,9 @@ function histGroups(h){
   const solo=[];
   h.forEach(r=>{ let m=meta.find(x=>x.ids[r.rowId]!=null), n;
     if(m) n=m.ids[r.rowId];
+    else if(/^Campaign — /.test(r.scenario||'')){          // the Arc Report saved when a campaign ends belongs inside its campaign
+      const t=+new Date(r.date), cands=meta.filter(x=>(x.c.arcRow===r.rowId) || (String(r.scenario).indexOf('Campaign — '+x.X.them+' (')===0 && (x.c.created||0)<=t && (x.c.status==='done'||x.c.status==='walked')));
+      m=cands.find(x=>x.c.arcRow===r.rowId) || cands[cands.length-1]; n=99; if(m){ m.rows.push(Object.assign({ep:99, arc:true}, r)); return } }
     else { const t=+new Date(r.date), cands=meta.filter(x=>x.titles[r.scenario]!=null && (x.c.created||0)<=t); m=cands[cands.length-1]; if(m) n=m.titles[r.scenario] }
     if(m) m.rows.push(Object.assign({ep:n}, r)); else solo.push(r) });
   return {groups:meta.filter(m=>m.rows.length), solo};
@@ -4973,13 +4976,13 @@ function histToggle(id){ if(histOpen.has(id)) histOpen.delete(id); else histOpen
 function histDraw(h){
   const G=histGroups(h), items=[];
   G.solo.forEach(r=>items.push({t:+new Date(r.date), html:histRow(r)}));
-  G.groups.forEach(g=>{ const c=g.c, X=g.X, rows=g.rows.slice().sort((a,b)=>(a.ep-b.ep)||(+new Date(a.date)-+new Date(b.date)));
+  G.groups.forEach(g=>{ const c=g.c, X=g.X, arcs=g.rows.filter(r=>r.arc), rows=g.rows.filter(r=>!r.arc).sort((a,b)=>(a.ep-b.ep)||(+new Date(a.date)-+new Date(b.date)));
     const byEp={}; rows.forEach(r=>{ (byEp[r.ep]=byEp[r.ep]||[]).push(r) });                                   // the run that completed the episode counts; other runs were practice
     Object.keys(byEp).forEach(k=>{ const a=byEp[k]; if(a.length<2) return; const at=(c.eps[k]||{}).endedAt||0; let best=a[0]; a.forEach(r=>{ if(Math.abs(+new Date(r.date)-at) < Math.abs(+new Date(best.date)-at)) best=r }); a.forEach(r=>{ if(r!==best) r.practice=true }) });
     const main=rows.filter(r=>!r.practice), done=c.eps.filter(e=>e.done).length, sc=main.map(r=>r.overall).filter(v=>v!=null), avg=sc.length?Math.round(sc.reduce((a,b)=>a+ +b,0)/sc.length):null;
     let end=''; if(c.status==='done'||c.status==='walked'){ try{ end=campOutcome(c).title }catch(e){} }
-    const state = end ? end : c.status==='abandoned' ? 'Closed' : 'In progress', open=histOpen.has(c.id), last=Math.max.apply(null, rows.map(r=>+new Date(r.date)));
-    const inner = open ? `<div class="hgrp-in">${rows.map(r=>histRow(r,true)).join('')}${end?`<div class="hist hsub harc" onclick="openArc('${esc(c.id)}')"><div class="sc">★</div><div style="flex:1;min-width:0"><b>Arc Report</b><small>How the whole deal turned out — ${esc(end)}</small></div><span class="chev">→</span></div>`:(c.status==='active'?`<div class="hist hsub harc" onclick="openCampaign()"><div class="sc">▸</div><div style="flex:1;min-width:0"><b>Continue this campaign</b><small>Episode ${Math.min(6,done+1)} of 6 is next</small></div><span class="chev">→</span></div>`:'')}</div>` : '';
+    const state = end ? end : c.status==='abandoned' ? 'Closed' : 'In progress', open=histOpen.has(c.id), last=Math.max.apply(null, g.rows.map(r=>+new Date(r.date))), arcRow=arcs.sort((a,b)=>+new Date(b.date)-+new Date(a.date))[0];
+    const inner = open ? `<div class="hgrp-in">${rows.map(r=>histRow(r,true)).join('')}${end?`<div class="hist hsub harc" onclick="openArc('${esc(c.id)}')"><div class="sc">${arcRow&&arcRow.overall!=null?arcRow.overall:'★'}</div><div style="flex:1;min-width:0"><b><span class="hep">Arc</span>Arc Report</b><small>How the whole deal turned out — ${esc(end)}</small></div>${arcRow?`<button class="delbtn" title="Delete" onclick="event.stopPropagation();delReport('${esc(arcRow.rowId)}','history')">Delete</button>`:''}<span class="chev">→</span></div>`:(arcRow?`<div class="hist hsub harc" onclick="showHist('${esc(arcRow.rowId)}','history')"><div class="sc">${arcRow.overall??'★'}</div><div style="flex:1;min-width:0"><b><span class="hep">Arc</span>Arc Report</b><small>${esc(arcRow.level||'')}</small></div><button class="delbtn" title="Delete" onclick="event.stopPropagation();delReport('${esc(arcRow.rowId)}','history')">Delete</button><span class="chev">→</span></div>`:'')+(c.status==='active'?`<div class="hist hsub harc" onclick="openCampaign()"><div class="sc">▸</div><div style="flex:1;min-width:0"><b>Continue this campaign</b><small>Episode ${Math.min(6,done+1)} of 6 is next</small></div><span class="chev">→</span></div>`:'')}</div>` : '';
     items.push({t:last, html:`<div class="hgrp${open?' open':''}"><div class="hist hcamp" onclick="histToggle('${esc(c.id)}')"><div class="sc">${avg??'–'}</div><div style="flex:1;min-width:0"><b><span class="hep">Campaign</span>${esc(X.them)}</b><small>${esc(X.R.name)} · ${esc(X.F.name)} · ${done} of 6 episodes · ${esc(state)} · ${new Date(last).toLocaleDateString()}</small></div><span class="hcount">${rows.length}</span><span class="chev">${open?'↑':'↓'}</span></div>${inner}</div>`}) });
   items.sort((a,b)=>b.t-a.t);
   $('histCount').textContent = h.length+' session'+(h.length===1?'':'s')+(G.groups.length?` · ${G.groups.length} campaign${G.groups.length===1?'':'s'}`:'');
@@ -6360,7 +6363,7 @@ function campFinish(c){
   const arc=campArcData(c), O=arc.outcome;
   const rec={id:Date.now(), kind:'arc', date:new Date().toISOString(), title:`Campaign — ${arc.them} (${O.title})`, tag:'Campaign', difficulty:c.difficulty, name:myName(), role:arc.role,
     metrics:{duration:0, turns:0, share:0, wpm:null, avgLen:0, longest:0, fTotal:0, fillers:{}, myWords:0}, fb:{overall:O.overall, level:O.title, headline:O.title, summary:O.text}, log:[], arc};
-  if(!c.arcSaved){ c.arcSaved=true; campPut(c); gas('reports.save',{record:rec}).catch(()=>{}) }
+  if(!c.arcSaved){ c.arcSaved=true; campPut(c); gas('reports.save',{record:rec}).then(r=>{ if(r&&r.rowId){ const cc=campGet(c.id); if(cc){ cc.arcRow=r.rowId; campPut(cc) } try{ swrDrop('reports.list') }catch(e){} } }).catch(()=>{}) }
   if(c.status==='walked') openArc(c.id);
 }
 
