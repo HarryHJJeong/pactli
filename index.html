@@ -3280,6 +3280,7 @@ const kbLines = (sc, id) => (sc.kb && sc.kb[id]) ? [].concat(sc.kb[id]) : null;
 const kbOwner = (sc, id, def) => (sc.kbOwner && sc.kbOwner[id]!=null) ? sc.kbOwner[id] : def;
 function openIssues(sc, st){ return (sc.issues||[]).filter(is=>!is.never && st.agreed[is.id]==null).sort((x,y)=>(y.weight||1)-(x.weight||1)) }
 function kbAnswer(sc, st, id, a, sl, addr){
+  if(id==='company' && st._ch==='email' && kbLines(sc,'scale')){ const r1=talkCompanyBrief(sc, st, addr>=0?addr:0); if(r1) return r1 }
   if(!kbLines(sc,id) && (KB_ALIAS[id] || TALK_GENERIC[id])){ const r0 = KB_ALIAS[id] ? kbAnswer(sc, st, KB_ALIAS[id], a, sl, addr) : null; if(r0 && r0.length) return r0; if(TALK_GENERIC[id]){ tr(st,'K:'+id); return [ln(addr>=0?addr:0, fresh(st,'gen'+id,TALK_GENERIC[id]))] } return r0 }
   tr(st,'K:'+id);
   const lead=0, p=addr>=0?addr:kbOwner(sc,id,lead), per=sc.personas[p]||sc.personas[0], mood=moodOf(st,p), say=t=>[ln(p,t)];
@@ -3326,7 +3327,9 @@ const TALK_META = /\b((can|could|will|would) you (please |just |actually |kindly
 const TALK_PROMISE = /(\b(i'?ll|i will|we'?ll|we will|let me|i'?m going to|i am going to|i'?d be happy to|i can)|^\s*will) (\w+ )?(write|send|email|e-mail|share|prepare|draft|put together|get back|follow up|come back|forward|provide)\b/;
 function nluPlus(a, text){
   const low=a.low;
-  a.iq = (TALK_IQ.test(low) || /\b(want|need|like|love|wish) to \w+ (more )?(about )?your\b/.test(low)) && !a.propose;
+  a.req = /\b(if you (could|can|would) (please |kindly |also )?(send|share|tell|give|let|provide|explain|describe|inform|confirm|advise|clarify)|(please|kindly) (send|share|tell|give|let me know|provide|explain|describe|inform|advise|confirm|clarify)|i (would|'d) (really |very much |greatly )?appreciate|(would|'d) be (really |very |so )?(glad|grateful|great|helpful|nice|happy|appreciated)|(send|share|give) (me|us) (some |a |an |the |any |more )?(brief|info|information|details?|overview|summary|background|idea)|looking forward to (hearing|receiving|your (answer|reply|response)))\b/.test(low);
+  a.missed = /\b((couldn'?t|could not|didn'?t|did not) (really )?(get|hear|receive|find|catch|learn)|(got|received|heard) (no|nothing)|no (info|information|answer|details|response) (about|on|regarding)|still (don'?t|do not) know|not (clear|sure) (about|on) your)\b/.test(low);
+  a.iq = (TALK_IQ.test(low) || a.req || /\b(want|need|like|love|wish) to \w+ (more )?(about )?your\b/.test(low)) && !(a.propose && !a.req);
   a.askMe = /\b((anything|something|what) (else )?(do )?you(?:'d| would)? (like|want|need) to (ask|know)|do you have (any |some )?(more |other )?questions|any (more |other )?questions (for me|from you|from your side|on your side)|(anything|something) (else )?you (want|need|would like) from me|what (else )?(can|could|should) i (tell|explain to|share with) you)\b/.test(low);
   if(a.iq){ a.q = true; a.open = true }
   a.ackOnly = a.n<=5 && TALK_ACK.test(String(text).trim()) && !a.accept && !a.q;
@@ -3427,6 +3430,7 @@ function talkMeta(sc, st, a, lead){
 function talkAck(sc, st, a, lead){ tr(st,'A:ack'); return [ln(st.lastAIBy!=null?st.lastAIBy:lead, fresh(st,'ackr',["Good.","Okay.","Great.","All right."]))] }
 /* bookkeeping at the start of a turn: who is asking, and did they skip our question? */
 function talkTurn(sc, st, whole, text){
+  st._sorry = whole.missed && whole.q ? fresh(st,'missed',["Sorry we didn't get to that when we spoke.","You're right — we didn't cover that properly.","Apologies, I should have been clearer on that."]) : '';
   whole.asking = !!(whole.q && !whole.metaQ && !whole.propose && !whole.ents.length && !whole.accept);
   if(whole.asking) st.flags.qRun=(st.flags.qRun||0)+1; else if(!whole.ackOnly) st.flags.qRun=0;
   if(st.flags.agQ){ st.flags.askedBack2=st.flags.askedBack2||{}; const said=sentences(text).filter(s=>!nlu(s).q).join(' '); const w=(said.match(/[A-Za-z0-9']+/g)||[]).length;
@@ -3460,6 +3464,13 @@ function talkRankFix(sc, sl, out){
   const past=TALK_LEX.past.test(sl) && kbLines(sc,'past'), sup=TALK_LEX.support.test(sl) && kbLines(sc,'support'), pr=TALK_LEX.pricing.test(sl) && kbLines(sc,'pricing');
   if(past||sup||pr) out.forEach(r=>{ if(r.p.kind==='H') r.s*=.45; if(r.p.kind==='K' && ((past&&r.p.ref.id==='past')||(sup&&r.p.ref.id==='support')||(pr&&r.p.ref.id==='pricing'))) r.s+=2 });
   return out.sort((x,y)=>y.s-x.s);
+}
+
+/* a written request for background gets a fuller answer than a spoken one */
+function talkCompanyBrief(sc, st, p){
+  const c=kbLines(sc,'company'); if(!c) return null; tr(st,'K:company');
+  const extra=['scale','state','goal'].map(k=>kbLines(sc,k)).filter(Boolean).map(x=>x[0]).filter((x,i,a)=>a.indexOf(x)===i).slice(0,2);
+  return [ln(p, [c[0]].concat(extra).join(' '))];
 }
 
 /* ---------- 4. Dialogue: main turn ---------- */
@@ -3528,7 +3539,7 @@ function engineTurn(sc, st, text, channel){
   if(whole.askMe && !whole.ents.length && !(st.expect && st.expect.type==='smalltalk')) return {lines: talkAskMe(sc, st, lead)};
   { const cp = corrPre(sc, st, whole, bindOffers(sc, st, whole, whole.low)); if(cp){ R.push({pri:30, lines:cp.lines}); handledIssues.add(cp.issue); if(whole.n<=14) return {lines:cp.lines} } }
   let offersMade=0;
-  const turnOffers = bindOffers(sc, st, whole, whole.low); let handledK=false;
+  const turnOffers = bindOffers(sc, st, whole, whole.low); let handledK=0;
   sents.forEach(sent=>{
     let a=nlu(sent); const sl=a.low;
     // offers / numbers
@@ -3567,16 +3578,15 @@ function engineTurn(sc, st, text, channel){
     const issueNamed = isMent.length && !(best && best.hit) && !/^\s*(?:so,? |and |but )?(who|when)\b/.test(sl);
     const issueWhy = (issueNamed || isMent.length && (a.whyQ || /\b(why|concern|worried|problem|change|necessary|need (\d|ninety|thirty|that|this|to own))\b/.test(sl))) && !(best && best.p.kind==='K' && /^(flex|need|priority|opinion)$/.test(best.p.ref.id));
     for(const best of ranks.slice(0,3)){
-    if(!(a.q && best && (best.hit || best.s>=TALK_MIN) && !issueWhy && !handledK && !(a.agenda && !best.hit) && !(a.askPosition && !best.hit && (sc.issues||[]).length))) break;
+    if(!(a.q && best && (best.hit || best.s>=TALK_MIN) && !issueWhy && handledK<(st._ch==='email'?3:2) && !(a.agenda && !best.hit) && !(a.askPosition && !best.hit && (sc.issues||[]).length))) break;
       let out=null;
       if(best.p.kind==='H'){ handledHidden.add(best.p.ref.id); out=handleHidden(sc, st, best.p.ref, Object.assign({},a,{open:a.open||whole.open,reason:whole.reason||a.reason}));
         const also=ranks.find(r=>r.p.kind==='H' && r.hit && r.p.ref!==best.p.ref && !handledHidden.has(r.p.ref.id) && best.hit);
         if(also && out && out.length){ handledHidden.add(also.p.ref.id); out=out.concat(handleHidden(sc, st, also.p.ref, Object.assign({},a,{open:a.open||whole.open,reason:whole.reason||a.reason}))) } }
       else if(best.p.kind==='T'){ handledTopics.add(best.p.ref.id); out=handleTopic(sc, st, best.p.ref, Object.assign({},a,{evidence:whole.evidence||a.evidence,reason:whole.reason||a.reason})) }
       else { const tp=(sc.topics||[]).find(t=>!handledTopics.has(t.id) && profiles(sc).P.find(x=>x.ref===t).con.has(best.p.ref.id));
-        out = tp && !kbLines(sc,best.p.ref.id) ? (handledTopics.add(tp.id), handleTopic(sc, st, tp, a)) : kbAnswer(sc, st, best.p.ref.id, a, sl, addr); if(out) handledK=true }
+        out = tp && !kbLines(sc,best.p.ref.id) ? (handledTopics.add(tp.id), handleTopic(sc, st, tp, a)) : kbAnswer(sc, st, best.p.ref.id, a, sl, addr); if(out&&out.length) handledK++ }
       if(out && out.length){ add(26, out); return }
-      handledK=false;
     }
     if(R.length && R[R.length-1].pri===26) return;
     // hidden info
@@ -3645,6 +3655,7 @@ function engineTurn(sc, st, text, channel){
     else if(whole.q) add(5, questionFallback(sc, st, whole, addr>=0?addr:(st.lastAIBy||lead)));
     else if(whole.evidence||whole.reason){ const sk=sc.personas.findIndex(x=>x.stance==='skeptic'); add(5,[ln(lead, frT(st,'reasonack',["Okay, that's a fair point.","That's useful context.","I see where you're coming from."]))].concat(sk>0&&!whole.evidence&&Math.random()<.5?[ln(sk, fresh(st,'skep',["What's that based on?","Do you have data to support that?"]))]:[])) }
     else if(!whole.anyIntent && whole.n>3 && (sc.issues||[]).length){ feelAll(st,0,-4); st.flags.offtopic=(st.flags.offtopic||0)+1; if(st.flags.offtopic<=3) ev(st,'offtopic','Went off-topic: "'+text.slice(0,60)+(text.length>60?'…':'')+'"',-1); add(5,[ln(lead, frT(st,'offtopic',{warm:["Ha — fair. But let's get back to the open points, shall we?","Interesting! Coming back to the deal, though — where are you on the terms?","I hear you. Let's park that and get back to what's still open."],neutral:["Let's stay focused — what's your position on the open points?","I'm not sure how that helps us here. Can we get back to the terms?","Okay. And how does that relate to what we're discussing?","Let's keep to the agenda, if that's okay."],cold:["I'm not sure how that's relevant.","Can we stick to the terms, please?","We don't have much time. What's your position?"],angry:["That's not helpful. What are you offering?","Let's not waste time. The terms, please."]}[moodOf(st,lead)]))]) }
+    else if((whole.thanks || whole.bye || /\b(nice|good|great|pleasure) (talking|meeting|speaking|to (meet|talk|speak))\b/.test(whole.low)) && !whole.reason && !whole.evidence) add(5,[ln(addr>=0?addr:lead, frT(st,'thx',["Thank you — likewise.","My pleasure. It was good to talk.","Likewise — thanks for your time."]))]);
     else add(5,[ln(addr>=0?addr:lead, frT(st,'stmt',["Okay, I see.","Right, that's useful context.","Understood.","Okay — noted."]))]);
   }
   // ---- ally / skeptic interjections
@@ -3709,6 +3720,7 @@ function presentationTurn(sc, st, a){
 /* ---------- compose turns: acks, agenda question, pressure, merge by speaker ---------- */
 function composeTurns(sc, st, res, opts){
   opts=opts||{}; let lines=res.lines.slice();
+  if(st._sorry && lines.length && !(st._tr||[]).some(x=>/^F:|^M:/.test(x))){ lines[0]={p:lines[0].p, t:st._sorry+' '+lines[0].t}; st._sorry='' }
   const lead=0, mood=moodOf(st,lead), a=opts.a;
   if(!opts.noExtras){
     if(a && a.n>70 && /hard/.test(S.difficulty) && !st.closing && !sc.presentation){ feel(st,lead,0,-4); lines.unshift(ln(lines[0]?lines[0].p:lead, S.difficulty==='veryhard'?"Let me stop you there.":"Sorry to cut in —")) }
