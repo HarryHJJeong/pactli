@@ -990,6 +990,56 @@ html.mob body{overflow-x:hidden}
 @media (max-width:540px){ .cv-bar{flex-wrap:nowrap;padding:10px 10px} .cv-bar b{display:none} .cv-seg{margin-right:auto} .cv-seg button{padding:7px 12px} }
 
 .miss-list{display:grid;gap:10px}.miss{border:1px solid var(--line);border-radius:14px;padding:12px 14px;background:#fff;min-width:0}.miss-h{display:flex;flex-wrap:wrap;gap:4px 12px;font-size:12px;color:var(--muted)}.miss-h b{color:var(--ink)}.miss-k{color:#a0522d;font-weight:600}.miss-q{margin-top:6px;font-weight:600;overflow-wrap:anywhere}.miss-a{font-size:12px;color:var(--muted);margin-top:3px;overflow-wrap:anywhere}.miss-r{margin-top:6px;font-size:13px;color:var(--ink2);overflow-wrap:anywhere}
+
+/* Fix & practice */
+.fxp .fx-top{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap}
+.fxp .fx-top h3{margin:0}
+.fx-all{padding:7px 12px;font-size:12.5px}
+.fx{border-top:1px solid var(--line);padding:16px 0 14px;min-width:0}
+.fx:first-of-type{margin-top:12px}
+.fx-k{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:6px}
+.fx-c{font-size:11px;font-weight:700;border-radius:6px;padding:2px 7px;background:#eef1ea;color:var(--ink2)}
+.fx-err{background:#f6e3df;color:#9b3b2f}.fx-tone{background:#f3ead8;color:#875a22}.fx-reg{background:#e8eef6;color:#35557a}.fx-move{background:#e6efe3;color:#2f6a45}.fx-st{background:#efe8f4;color:#6a4a85}
+.fx .o{color:var(--muted);text-decoration:line-through;text-decoration-color:#cdbfae;overflow-wrap:anywhere}
+.fx .b{font-weight:650;color:var(--ink);margin-top:4px;overflow-wrap:anywhere}
+.fx .w{font-size:13px;color:var(--ink2);margin-top:5px}
+.fx-alt{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:10px}
+.fx-alt>div{background:#f7f6f0;border-radius:10px;padding:9px 11px;font-size:13.5px;position:relative;min-width:0;overflow-wrap:anywhere}
+.fx-alt small{display:block;font-size:11px;font-weight:700;color:var(--muted);margin-bottom:2px}
+.fx-mini{position:absolute;top:6px;right:6px;width:24px;height:24px;border-radius:50%;background:#fff;font-size:10px;color:var(--ink2)}
+.fx-act{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
+.fx-act button{border:1px solid var(--line);background:#fff;border-radius:999px;padding:6px 12px;font-size:13px;font-weight:600;color:var(--ink2)}
+.fx-act .fx-save.on{background:#22342c;color:#fff;border-color:#22342c}
+.fx-res{margin-top:8px;font-size:13px}
+.fx-live{color:var(--ink2)}.fx-no{color:var(--muted)}
+.fx-heard{display:grid;gap:3px;border-radius:10px;padding:9px 11px}
+.fx-heard.ok{background:#e6f1e2}.fx-heard.bad{background:#f8efe1}
+.fx-heard mark{background:#f3d59a;border-radius:3px;padding:0 2px}
+html.mob .fx-alt,.fx-alt.one{grid-template-columns:1fr}
+/* My phrases */
+.ph-pane{max-width:620px}
+.ph-seg{margin:14px 0 10px;display:inline-flex}
+.ph-go{display:block;width:100%;margin:6px 0 12px}
+.ph-it{border-top:1px solid var(--line);padding:12px 0;min-width:0}
+.ph-it .o{color:var(--muted);text-decoration:line-through;text-decoration-color:#cdbfae;font-size:13.5px;overflow-wrap:anywhere}
+.ph-it .b{font-weight:650;margin-top:3px;overflow-wrap:anywhere}
+.ph-alt{display:block;color:var(--ink2);margin-top:5px;font-size:12.5px}
+.ph-meta{display:flex;gap:10px;flex-wrap:wrap;align-items:center;font-size:12px;color:var(--muted);margin-top:6px}
+.ph-ms{background:#f8f2e6;border-radius:14px;padding:12px 14px;margin-top:14px}
+.ph-msr{margin-top:8px;display:grid;gap:1px}.ph-msr .o{text-decoration:line-through;color:var(--muted);font-size:13px}.ph-msr .b{font-weight:650}.ph-msr small{color:var(--muted)}
+.ph-q{font-size:19px;font-weight:600;color:var(--muted);text-decoration:line-through;text-decoration-color:#cdbfae;overflow-wrap:anywhere}
+.ph-ans{margin-top:12px;background:#eef3ea;border-radius:12px;padding:12px 14px;display:grid;gap:6px;font-size:16px}
+.ph-ans small{font-size:12.5px;color:var(--ink2)}
+.ph-grade{display:flex;gap:10px;justify-content:flex-end;margin-top:16px}
+/* warm-up in the briefing */
+.warm{background:#f4f6ef;border:1px solid #dfe6d6;border-radius:16px;padding:14px 16px;margin-bottom:16px}
+.warm-h{display:flex;justify-content:space-between;align-items:center}
+.warm-it{border-top:1px solid #dfe6d6;margin-top:10px;padding-top:10px}
+.warm-it .o{color:var(--muted);text-decoration:line-through;text-decoration-color:#cdbfae;overflow-wrap:anywhere}
+.warm-it .b{font-weight:650;margin-top:3px}
+[data-mephr]:not(:empty){background:#c24a3a;color:#fff;border-radius:9px;font-size:11px;font-weight:800;padding:1px 7px;margin-left:6px}
+.ph-ans[hidden],.warm-it .b[hidden],#phModal [hidden]{display:none!important}
+
 </style>
 </head>
 <body>
@@ -5464,7 +5514,7 @@ function renderReport(r){
     ${f.smalltalk?renderSt(f.smalltalk):''}
     ${(f.moments&&f.moments.length)?`<div class="pane"><h3>Key moments</h3>${f.moments.map(x=>{const [c,i]=x.good>0?['y','✓']:x.good<0?['n','✕']:['p','•'];return `<div class="gl"><span class="dot ${c}">${i}</span><div>${esc(x.text)}<small>${settings.fb==='ko'?'':'Turn'} ${x.turn}</small></div></div>`}).join('')}</div>`:''}
     ${(f.habits&&f.habits.length)?`<div class="pane"><h3>Speaking habits</h3><ul class="pts">${f.habits.map(h=>`<li>${esc(h)}</li>`).join('')}</ul><div class="hint" style="margin-top:10px">${settings.fb==='ko'?'':'Checked against habits that come up often for Korean speakers in real class transcripts.'}</div></div>`:''}
-    <div class="pane full"><h3>Say it better</h3>${(f.rewrites||[]).map(w=>`<div class="rw"><div class="o">${esc(w.original)}</div><div class="b"><span>${esc(w.better)}</span>${playBtn(w.better)}</div><div class="w">${esc(w.why)}</div></div>`).join('')}</div>
+    ${fixPane(f)}
     <div class="pane full"><h3>Phrases to keep</h3>${(f.phrases||[]).map(p=>`<div class="ph"><div style="flex:1"><b>${esc(p.phrase)}</b><small>${esc(p.use)}</small></div>${playBtn(p.phrase)}</div>`).join('')}</div>
     ${(r.emails&&r.emails.length)?`<div class="pane full"><details><summary>EMAILS IN THIS CASE (${r.emails.length})</summary><div style="margin-top:16px">${r.emails.map(e=>mailHTML(e)).join('')}</div></details></div>`:''}
     <div class="pane full"><details><summary>FULL TRANSCRIPT</summary><div style="margin-top:16px">${(r.log||[]).map(l=>`<div class="msg ${l.me?'me':''}"><div class="who">${esc(l.speaker)} · ${fmt(l.t)}</div><div class="tx">${esc(l.text)}</div></div>`).join('')}</div></details></div>
@@ -5475,6 +5525,223 @@ function renderReport(r){
   </div>`;
 }
 function sayBack(t){ speechSynthesis.cancel(); speak(t,{gender:'f'},0) }
+
+/* =========================================================
+   FIX & PRACTICE — after the meeting, the learner's own sentences are corrected (grammar, word choice, tone)
+   and turned into practice: listen, say it again, save it, review it before the next meeting.
+   Rule-based only. Patterns drawn from common errors in real class transcripts (Harry's Talking Class).
+   ========================================================= */
+const FIX_ING = v => /ie$/.test(v) ? v.slice(0,-2)+'ying' : /[^aeiou]e$/.test(v) && !/(be|see)$/.test(v) ? v.slice(0,-1)+'ing' : /^(get|put|set|run|sit|stop|plan|shop)$/.test(v) ? v+v.slice(-1)+'ing' : v+'ing';
+const FIX_SUBJ = a => /^we/i.test(a) ? 'we' : 'I';
+/* extra language rules, same shape as LANG: [pattern, replacement, why, (unused), 'err' = grammar | 'reg' = word choice / register] */
+const FIX_LANG = [
+  [/\b(i'?m|i am|we'?re|we are) not (accept|agree)\b/gi,(m,a,b)=>FIX_SUBJ(a)+" can't "+b,'"Be + not + verb" isn\'t English: say "I can\'t accept" or "I don\'t accept".','','err'],
+  [/\b(i'?m|i am|we'?re|we are) not (understand|know|want|like|need|have|think|believe|mean|care)\b/gi,(m,a,b)=>FIX_SUBJ(a)+" don't "+b,'With a normal verb, use "don\'t", not "I\'m not": "I don\'t understand".','','err'],
+  [/\b(i'?m|i am|we'?re|we are) disagree\b/gi,(m,a)=>FIX_SUBJ(a)+' disagree','"Disagree" is a verb: "I disagree", not "I\'m disagree".','','err'],
+  [/\bthe best thing (i|we) (?:can )?do (right now |now |today |at this point )?(?:would be|is)\b/gi,(m,a,t)=>'the best '+FIX_SUBJ(a)+' can do '+(t||'')+'is','"The best I can do is …" is the fixed phrase for a final offer.','','err'],
+  [/^will (write|send|email|call|share|check|prepare|get|follow|update|confirm|draft|put|come)\b/gim,"I'll $1",'Don\'t drop "I": "I\'ll send…" — "Will send…" only works in a quick text message.','','err'],
+  [/\b(consider(?:ed|ing|s)?) about\b/gi,'$1','"Consider" takes a direct object — no "about".','','err'],
+  [/\b(emphasi[sz](?:e|ed|es|ing)) on\b/gi,'$1','"Emphasise" takes a direct object — no "on".','','err'],
+  [/\b(reach(?:ed|es|ing)?) to (an?|the|our|your|this) (agreement|deal|decision|conclusion|target|goal)\b/gi,'$1 $2 $3','"Reach an agreement" — no "to".','','err'],
+  [/\breply (me|us|him|her|them)\b/gi,'reply to $1','"Reply" needs "to": "reply to me".','','err'],
+  [/\banswer to (my|the|your|our|this|that) (question|email|request|questions)\b/gi,'answer $1 $2','"Answer" takes a direct object: "answer my question".','','err'],
+  [/\b(participate[ds]?|participating) (the|a|an|our|this|your)\b/gi,'$1 in $2','"Participate" needs "in".','','err'],
+  [/\bquestion to you\b/gi,'question for you','A question is "for" someone.','','err'],
+  [/(?<!(over|during|in|for|within|throughout) )\bthe last (week|month|year)\b/gi,'last $2','For the one just finished, say "last week" with no "the".','','err'],
+  [/\b(it'?s|it is) my first time to (\w+)/gi,(m,a,v)=>a+' my first time '+FIX_ING(v.toLowerCase()),'"It\'s my first time + -ing": "It\'s my first time visiting".','','err'],
+  [/\bvery (want|need|like|hope|enjoy)\b/gi,'really $1','"Very" can\'t go before a verb — use "really".','','err'],
+  [/\b(so|very) much (busy|tired|happy|difficult|expensive|important)\b/gi,'very $2','"Very busy", not "so much busy".','','err'],
+  [/\bsame (with|as) me\b/gi,'same here','The natural reply is "Same here."','','err'],
+  [/\bi have a plan to\b/gi,'I plan to','"I plan to…" is shorter and more natural.','','reg'],
+  [/\bin my opinion,? i think\b/gi,'in my opinion','"In my opinion" and "I think" say the same thing — use one.','','reg'],
+  [/\bkinda\b/gi,'kind of','"Kinda" is spoken slang — fine with friends, too casual in a meeting.','','reg'],
+  [/\bgotta\b/gi,'have to','"Gotta" is slang — say "have to" in a meeting.','','reg'],
+  [/\bbye-?bye\b/gi,'goodbye','"Bye-bye" sounds childish at work — "Goodbye" or "Talk soon".','','reg'],
+  [/^cool[.!]?$/gim,'Great.','"Cool" is very casual for a business meeting — "Great" or "That works" sounds more professional.','','reg'],
+  [/^cool,? /gim,'Great, ','"Cool" is very casual for a business meeting — "Great" or "That works" sounds more professional.','','reg'],
+  [/\bthe (thing|number|figure) (i'?m|we'?re|i am|we are) looking at (would be|is)\b/gi,(m,a,b)=>(/^we/i.test(b)?"we're":"I'm")+' looking at','Say the number directly: "I\'m looking at 480,000."','','reg'],
+  [/\bfighting[!.]?$/gim,'Good luck!','"Fighting!" is Konglish — say "Good luck!" or "You\'ve got this!"','','err'],
+  [/\b(company|team) gathering\b/gi,'team dinner','"Company gathering" is Konglish — for an after-work meal with colleagues, say "team dinner".','','err'],
+  [/\beat (the |my |some )?(medicine|pills?)\b/gi,'take $1$2','You "take" medicine in English.','','err']
+];
+/* tone: the same point, said two better ways */
+const FIX_NUM = t => { const m=String(t).match(/\$?\d[\d,.]*\d?\s*(k|thousand|million|%|percent)?(?![\d,])/gi); return m ? m[m.length-1].trim() : '' };
+const FIX_TOPIC = s => String(s).replace(/[.?!]+$/,'').replace(/\byour\b/gi,'your').replace(/\bmy\b/gi,'my').trim();
+const FIX_NUANCE = [
+  {id:'ultimatum', re:/\bif you (don'?t|do not|won'?t|can'?t|cannot)\b[^.?!]*?(\bnot\b|n'?t\b|\bcannot\b)[^.?!]*\b(accept|agree|sign|deal|continue)\b/i,
+   why:'A threat this blunt can end the talks. Say what you need, then what happens if you don\'t get it.',
+   polite:()=>"If we can't find some movement here, I'm not sure we can make this work.", firm:()=>"Without some movement on your side, we'll have to walk away."},
+  {id:'walk', re:/\b(i'?ll|i will|we'?ll|we will|i'?m going to|we'?re going to)\s+(just\s+)?(leave|walk away from|quit|drop)\s+(the|this)\s+deal\b/i,
+   why:'Leave the door open when you walk away — you may want to come back later.',
+   polite:()=>"I'm afraid we'll have to step back from this deal for now.", firm:()=>"Then we'll walk away from this deal."},
+  {id:'demand', re:/^(?:so,? |and |also,? |first,? )?(?:i (?:want|need|have) to know|tell me|i need|i want)\s+(.+?)[.?!]*$/i,
+   why:'"I want to know …" sounds like a demand. A question gets the same answer and keeps the other side open.',
+   polite:(t,m)=>`Could you give me a sense of ${FIX_TOPIC(m[1])}?`, firm:(t,m)=>`I'll need to understand ${FIX_TOPIC(m[1])} before we go further.`,
+   ok:(t,m)=>/\b(your|the|how|what|who|when|where|why|if|whether|more)\b/i.test(m[1]) && !/\b(to (go|do|eat|sleep|rest))\b/i.test(m[1])},
+  {id:'answerme', re:/\b(can|could|will) you (please )?answer (my|the) questions?\b|^answer my questions?\b/i,
+   why:'Asking someone to "answer my questions" sounds like an accusation. Point to the question instead.',
+   polite:()=>"Could we come back to the question I asked earlier?", firm:()=>"I'd appreciate a direct answer on that."},
+  {id:'nameit', re:/^(okay,? |ok,? |so,? |then,? |okay then,? )*you name it\b/i,
+   why:'"You name it" means "anything at all" in English — it doesn\'t ask for their number.',
+   polite:()=>"What figure did you have in mind?", firm:()=>"Make me an offer, and we'll see how far apart we are."},
+  {id:'toofar', re:/\b(that'?s|it'?s|this is|that is) (way |much |far |really )?too (far|high|low|much|expensive|little)\b/i,
+   why:'Correct, but bare. A softer frame keeps them talking; a firmer one shows you\'re serious.',
+   polite:t=>"I'm afraid that's quite far from where we need to be."+(FIX_NUM(t)?` Could we look at ${FIX_NUM(t)}?`:''), firm:t=>"That's too far from where we need to be."+(FIX_NUM(t)?` We'd need ${FIX_NUM(t)}.`:'')},
+  {id:'impossible', re:/\b(that'?s|it'?s|that is|it is) impossible\b/i,
+   why:'"Impossible" closes the door completely. Most of the time you mean "very difficult".',
+   polite:()=>"That would be very difficult for us.", firm:()=>"That's not something we can do."},
+  {id:'heardwrong', re:/\byou (heard|got) (it|me|that) wrong\b|\byou misheard\b|\byou'?re wrong\b|\byou are wrong\b/i,
+   why:'Blaming the listener puts them on the defensive. Take the misunderstanding on yourself and restate the figure.',
+   polite:t=>`I think there may have been a misunderstanding${FIX_NUM(t)?` — I said ${FIX_NUM(t)}`:''}.`, firm:t=>`Let me correct that${FIX_NUM(t)?`: I said ${FIX_NUM(t)}`:''}.`},
+  {id:'bareno', re:/^no[.!]?$/i, why:'A bare "No" sounds abrupt. Add how you feel about it, or what would work.',
+   polite:()=>"I'm afraid that won't work for us.", firm:()=>"No — that doesn't work for us."},
+  {id:'must', re:/\byou (must|have to|need to) (\w+)/i, why:'"You must" sounds like an order. Put the need on your side.',
+   polite:(t,m)=>t.replace(m[0], "we'd need you to "+m[2]).replace(/^we/,'We'), firm:(t,m)=>t.replace(m[0], "you'll need to "+m[2]).replace(/^you/,'You')},
+  {id:'agreeq', re:/(?:^|[,.]\s*|\b(?:so|then)\s+)we agree (with|on|at) ([^?]+?)\s*\?\s*$/i, ok:(t)=>!/\b(could|can|shall|should|would|do|will) we agree\b/i.test(t), why:'"We agree with 475k?" sounds unsure. Close the point clearly.',
+   polite:(t,m)=>`So, do we have a deal at ${m[2].replace(/[.?!]+$/,'')}?`, firm:(t,m)=>`So we're agreed at ${m[2].replace(/[.?!]+$/,'')}.`},
+  {id:'dontlike', re:/^(i|we) don'?t like (it|that|this|the \w+)[.!]?$/i, why:'"I don\'t like it" sounds personal. Talk about whether it works.',
+   polite:(t,m)=>`I'm not comfortable with ${m[2].toLowerCase()}.`, firm:()=>"That doesn't work for us."},
+  {id:'imperative', re:/^(give|send|tell|show|lower|reduce|cut|drop|change|fix) (me|us|the|your)\b(.*)$/i, why:'An order in a negotiation invites resistance. A question gets you further.',
+   polite:t=>'Could you '+t.charAt(0).toLowerCase()+t.slice(1).replace(/[.!]*$/,'?'), firm:t=>'Please '+t.charAt(0).toLowerCase()+t.slice(1).replace(/[.!?]*$/,'.')},
+  {id:'whyexp', re:/^why (is it|is that|is this|are you) so (expensive|high)\b/i, why:'"Why so expensive?" sounds like a complaint. Ask how they got there.',
+   polite:()=>"Could you help me understand how you arrived at that price?", firm:()=>"I'll need you to justify that price."},
+  {id:'cantaccept', re:/^(i|we) (can'?t|cannot) accept (that|this|it)[.!]?$/i, why:'A flat refusal leaves nowhere to go. Add what would work.',
+   polite:()=>"I'm afraid we can't accept that as it stands. Could we look at another way?", firm:()=>"We can't accept that. Here's what would work for us: …"}
+];
+const FIX_KIND = {err:'Grammar', reg:'Word choice', tone:'Tone', st:'Small talk', move:'Negotiation'};
+function fixSentence(text){
+  let better=text; const why=[], kinds=new Set(), ids=[];
+  LANG.concat(FIX_LANG).forEach(([re,to,en,ko,kind],i)=>{ re.lastIndex=0; if(!re.test(better)) return; re.lastIndex=0;
+    better=better.replace(re,(...g)=>{ let r=typeof to==='function'?to(...g):g[0].replace(new RegExp(re.source,re.flags.replace('g','')),to); if(/^[A-Z]/.test(g[0])&&r) r=r.charAt(0).toUpperCase()+r.slice(1); return r });
+    const w=en.replace('$1',(text.match(re)||[''])[0]); if(!why.includes(w)) why.push(w); kinds.add(kind==='err'?'err':'reg'); ids.push((i<LANG.length?'L':'F')+':'+en.slice(0,40)) });
+  better=better.replace(/\s{2,}/g,' ').replace(/^\s*([a-z])/,c=>c.toUpperCase());
+  let polite='', firm='';
+  for(const n of FIX_NUANCE){ let src=text, m=src.match(n.re); if(!m){ src=better; m=src.match(n.re) } if(!m || (n.ok && !n.ok(src,m))) continue;
+    polite=n.polite(src,m); firm=n.firm(src,m); why.push(n.why); kinds.add('tone'); ids.push('N:'+n.id); break }
+  if(better===text && !polite) return null;
+  const main = polite && (!kinds.has('err') || better===text) ? polite : better;
+  return {original:text, better: main, why:why.join(' '), kinds:[...kinds], ids, polite: polite===main?'':polite, firm, alt: polite===main};
+}
+function fixList(f){
+  const me=(S&&S.log||[]).filter(l=>l.me).map(l=>l.text.trim()), out=[], seen=new Set();
+  me.forEach(t=>sentences(t).filter(s=>/[a-z]/i.test(s)).forEach(s=>{ const x=fixSentence(s.trim()); if(x && !seen.has(x.original.toLowerCase())){ seen.add(x.original.toLowerCase()); out.push(x) } }));
+  // moments from the meeting (event-linked rewrites) that no rule covered
+  (f.rewrites||[]).forEach(w=>{ if(!out.some(x=>w.original.includes(x.original) || x.original.includes(w.original))) out.push({original:w.original, better:w.better, why:w.why, kinds:['move'], ids:['E:'+String(w.why).slice(0,40)], polite:'', firm:''}) });
+  ((f.smalltalk&&f.smalltalk.fixes)||[]).forEach(x=>{ if(!out.some(y=>y.original===x.said)) out.push({original:x.said, better:x.better, why:x.why, kinds:['st'], ids:['S:'+x.better.slice(0,30)], polite:'', firm:''}) });
+  const rank=x=>(x.kinds.includes('err')?0:x.kinds.includes('tone')?1:x.kinds.includes('move')?2:3);
+  return out.sort((a,b)=>rank(a)-rank(b)).slice(0,14);
+}
+const _engineAnalyze = engineAnalyze;
+engineAnalyze = function(){ const f=_engineAnalyze.apply(this, arguments); try{ f.fixes=fixList(f); if(f.fixes.length) f.rewrites=f.fixes.slice(0,7).map(x=>({original:x.original, better:x.better, why:x.why})) }catch(e){} return f };
+
+/* ---------- the report pane ---------- */
+let fxItems=[];
+function fixPane(f){
+  const list = (f.fixes && f.fixes.length) ? f.fixes : (f.rewrites||[]).map(w=>({original:w.original, better:w.better, why:w.why, kinds:[], ids:[], polite:'', firm:''}));
+  fxItems=list; if(!list.length) return `<div class="pane full"><h3>Fix &amp; practice</h3><div class="hint">Nothing to fix in what you said this time. Well done.</div></div>`;
+  const saved=new Set(phrasesAll().map(p=>p.better));
+  return `<div class="pane full fxp"><div class="fx-top"><h3>Fix &amp; practice</h3><button class="btn ghost fx-all" onclick="fxSaveAll(this)">Save all to My phrases</button></div>
+    <div class="hint">Your own sentences, said better. Listen, say the new version out loud, and save the ones you want to keep — they come back before your next meetings.</div>
+    ${list.map((x,i)=>`<div class="fx" id="fx${i}">
+      <div class="fx-k">${(x.kinds||[]).map(k=>`<span class="fx-c fx-${k}">${FIX_KIND[k]||k}</span>`).join('')}</div>
+      <div class="o">${esc(x.original)}</div>
+      <div class="b"><span>${esc(x.better)}</span></div>
+      ${x.why?`<div class="w">${esc(x.why)}</div>`:''}
+      ${x.firm?`<div class="fx-alt${x.polite?'':' one'}">${x.polite?`<div><small>More diplomatic</small><span>${esc(x.polite)}</span><button class="fx-mini" onclick='sayBack(${JSON.stringify(x.polite).replace(/'/g,"&#39;")})' aria-label="Listen">▶</button></div>`:''}<div><small>More direct</small><span>${esc(x.firm)}</span><button class="fx-mini" onclick='sayBack(${JSON.stringify(x.firm).replace(/'/g,"&#39;")})' aria-label="Listen">▶</button></div></div>`:''}
+      <div class="fx-act"><button onclick="fxListen(${i})">▶ Listen</button><button onclick="fxSay(${i})">🎤 Say it</button><button class="fx-save${saved.has(x.better)?' on':''}" onclick="fxSave(${i},this)">${saved.has(x.better)?'★ Saved':'☆ Save'}</button></div>
+      <div class="fx-res" id="fxr${i}"></div></div>`).join('')}</div>`;
+}
+function fxListen(i){ const x=fxItems[i]; if(x) sayBack(x.better) }
+function fxSay(i){ const x=fxItems[i]; if(!x) return; sayCheck(x.better, $('fxr'+i), ok=>phraseResult(x.better, ok)) }
+function fxSave(i, btn){ const x=fxItems[i]; if(!x) return; const on=phraseToggle(x, (curReport&&cardRec&&cardRec.title)||(cardRec&&cardRec.title)||''); btn.classList.toggle('on',on); btn.textContent=on?'★ Saved':'☆ Save' }
+function fxSaveAll(btn){ const t=(cardRec&&cardRec.title)||''; let n=0; fxItems.forEach(x=>{ if(!phraseHas(x.better)){ phraseAdd(x,t); n++ } }); document.querySelectorAll('.fx-save').forEach(b=>{ b.classList.add('on'); b.textContent='★ Saved' }); toast(n?`Saved ${n} phrase${n>1?'s':''} to My phrases`:'Already saved') }
+
+/* ---------- say it: one-shot speech check ---------- */
+const FIX_STOP = new Set('a an the to of and or but is are was were be been i we you it that this for in on at with as so do does did can could would will shall my our your their me us them'.split(' '));
+const fxWords = t => String(t).toLowerCase().replace(/[’']/g,"'").replace(/(\d),(?=\d{3}\b)/g,'$1').replace(/\$?(\d[\d,.]*)\s*k\b/g,(m,n)=>String(Math.round(parseFloat(n.replace(/,/g,''))*1000))).replace(/[^a-z0-9' ]/g,' ').split(/\s+/).filter(Boolean);
+function sayMatch(target, heard){
+  const T=fxWords(target).filter(w=>!FIX_STOP.has(w)), H=new Set(fxWords(heard)); if(!T.length) return 1;
+  return T.filter(w=>H.has(w) || H.has(w.replace(/'.*$/,''))).length / T.length;
+}
+let fxRec=null;
+function sayCheck(target, box, done){
+  if(!SR){ box.innerHTML='<span class="fx-no">Speaking practice needs Chrome or Safari with a microphone. Try saying it out loud, then press Listen to compare.</span>'; return }
+  try{ if(fxRec) fxRec.abort() }catch(e){}
+  try{ speechSynthesis.cancel() }catch(e){}
+  const r=new SR(); fxRec=r; r.lang=settings.lang||'en-US'; r.interimResults=true; r.maxAlternatives=3; let heard='', best=0;
+  box.innerHTML='<span class="fx-live">Listening… say: <b>'+esc(target)+'</b></span>';
+  r.onresult=e=>{ let fin='', im=''; for(let i=0;i<e.results.length;i++){ const alts=[...e.results[i]].map(a=>a.transcript); const pick=alts.sort((a,b)=>sayMatch(target,b)-sayMatch(target,a))[0]; if(e.results[i].isFinal) fin+=' '+pick; else im+=' '+pick } heard=(fin+im).trim(); box.innerHTML='<span class="fx-live">'+esc(heard||'Listening…')+'</span>' };
+  r.onerror=e=>{ if(e.error==='not-allowed'||e.error==='service-not-allowed') box.innerHTML='<span class="fx-no">Microphone blocked — allow microphone access for this site.</span>' };
+  r.onend=()=>{ fxRec=null; if(!heard){ if(!/fx-no/.test(box.innerHTML)) box.innerHTML='<span class="fx-no">I didn\'t hear anything. Tap "Say it" and try again.</span>'; return }
+    best=sayMatch(target, heard); const ok=best>=.75;
+    box.innerHTML = `<div class="fx-heard ${ok?'ok':'bad'}"><b>${ok?'✓ Nicely said':'Almost — try once more'}</b><span>You said: “${esc(heard)}”</span>${ok?'':`<span>Listen for: ${fxDiff(target, heard)}</span>`}</div>`;
+    if(done) done(ok) };
+  try{ r.start() }catch(e){ box.innerHTML='<span class="fx-no">Could not start the microphone.</span>' }
+}
+function fxDiff(target, heard){ const H=new Set(fxWords(heard)); return String(target).split(/\s+/).map(w=>{ const k=fxWords(w)[0]; return !k||FIX_STOP.has(k)||H.has(k) ? esc(w) : `<mark>${esc(w)}</mark>` }).join(' ') }
+
+/* ---------- My phrases: saved, synced, reviewed on a schedule ---------- */
+const PH_KEY='pactli_phrases', MS_KEY='pactli_mistakes', PH_GAP=[0,1,3,7,14,30];
+const phrasesAll = () => { const a=LS.get(PH_KEY,[]); return Array.isArray(a)?a:[] };
+const phrasesPut = a => LS.set(PH_KEY, a.slice(-400));
+const phraseHas = b => phrasesAll().some(p=>p.better===b);
+function phraseAdd(x, src){ const a=phrasesAll(); if(a.some(p=>p.better===x.better)) return; a.push({id:'p'+Date.now().toString(36)+Math.random().toString(36).slice(2,5), original:x.original, better:x.better, why:x.why||'', polite:x.polite||'', firm:x.firm||'', kinds:x.kinds||[], src:src||'', at:Date.now(), box:0, due:Date.now(), ok:0, miss:0}); phrasesPut(a); meBadge() }
+function phraseToggle(x, src){ if(phraseHas(x.better)){ phrasesPut(phrasesAll().filter(p=>p.better!==x.better)); meBadge(); return false } phraseAdd(x, src); return true }
+function phraseResult(better, ok){ const a=phrasesAll(), p=a.find(q=>q.better===better); if(!p) return; phraseGrade(p, ok); phrasesPut(a) }
+function phraseGrade(p, ok){ if(ok){ p.ok++; p.box=Math.min(PH_GAP.length-1,(p.box||0)+1); p.due=Date.now()+PH_GAP[p.box]*864e5 } else { p.miss++; p.box=Math.max(0,(p.box||0)-1); p.due=Date.now()+10*60000 } p.last=Date.now() }
+const phrasesDue = () => phrasesAll().filter(p=>(p.due||0)<=Date.now()).sort((a,b)=>(a.due||0)-(b.due||0));
+function meBadge(){ try{ const n=phrasesDue().length, b=document.querySelector('[data-mephr]'); if(b) b.textContent=n?String(n):'' }catch(e){} }
+
+/* recurring mistakes, counted once per meeting */
+let msLast=null;
+function mistakesCount(rec){
+  if(!rec || !rec.fb || !rec.fb.fixes || msLast===rec.id) return; msLast=rec.id;
+  const m=LS.get(MS_KEY,{}), seen=new Set();
+  rec.fb.fixes.forEach(x=>(x.ids||[]).forEach(id=>{ if(/^E:|^S:/.test(id) || seen.has(id)) return; seen.add(id); const k=id.replace(/[^a-z0-9:]/gi,'').slice(0,48);
+    const o=m[k]=m[k]||{n:0}; o.n++; o.last=Date.now(); o.why=x.why.split(/(?<=[.!?])\s/)[0]; o.o=x.original; o.b=x.better }));
+  const keys=Object.keys(m).sort((a,b)=>(m[b].last||0)-(m[a].last||0)).slice(0,120), o={}; keys.forEach(k=>o[k]=m[k]); LS.set(MS_KEY,o);
+}
+const mistakesTop = n => { const m=LS.get(MS_KEY,{}); return Object.values(m).filter(x=>x.n>=2).sort((a,b)=>b.n-a.n||(b.last-a.last)).slice(0,n||3) };
+const _endMeeting2 = endMeeting;
+endMeeting = async function(){ const r=await _endMeeting2.apply(this, arguments); try{ mistakesCount(cardRec); meBadge() }catch(e){} return r };
+
+/* the My phrases screen */
+let phTab='due', phRun=null;
+function openPhrases(){ const m=$('meSheet'); if(m) m.classList.remove('on'); phEnsure(); phTab=phrasesDue().length?'due':'all'; phRender(); $('phModal').classList.add('on') }
+function phEnsure(){ if($('phModal')) return; const d=document.createElement('div'); d.className='modal'; d.id='phModal';
+  d.innerHTML=`<div class="pane ph-pane"><button class="mx" aria-label="Close" title="Close" onclick="$('phModal').classList.remove('on')"><svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg></button><div id="phBody"></div></div>`;
+  d.addEventListener('click',e=>{ if(e.target===d) d.classList.remove('on') }); document.body.appendChild(d) }
+function phRender(){
+  const all=phrasesAll(), due=phrasesDue(), top=mistakesTop(3), list=(phTab==='due'?due:all.slice().reverse());
+  $('phBody').innerHTML = `<h2 style="margin:0 0 4px">My phrases</h2><div class="hint">${all.length} saved · ${due.length} to review now</div>
+    ${top.length?`<div class="ph-ms"><b>Mistakes you repeat</b>${top.map(x=>`<div class="ph-msr"><span class="o">${esc(x.o)}</span><span class="b">${esc(x.b)}</span><small>${esc(x.why||'')} · ${x.n} meetings</small></div>`).join('')}</div>`:''}
+    <div class="seg ph-seg"><button class="${phTab==='due'?'on':''}" onclick="phTab='due';phRender()">To review (${due.length})</button><button class="${phTab==='all'?'on':''}" onclick="phTab='all';phRender()">All (${all.length})</button></div>
+    ${due.length?`<button class="btn gold ph-go" onclick="phPractice()">Practise ${Math.min(due.length,10)} now</button>`:''}
+    ${list.length?list.map(p=>`<div class="ph-it"><div class="o">${esc(p.original)}</div><div class="b">${esc(p.better)}</div>${p.firm?`<small class="ph-alt">${p.polite?`Diplomatic: ${esc(p.polite)}<br>`:''}More direct: ${esc(p.firm)}</small>`:''}<div class="ph-meta"><span>${esc(p.src||'')}</span><span>${p.ok}✓ ${p.miss}✗</span><span>${(p.due||0)<=Date.now()?'due now':'next '+new Date(p.due).toLocaleDateString()}</span><button class="lnk" onclick='sayBack(${JSON.stringify(p.better).replace(/'/g,"&#39;")})'>Listen</button><button class="lnk" style="color:var(--bad)" onclick="phDel('${p.id}')">Remove</button></div></div>`).join('')
+      : `<div class="empty">${phTab==='due'?'Nothing to review right now.':'No saved phrases yet. Save sentences from "Fix & practice" in any meeting report.'}</div>`}`;
+}
+function phDel(id){ phrasesPut(phrasesAll().filter(p=>p.id!==id)); meBadge(); phRender() }
+/* a short review run: see the old sentence, say the better one */
+function phPractice(){ phRun={list:phrasesDue().slice(0,10).map(p=>p.id), i:0, ok:0}; phCard() }
+function phCard(){
+  const p=phrasesAll().find(q=>q.id===phRun.list[phRun.i]);
+  if(!p){ const n=phRun.list.length; $('phBody').innerHTML=`<h2>Done</h2><p>${phRun.ok} of ${n} said well. The ones you missed will come back sooner.</p><button class="btn gold" onclick="phTab='all';phRender()">Back to My phrases</button>`; meBadge(); return }
+  $('phBody').innerHTML = `<div class="hint">${phRun.i+1} of ${phRun.list.length}</div><h3 style="margin:6px 0 2px">Say it better</h3>
+    <div class="ph-q">${esc(p.original)}</div>${p.why?`<div class="hint" style="margin-top:6px">${esc(p.why.split(/(?<=[.!?])\s/)[0])}</div>`:''}
+    <div class="ph-ans" id="phAns" hidden><b>${esc(p.better)}</b>${p.firm?`<small>${p.polite?`Diplomatic: ${esc(p.polite)}<br>`:''}More direct: ${esc(p.firm)}</small>`:''}</div>
+    <div class="fx-act" style="margin-top:14px"><button onclick="phSay('${p.id}')">🎤 Say it</button><button onclick="$('phAns').hidden=false">Show answer</button><button onclick='sayBack(${JSON.stringify(p.better).replace(/'/g,"&#39;")})'>▶ Listen</button></div>
+    <div class="fx-res" id="phRes"></div>
+    <div class="ph-grade"><button class="btn ghost" onclick="phNext('${p.id}',false)">Again soon</button><button class="btn gold" onclick="phNext('${p.id}',true)">Got it</button></div>`;
+}
+function phSay(id){ const p=phrasesAll().find(q=>q.id===id); if(!p) return; sayCheck(p.better, $('phRes'), ok=>{ $('phAns').hidden=false; if(ok) setTimeout(()=>{ if(phRun && phRun.list[phRun.i]===id) phNext(id,true) }, 1400) }) }
+function phNext(id, ok){ const a=phrasesAll(), p=a.find(q=>q.id===id); if(p){ phraseGrade(p, ok); phrasesPut(a) } if(ok) phRun.ok++; phRun.i++; phCard() }
+
+/* warm-up before a meeting: up to three due phrases, inside the briefing */
+const _openBriefing = openBriefing;
+openBriefing = function(){ const r=_openBriefing.apply(this, arguments); try{ const due=phrasesDue(); if(due.length && $('briefModal').classList.contains('on')){ const pick=due.slice().sort((a,b)=>((b.kinds||[]).includes('tone')-(a.kinds||[]).includes('tone'))).slice(0,3);
+  $('briefBody').insertAdjacentHTML('afterbegin', `<div class="warm" id="warmBox"><div class="warm-h"><b>1-minute warm-up</b><button class="lnk" onclick="$('warmBox').remove()">Skip</button></div><div class="hint">Say these the better way before you go in.</div>${pick.map((p,i)=>`<div class="warm-it"><div class="o">${esc(p.original)}</div><div class="b" id="wa${i}" hidden>${esc(p.better)}</div><div class="fx-act"><button onclick="warmSay(${i},'${p.id}')">🎤 Say it</button><button onclick="$('wa${i}').hidden=false">Show</button></div><div class="fx-res" id="wr${i}"></div></div>`).join('')}</div>`) } }catch(e){} return r };
+function warmSay(i, id){ const p=phrasesAll().find(q=>q.id===id); if(!p) return; sayCheck(p.better, $('wr'+i), ok=>{ $('wa'+i).hidden=false; phraseResult(p.better, ok) }) }
+setTimeout(meBadge, 1500);
 
 /* =========================================================
    HISTORY & SETTINGS
@@ -5624,7 +5891,7 @@ async function gas(action, data={}){
    ========================================================= */
 let syncServer = null;      // null = unknown, false = the member server has no sync actions yet
 let syncBusy = false, syncAgain = false, syncT = null, syncMute = false, syncAt = 0, syncErr = '', syncOffAt = 0, syncFails = 0;
-const SYNC_GLOBAL = ['pactli_custom','pactli_settings','pactli_camp_packs','pactli_name'];
+const SYNC_GLOBAL = ['pactli_custom','pactli_settings','pactli_camp_packs','pactli_name','pactli_phrases','pactli_mistakes'];
 const syncUid = () => (session&&session.user&&session.user.id)||'';
 const syncRaw = (k,v) => { syncMute=true; try{ LS.set(k,v) } finally { syncMute=false } };
 const syncHash = v => { const t=JSON.stringify(v); let h=5381; for(let i=0;i<t.length;i++) h=((h<<5)+h+t.charCodeAt(i))|0; return t.length+'.'+(h>>>0) };
@@ -5640,6 +5907,9 @@ function syncSnap(){
   if(!syncEmpty(st)) m.settings = st;
   if(!syncEmpty(pk)) m.packs = pk;
   if(!syncEmpty(nm)) m.name = nm;
+  const ph = LS.get('pactli_phrases', null), ms = LS.get('pactli_mistakes', null);
+  if(Array.isArray(ph) && ph.length) m.phrases = ph;
+  if(!syncEmpty(ms)) m.mistakes = ms;
   return m;
 }
 function syncApply(key, val){
@@ -5649,6 +5919,8 @@ function syncApply(key, val){
   else if(t==='settings'){ if(val!=null){ syncRaw('pactli_settings', val); Object.assign(settings, val) } }
   else if(t==='packs'){ syncRaw('pactli_camp_packs', val||{fields:[],roles:[]}) }
   else if(t==='name'){ syncRaw('pactli_name', val||'') }
+  else if(t==='phrases'){ syncRaw('pactli_phrases', val||[]) }
+  else if(t==='mistakes'){ syncRaw('pactli_mistakes', val||{}) }
 }
 /* a shared browser: keep one member's own scenarios / settings from leaking into the next member's account */
 function syncOwner(){
@@ -5921,6 +6193,8 @@ const NAVI = {
   gear:'<path d="M4.5 8h7.5M17.5 8h2M4.5 16h2M12 16h7.5"/><circle class="ac" cx="14.8" cy="8" r="2.4"/><circle cx="14.8" cy="8" r="2.4"/><circle class="ac" cx="9.2" cy="16" r="2.4"/><circle cx="9.2" cy="16" r="2.4"/>',
   /* Sign out & layout */
   out:'<path d="M14 4.5h3a2.5 2.5 0 0 1 2.5 2.5v10a2.5 2.5 0 0 1-2.5 2.5h-3"/><path d="M10.5 8.2L6.7 12l3.8 3.8M6.9 12h8"/>',
+  /* Book: an open notebook with a ribbon */
+  book:'<path d="M4 5.5c2.6-1 5.3-1 8 .6v13c-2.7-1.6-5.4-1.6-8-.6z"/><path d="M20 5.5c-2.6-1-5.3-1-8 .6v13c2.7-1.6 5.4-1.6 8-.6z"/><path class="ac" d="M15 6.2v5l1.4-1 1.4 1v-5.4"/>',
   /* Sync: two arrows chasing each other round a dot */
   sync:'<path d="M5.2 10.2a7 7 0 0 1 12.3-2.6l1.5 1.7"/><path d="M19.2 5.4v4h-4"/><path d="M18.8 13.8a7 7 0 0 1-12.3 2.6L5 14.7"/><path d="M4.8 18.6v-4h4"/><circle class="ac" cx="12" cy="12" r="1.6"/>',
   screen:'<rect x="3.5" y="5" width="17" height="11" rx="2.5"/><path d="M9 20h6M12 16v4"/>'
@@ -5930,6 +6204,7 @@ function openMe(){
   const u=(session&&session.user)||{}, it=(ico,label,fn,cls)=>`<button class="me-it ${cls||''}" onclick="$('meSheet').classList.remove('on');${fn}"><span class="ico">${NI(ico)}</span>${label}<span class="chev">›</span></button>`;
   $('meBody').innerHTML = `<div class="me-head"><span class="av">${initials(u.name||u.id)}</span><div><b>${esc(u.name||u.id||'')}</b><small>${esc([u.title,u.company].filter(Boolean).join(' · ')||(u.admin?'Admin':'Member'))}</small></div></div>`
     + `<button class="me-it" onclick="$('meSheet').classList.remove('on');syncManual()"><span class="ico">${NI('sync')}</span><span style="min-width:0">Sync now<small style="display:block;font-weight:500;font-size:12px;color:var(--muted);margin-top:2px">${esc(syncStatus())}</small></span><span class="chev">›</span></button>`
+    + `<button class="me-it" onclick="openPhrases()"><span class="ico">${NI('book')}</span><span>My phrases<span data-mephr>${phrasesDue().length||''}</span></span><span class="chev">›</span></button>`
     + it('gear','Settings','openSettings()')
     + (u.admin ? it('clip','Admin','openAdmin()') : '')
     + (document.documentElement.classList.contains('mob') ? it('screen','Switch to PC view',"setView('pc')") : it('screen','Switch to mobile view',"setView('mobile')"))
