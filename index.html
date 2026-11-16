@@ -1059,6 +1059,88 @@ html.mob .fx-alt,.fx-alt.one{grid-template-columns:1fr}
 .lib-it small{display:block;color:var(--muted);margin-top:3px}
 .lv{flex-shrink:0;white-space:nowrap}
 
+
+/* ---------- documents in email ---------- */
+.att{margin-top:12px;display:grid;gap:8px;grid-template-columns:minmax(0,1fr)}
+.att-chip{display:flex;align-items:center;gap:11px;border:1px solid #e1ddd2;border-radius:14px;padding:10px 12px;background:#fbfaf6;text-align:left;font:inherit;color:inherit;cursor:pointer;width:100%;min-width:0}
+.att-chip:hover{border-color:#c9c3b6}.att-chip.new{border-color:#c7d9b8;background:#f3f8ec}
+.fi{width:34px;height:40px;border-radius:7px;position:relative;flex-shrink:0;display:flex;align-items:flex-end;justify-content:center;padding-bottom:5px;font-size:9px;font-weight:800;color:#fff;background:#7a5a2e}
+.fi.q{background:#455d50}
+.fi::after{content:'';position:absolute;top:0;right:0;border-left:10px solid rgba(255,255,255,.35);border-bottom:10px solid transparent;border-top-right-radius:7px}
+.att-t{min-width:0;flex:1}.att-t b{display:block;font-size:13px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.att-t small{color:var(--muted);font-size:11.5px}
+.att-tag{flex-shrink:0;white-space:nowrap;font-size:10.5px;font-weight:800;border-radius:6px;padding:2px 7px;color:#2f6a45;background:#dcebd5}
+.att-tag.s,.att-tag.q{color:#8a572c;background:#f1e7d3}.att-tag.old{color:#7b807c;background:#ecebe5}
+#docView{position:fixed;inset:0;z-index:300;background:#e4e2d9;display:none;flex-direction:column}
+#docView.on{display:flex}
+.dv-bar{display:flex;align-items:center;gap:10px;padding:10px 14px;padding-top:max(10px,env(safe-area-inset-top));background:#293e36;color:#fff;flex-shrink:0}
+.dv-x{width:34px;height:34px;border-radius:50%;background:rgba(255,255,255,.14);color:#fff;border:0;font-size:20px;line-height:1;cursor:pointer;flex-shrink:0}
+.dv-t{min-width:0;flex:1}.dv-t b{display:block;font-size:14px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.dv-t small{font-size:11.5px;color:#b9c9be}
+.dv-stage{flex:1;overflow:auto;padding:16px 12px 24px;-webkit-overflow-scrolling:touch}
+.dv-ppr{position:relative;max-width:720px;margin:0 auto;background:#fffefb;border-radius:4px;box-shadow:0 4px 18px rgba(37,43,41,.14);padding:26px 22px 30px;font-size:13px;line-height:1.55;color:#2b302e}
+.dv-lh{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;border-bottom:2px solid #1f3a5a;padding-bottom:10px}
+.dv-logo{display:flex;align-items:center;gap:8px;font-weight:800;font-size:16px;letter-spacing:-.02em;color:#1f3a5a;min-width:0}
+.dv-logo span{width:22px;height:22px;border-radius:6px;background:linear-gradient(135deg,#1f3a5a 50%,#5b8bc0 50%);flex-shrink:0}
+.dv-lh small{text-align:right;color:#6b716d;font-size:10.5px;line-height:1.4}
+.dv-dt{font-size:20px;font-weight:800;letter-spacing:-.02em;margin:16px 0 4px;color:#1f3a5a}.dv-dt small{font-size:12px;font-weight:600;color:#6b716d}
+.dv-meta{display:grid;grid-template-columns:1fr 1fr;gap:8px 14px;font-size:11px;color:#6b716d;margin:8px 0 14px}
+.dv-meta b{display:block;color:#2b302e;font-size:12.5px;overflow-wrap:anywhere}
+.dv-cl{margin-top:12px;border-radius:6px;padding:4px 6px;margin-left:-6px;margin-right:-6px}
+.dv-cl.tap{cursor:pointer}.dv-cl.tap:hover{background:#f6f3e9}
+.dv-cl h5{font-size:12.5px;font-weight:800;color:#1f3a5a;margin:0 0 2px}
+.dv-cl p{margin:0;font-size:12.5px;color:#3d4440}
+.dv-v{font-weight:700;color:#2b302e}.dv-v.tba{color:#8a572c}
+.dv-sub{color:#8a572c;font-style:normal;font-size:11.5px}
+.rl s{color:#a13d32;text-decoration-thickness:1.5px}
+.rl ins{text-decoration:none;color:#2f6a45;background:#e3f0dc;font-weight:700;border-radius:3px;padding:0 3px}
+.dv-sigs{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:34px}
+.dv-sg{border-top:1px solid #2b302e;padding-top:5px;font-size:11px;color:#6b716d;position:relative;min-height:60px}
+.dv-sg b{display:block;color:#2b302e;font-size:12px}
+.dv-sg img{position:absolute;bottom:100%;left:0;width:130px;height:auto}
+.dv-script{position:absolute;bottom:100%;left:4px;font-family:'Snell Roundhand','Segoe Script','Brush Script MT',cursive;font-size:24px;color:#1d2b4f;line-height:1.3}
+.dv-stamp{position:absolute;right:20px;top:118px;transform:rotate(-9deg);border:2.5px solid #2f6a45;color:#2f6a45;border-radius:10px;padding:6px 12px;font-weight:900;font-size:17px;letter-spacing:.06em;text-align:center;background:rgba(255,255,255,.7)}
+.dv-stamp small{display:block;font-size:9px;letter-spacing:.02em;font-weight:700}
+.dv-tip{max-width:720px;margin:12px auto 0;text-align:center;color:#6b716d;font-size:12.5px}
+.dv-act{display:flex;gap:9px;padding:12px 14px;padding-bottom:max(14px,env(safe-area-inset-bottom));background:#fff;border-top:1px solid #e6e2d8;flex-shrink:0}
+.dv-act button{flex:1;border-radius:13px;padding:13px 8px;font:inherit;font-weight:700;font-size:14px;border:1px solid #d9d4c8;color:#293e36;background:#fff;cursor:pointer}
+.dv-act button.p{background:#293e36;color:#fff;border-color:#293e36}
+.dv-act button.chg{border-color:#e2b93b;background:#fff8e1}
+.dv-act button:disabled{opacity:.45;cursor:default}
+.dv-dim{position:absolute;inset:0;background:rgba(30,40,35,.38);display:none;z-index:1}.dv-dim.on{display:block}
+.dv-pop{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:min(440px,calc(100% - 32px));max-height:calc(100% - 40px);overflow:auto;background:#fff;border-radius:18px;box-shadow:0 14px 40px rgba(20,30,25,.28);padding:18px;z-index:2;display:none}
+.dv-pop.on{display:block}
+.dv-pop.sheet{top:auto;bottom:0;transform:translateX(-50%);border-radius:24px 24px 0 0;width:min(560px,100%);padding-bottom:max(20px,env(safe-area-inset-bottom))}
+.dv-pop h4{font-size:15px;margin:0 0 2px}.dv-pop h3{font-size:19px;margin:0}.dv-pop>small{color:var(--muted);font-size:12px}
+.dv-l{display:block;font-size:11.5px;font-weight:700;color:#6b716d;margin:12px 0 4px}
+.dv-in{width:100%;box-sizing:border-box;border:1px solid #d9d4c8;border-radius:10px;padding:10px;font:inherit;font-size:14px;background:#fbfaf6;resize:vertical}
+.dv-in:focus{outline:0;border-color:#455d50;background:#fff;box-shadow:0 0 0 3px #e3ebe2}
+.dv-c1{margin-top:12px;background:#f4f6ef;border-radius:10px;padding:9px 11px;font-size:12.5px;color:#3d4440}
+.dv-c1 b{display:block;font-size:11px;color:#6b716d;margin-bottom:2px}
+.dv-btns{display:flex;gap:8px;margin-top:14px}
+.dv-btns button{flex:1;border-radius:11px;padding:11px;font:inherit;font-weight:700;font-size:13.5px;border:1px solid #d9d4c8;background:#fff;color:#293e36;cursor:pointer}
+.dv-btns button.p{background:#293e36;color:#fff;border-color:#293e36}
+.dv-s{color:#6b716d;font-size:13px;margin-top:3px}
+.dv-sum{margin-top:12px;border:1px solid #e6e2d8;border-radius:14px;padding:2px 12px}
+.dv-sum div{display:flex;justify-content:space-between;gap:12px;padding:8px 0;border-bottom:1px solid #f0ece3;font-size:13px}
+.dv-sum div:last-child{border:0}.dv-sum span{color:#6b716d;flex-shrink:0}.dv-sum b{font-weight:700;text-align:right}
+.dv-sum b.tba{color:#8a572c}.dv-sum em{font-style:normal;color:#8a572c;font-weight:600;font-size:11.5px}
+.dv-sum i.chg{font-style:normal;font-size:10.5px;color:#2f6a45;background:#dcebd5;border-radius:5px;padding:1px 5px;margin-left:4px}
+.dv-pad{margin-top:12px;border:1.5px dashed #b9c2b8;border-radius:14px;position:relative;background:#fbfaf6;padding-bottom:22px}
+.dv-pad canvas{display:block;width:100%;height:auto;aspect-ratio:3/1;touch-action:none;cursor:crosshair}
+.dv-ln{position:absolute;left:18px;right:18px;bottom:30px;border-bottom:1px solid #c9c3b6;pointer-events:none}
+.dv-pad small{position:absolute;left:18px;bottom:6px;font-size:11px;color:#8a8f8b}
+.dv-clr{position:absolute;right:10px;top:8px;font:inherit;font-size:12px;font-weight:600;color:#455d50;background:none;border:0;cursor:pointer}
+.dv-chk{display:flex;gap:9px;align-items:flex-start;margin-top:12px;font-size:13px;color:#3d4440}
+.dv-chk input{width:18px;height:18px;margin:1px 0 0;accent-color:#293e36;flex-shrink:0}
+.dv-big{margin-top:14px;width:100%;background:#293e36;color:#fff;border:0;border-radius:14px;padding:14px;font:inherit;font-weight:800;font-size:15px;cursor:pointer}
+.docp .docn{border-top:1px solid var(--line);padding:14px 0 6px}
+.docn-h{display:flex;align-items:center;gap:10px;margin-bottom:8px;min-width:0}.docn-h b{font-size:13.5px;overflow-wrap:anywhere}.docn-h small{display:block;color:var(--muted);font-size:12px}
+.docn-h>b+small{margin-left:auto}
+.docn-r{border-radius:12px;padding:10px 12px;font-size:13.5px;margin:6px 0;line-height:1.5}
+.docn-r b{display:block;margin-bottom:2px}
+.docn-r.bad{background:#f8e9e5;color:#6d2c23}.docn-r.ok{background:#eaf3e4;color:#2c4f35}.docn-r.mid{background:#f6efdf;color:#6a4b1e}
+.docn-r .say{display:block;margin-top:6px;font-style:italic;color:#3d4440}
+@media print{#docView{display:none!important}}
+
 </style>
 </head>
 <body>
@@ -6032,7 +6114,7 @@ async function gas(action, data={}){
    ========================================================= */
 let syncServer = null;      // null = unknown, false = the member server has no sync actions yet
 let syncBusy = false, syncAgain = false, syncT = null, syncMute = false, syncAt = 0, syncErr = '', syncOffAt = 0, syncFails = 0;
-const SYNC_GLOBAL = ['pactli_custom','pactli_settings','pactli_camp_packs','pactli_name','pactli_phrases','pactli_mistakes'];
+const SYNC_GLOBAL = ['pactli_custom','pactli_settings','pactli_camp_packs','pactli_name','pactli_phrases','pactli_mistakes','pactli_docnotes'];
 const syncUid = () => (session&&session.user&&session.user.id)||'';
 const syncRaw = (k,v) => { syncMute=true; try{ LS.set(k,v) } finally { syncMute=false } };
 const syncHash = v => { const t=JSON.stringify(v); let h=5381; for(let i=0;i<t.length;i++) h=((h<<5)+h+t.charCodeAt(i))|0; return t.length+'.'+(h>>>0) };
@@ -6051,6 +6133,7 @@ function syncSnap(){
   const ph = LS.get('pactli_phrases', null), ms = LS.get('pactli_mistakes', null);
   if(Array.isArray(ph) && ph.length) m.phrases = ph;
   if(!syncEmpty(ms)) m.mistakes = ms;
+  const dn = LS.get('pactli_docnotes', null); if(Array.isArray(dn) && dn.length) m.docnotes = dn;
   return m;
 }
 function syncApply(key, val){
@@ -6062,6 +6145,7 @@ function syncApply(key, val){
   else if(t==='name'){ syncRaw('pactli_name', val||'') }
   else if(t==='phrases'){ syncRaw('pactli_phrases', val||[]) }
   else if(t==='mistakes'){ syncRaw('pactli_mistakes', val||{}) }
+  else if(t==='docnotes'){ syncRaw('pactli_docnotes', val||[]) }
 }
 /* a shared browser: keep one member's own scenarios / settings from leaking into the next member's account */
 function syncOwner(){
@@ -7701,6 +7785,296 @@ applyView(); bindSeg('segDiff','difficulty',showDiffHint); bindSeg('segLen','min
 $('lgHint').textContent = GAS_URL ? '' : 'Preview mode (no member server connected): sign in with  harry / changeme';
 if(authed()){ afterLogin(true) } else { go('login') }
 if(location.protocol==='file:' && !settings.demo){ settings.demo=true; setTimeout(()=>toast('Opened as a local file — using the rule-based engine.',4000),600) }
+
+/* =========================================================
+   DOCUMENTS IN EMAIL — draft agreements and quotations the counterpart sends after a meeting.
+   Every term comes from what was said in the meetings and emails:
+     agreed → as agreed · still open → their latest position, marked "subject to agreement" · never discussed → "To be agreed".
+   One term in each draft quietly differs from what was agreed (any difficulty). The learner can request changes
+   clause by clause, and sign in the app. What they signed — and whether they caught the difference — is shown in their next report.
+   ========================================================= */
+const DOC_LAW = 'This Agreement is governed by the laws of England and Wales.';
+function docParties(sc){
+  let them='', me='', side='';
+  try{ if(sc.campaign){ const c=campGet(sc.campaign.id), X=c&&campCtx(c); if(X){ them=X.them; me=X.me; side=c.side } } }catch(e){}
+  if(!them){ const r=String((sc.personas[0]||{}).role||''); them=r.includes(',')?r.split(',').slice(1).join(',').trim():'The Counterparty' }
+  if(!me) me = sc.myCompany || 'Your company';
+  return {them, me, side};
+}
+const docGran = is => corrGran(is);
+const docHead = l => cap1(String(l).replace(/^the\s+/i,''));
+function docTrapValue(is, v){
+  const g=docGran(is), up=is.better==='up';
+  let d = is.unit==='days' ? 15 : is.unit==='pct' ? 1 : is.unit==='money' ? Math.max(g, Math.round(Math.abs(v)*.04/g)*g) : Math.max(g, Math.round(Math.abs(v)*.1/g)*g);
+  let t = up ? v+d : v-d; if(t<=0 && v>0) t = up ? v+d : v/2;
+  if(is.range){ t=Math.max(is.range[0], Math.min(is.range[1], t)) }
+  return Math.abs(t-v)<1e-9 ? null : t;
+}
+/* the terms as they stand in this case right now */
+function docTerms(sc, st){
+  return (sc.issues||[]).filter(is=>!is.never).map(is=>{
+    const S_=st.issues[is.id]||{}, a=st.agreed[is.id], mine=(st.offers[is.id]||[]).slice(-1)[0];
+    if(a!=null) return {id:is.id, label:is.label, v:a, text:fmtVal(is,a), status:'agreed'};
+    if(S_.raised || mine!=null) return {id:is.id, label:is.label, v:S_.pos, text:fmtVal(is,S_.pos), status:'proposed'};
+    return {id:is.id, label:is.label, v:null, text:'To be agreed', status:'tba'};
+  });
+}
+function docBuild(cs, sc, st, opts){
+  opts=opts||{}; const P=docParties(sc), prev=(cs.docs||[]).filter(d=>d.series==='main').slice(-1)[0];
+  const items=docTerms(sc, st);
+  if(!items.length) return null;
+  // carry the learner's requested values that were accepted: the engine state already reflects them
+  let trap=null;
+  if(!opts.noTrap){
+    const keep = prev && prev.trap && !prev.trap.caught ? prev.trap : null;
+    if(keep && (keep.extra || items.find(x=>x.id===keep.id && x.status==='agreed' && x.v===keep.av))) trap=Object.assign({}, keep);
+    else if(!prev || !prev.trapUsed){
+      const cand=items.filter(x=>{ const is=sc.issues.find(i=>i.id===x.id); return x.status==='agreed' && is.unit!=='option' && !isUnl(is,x.v) && docTrapValue(is,x.v)!=null });
+      if(cand.length){ const x=cand[Math.floor(Math.random()*cand.length)], is=sc.issues.find(i=>i.id===x.id), tv=docTrapValue(is,x.v); trap={id:x.id, label:x.label, av:x.v, atext:x.text, v:tv, text:fmtVal(is,tv), caught:false} }
+      else trap={id:'_renew', label:'Renewal', av:null, atext:'not discussed', v:null, text:'renews automatically for further 12-month periods unless either party gives 90 days\' notice', caught:false, extra:true};
+    }
+  }
+  if(trap && !trap.extra){ const k=items.findIndex(x=>x.id===trap.id); if(k>=0){ items[k].v=trap.v; items[k].text=trap.text; trap.clause=k+3 } }
+  if(trap && trap.extra) trap.clause=items.length+3;
+  const ver = prev ? prev.ver+1 : 1, slug=s=>String(s).replace(/[^A-Za-z0-9]+/g,'').slice(0,18);
+  const quote = P.side==='buyer' && !prev;   // the provider's first paper to a buyer is a quotation
+  const kind = quote ? 'quote' : 'contract';
+  return {id:'d'+Date.now().toString(36)+Math.random().toString(36).slice(2,5), series:'main', kind, ver, sc:sc.id, them:P.them, me:P.me, side:P.side,
+    file: quote ? `Quote_${slug(P.them)}_v${ver}.pdf` : `Agreement_${slug(P.them)}_${slug(P.me)}_v${ver}.pdf`,
+    title: quote ? 'Quotation' : 'Draft Agreement', date:Date.now(), items, trap, trapUsed: !!trap || !!(prev&&prev.trapUsed), from:(sc.personas[0]||{}).name||'', fromRole:(sc.personas[0]||{}).role||'',
+    prevId: prev?prev.id:null, myRole: sc.role||'', changes:[], signedAt:null, counterAt:null};
+}
+const docGet = (cs, id) => (cs.docs||[]).find(d=>d.id===id);
+const docLatest = cs => (cs.docs||[]).filter(d=>d.series==='main').slice(-1)[0] || null;
+function docAttach(cs, mail, doc){ cs.docs=(cs.docs||[]).concat([doc]); mail.att=(mail.att||[]).concat([doc.id]) }
+
+/* 1. after a meeting: the counterpart's follow-up email carries the draft */
+const _caseAfterMeeting = caseAfterMeeting;
+caseAfterMeeting = async function(){
+  const caseId=S&&S.caseId, scx=S&&S.sc, eng=S&&S.eng, n=(S&&S.log||[]).filter(l=>l.me).length;
+  const r=await _caseAfterMeeting.apply(this, arguments);
+  try{ if(!caseId || !scx || scx.presentation || !(scx.issues||[]).length || !eng || n<2) return r;
+    const cs=getCase(caseId,false); if(!cs) return r; const last=docLatest(cs);
+    if(last && last.signedAt && last.counterAt) return r;               // already signed by both
+    const any=(scx.issues||[]).some(is=>eng.agreed[is.id]!=null || (eng.issues[is.id]||{}).raised); if(!any) return r;
+    const sc0=allSc().find(s=>s.id===caseId)||scx, st=caseState(cs, sc0), doc=docBuild(cs, sc0, st); if(!doc) return r;
+    const mail=[...cs.emails].reverse().find(e=>!e.me); if(!mail) return r;
+    mail.body=docPara(mail.body, doc.kind==='quote'?"I've attached our quotation based on today's meeting.":"I've attached a draft agreement based on today's meeting. Please review it, and sign it in the document if everything is in order.");
+    docAttach(cs, mail, doc); putCase(cs);
+  }catch(e){}
+  return r;
+};
+
+/* 2. replies: requested changes are answered, and a new version comes back when the terms moved */
+function docPara(body, para){ const i=body.lastIndexOf('\n\n'); return i<0 ? body+'\n\n'+para : body.slice(0,i)+'\n\n'+para+body.slice(i) }
+function docLead(body, para){ return body.replace(/^(Hi [^\n]*\n\n)/, `$1${para}\n\n`) }
+const docSnap = (sc, st) => JSON.stringify(docTerms(sc, st).map(x=>[x.id, x.status, x.v]));
+const _emailReplyDemo = emailReplyDemo;
+emailReplyDemo = function(c, mail){
+  const sc=allSc().find(s=>s.id===c.id), dc=mail.docReq||null, lastDoc=docLatest(c);
+  if(!sc || sc.presentation || !(sc.issues||[]).length) return _emailReplyDemo.call(this, c, mail);
+  const subj='Re: '+String(mail.subject||sc.title).replace(/^(re:\s*)+/i,'');
+  /* the learner accepted a quotation → their proposals become the deal, and the agreement comes back for signature */
+  if(dc && dc.accept){
+    const d=docGet(c, dc.accept), st=caseState(c, sc), notes=[];
+    if(d){ d.acceptedAt=Date.now(); d.items.forEach(it=>{ if(it.status==='proposed' && it.v!=null && st.agreed[it.id]==null){ st.agreed[it.id]=it.v; notes.push({kind:'proposed', label:it.label, text:it.text}) } });
+      c.state=dehydrate(st);
+      if(notes.length) docPendingAdd({case:c.id, title:sc.title, file:d.file, at:d.acceptedAt, accepted:true, notes}) }
+    const m=mkMail(sc, 0, subj, ["Thank you for accepting our quotation.","The agreement on that basis is attached — please review it and sign it in the document."], c.difficulty);
+    const doc=docBuild(c, sc, caseState(c, sc)); if(doc){ doc.kind='contract'; doc.title='Draft Agreement'; doc.file=doc.file.replace(/^Quote_[^_]+/, 'Agreement_'+String(doc.them).replace(/[^A-Za-z0-9]+/g,'').slice(0,18)+'_'+String(doc.me).replace(/[^A-Za-z0-9]+/g,'').slice(0,18)); docAttach(c, m, doc) }
+    return [m];
+  }
+  /* the learner signed → countersign */
+  if(dc && dc.signed){
+    const d=docGet(c, dc.signed); if(d){ d.counterAt=Date.now(); d.counterBy=(sc.personas[0]||{}).name } c.status='closed'; c.awaitConfirm=false;
+    const m=mkMail(sc, 0, subj, ["Thank you for signing. I've countersigned — the fully signed copy is attached for your records.","It's good to have this in place. I look forward to working with you."], c.difficulty);
+    if(d) m.att=[d.id]; return [m];
+  }
+  const before=docSnap(sc, caseState(c, sc)); let pre='', trapFixed=false, out;
+  if(dc && dc.changes && lastDoc){
+    const t=lastDoc.trap; let rest=dc.changes.slice();
+    if(t && !t.caught){ const hit=rest.find(x=>x.id===t.id && (t.extra || x.v==null || Math.abs(+x.v - t.av) <= docGran(sc.issues.find(i=>i.id===t.id))/2 + 1e-9));
+      if(hit){ t.caught=true; trapFixed=true; rest=rest.filter(x=>x!==hit);
+        pre = t.extra ? "Apologies — the renewal clause shouldn't have been in there; we never discussed it. I've taken it out." : `Apologies — you're right, ${t.label} should read ${t.atext}, as we agreed. I've corrected it.` } }
+    rest=rest.filter(x=>x.id!=='_renew');
+    if(rest.length){
+      const text=rest.map(x=>{ const is=sc.issues.find(i=>i.id===x.id); return `For ${is.label}, we would like ${fmtVal(is, x.v)}.` }).join(' ');
+      out=_emailReplyDemo.call(this, c, Object.assign({}, mail, {body:text}));
+    } else if(dc.changes.some(x=>x.id==='_renew') && !trapFixed){
+      out=[mkMail(sc, 0, subj, ["Noted — we'll take the renewal clause out."], c.difficulty)];
+    } else out=[mkMail(sc, 0, subj, [trapFixed?"Thanks for reading it so carefully.":"Thanks for your comments."], c.difficulty)];
+  } else out=_emailReplyDemo.call(this, c, mail);
+  try{
+    if(pre && out[0]) out[0].body=docLead(out[0].body, pre);
+    if(lastDoc && !lastDoc.signedAt && out[0]) out[0].body=out[0].body.replace("We'll prepare the paperwork on that basis and send it over shortly.", "The draft agreement is attached to my earlier email — you can review it and sign it there.");
+    const st=caseState(c, sc), after=docSnap(sc, st);
+    const confirmed = c.status==='closed' && !lastDoc;
+    if(out[0] && (confirmed || (lastDoc && !lastDoc.signedAt && (trapFixed || after!==before)))){
+      const doc=docBuild(c, sc, st, {noTrap: trapFixed});
+      if(doc){ if(trapFixed || (lastDoc && lastDoc.trap && lastDoc.trap.caught)) doc.trap=null;
+        if(confirmed) out[0].body=out[0].body.replace(" We'll prepare the paperwork on that basis and send it over shortly.", "");
+        out[0].body=docPara(out[0].body, confirmed ? (doc.kind==='quote'?"Our quotation is attached on that basis.":"The agreement is attached — please review it and sign it in the document.") : "The updated version is attached — please review it and sign it in the document if everything is in order.");
+        docAttach(c, out[0], doc) }
+    }
+  }catch(e){}
+  return out;
+};
+/* 3. the attachment chip in the email */
+function docChips(e){
+  if(!e.att || !e.att.length) return ''; const cs=getCase(curCase||(S&&S.caseId),false); if(!cs) return '';
+  return `<div class="att">${e.att.map(id=>{ const d=docGet(cs,id); if(!d) return ''; const latest=docLatest(cs);
+    const tag = d.counterAt ? ['Signed by both','ok'] : d.signedAt ? ['You signed','ok'] : (latest && latest.id!==d.id) ? ['Superseded','old'] : d.kind==='quote' ? ['Quotation','q'] : ['Needs your signature','s'];
+    return `<button class="att-chip ${tag[1]==='s'?'new':''}" onclick="openDoc('${esc(cs.id)}','${esc(d.id)}')"><span class="fi ${d.kind==='quote'?'q':'c'}">PDF</span><span class="att-t"><b>${esc(d.file)}</b><small>${d.kind==='quote'?'Quotation':'Agreement'} · version ${d.ver} · ${d.items.length} terms</small></span><span class="att-tag ${tag[1]}">${tag[0]}</span></button>` }).join('')}</div>`;
+}
+
+const _mailHTML = mailHTML;
+mailHTML = function(e, compact){ const h=_mailHTML.apply(this, arguments); if(!e.att || !e.att.length) return h; const k=h.lastIndexOf('</div>'); return h.slice(0,k)+docChips(e)+h.slice(k) };
+/* 4. the viewer */
+let dvCase=null, dvDoc=null, dvPending=[];
+function dvEnsure(){ if($('docView')) return; const d=document.createElement('div'); d.id='docView';
+  d.innerHTML=`<div class="dv-bar"><button class="dv-x" onclick="closeDoc()" aria-label="Close">×</button><div class="dv-t"><b id="dvFile"></b><small id="dvSub"></small></div></div><div class="dv-stage" id="dvStage"></div><div class="dv-act" id="dvAct"></div><div class="dv-dim" id="dvDim" onclick="dvPop()"></div><div class="dv-pop" id="dvPop"></div>`;
+  document.body.appendChild(d) }
+function openDoc(caseId, docId){ dvEnsure(); dvCase=caseId; dvDoc=docId; dvPending=[]; dvRender(); $('docView').classList.add('on'); $('dvStage').scrollTop=0 }
+function closeDoc(){ $('docView').classList.remove('on'); dvPop() }
+function dvPop(html){ const p=$('dvPop'), dm=$('dvDim'); if(!html){ p.classList.remove('on'); dm.classList.remove('on'); return } p.innerHTML=html; p.classList.add('on'); dm.classList.add('on') }
+const dvDate = t => new Date(t).toLocaleDateString('en-GB',{day:'numeric',month:'long',year:'numeric'});
+function dvClause(d, it, i){
+  const tba=it.status==='tba', prop=it.status==='proposed', pend=dvPending.find(x=>x.id===it.id);
+  const val = pend ? `<span class="rl"><s>${esc(it.text)}</s> <ins>${esc(pend.text)}</ins></span>` : `<span class="dv-v${tba?' tba':''}">${esc(it.text)}</span>`;
+  const note = prop ? ' <em class="dv-sub">(subject to agreement)</em>' : '';
+  const tap = !d.signedAt && !d.counterAt && docLatest(getCase(dvCase,false)).id===d.id ? ` onclick="dvChange('${it.id}')"` : '';
+  return `<div class="dv-cl${tap?' tap':''}"${tap}><h5>${i+3}. ${esc(docHead(it.label))}</h5><p>${i+3}.1 The parties agree that ${esc(it.label)} shall be ${val}${note}.</p></div>`;
+}
+function dvRender(){
+  const cs=getCase(dvCase,false), d=cs&&docGet(cs,dvDoc); if(!d) return; const latest=docLatest(cs), live=latest.id===d.id && !d.signedAt;
+  $('dvFile').textContent=d.file; $('dvSub').textContent=(d.kind==='quote'?'Quotation':'Agreement')+' · version '+d.ver+(d.counterAt?' · signed by both':d.signedAt?' · signed by you':latest.id!==d.id?' · superseded by a newer version':'');
+  const liveTap = !d.signedAt && !d.counterAt && latest.id===d.id;
+  const extra = d.trap && d.trap.extra ? `<div class="dv-cl${liveTap?' tap" onclick="dvChange(\'_renew\')':''}"><h5>${d.items.length+3}. Term and renewal</h5><p>${d.items.length+3}.1 This Agreement ${esc(d.trap.text)}.</p></div>` : '';
+  const pendX = dvPending.find(x=>x.id==='_renew');
+  const extraHtml = extra && pendX ? extra.replace(esc(d.trap.text), `<span class="rl"><s>${esc(d.trap.text)}</s> <ins>— delete this clause</ins></span>`) : extra;
+  const sig = (who, name, role, at, img) => `<div class="dv-sg">${img?`<img src="${img}" alt="">`:at?`<span class="dv-script">${esc(name)}</span>`:''}<b>${esc(name||'')}</b><small>${esc(role||'')}${at?'<br>'+dvDate(at):''}</small></div>`;
+  $('dvStage').innerHTML = `<div class="dv-ppr">
+    <div class="dv-lh"><div class="dv-logo"><span></span>${esc(d.them)}</div><small>${esc(d.from)}<br>${esc(d.fromRole)}</small></div>
+    <div class="dv-dt">${d.kind==='quote'?'Quotation':'Agreement'}<small> · version ${d.ver}</small></div>
+    <div class="dv-meta"><div>Between<b>${esc(d.them)}</b></div><div>And<b>${esc(d.me)}</b></div><div>Date<b>${dvDate(d.date)}</b></div><div>Reference<b>${esc(d.file.replace(/\.pdf$/,''))}</b></div></div>
+    <div class="dv-cl"><h5>1. Purpose</h5><p>1.1 This ${d.kind==='quote'?'quotation sets out':'Agreement records'} the terms discussed between the parties in their meetings and correspondence.</p></div>
+    <div class="dv-cl"><h5>2. Definitions</h5><p>2.1 Terms marked “subject to agreement” are proposals and are not yet agreed. Terms marked “To be agreed” have not been discussed.</p></div>
+    ${d.items.map((it,i)=>dvClause(d,it,i)).join('')}${extraHtml}
+    <div class="dv-cl"><h5>${d.items.length+(extra?4:3)}. Governing law</h5><p>${DOC_LAW}</p></div>
+    <div class="dv-cl"><h5>${d.items.length+(extra?5:4)}. Signatures</h5><p>Signed by the authorised representatives of the parties.</p></div>
+    <div class="dv-sigs">${sig('me', myName(), d.myRole && d.myRole.includes(d.me) ? d.myRole : d.me+(d.myRole?', '+d.myRole:''), d.signedAt, d.sigImg)}${sig('them', d.from, d.them, d.counterAt, null)}</div>
+    ${d.counterAt?`<div class="dv-stamp">SIGNED<small>by both parties · ${dvDate(d.counterAt)}</small></div>`:''}
+  </div>${live?`<div class="dv-tip">Tap any clause to request a change.</div>`:''}`;
+  const n=dvPending.length;
+  $('dvAct').innerHTML = !live ? `<button onclick="closeDoc()">Close</button>` : d.kind==='quote'
+    ? `<button ${n?'':'disabled'} onclick="dvSendChanges()" class="${n?'chg':''}">Request ${n||''} change${n===1?'':'s'}</button><button class="p" onclick="dvAccept()" ${n?'disabled':''}>Accept quotation</button>`
+    : `<button ${n?'':'disabled'} onclick="dvSendChanges()" class="${n?'chg':''}">Request ${n||''} change${n===1?'':'s'}</button><button class="p" onclick="dvSignSheet()" ${n?'disabled':''}>Sign</button>`;
+}
+function dvChange(id){
+  const cs=getCase(dvCase,false), d=docGet(cs,dvDoc), sc=allSc().find(s=>s.id===cs.id);
+  const isX = id==='_renew', is=!isX && sc.issues.find(i=>i.id===id), it=!isX && d.items.find(x=>x.id===id), pend=dvPending.find(x=>x.id===id);
+  const unit = is ? ({money:'amount',days:'days',pct:'%',months:'months',years:'years',multiple:'×'}[is.unit]||'') : '';
+  dvPop(`<h4>Request a change${isX?' · Renewal':' · '+esc(docHead(it.label))}</h4><small>${isX?'Delete this clause':'Currently: '+esc(it.text)}</small>
+    ${isX?'':`<label class="dv-l">New value${unit?` (${esc(unit)})`:''}</label><input id="dvVal" class="dv-in" inputmode="decimal" value="${pend?esc(String(pend.v)):''}" placeholder="${it.v!=null?esc(String(it.v)):''}">`}
+    <label class="dv-l">Your reason (sent with the change)</label><textarea id="dvWhy" class="dv-in" rows="3" placeholder="${isX?'e.g. We never discussed automatic renewal.':'e.g. We agreed 45 days in our last meeting.'}">${pend?esc(pend.why):''}</textarea>
+    <div class="dv-c1"><b>Level it up · C1</b>${isX?'“I don\'t believe we discussed automatic renewal — could we take that clause out?”':`“Would you be open to changing ${esc(it.label)}? It would make a real difference on our side.”`}</div>
+    <div class="dv-btns"><button onclick="dvPop()">Cancel</button>${pend?`<button onclick="dvDrop('${id}')">Remove</button>`:''}<button class="p" onclick="dvAdd('${id}')">Add change</button></div>`);
+  setTimeout(()=>{ const i=$('dvVal')||$('dvWhy'); i&&i.focus() },60);
+}
+function dvAdd(id){
+  const cs=getCase(dvCase,false), sc=allSc().find(s=>s.id===cs.id), why=($('dvWhy').value||'').trim();
+  if(id==='_renew'){ dvPending=dvPending.filter(x=>x.id!==id).concat([{id, label:'renewal clause', v:null, text:'(deleted)', why}]); dvPop(); dvRender(); return }
+  const is=sc.issues.find(i=>i.id===id), raw=($('dvVal').value||'').trim(); if(!raw){ toast('Enter the value you want.'); return }
+  let v=parseFloat(raw.replace(/[^0-9.\-]/g,'')); if(isNaN(v)){ toast('Enter a number.'); return }
+  if(/k\s*$/i.test(raw)) v*=1000; if(/m(illion)?\s*$/i.test(raw)) v*=1e6;
+  dvPending=dvPending.filter(x=>x.id!==id).concat([{id, label:is.label, v, text:fmtVal(is,v), why}]); dvPop(); dvRender();
+}
+async function dvAccept(){
+  const cs=getCase(dvCase,false), d=docGet(cs,dvDoc); closeDoc(); openThread(cs.id);
+  $('cTo').value=d.from; $('cSubj').value='Re: Quotation — '+d.them;
+  $('cBody').value=`Hi ${firstName(d.from)},\n\nThank you for the quotation. We're happy to accept it as it stands. Could you send the agreement for signature?\n\nBest regards,\n${myName()}`;
+  dvNextReq={accept:d.id}; await sendEmail();
+}
+function dvDrop(id){ dvPending=dvPending.filter(x=>x.id!==id); dvPop(); dvRender() }
+/* changes go out as the learner's email — the counterpart answers with the usual negotiation rules */
+async function dvSendChanges(){
+  const cs=getCase(dvCase,false), d=docGet(cs,dvDoc); if(!dvPending.length) return;
+  const lines=dvPending.map(x=>x.id==='_renew' ? `• The renewal clause: please delete it.${x.why?' '+x.why:''}` : `• ${cap1(x.label)}: ${d.items.find(i=>i.id===x.id).text} → ${x.text}.${x.why?' '+x.why:''}`);
+  const body=`Hi ${firstName(d.from)},\n\nThank you for the ${d.kind==='quote'?'quotation':'draft agreement'}. I'd like to request the following change${dvPending.length>1?'s':''}:\n\n${lines.join('\n')}\n\nCould you send an updated version?\n\nBest regards,\n${myName()}`;
+  const req={changes:dvPending.map(x=>({id:x.id, v:x.v})), doc:d.id};
+  d.changes=(d.changes||[]).concat(dvPending.map(x=>({id:x.id, v:x.v, text:x.text, why:x.why, at:Date.now()}))); putCase(cs);
+  dvPending=[]; closeDoc(); openThread(cs.id);
+  $('cTo').value=d.from; $('cSubj').value='Re: '+(d.kind==='quote'?'Quotation':'Draft agreement')+' — '+d.them; $('cBody').value=body;
+  dvNextReq=req; await sendEmail();
+}
+let dvNextReq=null;
+const _sendEmail = sendEmail;
+sendEmail = async function(){ if(dvNextReq){ window.__dvReq=dvNextReq; dvNextReq=null } return _sendEmail.apply(this, arguments) };
+/* attach the request to the outgoing mail object (sendEmail builds it, then calls the reply engine) */
+const _putCase = putCase;
+putCase = function(c){ if(window.__dvReq && c && c.id===curCase){ const m=[...c.emails].reverse().find(e=>e.me); if(m && !m.docReq){ m.docReq=window.__dvReq; window.__dvReq=null } } return _putCase(c) };
+
+/* 5. signing */
+let dvPad=null;
+function dvSignSheet(){
+  const cs=getCase(dvCase,false), d=docGet(cs,dvDoc), prev=d.prevId&&docGet(cs,d.prevId);
+  const rows=d.items.map(it=>{ const p=prev&&prev.items.find(x=>x.id===it.id); const ch=p && (p.text!==it.text || p.status!==it.status);
+    return `<div><span>${esc(docHead(it.label))}</span><b class="${it.status==='tba'?'tba':''}">${esc(it.text)}${it.status==='proposed'?' <em>(proposed)</em>':''}${ch?' <i class="chg">changed</i>':''}</b></div>` }).join('') + (d.trap&&d.trap.extra?`<div><span>Renewal</span><b>automatic, 12 months</b></div>`:'');
+  dvPop(`<h3>Sign the agreement</h3><div class="dv-s">These are the terms as written in this document. Check them against what you agreed before you sign — signing makes them binding.</div>
+    <div class="dv-sum">${rows}</div>
+    <div class="dv-pad"><canvas id="dvCanvas" width="600" height="200"></canvas><button class="dv-clr" onclick="dvClear()">Clear</button><div class="dv-ln"></div><small>${esc(myName())} · ${esc(d.me)} · ${dvDate(Date.now())}</small></div>
+    <label class="dv-chk"><input type="checkbox" id="dvOk"> I have read the agreement and I'm authorised to sign for ${esc(d.me)}.</label>
+    <button class="dv-big" onclick="dvSign()">Sign and send to ${esc(firstName(d.from))}</button>`);
+  $('dvPop').classList.add('sheet'); dvPadInit();
+}
+function dvPadInit(){ const cv=$('dvCanvas'), x=cv.getContext('2d'); x.lineWidth=4.5; x.lineCap='round'; x.lineJoin='round'; x.strokeStyle='#1d2b4f'; let on=false, n=0;
+  const pt=e=>{ const r=cv.getBoundingClientRect(), t=e.touches?e.touches[0]:e; return [(t.clientX-r.left)*cv.width/r.width, (t.clientY-r.top)*cv.height/r.height] };
+  const dn=e=>{ on=true; const [a,b]=pt(e); x.beginPath(); x.moveTo(a,b); e.preventDefault() }, mv=e=>{ if(!on) return; const [a,b]=pt(e); x.lineTo(a,b); x.stroke(); n++; e.preventDefault() }, up=()=>{ on=false };
+  cv.addEventListener('pointerdown',dn); cv.addEventListener('pointermove',mv); window.addEventListener('pointerup',up);
+  cv.addEventListener('touchstart',dn,{passive:false}); cv.addEventListener('touchmove',mv,{passive:false}); cv.addEventListener('touchend',up);
+  dvPad={cv, x, strokes:()=>n, reset:()=>{ n=0 }} }
+function dvClear(){ if(!dvPad) return; dvPad.x.clearRect(0,0,dvPad.cv.width,dvPad.cv.height); dvPad.reset() }
+async function dvSign(){
+  if(!dvPad || dvPad.strokes()<8){ toast('Draw your signature first.'); return }
+  if(!$('dvOk').checked){ toast('Tick the box to confirm.'); return }
+  const cs=getCase(dvCase,false), d=docGet(cs,dvDoc), sc=allSc().find(s=>s.id===cs.id);
+  const small=document.createElement('canvas'); small.width=300; small.height=100; small.getContext('2d').drawImage(dvPad.cv,0,0,300,100);
+  d.signedAt=Date.now(); d.sigImg=small.toDataURL('image/png');
+  // what was signed becomes binding
+  const st=caseState(cs, sc); const notes=[];
+  d.items.forEach(it=>{ const is=sc.issues.find(i=>i.id===it.id); if(!is || it.v==null) return;
+    if(st.agreed[it.id]==null && it.status==='proposed'){ st.agreed[it.id]=it.v; notes.push({kind:'proposed', label:it.label, text:it.text}) } });
+  if(d.trap && !d.trap.caught){ if(!d.trap.extra) st.agreed[d.trap.id]=d.trap.v; notes.push({kind:'trap', label:d.trap.label, text:d.trap.text, agreed:d.trap.atext, extra:!!d.trap.extra, clause:d.trap.clause}) }
+  if(d.trap && d.trap.caught) notes.push({kind:'caught', label:d.trap.label, text:d.trap.text, agreed:d.trap.atext, extra:!!d.trap.extra});
+  (cs.docs||[]).filter(x=>x.trap && x.trap.caught && x.id!==d.id && !notes.some(n=>n.kind==='caught')).slice(-1).forEach(x=>notes.push({kind:'caught', label:x.trap.label, text:x.trap.text, agreed:x.trap.atext, extra:!!x.trap.extra}));
+  d.notes=notes; d.reported=false; cs.state=dehydrate(st); putCase(cs);
+  docPendingAdd({case:cs.id, title:sc.title, file:d.file, at:d.signedAt, notes});
+  dvPop(); closeDoc(); openThread(cs.id);
+  $('cTo').value=d.from; $('cSubj').value='Re: '+(d.kind==='quote'?'Quotation':'Agreement')+' — '+d.them;
+  $('cBody').value=`Hi ${firstName(d.from)},\n\nPlease find the signed agreement attached.\n\nBest regards,\n${myName()}`;
+  dvNextReq={signed:d.id}; await sendEmail();
+  const cc=getCase(cs.id); const m=[...cc.emails].reverse().find(e=>e.me); if(m && !(m.att||[]).includes(d.id)){ m.att=(m.att||[]).concat([d.id]); putCase(cc); renderMails() }
+}
+
+/* 6. "later in your report": what was signed, and whether the hidden change was caught */
+const DOC_PEND='pactli_docnotes';
+function docPendingAdd(x){ const a=LS.get(DOC_PEND,[]); a.push(x); LS.set(DOC_PEND, a.slice(-20)) }
+const _engineAnalyze3 = engineAnalyze;
+engineAnalyze = function(){ const f=_engineAnalyze3.apply(this, arguments); try{ const a=LS.get(DOC_PEND,[]); if(a.length) f.docNotes=a.slice() }catch(e){} return f };
+const _endMeeting3 = endMeeting;
+endMeeting = async function(){ const r=await _endMeeting3.apply(this, arguments); try{ if(cardRec && cardRec.fb && cardRec.fb.docNotes) LS.set(DOC_PEND, []) }catch(e){} return r };
+function docPane(f){
+  const a=f.docNotes||[]; if(!a.length) return '';
+  return `<div class="pane full docp"><h3>Documents you signed or accepted</h3><div class="hint">Checked against what was actually agreed in your meetings and emails.</div>
+    ${a.map(x=>`<div class="docn"><div class="docn-h"><span class="fi c">PDF</span><b>${esc(x.file)}</b><small>${esc(x.title)} · ${x.accepted?'accepted':'signed'} ${new Date(x.at).toLocaleDateString()}</small></div>
+      ${x.notes.length?x.notes.map(n=>n.kind==='trap' ? `<div class="docn-r bad"><b>✕ You signed a term that wasn't what you agreed.</b>${n.extra?`The draft added an automatic-renewal clause you never discussed: it ${esc(n.text)}.`:`${esc(cap1(n.label))} was written as <s>${esc(n.text)}</s> — you had agreed <strong>${esc(n.agreed)}</strong>.`} Always read a draft line by line against your notes before signing. <span class="say">“Before I sign, I noticed clause ${n.clause||''} says ${esc(n.extra?'it renews automatically':n.text)} — I believe we agreed ${esc(n.extra?'nothing on renewal':n.agreed)}. Could you correct that?”</span></div>`
+        : n.kind==='caught' ? `<div class="docn-r ok"><b>✓ You caught a change that didn't match the agreement.</b>${n.extra?'The draft slipped in an automatic-renewal clause, and you had it removed.':`The draft said ${esc(n.text)} for ${esc(n.label)} instead of the agreed ${esc(n.agreed)}, and you had it corrected.`}</div>`
+        : `<div class="docn-r mid"><b>• You accepted their proposal by signing.</b>${esc(cap1(n.label))} was still open — ${x.accepted?'accepting':'signing'} made ${esc(n.text)} binding. If you wanted to negotiate it, request a change first.</div>`).join('')
+        : '<div class="docn-r ok"><b>✓ Everything in the document matched what was agreed.</b></div>'}</div>`).join('')}</div>`;
+}
+const _renderReport2 = renderReport;
+renderReport = function(r){ const out=_renderReport2.apply(this, arguments); try{ if(r && r.fb && r.fb.docNotes && r.fb.docNotes.length && !document.querySelector('#repBody .docp')){ const fx=document.querySelector('#repBody .fxp')||document.querySelector('#repBody .pane.full'); const h=docPane(r.fb); if(fx) fx.insertAdjacentHTML('beforebegin', h); else $('repBody').insertAdjacentHTML('beforeend', h) } }catch(e){} return out };
+
 </script>
 </body>
 </html>
