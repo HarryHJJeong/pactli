@@ -989,6 +989,7 @@ html.mob body{overflow-x:hidden}
 .rc-tbl thead{break-after:avoid}
 @media (max-width:540px){ .cv-bar{flex-wrap:nowrap;padding:10px 10px} .cv-bar b{display:none} .cv-seg{margin-right:auto} .cv-seg button{padding:7px 12px} }
 
+.miss-list{display:grid;gap:10px}.miss{border:1px solid var(--line);border-radius:14px;padding:12px 14px;background:#fff;min-width:0}.miss-h{display:flex;flex-wrap:wrap;gap:4px 12px;font-size:12px;color:var(--muted)}.miss-h b{color:var(--ink)}.miss-k{color:#a0522d;font-weight:600}.miss-q{margin-top:6px;font-weight:600;overflow-wrap:anywhere}.miss-a{font-size:12px;color:var(--muted);margin-top:3px;overflow-wrap:anywhere}.miss-r{margin-top:6px;font-size:13px;color:var(--ink2);overflow-wrap:anywhere}
 </style>
 </head>
 <body>
@@ -1026,7 +1027,7 @@ html.mob body{overflow-x:hidden}
       <div class="nav"><button onclick="go('home')">← Home</button></div>
     </div>
     <div class="section-h" style="margin-top:8px;gap:16px;flex-wrap:wrap"><h2>Admin</h2>
-      <div class="seg" id="admTabs" style="min-width:330px"><button class="on" data-t="members">Members</button><button data-t="sessions">Sessions</button><button data-t="scenarios">Scenarios</button></div>
+      <div class="seg" id="admTabs" style="min-width:330px"><button class="on" data-t="members">Members</button><button data-t="sessions">Sessions</button><button data-t="scenarios">Scenarios</button><button data-t="misses">Misheard</button></div>
     </div>
     <div id="admBody" style="padding-bottom:60px"></div>
   </div>
@@ -2565,12 +2566,12 @@ function cleanSpeech(t){
 function initRec(){
   if(!SR) return null;
   const r = new SR();
-  r.lang = settings.lang; r.interimResults = true; r.maxAlternatives = 1;
+  r.lang = settings.lang; r.interimResults = true; r.maxAlternatives = 3;
   r.continuous = !IS_MOBILE_UA;
   r.onresult = e=>{
     let fin='', interim='';
     for(let i=0;i<e.results.length;i++){
-      const t=e.results[i][0].transcript;
+      const t=e.results[i].isFinal ? srPick(e.results[i]) : e.results[i][0].transcript;
       if(e.results[i].isFinal) fin = IS_MOBILE_UA ? mergeSpeech(fin,t) : (fin+' '+t);
       else interim += ' '+t;
     }
@@ -2726,6 +2727,7 @@ function normText(t){
   s = s.replace(/\b(one|\d+) and a half\b/g,(m,a)=>String((a==='one'?1:+a)+.5));
   s = s.replace(/(\d+(?:\.\d+)?) thousand,?( and)? (\d{1,3})\b(?!\s*(%|k\b|x\b|thousand|million|days?|months?|years?|weeks?|per ?cent))/g,(m,a,_,b)=>String(Math.round(+a*1000)+ +b));
   s = s.replace(/(\d) point (\d)/g,'$1.$2').replace(/\bper ?cent\b/g,'%').replace(/(\d)\s+%/g,'$1%');
+  s = s.replace(/\b(\d)00 (\d\d)\s*(k\b|thousand\b)/g,'$1$2k');
   s = s.replace(/\bpoint (\d+)(?=\s*(%|k\b|x\b|million|thousand))/g,'0.$1').replace(/(\d)\s*kay\b/g,'$1k').replace(/(^|[^\d.,])(\d) (\d)\s*(k\b|thousand\b|million\b)/g,'$1$2.$3 $4');
   s = s.replace(/\b(\d+)\s*(?:x|times)\b/g,'$1x');
   return s;
@@ -2867,15 +2869,15 @@ function bindOffers(sc, st, a, sentLow){
   if(cT) ents.forEach(e=>{ const A=cA!=null?cA:st.issues[cT.id].pos; if((e.type==='num'||e.type==='money') && !/k\b|thousand|grand|million|\bm\b/.test(e.raw) && Math.abs(A)>=1000 && e.v<100) e.v*=1000 });
   ents.forEach(e=>{
     let cands = iss.filter(is=>(is.unit===UNIT_OF[e.type] || (e.type==='num' && is.unit!=='option')) && (!is.range || (e.v>=is.range[0] && e.v<=is.range[1]) || (e.type==='num'&&is.unit==='money')));
-    if(e.type==='num') cands = cands.filter(is=>(mentioned.includes(is) || is===cT) && (a.propose||a.cond||a.accept||a.correct||a.n<=6||(st.expect&&st.expect.issue===is.id)));
+    if(e.type==='num') cands = cands.filter(is=>(mentioned.includes(is) || is===cT || (a.figure && (is.id===st.focus || (st.expect&&st.expect.issue===is.id)))) && (a.propose||a.cond||a.accept||a.correct||a.figure||a.n<=6||(st.expect&&st.expect.issue===is.id)));
     if(a.q && !a.propose && !a.cond && !/\b(accept|agree|consider|do|work|go)\b/.test(sentLow)) return;   // "what's driving the 20%?" quotes a number, doesn't offer one
     if(!cands.length) return;
     if(/^(days|months|years)$/.test(e.type) && mentioned.length && mentioned.every(m=>m.unit==='option') && !cands.some(c=>mentioned.includes(c))) return;
     let pick = cands.find(is=>mentioned.includes(is) && is.unit===UNIT_OF[e.type]) || cands.find(is=>mentioned.includes(is))
              || (cT && cands.find(is=>is===cT))
              || (st.expect && cands.find(is=>is.id===st.expect.issue))
-             || ((a.propose||a.cond||a.accept||a.n<=6) && st.focus && cands.find(is=>is.id===st.focus))
-             || ((a.propose||a.cond||a.n<=6) && cands.length===1 ? cands[0] : null);
+             || ((a.propose||a.cond||a.accept||a.figure||a.n<=6) && st.focus && cands.find(is=>is.id===st.focus))
+             || ((a.propose||a.cond||a.figure||a.n<=6) && cands.length===1 ? cands[0] : null);
     if(!pick) return;
     // ignore numbers that merely quote their position or the document ("you asked for 20%")
     const pre=sentLow.slice(Math.max(0,e.idx-30),e.idx);
@@ -2884,10 +2886,15 @@ function bindOffers(sc, st, a, sentLow){
     if(pick===cT && cA!=null){ const A=cA, vv=(pick.unit==='money' && e.v<1000 && !/k\b|thousand/.test(e.raw) && pick.open>=1000)?e.v*1000:e.v;
       if(Math.abs(vv-A)<1e-9 && ents.some(x=>x!==e)) return;                                             // the recorded figure, quoted ("not 4,000")
       if(/\b(not|instead of|rather than|n'?t|heard|noted|recorded|wrote)\s*\$?\s*$/.test(sentLow.slice(Math.max(0,e.idx-14),e.idx+1)) && ents.some(x=>x!==e)) return }
-    if(!cT && !a.accept && !a.propose && !a.cond && (Math.abs(e.v-st.issues[pick.id].pos)<1e-9 || a.reject)) return;   // restating / rejecting their number ("ninety days is too long")
-    if(out.some(o=>o.issue.id===pick.id)) return;
+    if(!cT && !a.accept && !a.propose && !a.cond && !a.figure && (Math.abs(e.v-st.issues[pick.id].pos)<1e-9 || a.reject)) return;
+    if(!cT && a.figure && Math.abs(e.v-st.issues[pick.id].pos)<1e-9 && !a.accept) return;   // restating / rejecting their number ("ninety days is too long")
+    { const ex=out.find(o=>o.issue.id===pick.id); if(ex){ let v2=e.v; if(pick.unit==='money' && v2<1000 && !/k\b|thousand/.test(e.raw) && pick.open>=1000) v2*=1000;
+        if(Math.abs(v2-ex.v)>1e-9){ const pre2=sentLow.slice(Math.max(0,e.idx-18),e.idx);
+          if(/\b(to|down to|up to|then|now|so|make it|say)\s*\$?\s*$/.test(pre2) || ex.from){ ex.v=v2; ex.alts=null }
+          else if(!/\b(not|instead of|rather than|from|than|was|were)\s*\$?\s*$/.test(pre2)) (ex.alts=ex.alts||[]).push(v2) }
+        return } }
     let v=e.v; if(pick.unit==='money' && v<1000 && /k\b|thousand/.test(e.raw)===false && pick.open>=1000) v*=1000;
-    out.push({issue:pick, v});
+    out.push({issue:pick, v, from:/\bfrom\s*\$?\s*$/.test(sentLow.slice(Math.max(0,e.idx-8),e.idx))});
   });
   // option issues & unlimited by keyword
   mentioned.filter(is=>!out.some(o=>o.issue.id===is.id)).forEach(is=>{
@@ -3154,9 +3161,8 @@ function evaluateOffer0(sc, st, offer, a, sentLow){
     return [ln(lead, fresh(st,'counter'+mood,{warm:[`I can't do ${fv(offer.v)}, but I could move to ${fv(nextPos)}.`,`We're getting closer. ${cap1(fv(nextPos))} would work for us.`],neutral:[`${cap1(fv(offer.v))} is too far for us. We could do ${fv(nextPos)}.`,`I hear you. The best I can do right now is ${fv(nextPos)}.`],cold:[`${cap1(fv(offer.v))}? No. ${cap1(fv(nextPos))}, and that's a stretch.`,`That's still a long way off. ${cap1(fv(nextPos))}.`],angry:[`No. ${cap1(fv(nextPos))}. Take it or leave it.`]}[mood])+reasonBit)];
   }
   // below reserve
-  feel(st,lead,-2,-6); st.expect={type:'justify',issue:is.id,t:st.turn};
-  ev(st,'belowreserve',`Offered ${fv(offer.v)} on ${is.label} — outside anything they could accept.`,0);
-  return [ln(lead, fresh(st,'reject'+mood,[`${cap1(fv(offer.v))} is well outside anything we could accept.${is.why&&!st.usedSet.has('why|'+is.id)?(st.usedSet.add('why|'+is.id),' '+cap1(is.why)):''}`,`I'm sorry, ${fv(offer.v)} just doesn't work for us. We're at ${fv(S_.pos)}.`,`That's not a serious number for us, I'm afraid.`]))];
+  feel(st,lead,-2,-6); ev(st,'belowreserve',`Offered ${fv(offer.v)} on ${is.label} — outside anything they could accept.`,0);
+  return negFar(sc, st, is, offer, prevMine, mood);
 }
 const ln = (p,t) => ({p,t});
 const tr = (st,k) => { (st._tr=st._tr||[]).push(k) };
@@ -3335,7 +3341,8 @@ function nluPlus(a, text){
   a.ackOnly = a.n<=5 && TALK_ACK.test(String(text).trim()) && !a.accept && !a.q;
   a.metaQ = TALK_META.test(low);
   a.promise = TALK_PROMISE.test(low) && !/\?\s*$/.test(String(text).trim());
-  if(a.iq && a.agenda && a.n<=22) a.agenda = false;          // "First, I'd like to know …" is a question, not an agenda
+  if(a.iq && a.agenda && a.n<=22) a.agenda = false;
+  if(typeof nluNeg==='function') nluNeg(a, text);          // "First, I'd like to know …" is a question, not an agenda
 }
 Object.assign(CONCEPTS, {
   state:/\b(current(ly)?|at the moment|right now|as it stands|existing|set-?up|situation|raw|clean|organi[sz]ed|well.?organi[sz]ed|structured|messy|in (good|bad) shape|how (do|are) you (currently |now |today )?(do|doing|handl\w*|manag\w*|deal\w*|us(e|ing)|run\w*|track\w*|stor\w*|work\w*|get\w*|buy\w*|sourc\w*|ship\w*|sell\w*)|what (tools?|systems?|software|platforms?|suppliers?|vendors?|agenc\w+|process\w*|carriers?|products?) (do|are|have) you|who (do|are) you (use|using|work|working|buy|buying|ship|shipping)|what (do|are) you (use|using) (now|today|at the moment)|what does (it|that|your \w+) look like (now|today))\b/,
@@ -3441,6 +3448,7 @@ function talkTurn(sc, st, whole, text){
 function paceAgenda(sc, st, a){
   const T=st._tr||[];
   if(T.some(x=>/^F:|^M:/.test(x))) return null;                       // a non-answer speaks for itself
+  if(st.expect && /^(offer|justify|number|confirm|correct)$/.test(st.expect.type) && (sc.issues||[]).length) return null;   // a point is on the table: stay on it
   const asked = !!(a && a.q && !a.propose && !a.ents.length && !a.accept) && !sc.demandDates && !sc.presentation;
   if(asked && (st.flags.qRun||0) < 3) return null;                     // they are asking: answer, and let them lead
   let q=null;
@@ -3472,6 +3480,144 @@ function talkCompanyBrief(sc, st, p){
   const extra=['scale','state','goal'].map(k=>kbLines(sc,k)).filter(Boolean).map(x=>x[0]).filter((x,i,a)=>a.indexOf(x)===i).slice(0,2);
   return [ln(p, [c[0]].concat(extra).join(' '))];
 }
+
+/* =========================================================
+   NEGOTIATION UNDERSTANDING
+   · "if you don't move, I can't accept the deal" is pressure, never an acceptance
+   · "I'll leave the deal" is a walk-away: one last offer, then the meeting ends with no deal
+   · an acceptance the counterpart misheard is undone at once ("No — I didn't agree")
+   · "let's start with the fee" gets their position; "you name it" gets their number
+   · a figure said on its own belongs to the point being discussed
+   · two different figures in one breath are checked ("407,000 or 470,000?")
+   · a counterpart who keeps saying no still moves when you move, and says what would make them move more
+   ========================================================= */
+const NEG_NOACC = /\b(not|n'?t|never|no way|cannot|can ?not|unable to|refuse to|won'?t)\b(?!\s*(wait|hesitate|help|stop|imagine))[^.,;!?]{0,22}\b(accept|agree|take|sign|go (ahead|with)|deal|work)\b|\bno deal\b|\bnot (a )?deal\b/;
+const NEG_ULT = /\b(if you (don'?t|do not|won'?t|will not|can'?t|cannot|refuse)|unless you|or (else|i walk|we walk|i'?ll (walk|leave)|we'?ll (walk|leave))|otherwise (i|we)|take it or leave it|final offer|last offer|my (final|last|best and final) (offer|number|price))\b/;
+const NEG_WALK = /\b(i|we)('?ll| will|'?m going to| am going to|'?re going to| are going to| have to| must| need to| might| may| would| should)?\s*(just |simply |then |rather )?(leave|pull out of|withdraw from|end|stop|call off|cancel|drop|quit|walk away from|walk out of|walk out on)\s+(the|this|our|your)\s+(deal|negotiations?|talks|discussions?|offer)\b|\b(i|we)('?ll| will|'?m going to| am going to|'?re going to| have to| might| may)?\s*(just |then )?walk( away| out)?\b(?!\s+(you|through|me|us|them|in|over|to|into|around))|\bwalk(ing)? away\b|\b(we'?re|i'?m) (done|out|walking)\b(?!\s+(with|of|for|on|after|by))|\bcall it off\b|\bforget (the deal|about the deal)\b|\b(look|go|going|looking|shop|shopping) (elsewhere|somewhere else|around)\b|\bgo (with|to) (another|someone else|the other|a competitor|your competitor|a different)\b|\bno deal\b|\bthe deal is off\b|\bdeal'?s off\b/;
+const NEG_RAISE = /\b(let'?s|let us|can we|could we|shall we|should we|i'?d like to|i would like to|i want to|we need to|i need to|we should|maybe we)\s+(first\s+)?(talk|start|begin|discuss|go|look|move|focus|cover|deal|get)\s*(about|with|on|at|to|over|into|through)?\b|\b(first|start with|begin with|starting with|to start|first of all)\b/;
+const NEG_ASKNUM = /\b(you name it|name (your|a|the) (price|number|figure)|(what'?s|what is|what'?d be|tell me|give me) your (best|final|bottom|real|actual|own|lowest|highest|top) (number|price|offer|figure|rate)?|what (number|figure|price) (do you have|would you (take|accept|go)|can you do)|your (turn|move)|make (me )?(a |an )?(counter.?offer|offer)|counter.?offer|come back (to me )?with (a|your) (number|figure|offer)|what can you (do|offer)( on (that|this|it|the \w+))?)\b/;
+const NEG_FIGURE = /\b(i'?m looking at|we'?re looking at|i'?m thinking|we'?re thinking|i'?d say|i would say|we'?d say|my number|our number|we'?re at|i'?m at|should be|would be|has to be|needs to be|it'?s|that'?s|make it|go (to|for)|settle (at|on|for)|land (at|on)|meet (at|you at)|best (i|we) (can )?do|we need|i need|we want)\b/;
+const NEG_UNDO = /^\s*(no|nope|nah|wait|hold on|hang on|sorry,? no|what\??)\b|\b(i|we) (didn'?t|did not|never|haven'?t|have not) (say|agree|accept|mean)|\bthat'?s not what (i|we) (said|meant)|\byou (misheard|misunderstood|got (it|me|that) wrong|heard (it|me|that) wrong)|\b(i|we) (said|meant) (if|that if|not|we (can'?t|cannot|won'?t)|i (can'?t|cannot|won'?t))\b|\bnot agreed\b/;
+function nluNeg(a, text){
+  const low=a.low;
+  a.negAcc = NEG_NOACC.test(low);
+  a.ultimatum = NEG_ULT.test(low) || (a.negAcc && /\bif\b|\bunless\b/.test(low));
+  a.walk = NEG_WALK.test(low) && !/\b(walk (you|me|us) through|walk through|step|go ahead|go with (that|this|it|your))\b/.test(low) && !(a.q && !/\b(should|shall)\b/.test(low) && !/\b(i|we)('?ll| will)\b/.test(low));
+  if(/^\s*((alright|all right|right|okay|ok|fine|sure|yes|yeah|good|great)[,.!\s]+)?(agreed|accepted|deal|we have a deal|you have a deal)\b/.test(low) || /\bthat'?s acceptable\b/.test(low)) a.accept = true;
+  if(a.negAcc){ a.accept = false; a.reject = true }
+  if(a.walk){ a.accept = false }
+  a.raise = NEG_RAISE.test(low);
+  if(NEG_ASKNUM.test(low)){ a.askPosition = true; a.askNum = true }
+  if(NEG_FIGURE.test(low) && a.ents.some(e=>e.type==='money'||e.type==='num'||e.type==='pct')) a.figure = true;
+  a.undo = NEG_UNDO.test(low);
+}
+/* "I'll leave the deal" */
+function negWalk(sc, st, whole, final){
+  const lead=0, open=(sc.issues||[]).filter(is=>st.agreed[is.id]==null && !is.never && (st.issues[is.id]||{}).raised), is=open.find(i=>i.id===st.focus) || open[0];
+  st.flags.walkN=(st.flags.walkN||0)+1; tr(st,'W:walk');
+  const roomOn = is && is.unit!=='option' && !isUnl(is, st.issues[is.id].pos) && better(is, st.issues[is.id].pos, is.reserve);
+  if(st.flags.walkN===1 && roomOn && !final){
+    const S_=st.issues[is.id], last=(st.offers[is.id]||[]).slice(-1)[0], g=corrGran(is);
+    let fin = last!=null && atLeast(is, last, is.reserve) ? null : is.reserve;
+    if(fin==null){ st.agreed[is.id]=last; S_.pos=last; ev(st,'walkWin',`Threatened to walk away — they accepted ${fmtVal(is,last)} on ${is.label}.`,0); feel(st,lead,-4,-3);
+      return [ln(is.owner||lead, fresh(st,'walkSave',[`Wait — let's not throw this away over one number. ${cap1(fmtVal(is,last))}, then. But I'm not happy about how we got here.`,`Hold on. I don't want to lose this deal. Fine — ${fmtVal(is,last)}.`]))] }
+    fin = Math.round(fin/g)*g; if(!atLeast(is, fin, is.reserve)) fin = is.reserve;
+    S_.pos=fin; S_.moves=(S_.moves||0)+1; st.expect={type:'offer',issue:is.id,value:fin,t:st.turn}; feel(st,lead,-5,-4);
+    ev(st,'walkThreat',`Threatened to walk away over ${is.label}; they made a final offer of ${fmtVal(is,fin)}.`,0);
+    return [ln(is.owner||lead, fresh(st,'walkFinal',[`Wait — before you go. I don't want to lose this over one number. My final offer on ${is.label} is ${fmtVal(is,fin)}. That really is as far as I can go.`,`Hold on, {name}. Let's not end it like this. ${cap1(fmtVal(is,fin))} on ${is.label} — that's my final offer.`]))];
+  }
+  st.flags.walked=true; st.closing=true; ev(st,'walkaway', is ? `Walked away without agreeing ${is.label}.` : 'Walked away from the deal.', 0);
+  const pts=open.map(i=>i.label);
+  return [ln(lead, (final && st.flags.walkN===1 && roomOn ? `Before you go — my final offer on ${is.label} would have been ${fmtVal(is, Math.round(is.reserve/corrGran(is))*corrGran(is))}. If you change your mind, email me. ` : '') + fresh(st,'walked',[`That's a shame, {name}. ${pts.length?`We couldn't close the gap on ${pts.slice(0,2).join(' and ')}. `:''}If anything changes on your side, you know where to find me.`,`I'm sorry it ended this way. ${pts.length?`I'll tell my team we couldn't agree on ${pts[0]}. `:''}The door isn't closed if your position changes.`]))];
+}
+/* "if you don't move, I can't accept the deal" */
+function negUltimatum(sc, st, is, a){
+  const S_=st.issues[is.id], lead=is.owner||0; tr(st,'U:'+is.id); st.focus=is.id; feel(st,lead,-3,-4);
+  st.flags.ultN=(st.flags.ultN||0)+1;
+  const can = is.unit!=='option' && !isUnl(is,S_.pos) && better(is, S_.pos, is.reserve) && !(S.difficulty==='veryhard' && st.flags.ultN>2);
+  if(can){
+    const curve={easy:.6,medium:.45,hard:.35,veryhard:.25}[S.difficulty], g=corrGran(is);
+    let next = S_.pos + (is.reserve - S_.pos) * curve; next = Math.round(next/g)*g;
+    if(!better(is, S_.pos, next)) next = is.better==='down' ? S_.pos+g : S_.pos-g;
+    if(!atLeast(is, next, is.reserve)) next=is.reserve;
+    S_.pos=next; S_.moves=(S_.moves||0)+1; st.expect={type:'offer',issue:is.id,value:next,t:st.turn};
+    ev(st,'pressure',`Put pressure on ${is.label}; they moved to ${fmtVal(is,next)}.`,0);
+    return [ln(lead, fresh(st,'ultMove',[`I don't want to lose this over one number either. I can go to ${fmtVal(is,next)} — and that's close to my limit.`,`Alright, I hear you. ${cap1(fmtVal(is,next))}. But I can't keep moving like this.`,`Let me meet you part of the way: ${fmtVal(is,next)}. Can you work with that?`]))];
+  }
+  st.expect={type:'offer',issue:is.id,value:S_.pos,t:st.turn}; ev(st,'pressure',`Put pressure on ${is.label}; they could not move further.`,0);
+  return [ln(lead, fresh(st,'ultHold',[`I understand. But ${fmtVal(is,S_.pos)} is genuinely as far as I can go. If that doesn't work for you, we may not have a deal on ${is.label}.`,`I hear you, {name}. ${cap1(fmtVal(is,S_.pos))} is my limit. If you can't get there, let's be honest about it.`]))];
+}
+/* "No — I didn't agree": an acceptance they misheard */
+function negUndo(sc, st, whole, turnOffers){
+  const id=st.lastAgreed, m=id && corrMeta(st)[id];
+  if(!m || m.by!=='theirs' || m.lt < st.learnerTurns.length-2 || st.agreed[id]==null) return null;
+  if(!(whole.undo || whole.negAcc || (whole.reject && turnOffers.some(o=>o.issue.id===id)))) return null;
+  const is=(sc.issues||[]).find(i=>i.id===id), A=st.agreed[id];
+  delete st.agreed[id]; st.issues[id].pos=A; st.lastAgreed=null; delete corrMeta(st)[id]; st.flags.allDone=false; st.sumInvite=false;
+  st.events=st.events.filter(e=>!(e.kind==='acceptTheirs' && e.text.includes(is.label)) && !(e.kind==='limit' && e.text.includes(is.label) && e.turn>=st.turn-2));
+  st.expect={type:'offer',issue:id,value:A,t:st.turn}; st.focus=id; tr(st,'UNDO:'+id);
+  st._sorry = fresh(st,'undo',["Sorry — I misunderstood you.","My mistake, I thought you'd agreed.","Ah, sorry, I got that wrong."]);
+  if(turnOffers.length || whole.ultimatum || whole.walk) return null;
+  const t=st._sorry; st._sorry='';
+  return {issue:id, lines:[ln(is.owner||0, t+' '+fresh(st,'undo2',[`So we're not agreed on ${is.label} yet — we're still at ${fmtVal(is,A)}. What would you need to move?`,`Then ${is.label} is still open. We're at ${fmtVal(is,A)}; where can you go?`]))]};
+}
+/* "407k for the annual licence fee 470k" */
+function negAmbig(st, is, vals){
+  st.expect={type:'number', issue:is.id}; st.focus=is.id; tr(st,'AMB:'+is.id);
+  const a=vals.map(v=>fmtVal(is,v));
+  return [ln(is.owner||0, fresh(st,'ambig',[`Sorry — was that ${a[0]} or ${a[1]}?`,`I heard two figures there: ${a[0]} and ${a[1]}. Which one did you mean?`,`Just to be sure — ${a.slice(0,2).join(' or ')} for ${is.label}?`]))];
+}
+/* still too far for them — but if you moved, they move too, and say what would help */
+function negFar(sc, st, is, offer, prevMine, mood){
+  const S_=st.issues[is.id], lead=is.owner||0, fv=v=>fmtVal(is,v), g=corrGran(is);
+  const youMoved = prevMine!=null && better(is, offer.v, prevMine);
+  const room = is.unit!=='option' && !isUnl(is,S_.pos) && better(is, S_.pos, is.reserve);
+  st.expect={type:'justify',issue:is.id,t:st.turn};
+  if(youMoved && room && S.difficulty!=='veryhard' || youMoved && room && (st.flags['far_'+is.id]||0)>=1){
+    const curve={easy:.5,medium:.35,hard:.25,veryhard:.18}[S.difficulty];
+    let next=S_.pos+(is.reserve-S_.pos)*curve*Math.pow(.8,S_.moves||0); next=Math.round(next/g)*g;
+    if(!better(is, S_.pos, next)) next = is.better==='down' ? S_.pos+g : S_.pos-g;
+    if(!atLeast(is, next, is.reserve)) next=is.reserve;
+    S_.pos=next; S_.moves=(S_.moves||0)+1; st.expect={type:'offer',issue:is.id,value:next,t:st.turn};
+    const hint = !st.flags['hint_'+is.id] ? (st.flags['hint_'+is.id]=1, ' '+fresh(st,'farHint',["If you can give me something in return — a longer commitment, or more volume — there may be a little more room.","Give me a reason I can take to my manager, and I'll see what else I can do.","Help me with something on another point, and I can look at this again."])) : '';
+    return [ln(lead, fresh(st,'farMove'+mood,[`${cap1(fv(offer.v))} is still more than we can do. But you've moved, so I will too: ${fv(next)}.`,`We're getting closer, but not there. I can come to ${fv(next)}.`,`Still too far for us at ${fv(offer.v)}. I'll move to ${fv(next)} to meet you.`])+hint)];
+  }
+  st.flags['far_'+is.id]=(st.flags['far_'+is.id]||0)+1; const n=st.flags['far_'+is.id];
+  const why = is.why && !st.usedSet.has('why|'+is.id) ? (st.usedSet.add('why|'+is.id),' '+cap1(is.why)) : '';
+  if(n>=3) return [ln(lead, fresh(st,'farAsk',[`We keep going round on ${is.label}. Tell me what's behind your number — or what you could give on another point — and I'll see what I can do.`,`I don't think repeating numbers will get us there. What would make ${fv(S_.pos)} work for you, or what could you offer in return?`]))];
+  return [ln(lead, fresh(st,'reject'+mood,[`${cap1(fv(offer.v))} is well outside what we could accept.${why}`,`I'm sorry, ${fv(offer.v)} doesn't work for us. We're at ${fv(S_.pos)}.`,`That's a long way from where we are, I'm afraid. ${cap1(fv(S_.pos))} is our number.`,`I can't take ${fv(offer.v)} to my manager.${why}`]))];
+}
+/* speech: when the browser offers several hearings, take the one that fits this meeting best */
+function srVocab(){ const sc=S&&S.sc; if(!sc) return null; if(sc._vocab) return sc._vocab;
+  const w=new Set(); const add=t=>String(t||'').toLowerCase().replace(/\\b|[()?|\[\]\\^$*+{}]/g,' ').split(/[^a-z0-9]+/).forEach(x=>{ if(x.length>3) w.add(x) });
+  (sc.issues||[]).forEach(i=>{ add(i.label); add(i.keys) }); (sc.personas||[]).forEach(p=>{ add(p.name); add(p.role) }); add(sc.title); add(sc.company);
+  ['price','licence','license','annual','volume','payment','terms','contract','discount','delivery','agree','accept','proposal','budget','deadline','month','year'].forEach(x=>w.add(x));
+  return sc._vocab=w }
+function srPick(res){
+  if(!res || res.length<2) return res && res[0] ? res[0].transcript : '';
+  const V=srVocab(); if(!V) return res[0].transcript;
+  const score=t=>String(t).toLowerCase().split(/[^a-z0-9]+/).filter(x=>V.has(x)).length;
+  let best=0, bs=score(res[0].transcript);
+  for(let i=1;i<res.length;i++){ const s=score(res[i].transcript); if(s>bs){ best=i; bs=s } }
+  if(best && S){ (S.srAlts=S.srAlts||[]).push(res[0].transcript+' → '+res[best].transcript) }
+  return res[best].transcript;
+}
+/* turns the counterpart could not handle well, collected for the admin */
+function missNote(sc, st, text, turns, ch){
+  if(!S || !text) return; const T=st._tr||[];
+  const kind = T.find(x=>/^F:(q2|offtopic|stmt|yesmore|reasonack|unclear)/.test(x)) || (T.some(x=>/^UNDO:|^AMB:/.test(x)) ? T.find(x=>/^UNDO:|^AMB:/.test(x)) : '') || (T.some(x=>/^M:/.test(x))?'M:meta':'');
+  if(!kind) return;
+  (S.misses=S.misses||[]).push({t:Date.now(), ch:ch||'voice', heard:String(text).slice(0,400), reply:(turns||[]).map(u=>u.text).join(' ').slice(0,300), kind:kind.replace(/^F:/,''), alts:(S.srAlts||[]).filter(x=>{ const b=String(x.split(' → ')[1]||'').toLowerCase().replace(/[^a-z0-9 ]/g,'').slice(0,24); return b && String(text).toLowerCase().replace(/[^a-z0-9 ]/g,'').includes(b) }).slice(-1)[0]||''});
+}
+function missFlush(title){
+  const m=(S&&S.misses)||[]; if(!m.length || !authed()) return; S.misses=[];
+  gas('misses.save',{items:m.slice(-40).map(x=>Object.assign({scenario:title||(S.sc&&S.sc.title)||''},x))}).catch(()=>{});
+}
+/* hooks: note weak turns, and send them when the meeting ends */
+const _engineReply = engineReply;
+engineReply = function(sc, st, text, opts){ const r=_engineReply(sc, st, text, opts); try{ const ch=opts&&opts.channel; missNote(sc, st, text, r.turns, ch); if(ch==='email') missFlush(sc.title) }catch(e){} return r };
+const _endMeeting = endMeeting;
+endMeeting = async function(){ const t=S&&S.title; const r=await _endMeeting.apply(this, arguments); try{ missFlush(t) }catch(e){} return r };
 
 /* ---------- 4. Dialogue: main turn ---------- */
 function engineTurn(sc, st, text, channel){
@@ -3506,6 +3652,7 @@ function engineTurn(sc, st, text, channel){
   if(rep && !st.flags.repWarned){ st.flags.repWarned=true; feelAll(st,-3,-8); add(5,[ln(lead, fresh(st,'rep',["You've already made that point. Is there anything new?","I think you said that already — what else can you offer?"]))]) }
   // ---- closing / bye / summary
   if(st.closing && channel!=='email') return {lines: closeLines(sc,st), end:true};
+  if(whole.walk && (sc.issues||[]).length && !(st.expect && st.expect.type==='smalltalk')){ const L=negWalk(sc, st, whole, whole.bye || (st.flags.walkN||0)>=1); return {lines:L, end: !!st.flags.walked && channel!=='email'} }
   if(whole.bye && st.turn>=3 && channel!=='email'){ st.closing=true; return {lines: stFarewell(sc, st, whole, closeLines(sc,st)), end:true} }
   if(whole.summary && st.turn>=3 && sc.discussion && st.flags.decision && !st.flags.consensus && channel!=='email'){ const sk=sc.personas.findIndex(p=>p.stance==='skeptic'); ev(st,'noconsensus','Tried to close before everyone agreed.',-1); return {lines:[ln(lead, `Before we close — ${firstNameOf(sc.personas[sk>0?sk:0].name)} isn't on board yet. How would you address that concern?`)]} }
   if(whole.summary && st.turn>=3 && sc.discussion && !st.flags.decision && channel!=='email'){ st.flags.summary=true; return {lines:[ln(lead, "Before we wrap up — what's your actual recommendation? We still need a decision.")]} }
@@ -3537,6 +3684,7 @@ function engineTurn(sc, st, text, channel){
   talkTurn(sc, st, whole, text);
   if(whole.metaQ && !whole.ents.length) return {lines: talkMeta(sc, st, whole, lead)};
   if(whole.askMe && !whole.ents.length && !(st.expect && st.expect.type==='smalltalk')) return {lines: talkAskMe(sc, st, lead)};
+  { const u = negUndo(sc, st, whole, bindOffers(sc, st, whole, whole.low)); if(u) return {lines:u.lines} }
   { const cp = corrPre(sc, st, whole, bindOffers(sc, st, whole, whole.low)); if(cp){ R.push({pri:30, lines:cp.lines}); handledIssues.add(cp.issue); if(whole.n<=14) return {lines:cp.lines} } }
   let offersMade=0;
   const turnOffers = bindOffers(sc, st, whole, whole.low); let handledK=0;
@@ -3545,21 +3693,24 @@ function engineTurn(sc, st, text, channel){
     // offers / numbers
     const offers = bindOffers(sc, st, a, sl).filter(o=>!handledIssues.has(o.issue.id));
     if(offers.length){
-      offers.forEach(o=>{ handledIssues.add(o.issue.id); offersMade++; add(30, evaluateOffer(sc, st, o, Object.assign({},a,{reason:whole.reason,evidence:whole.evidence,cond:whole.cond||a.cond}), whole.low)) });
+      offers.forEach(o=>{ handledIssues.add(o.issue.id); offersMade++; if(o.alts && o.alts.length){ add(30, negAmbig(st, o.issue, [o.v].concat(o.alts))); return } add(30, evaluateOffer(sc, st, o, Object.assign({},a,{reason:whole.reason,evidence:whole.evidence,cond:whole.cond||a.cond}), whole.low)) });
       if(offers.length>=2 && (whole.cond||whole.propose)) { st.flags.package=true; ev(st,'package','Proposed a package across several issues.',1) }
       return;
     }
     // accept their last counter
     const strongAccept = /\b(accept|agree|deal|works for (us|me)|fine with|go with|that'?s fine|sounds good|we can live with)\b/.test(sl) || (a.accept && a.n<=4);
-    if(strongAccept && !a.reject && st.expect && st.expect.type==='offer' && !handledIssues.has(st.expect.issue)){
+    if(strongAccept && !a.reject && !a.negAcc && !whole.negAcc && !whole.walk && !whole.ultimatum && st.expect && st.expect.type==='offer' && !handledIssues.has(st.expect.issue)){
       const is=(sc.issues||[]).find(i=>i.id===st.expect.issue); tr(st,'ACC:'+is.id); handledIssues.add(is.id);
       st.agreed[is.id]=st.expect.value; corrMeta(st)[is.id]={lt:st.learnerTurns.length, prev:st.issues[is.id].pos, by:'theirs', ch:st._ch||'voice'}; st.lastAgreed=is.id; ev(st,'acceptTheirs',`Accepted their ${is.label}: ${fmtVal(is,st.expect.value)}.`, (is.limit!=null && better(is, st.expect.value, is.limit))?-1:0);
       if(is.limit!=null && better(is, st.expect.value, is.limit)) ev(st,'limit',`Accepted ${fmtVal(is,st.expect.value)} on ${is.label}, outside your mandate.`,-1);
       st.expect=null; feel(st,is.owner||0,+5,+5);
       add(30,[ln(is.owner||0, fresh(st,'deal',[`Good. ${cap1(fmtVal(is,st.agreed[is.id]))} it is.`,`Great — then we're agreed on ${is.label}.`]))]); return;
     }
+    // pressure: "if you don't move, I can't accept"
+    if(a.ultimatum || (whole.ultimatum && a.negAcc)){ const is=issuesMentioned(sc, sl)[0] || (sc.issues||[]).find(i=>i.id===(st.expect&&st.expect.issue||st.focus));
+      if(is && st.agreed[is.id]==null && !is.never && !handledIssues.has(is.id)){ handledIssues.add(is.id); add(26, negUltimatum(sc, st, is, a)); return } }
     // hold firm / reject
-    if((a.holdFirm || (a.reject && !a.q)) && (st.focus || st.expect)){
+    if((a.holdFirm || (a.reject && !a.q)) && !a.askNum && (st.focus || st.expect)){
       const is=issuesMentioned(sc, sl)[0] || (sc.issues||[]).find(i=>i.id===(st.expect&&st.expect.issue||st.focus));
       if(is && turnOffers.some(o=>o.issue.id===is.id)) return;   // "90 days is too long. Could we do 30?" → let the offer answer
       if(is && !handledIssues.has(is.id)){ tr(st,'HF:'+is.id); handledIssues.add(is.id);
@@ -3596,16 +3747,17 @@ function engineTurn(sc, st, text, channel){
     if(hid && st.revealed[hid.id] && !a.q && (a.ents.length||a.propose||a.reason||a.commitDate) && !st.flags['addr_'+hid.id]){ handledHidden.add(hid.id); st.flags['addr_'+hid.id]=true; feel(st,hid.owner||0,+5,+3); ev(st,'addressed',`Addressed their concern: ${hid.recap||hid.id}.`,1);
       add(21,[ln(hid.owner||0, fresh(st,'addr',["That's good to hear — it addresses my main concern.","Okay, that helps a lot, actually.","If you can really do that, that changes things for me."]))]); return }
     // asking their position
-    if(a.askPosition){ const is=(isMent[0]) || (sc.issues||[]).find(i=>i.id===st.focus) || (sc.issues||[]).find(i=>!st.agreed[i.id]&&!i.never);
+    if(a.askPosition || (a.raise && isMent.length && (!a.q || /^\s*(can|could|shall|should|may) (we|i)\b/.test(sl)))){ const is=(isMent.find(i=>st.agreed[i.id]==null)||isMent[0]) || (sc.issues||[]).find(i=>i.id===st.focus && st.agreed[i.id]==null) || (sc.issues||[]).find(i=>!st.agreed[i.id]&&!i.never);
+      if(is && st.agreed[is.id]!=null && !handledIssues.has(is.id)){ handledIssues.add(is.id); add(24,[ln(is.owner||0, `We've already agreed ${is.label} at ${fmtVal(is,st.agreed[is.id])}. Shall we move on?`)]); return }
       if(is && !handledIssues.has(is.id)){ tr(st,'P:'+is.id); handledIssues.add(is.id); st.focus=is.id; st.issues[is.id].raised=true; st.expect={type:'offer',issue:is.id,value:st.issues[is.id].pos};
-        add(24,[ln(is.owner||0, fresh(st,'pos'+moodOf(st,is.owner||0),[`Our position on ${is.label} is ${fmtVal(is,st.issues[is.id].pos)}.`,`We're at ${fmtVal(is,st.issues[is.id].pos)} on ${is.label}. What can you do?`,`${cap1(fmtVal(is,st.issues[is.id].pos))}. That's where we are.`]))]); return } }
+        add(24,[ln(is.owner||0, (a.raise&&!a.askPosition ? fresh(st,'raiseok',["Sure, let's start there.","Fine by me.","Good — that's the big one."])+' ' : '') + fresh(st,'pos'+moodOf(st,is.owner||0),[`Our position on ${is.label} is ${fmtVal(is,st.issues[is.id].pos)}.`,`We're at ${fmtVal(is,st.issues[is.id].pos)} on ${is.label}. What can you do?`,`${cap1(fmtVal(is,st.issues[is.id].pos))}. That's where we are.`]))]); return } }
     // a point outside the learner's authority, deferred to their team (linked scenarios)
     { const od=isMent.find(i=>i.outside && !st.flags['defer_'+i.id]);
       if(od && typeof CAMP_DEFER!=='undefined' && CAMP_DEFER.test(sl) && !bindOffers(sc,st,a,sl).some(o=>o.issue.id===od.id)){ handledIssues.add(od.id); st.flags['defer_'+od.id]=true; st.issues[od.id].raised=true; st.flags.deferred=true; tr(st,'DF:'+od.id);
         ev(st,'defer',`Deferred ${od.label} to their team instead of agreeing outside their authority.`,1);
         add(20,[ln(od.owner||0, fresh(st,'defer',[`Fair enough. Check with your team and come back to me on ${od.label}.`,`Okay — get back to me on ${od.label} once you've spoken to your team.`,`That's fine. Let's park ${od.label} until you've checked internally.`]))]); return } }
     // issue raised without numbers: defend / ask for their proposal
-    if(isMent.length && !(a.agenda && isMent.length>=2) && (a.q || a.propose || a.reason || a.reject || /concern|problem|issue|risk|worried|change|flag|point/.test(sl))){
+    if(isMent.length && !(a.raise && /^\s*(can|could|shall|should|may) (we|i)\b/.test(sl) && !/\bwhy\b/.test(sl)) && !(a.agenda && isMent.length>=2) && (a.q || a.propose || a.reason || a.reject || /concern|problem|issue|risk|worried|change|flag|point/.test(sl))){
       const is=isMent[0]; tr(st,'I:'+is.id); handledIssues.add(is.id); st.issues[is.id].raised=true; st.focus=is.id;
       const later=turnOffers.find(o=>o.issue.id===is.id);
       if(later){ offersMade++; add(30, evaluateOffer(sc, st, later, Object.assign({},whole,{cond:whole.cond}), whole.low)); return }
@@ -3682,7 +3834,9 @@ function checkSummary(sc, st, whole){
   if(!out.length) ev(st,'summary','Summarised the agreement accurately.',1);
   return out;
 }
-function closeLines(sc, st){ if(sc.closingLow && (sc.hidden||[]).length && (sc.hidden||[]).filter(h=>st.revealed[h.id]).length<2) return sc.closingLow.map(([p,t])=>ln(p,t));
+function closeLines(sc, st){ if(st.flags.walked) return [ln(0,"Thanks for your time, {name}.")];
+  if((sc.issues||[]).length && st.turn>2 && (sc.issues||[]).filter(i=>!i.never).every(i=>st.agreed[i.id]==null)) return [ln(0, fresh(st,'closeNone',["Thanks, {name}. We haven't agreed anything yet, so let's both see where we can find some room before we speak again.","Okay, {name}. No agreement today — let's each go back to our teams and talk again soon."]))];
+  if(sc.closingLow && (sc.hidden||[]).length && (sc.hidden||[]).filter(h=>st.revealed[h.id]).length<2) return sc.closingLow.map(([p,t])=>ln(p,t));
   return (sc.closing||[[0,"Thanks, {name}. Let's follow up as discussed."]]).map(([p,t])=>ln(p,t)) }
 function recapList(sc, st){
   if(sc.discussion) return st.decisionText ? ['Decision proposed: '+st.decisionText.replace(/^(so,? |okay,? |well,? )/i,'').replace(/[.!?]*$/,'')] : [];
@@ -3725,7 +3879,7 @@ function composeTurns(sc, st, res, opts){
   if(!opts.noExtras){
     if(a && a.n>70 && /hard/.test(S.difficulty) && !st.closing && !sc.presentation){ feel(st,lead,0,-4); lines.unshift(ln(lines[0]?lines[0].p:lead, S.difficulty==='veryhard'?"Let me stop you there.":"Sorry to cut in —")) }
     else if(a && lines.length && Math.random()<.4 && !(st._tr||[]).some(x=>/^F:|^A:|^M:/.test(x)) && !(a.q && !a.propose) && !/^(okay|ok|right|hmm|well|look|so|thanks|thank|great|good|sorry|fair|i see|let me|that|we already|like i|as i|again|hold on|yes|no\b|sure|of course|just|it means|our|we|i'm|i am|i appreciate|i hear|fine|ha\b|glad|nice|oh\b|honestly|alright|got it)/i.test(lines[0].t)) lines[0]={p:lines[0].p, t:fresh(st,'ack'+((sc.personas[lines[0].p]||{}).acks?'P':''),(sc.personas[lines[0].p]||{}).acks||ACKS[moodOf(st,lines[0].p)])+' '+lines[0].t};
-    { const P0=sc.personas[lead]||{}; if(P0.tics && !st.closing && st.expect && st.expect.type==='offer' && lines.length && lines[lines.length-1].p===lead && st.turn-(st.flags.ticAt||-9)>=3 && Math.random()<.55){ st.flags.ticAt=st.turn; const L=lines[lines.length-1], q=L.t.match(/^(.*[.!])\s+([^.!?]*\?)\s*$/); const tic=fresh(st,'tic',P0.tics); lines[lines.length-1]={p:L.p, t:q ? q[1]+' '+tic+' '+q[2] : L.t+' '+tic} } }
+    { const P0=sc.personas[lead]||{}; if(P0.tics && !st.closing && st.expect && st.expect.type==='offer' && (st._tr||[]).some(x=>/^O:/.test(x)) && lines.length && lines[lines.length-1].p===lead && st.turn-(st.flags.ticAt||-9)>=3 && Math.random()<.55){ st.flags.ticAt=st.turn; const L=lines[lines.length-1], q=L.t.match(/^(.*[.!])\s+([^.!?]*\?)\s*$/); const tic=fresh(st,'tic',P0.tics); lines[lines.length-1]={p:L.p, t:q ? q[1]+' '+tic+' '+q[2] : L.t+' '+tic} } }
     // keep the meeting moving with an agenda question
     if(!st.closing && !st.endNow && !lines.some(l=>/\?\s*$/.test(l.t)) && !sc.presentation && !(st.expect && (st.expect.type==='offer'||st.expect.type==='justify') && st.expect.t===st.turn)){
       const q=paceAgenda(sc, st, a); if(q) lines.push(q);
@@ -5622,6 +5776,8 @@ function localGas(action, d){
     case 'scenarios.list': return {scenarios:db.scenarios};
     case 'scenarios.save': need(); db.scenarios=db.scenarios.filter(s=>s.id!==d.scenario.id).concat([d.scenario]); save(); return {ok:true};
     case 'scenarios.delete': need(); db.scenarios=db.scenarios.filter(s=>s.id!==d.id); save(); return {ok:true};
+    case 'misses.save': { db.misses=(db.misses||[]).concat((d.items||[]).map(x=>Object.assign({userId:me.id,name:me.name},x))).slice(-600); save(); return {ok:true} }
+    case 'misses.list': { if(!me.admin) throw new Error('Admin only.'); return {items:(db.misses||[]).slice().reverse()} }
     case 'sync.pull': { const k=d.known||{}; return {items:(db.sync||[]).filter(x=>x.userId===me.id && x.updated>(k[x.key]||0)).map(({userId,...x})=>x)} }
     case 'sync.push': { const stamps={}; db.sync=db.sync||[]; (d.items||[]).forEach(it=>{ const u=Date.now(); db.sync=db.sync.filter(x=>!(x.userId===me.id&&x.key===it.key)); db.sync.push({userId:me.id,key:it.key,updated:u,at:it.at||u,json:it.json==null?null:it.json}); stamps[it.key]=u }); save(); return {ok:true,stamps}; }
   }
@@ -5693,6 +5849,11 @@ async function renderAdmin(){
         <td>${esc([u.title,u.company].filter(Boolean).join(' · '))||'<span style="color:var(--dim)">–</span>'}</td><td>${u.sessions||0}</td>
         <td>${u.avg!=null?`<span class="sc">${u.avg}</span>`:'–'}</td><td>${u.lastLogin?new Date(u.lastLogin).toLocaleDateString():'–'}</td>
         <td><span class="pill ${u.active?'on':''}">${u.active?'Active':'Inactive'}</span></td></tr>`).join('')}</tbody></table></div>`;
+    } else if(admTab==='misses'){
+      let it=[]; try{ it=(await gas('misses.list',{})).items||[] }catch(err){ b.innerHTML=`<div class="empty">${/Unknown action/i.test(err.message)?'Update Code.gs on the member server to start collecting these.':esc(err.message)}</div>`; return }
+      const K={q2:'No answer',offtopic:'Treated as off-topic',stmt:'Treated as a statement',yesmore:'Vague reply',reasonack:'Vague reply',unclear:'Not understood','M:meta':'Learner said "you didn\'t answer"'};
+      b.innerHTML = `<div class="admbar"><span class="hint">Turns the counterpart could not handle well, newest first. Use them to find what to teach the engine next.</span></div>`
+        + (it.length ? `<div class="miss-list">${it.slice(0,300).map(x=>`<div class="miss"><div class="miss-h"><b>${esc(x.name||x.userId||'')}</b><span>${esc(x.scenario||'')}</span><span>${new Date(x.t).toLocaleString()}</span><span class="miss-k">${esc(K[x.kind]||(/^UNDO/.test(x.kind)?'Misheard an acceptance':/^AMB/.test(x.kind)?'Two figures heard':x.kind))}${x.ch==='email'?' · email':''}</span></div><div class="miss-q">“${esc(x.heard)}”</div>${x.alts?`<div class="miss-a">Speech heard: ${esc(x.alts)}</div>`:''}<div class="miss-r">${esc(x.reply)}</div></div>`).join('')}</div>` : '<div class="empty">Nothing collected yet.</div>');
     } else if(admTab==='sessions'){
       admReports=(await gasSWR('reports.list',{all:true}, ()=>{ if($('admin').classList.contains('on')&&admTab==='sessions') renderAdmin() })).reports||[];
       drawSessions();
