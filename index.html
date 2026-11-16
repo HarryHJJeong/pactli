@@ -733,6 +733,10 @@ html.mob .cp-ledger{padding:18px}
 html.mob #arcBody .kpis{grid-template-columns:repeat(2,1fr)!important}
 @media print{ #sidebar,#tabbar,.viewsw{display:none!important} html.shell:not(.mob) body{padding-left:0} }
 
+.cp-roll{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-top:12px;padding-top:12px;border-top:1px dashed var(--line);font-size:13px;color:var(--ink2);flex-wrap:wrap}
+.cp-roll span{min-width:0}
+.cp-roll .btn{padding:7px 12px;font-size:12.5px;flex-shrink:0}
+
 /* ===== Nav icons & mobile tab bar (v2) ===== */
 .nvi{width:22px;height:22px;display:block;fill:none;stroke:currentColor;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round;overflow:visible}
 .nvi .ac{fill:var(--nvi-ac,#c7e48b);stroke:none}
@@ -804,6 +808,21 @@ html.mob pre,html.mob code{white-space:pre-wrap;overflow-wrap:anywhere}
 /* safety net: the page itself never scrolls sideways */
 html.mob body{overflow-x:hidden}
 @supports (overflow:clip){ html.mob,html.mob body{overflow-x:clip} }
+
+/* history: campaign groups */
+.hgrp{margin-bottom:12px}
+.hgrp .hist{margin-bottom:0}
+.hgrp .hcamp{border-color:var(--ink2);background:linear-gradient(180deg,#fff,#f4f6f1)}
+.hgrp.open .hcamp{border-bottom-left-radius:0;border-bottom-right-radius:0}
+.hgrp-in{border:1px solid var(--line);border-top:0;border-radius:0 0 14px 14px;padding:8px;background:#f7f6f0;display:grid;gap:8px}
+.hgrp-in .hist{box-shadow:none}
+.hep{display:inline-block;font-size:10.5px;font-weight:800;letter-spacing:.04em;text-transform:uppercase;color:var(--ink2);background:#e7ebe0;border-radius:6px;padding:2px 6px;margin-right:7px;vertical-align:1px}
+.hprac{font-size:10.5px;font-weight:700;color:var(--muted);border:1px solid var(--line);border-radius:6px;padding:1px 5px;margin-left:4px;vertical-align:1px}
+.hcount{flex-shrink:0;min-width:24px;height:24px;border-radius:12px;background:var(--ink2);color:#fff;font-size:12px;font-weight:800;display:flex;align-items:center;justify-content:center;padding:0 7px}
+.harc .sc{color:var(--ink2);font-size:24px}
+.hgrp-in .hist{padding:14px 16px}
+.hgrp .hcamp small{white-space:normal;overflow:visible;text-overflow:clip;line-height:1.45}
+.hgrp-in .hist b{white-space:normal}
 @media print{
   body{background:#fff}
   .top,.noprint{display:none!important}
@@ -2871,11 +2890,15 @@ function corrPre(sc, st, whole, turnOffers){
     if(/^\s*(no|nope|not)\b/.test(whole.low) || whole.correct || whole.reject){ st.expect = {type:'number', issue:is.id}; return {issue:is.id, lines:[ln(is.owner||0, fresh(st,'rbAsk',[`Sorry about that — what figure did you say for ${is.label}?`,`My mistake. Could you give me the number for ${is.label} again?`]))]} }
     st.expect = null; return null;
   }
-  if(!ex && !turnOffers.length && st.lastAgreed && st.agreed[st.lastAgreed]!=null && whole.n<=14 && !whole.q && !whole.correct && !whole.reject
+  if((!ex || ex.type==='question') && !turnOffers.length && st.lastAgreed && st.agreed[st.lastAgreed]!=null && whole.n<=14 && !whole.q && !whole.correct && !whole.reject
      && (whole.accept || /\b(accept|agreed?|works for (us|me)|fine with (that|me|us)|that'?s fine|sounds good|thank you|thanks)\b/.test(whole.low)) && !issuesMentioned(sc, whole.low).length){
     const is = (sc.issues||[]).find(i=>i.id===st.lastAgreed), k = 'ack_'+is.id+'_'+st.agreed[is.id];
     if(is && !st.flags[k] && (corrMeta(st)[is.id]||{}).lt >= st.learnerTurns.length-2){ st.flags[k] = 1;
       return {issue:is.id, lines:[ln(is.owner||0, fresh(st,'ackDeal',[`Good — then ${is.label} stands at ${fmtVal(is, st.agreed[is.id])}. I'll reflect that in the summary.`,`Thank you. I'll note ${fmtVal(is, st.agreed[is.id])} for ${is.label} on our side.`]))]} }
+  }
+  if(whole.q && !turnOffers.length && !whole.correct && /\b(confirm|right|correct|still|as (we )?agreed|we agreed|we said|stands?)\b/.test(whole.low)){          // "Just to confirm, the discount is 11%, right?"
+    const es=entities(whole.low), is=issuesMentioned(sc, whole.low).find(i=>st.agreed[i.id]!=null && i.unit!=='option' && es.some(e=>Math.abs(e.v-st.agreed[i.id])<1e-9 || Math.abs(e.v*1000-st.agreed[i.id])<1e-9));
+    if(is) return {issue:is.id, lines:[ln(is.owner||0, fresh(st,'cfYes',[`Yes — ${fmtVal(is, st.agreed[is.id])} for ${is.label}, as we confirmed.`,`That's right: ${fmtVal(is, st.agreed[is.id])} for ${is.label}.`,`Correct — ${is.label} stands at ${fmtVal(is, st.agreed[is.id])}.`]))]};
   }
   if(whole.correct && !turnOffers.length){
     const is = corrTarget(sc, st, whole.low); if(!is) return null;
@@ -2921,7 +2944,7 @@ function evaluateOffer0(sc, st, offer, a, sentLow){
     return [ln(lead, fresh(st,'acceptGift',[`${cap1(fv(offer.v))}? Well — I'm not going to argue with that.`,`${cap1(fv(offer.v))}. Good, that works for us.`,`Alright, ${fv(offer.v)} it is.`]))];
   }
   S_.pushes += (justified||tradeHit||a.cond) ? 1 : 0.5;
-  let need = NEED[diff] - (moodOf(st,lead)==='warm'?1:0) + (moodOf(st,lead)==='cold'||moodOf(st,lead)==='angry'?1:0) + (is.needsReason&&!justified?1:0);
+  let need = NEED[diff] - (moodOf(st,lead)==='warm'?1:0) + (moodOf(st,lead)==='cold'||moodOf(st,lead)==='angry'?1:0) + ((is.needsReason||(sc.personas[lead]||{}).wantsProof)&&!justified?1:0) + ((sc.personas[lead]||{}).needAdj||0);
   const withinReserve = atLeast(is, eff, is.reserve);
   if(withinReserve && (S_.pushes>=need || atLeast(is, eff, is.target))){
     st.agreed[is.id]=offer.v; S_.pos=offer.v; feel(st,lead,+4,+6);
@@ -3381,7 +3404,8 @@ function composeTurns(sc, st, res, opts){
   const lead=0, mood=moodOf(st,lead), a=opts.a;
   if(!opts.noExtras){
     if(a && a.n>70 && /hard/.test(S.difficulty) && !st.closing && !sc.presentation){ feel(st,lead,0,-4); lines.unshift(ln(lines[0]?lines[0].p:lead, S.difficulty==='veryhard'?"Let me stop you there.":"Sorry to cut in —")) }
-    else if(a && lines.length && Math.random()<.4 && !/^(okay|ok|right|hmm|well|look|so|thanks|thank|great|good|sorry|fair|i see|let me|that|we already|like i|as i|again|hold on|yes|no\b|sure|of course|just|it means|our|we|i'm|i am|i appreciate|i hear|fine|ha\b|glad|nice|oh\b|honestly|alright|got it)/i.test(lines[0].t)) lines[0]={p:lines[0].p, t:fresh(st,'ack',ACKS[moodOf(st,lines[0].p)])+' '+lines[0].t};
+    else if(a && lines.length && Math.random()<.4 && !/^(okay|ok|right|hmm|well|look|so|thanks|thank|great|good|sorry|fair|i see|let me|that|we already|like i|as i|again|hold on|yes|no\b|sure|of course|just|it means|our|we|i'm|i am|i appreciate|i hear|fine|ha\b|glad|nice|oh\b|honestly|alright|got it)/i.test(lines[0].t)) lines[0]={p:lines[0].p, t:fresh(st,'ack'+((sc.personas[lines[0].p]||{}).acks?'P':''),(sc.personas[lines[0].p]||{}).acks||ACKS[moodOf(st,lines[0].p)])+' '+lines[0].t};
+    { const P0=sc.personas[lead]||{}; if(P0.tics && !st.closing && st.expect && st.expect.type==='offer' && lines.length && lines[lines.length-1].p===lead && st.turn-(st.flags.ticAt||-9)>=3 && Math.random()<.55){ st.flags.ticAt=st.turn; const L=lines[lines.length-1], q=L.t.match(/^(.*[.!])\s+([^.!?]*\?)\s*$/); const tic=fresh(st,'tic',P0.tics); lines[lines.length-1]={p:L.p, t:q ? q[1]+' '+tic+' '+q[2] : L.t+' '+tic} } }
     // keep the meeting moving with an agenda question
     if(!st.closing && !st.endNow && !lines.some(l=>/\?\s*$/.test(l.t)) && !sc.presentation && !(st.expect && (st.expect.type==='offer'||st.expect.type==='justify') && st.expect.t===st.turn)){
       const q=nextAgenda(sc, st); if(q) lines.push(q);
@@ -3770,10 +3794,13 @@ function engineOpen(sc, st, emails){ Object.values(st.agMeta||{}).forEach(m=>{ m
   if(warm){
     const ally=(sc.personas||[]).findIndex(x=>x.stance==='ally'); st.stBy = sc.campaign ? sc.campaign.contact : ally>0 && Math.random()<.5 ? ally : 0;
     st.pendingOpen = o.map(x=>[x.p,x.t]);
-    const hi = sc.greeting || "Hi {name}, thanks for coming in.";
+    let hi = sc.greeting || "Hi {name}, thanks for coming in."; if(sc.mailNote && !st.flags.mailNoted){ st.flags.mailNoted=true; hi+=' '+sc.mailNote }
     o=[ln(0, hi)]; const ice=sc.icebreak||rnd(ICEBREAK); if(st.stBy) o.push(ln(st.stBy, "Hi, {name}. "+ice)); else o[0].t+=' '+ice; st.st2=stInit(sc, st, false);
     st.expect={type:'smalltalk'}; st.flags.icebreak=true;
   }
+  if(sc.mailNote && !st.flags.mailNoted){ st.flags.mailNoted=true; const who=sc.campaign?sc.campaign.contact:0;
+    const hostile=!!(sc.demandDates || sc.startMood<0), rest=o[0].t.replace(/^\{name\}[.,]\s*/,'').replace(/^(hi|hello|good (morning|afternoon|evening))\b[^.!?]*[.!?]\s*/i,'');
+    o[0]={p:o[0].p, t:'{name} — ' + low1(sc.mailNote) + ' ' + (hostile ? "But that's not why I asked for this call. " : '') + cap1(rest)} }
   if(sent){
     if(sc.presentation) o=[ln(0,"Good morning, {name}. Thanks for sending the summary in advance — we've both read it. The floor is yours; we'll keep our questions for the end.")];
     else { const rc=recapList(sc,st); o=[ln(0,`Thanks for your email${sent>1?'s':''}, {name} — I've read ${sent>1?'them':'it'}. ${rc.length?`So far we've settled ${rc.length===1?'one point':rc.length+' points'} — ${rc.join('; ')}. Let's focus on what's still open.`:"Let's pick up from where we left off."} Where would you like to start?`)] }
@@ -4833,7 +4860,7 @@ async function endMeeting(auto){
   if(S.sc && S.sc.campaign && settings.demo){ try{ campAfterMeeting(record) }catch(e){ console.warn(e) } }
   caseAfterMeeting();
   curReport=null; renderReport(record); showDelBtn();
-  gas('reports.save',{record}).then(r=>{ if(r&&r.rowId){ histAdd(r.rowId, record); curReport={rowId:r.rowId,from:'history'}; showDelBtn() } }).catch(e=>toast('Could not save to your history: '+e.message,4500));
+  gas('reports.save',{record}).then(r=>{ if(r&&r.rowId){ histAdd(r.rowId, record); campRowAdd(record, r.rowId); curReport={rowId:r.rowId,from:'history'}; showDelBtn() } }).catch(e=>toast('Could not save to your history: '+e.message,4500));
 }
 function retryReport(){ if(S){ S.ended=false; endMeeting(true) } }
 function cleanup(){ clearInterval(S.timer); speechSynthesis.cancel(); if(recOn) stopMic(false) }
@@ -4924,9 +4951,39 @@ function histPatch(fn){ const cur=swrPeek('reports.list',{}); if(!cur) return; s
 function histAdd(rowId, r){ repPut(rowId, r);
   histPatch(a=>[{rowId, date:r.date, userId:swrUid(), name:(session.user.name||''), scenario:r.title, difficulty:r.difficulty, overall:r.fb&&r.fb.overall, level:r.fb&&r.fb.level, duration:r.metrics&&r.metrics.duration}].concat(a.filter(x=>x.rowId!==rowId))) }
 function histRemove(rowId){ repDel(rowId); histPatch(a=>a.filter(x=>x.rowId!==rowId)) }
+/* ---------- history: one card per campaign, its episodes inside ---------- */
+const histOpen = new Set();
+function campRowAdd(record, rowId){ try{ const m=record&&record.camp; if(!m||!m.id||!rowId) return; const c=campGet(m.id); if(!c||!c.eps[m.ep]) return; const e=c.eps[m.ep]; e.rows=(e.rows||[]).filter(x=>x!==rowId).concat([rowId]).slice(-12); campPut(c) }catch(e){} }
+function histGroups(h){
+  let camps=[]; try{ camps=Object.values(campAll()).sort((a,b)=>(a.created||0)-(b.created||0)) }catch(e){}
+  const meta=camps.map(c=>{ let X=null; try{ X=campCtx(c) }catch(e){} if(!X) return null; const titles={}, ids={};
+    c.eps.forEach((e,n)=>{ (e.rows||[]).forEach(id=>{ ids[id]=n }); if(e.in){ try{ const s=campBuild(c,n); if(s) titles[s.title]=n }catch(_){} } });
+    return {c, X, titles, ids, rows:[]} }).filter(Boolean);
+  const solo=[];
+  h.forEach(r=>{ let m=meta.find(x=>x.ids[r.rowId]!=null), n;
+    if(m) n=m.ids[r.rowId];
+    else { const t=+new Date(r.date), cands=meta.filter(x=>x.titles[r.scenario]!=null && (x.c.created||0)<=t); m=cands[cands.length-1]; if(m) n=m.titles[r.scenario] }
+    if(m) m.rows.push(Object.assign({ep:n}, r)); else solo.push(r) });
+  return {groups:meta.filter(m=>m.rows.length), solo};
+}
+function histRow(r, sub){
+  return `<div class="hist${sub?' hsub':''}" onclick="showHist('${esc(r.rowId)}','history')"><div class="sc">${r.overall??'–'}</div><div style="flex:1;min-width:0"><b>${sub&&r.ep!=null?`<span class="hep">Ep ${r.ep+1}</span>`:''}${esc(sub?String(r.scenario).replace(/\s+—\s+.*$/,''):r.scenario)}${r.practice?' <span class="hprac">practice</span>':''}</b><small>${new Date(r.date).toLocaleDateString()} · ${esc(dlabel(r.difficulty))} · ${fmt(r.duration||0)} · ${esc(r.level||'')}</small></div><button class="delbtn" title="Delete" onclick="event.stopPropagation();delReport('${esc(r.rowId)}','history')">Delete</button><span class="chev">→</span></div>`;
+}
+function histToggle(id){ if(histOpen.has(id)) histOpen.delete(id); else histOpen.add(id); const cur=swrPeek('reports.list',{}); if(cur) histDraw(cur.reports||[]) }
 function histDraw(h){
-  $('histCount').textContent = h.length+' session'+(h.length===1?'':'s');
-  $('histList').innerHTML = h.length? h.map(r=>`<div class="hist" onclick="showHist('${esc(r.rowId)}','history')"><div class="sc">${r.overall??'–'}</div><div style="flex:1;min-width:0"><b>${esc(r.scenario)}</b><small>${new Date(r.date).toLocaleDateString()} · ${esc(dlabel(r.difficulty))} · ${fmt(r.duration||0)} · ${esc(r.level||'')}</small></div><button class="delbtn" title="Delete" onclick="event.stopPropagation();delReport('${esc(r.rowId)}','history')">Delete</button><span class="chev">→</span></div>`).join('') : '<div class="empty">No meetings yet. Your debriefs will appear here.</div>';
+  const G=histGroups(h), items=[];
+  G.solo.forEach(r=>items.push({t:+new Date(r.date), html:histRow(r)}));
+  G.groups.forEach(g=>{ const c=g.c, X=g.X, rows=g.rows.slice().sort((a,b)=>(a.ep-b.ep)||(+new Date(a.date)-+new Date(b.date)));
+    const byEp={}; rows.forEach(r=>{ (byEp[r.ep]=byEp[r.ep]||[]).push(r) });                                   // the run that completed the episode counts; other runs were practice
+    Object.keys(byEp).forEach(k=>{ const a=byEp[k]; if(a.length<2) return; const at=(c.eps[k]||{}).endedAt||0; let best=a[0]; a.forEach(r=>{ if(Math.abs(+new Date(r.date)-at) < Math.abs(+new Date(best.date)-at)) best=r }); a.forEach(r=>{ if(r!==best) r.practice=true }) });
+    const main=rows.filter(r=>!r.practice), done=c.eps.filter(e=>e.done).length, sc=main.map(r=>r.overall).filter(v=>v!=null), avg=sc.length?Math.round(sc.reduce((a,b)=>a+ +b,0)/sc.length):null;
+    let end=''; if(c.status==='done'||c.status==='walked'){ try{ end=campOutcome(c).title }catch(e){} }
+    const state = end ? end : c.status==='abandoned' ? 'Closed' : 'In progress', open=histOpen.has(c.id), last=Math.max.apply(null, rows.map(r=>+new Date(r.date)));
+    const inner = open ? `<div class="hgrp-in">${rows.map(r=>histRow(r,true)).join('')}${end?`<div class="hist hsub harc" onclick="openArc('${esc(c.id)}')"><div class="sc">★</div><div style="flex:1;min-width:0"><b>Arc Report</b><small>How the whole deal turned out — ${esc(end)}</small></div><span class="chev">→</span></div>`:(c.status==='active'?`<div class="hist hsub harc" onclick="openCampaign()"><div class="sc">▸</div><div style="flex:1;min-width:0"><b>Continue this campaign</b><small>Episode ${Math.min(6,done+1)} of 6 is next</small></div><span class="chev">→</span></div>`:'')}</div>` : '';
+    items.push({t:last, html:`<div class="hgrp${open?' open':''}"><div class="hist hcamp" onclick="histToggle('${esc(c.id)}')"><div class="sc">${avg??'–'}</div><div style="flex:1;min-width:0"><b><span class="hep">Campaign</span>${esc(X.them)}</b><small>${esc(X.R.name)} · ${esc(X.F.name)} · ${done} of 6 episodes · ${esc(state)} · ${new Date(last).toLocaleDateString()}</small></div><span class="hcount">${rows.length}</span><span class="chev">${open?'↑':'↓'}</span></div>${inner}</div>`}) });
+  items.sort((a,b)=>b.t-a.t);
+  $('histCount').textContent = h.length+' session'+(h.length===1?'':'s')+(G.groups.length?` · ${G.groups.length} campaign${G.groups.length===1?'':'s'}`:'');
+  $('histList').innerHTML = items.length ? items.map(i=>i.html).join('') : '<div class="empty">No meetings yet. Your debriefs will appear here.</div>';
 }
 async function openHistory(){
   go('history');
@@ -5587,6 +5644,139 @@ const CAMP_VALUES = {
 /* where each side's people are based — [provider, buyer] — used in small talk */
 const CAMP_LOC = {semi:['Pangyo','Austin'], saas:['Seattle','Dallas'], mfg:['Changwon','Stuttgart'], cpg:['Seoul','Singapore'], game:['Montreal','Pangyo'], bio:['Seoul','Hamburg'], logi:['Long Beach','Suwon'], fin:['Seoul','Seoul'], energy:['Seoul','Lisbon'], beauty:['Seoul','Lyon'], fnb:['Seoul','Chicago'], ads:['London','Madrid']};
 
+/* =========================================================
+   VARIETY — the same role + field never has to be the same deal twice
+   Each field has five company pairs (the original + four here), five counterpart personalities,
+   five things that can go wrong in Episode 3 and five outside shocks in Episode 4.
+   Variant row:  provider company | description | contact,g,senior,g | city  ;;  buyer company | description | contact,g,senior,g | city  ;;  product | deal  ;;  price scale, volume scale
+   (product / deal may be left empty to keep the field's own wording)
+   ========================================================= */
+const CAMP_VAR = {
+semi:[
+ "Aurum Silicon|a Korean maker of AI inference chips|Seoyeon Baek,f,Hyunwoo Nam,m|Suwon;;Stratus Compute|a Canadian cloud provider with six data centres|Emily Tran,f,Gordon Pike,m|Toronto;;the A7 inference accelerator card|a three-year supply agreement for A7 inference accelerator cards;;0.9,0.7",
+ "Taeyang Micro|a Korean fabless AI-chip company|Jaehyun Ryu,m,Soyeon Cha,f|Hwaseong;;Northgate Data|a British data-centre operator serving AI start-ups|Priya Nair,f,Colin Hart,m|Manchester;;the T-One inference accelerator card|a three-year supply agreement for T-One inference accelerator cards;;1.1,0.6",
+ "Onyx Semiconductor|a Korean AI-accelerator start-up|Minseo Ahn,f,Taejin Woo,m|Daejeon;;Meridian Cloud|a Singapore cloud provider expanding across Southeast Asia|Wei Jie Lim,m,Sharon Koh,f|Singapore;;the Onyx N3 inference accelerator card|a three-year supply agreement for Onyx N3 inference accelerator cards;;0.85,1.2",
+ "Hanra Chips|a Korean maker of low-power AI chips|Dohyun Seok,m,Yerin Gil,f|Icheon;;Polar Compute|a Nordic cloud provider running on hydropower|Astrid Holm,f,Erik Lund,m|Stockholm;;the H5 inference accelerator card|a three-year supply agreement for H5 inference accelerator cards;;1.2,0.8"],
+saas:[
+ "Loomwise|a Canadian customer-data platform vendor|Hannah Brooks,f,Peter Walsh,m|Vancouver;;Greenfield Stores|a British supermarket chain with about four hundred stores|Imran Shah,m,Joanna Price,f|Leeds;;the Loomwise customer-data platform|an enterprise licence for the Loomwise customer-data platform;;1.2,1.3",
+ "Tidewater Software|a loyalty and customer-data software company|Nicole Hayes,f,Samuel Ortiz,m|Boston;;Casa Bella Home|an Italian home-furnishing retailer with a hundred and fifty stores|Lucia Romano,f,Marco Bianchi,m|Milan;;the Tidewater customer-data platform|an enterprise licence for the Tidewater customer-data platform;;0.85,0.7",
+ "Beacon CX|a customer-data platform start-up|Tyler Grant,m,Megan Liu,f|Austin;;Daon Mart|a Korean convenience-store chain with nine hundred stores|Sangwoo Pyo,m,Jiyoung Ma,f|Seoul;;the Beacon customer-data platform|an enterprise licence for the Beacon customer-data platform;;0.9,1.5",
+ "Wren Insights|a British customer-analytics platform vendor|Olivia Bennett,f,Raj Mehta,m|London;;Koru Sports|an Australian sporting-goods chain with two hundred stores|Liam Fraser,m,Chloe Nguyen,f|Melbourne;;the Wren customer-data platform|an enterprise licence for the Wren customer-data platform;;1.1,0.8"],
+mfg:[
+ "Hanbyeol Metalworks|a Korean die-casting and machining company|Sungmin Do,m,Hyejin Seol,f|Ulsan;;Arden Motors|a British electric-van maker|Fiona Marsh,f,Graham Doyle,m|Coventry;;|;;0.9,0.7",
+ "Saebit Forming|a Korean maker of precision-formed parts|Yoonah Heo,f,Kyungho Min,m|Gimhae;;Lumio Auto|a French electric-car start-up|Julien Mercier,m,Elise Fabre,f|Lyon;;|;;1.1,0.6",
+ "Segye Components|a Korean automotive-components supplier|Jinwoo Tak,m,Dahye Pyo,f|Daegu;;Tessera EV|an American electric-truck maker|Brandon Hayes,m,Karen Whitfield,f|Detroit;;|;;1.2,1.3",
+ "Bora Alutech|a Korean aluminium-parts specialist|Nayeon Ok,f,Seungho Bang,m|Gwangju;;Nordvik Mobility|a Swedish electric-bus maker|Johan Berg,m,Sofia Lindqvist,f|Gothenburg;;|;;1.3,0.5"],
+cpg:[
+ "Dalbit Living|a Korean air-purifier brand|Jimin Seo,f,Wonho Chae,m|Seongnam;;Casa Nova|a Mexican department-store chain with eighty stores|Diego Herrera,m,Valeria Cruz,f|Mexico City;;the Dalbit compact air-purifier range|a distribution agreement for the Dalbit compact air-purifier range;;1.3,0.7",
+ "Onda Kitchen|a Korean rice-cooker and kitchen-appliance brand|Haeun Jo,f,Minjae Ko,m|Busan;;Sakura Home|a Japanese home-electronics chain with 140 stores|Kenji Mori,m,Aya Fujita,f|Osaka;;the Onda smart rice-cooker range|a distribution agreement for the Onda smart rice-cooker range;;1.1,0.9",
+ "Pureun Home|a Korean robot-vacuum brand|Taeyang Yoo,m,Subin Hong,f|Incheon;;Siam Fresh Mart|a Thai hypermarket chain with 190 stores|Niran Chai,m,Ploy Srisai,f|Bangkok;;the Pureun robot-vacuum range|a distribution agreement for the Pureun robot-vacuum range;;1.5,0.6",
+ "Haneul Care|a Korean hair-dryer and styling-tool brand|Eunseo Ra,f,Jihoon Paek,m|Seoul;;Southern Cross Home|an Australian homeware chain with 110 stores|Hamish Cooper,m,Zoe Mitchell,f|Sydney;;the Haneul AirStyle hair-dryer range|a distribution agreement for the Haneul AirStyle hair-dryer range;;0.8,1.2"],
+game:[
+ "Ironwood Games|the studio that owns the Ashen Frontier game|Natalie Price,f,Owen Burke,m|Vancouver;;Dawnlight Play|a Korean mobile-game publisher|Seojun Eom,m,Yuri Bang,f|Seoul;;the Ashen Frontier licence|a publishing licence for Ashen Frontier in Korea;;0.8,0.8",
+ "Paper Kite Studio|the studio that owns the Lanternfall game|Amelie Fontaine,f,Hugo Lambert,m|Paris;;Naeil Games|a Korean PC and console publisher|Hyunji Sa,f,Donghyun Ki,m|Pangyo;;the Lanternfall licence|a publishing licence for Lanternfall in Korea;;0.7,0.7",
+ "Farpoint Interactive|the studio that owns the Orbit Raiders game|Jason Whitaker,m,Monica Diaz,f|Austin;;Garam Entertainment|a Korean game publisher and esports operator|Chaewon Im,f,Jaemin Hyun,m|Seoul;;the Orbit Raiders licence|a publishing licence for Orbit Raiders in Korea;;1.2,1.2",
+ "Fjord Byte|the studio that owns the Winter Crown game|Lars Nilsen,m,Greta Dahl,f|Oslo;;Saebyeok Soft|a Korean publisher of online role-playing games|Minji Ye,f,Woojin Ha,m|Pangyo;;the Winter Crown licence|a publishing licence for Winter Crown in Korea;;1.1,0.9"],
+bio:[
+ "Haneol Diagnostics|a Korean maker of point-of-care tests|Sujin Mo,f,Jaewon Bok,m|Daejeon;;Vitalis Medical|an Italian hospital-supplies distributor|Giulia Ferri,f,Paolo Conti,m|Bologna;;the Haneol rapid flu-and-RSV test cartridge|a distribution agreement for Haneol rapid flu-and-RSV test cartridges;;0.8,1.3",
+ "Clarity Bio|a Korean diagnostics start-up|Yejin Tae,f,Sunghoon Jin,m|Seongnam;;Nordic MedSupply|a Scandinavian medical-device distributor|Henrik Dahl,m,Maja Olsen,f|Copenhagen;;the Clarity rapid sepsis-marker cartridge|a distribution agreement for Clarity rapid sepsis-marker cartridges;;1.3,0.6",
+ "Saeron Medical|a Korean maker of diabetes-monitoring tests|Hyunsoo Gong,m,Ara Wang,f|Osong;;Iberia Salud|a Spanish and Portuguese medical distributor|Carmen Vidal,f,Rafael Soto,m|Valencia;;the Saeron rapid HbA1c test cartridge|a distribution agreement for Saeron rapid HbA1c test cartridges;;0.9,1.1",
+ "Purun Biotech|a Korean maker of rapid infection tests|Dayoung Kwak,f,Minsu Yeo,m|Chuncheon;;Britannia Health Supply|a British distributor to hospitals and clinics|Andrew Ward,m,Rebecca Sims,f|Birmingham;;the Purun rapid strep-test cartridge|a distribution agreement for Purun rapid strep-test cartridges;;0.7,1.4"],
+logi:[
+ "Bluewater Freight|a trans-Pacific freight forwarder|Jessica Lane,f,Trevor Nash,m|Seattle;;Saehan Appliances|a Korean home-appliance exporter|Jinho Seong,m,Mirae Gu,f|Changwon;;|;;1.1,1.3",
+ "Harborline Shipping|a container line and logistics company|Carlos Vega,m,Diane Porter,f|Oakland;;Dasom Beauty|a Korean cosmetics exporter|Seoyoung Wi,f,Junho Maeng,m|Seoul;;|;;1.2,0.5",
+ "Crestway Logistics|a freight and warehousing company on the US west coast|Amanda Fields,f,Scott Brennan,m|Los Angeles;;Gangwon Auto Parts|a Korean auto-parts exporter|Kyuhyun Sim,m,Hayoung Pan,f|Wonju;;|;;0.9,0.8",
+ "Tradewind Cargo|a trans-Pacific freight company|Patrick Dolan,m,Michelle Tran,f|Tacoma;;Narae Batteries|a Korean battery-pack exporter|Eunbi Cheon,f,Sangmin Ra,m|Cheongju;;|;;1.3,0.7"],
+fin:[
+ "Paylark|a payment-gateway provider|Somin Geum,f,Jungwoo Byun,m|Seoul;;Closet Loop|a Korean second-hand fashion marketplace|Hyeri Do,f,Taehoon Sun,m|Seoul;;the Paylark payment gateway|;;0.9,0.7",
+ "Tollgate Pay|a payments-infrastructure company|Jaeyoung Pi,m,Nari Um,f|Pangyo;;Dew Market|a Korean online marketplace for fresh food|Gyuri Seon,f,Hyunsik Je,m|Seoul;;the Tollgate payment gateway|;;1.1,1.3",
+ "Quanta Pay|a payment-gateway provider from Singapore|Daniel Goh,m,Rachel Teo,f|Singapore;;Handmade Lane|a Korean marketplace for craft sellers|Yoojin Chu,f,Sejin Ban,m|Busan;;the Quanta payment gateway|;;1.2,0.5",
+ "Pebble Pay|a payment-processing company|Ahyoung Tak,f,Kiwon Seo,m|Seoul;;Olle Trips|a Korean marketplace for travel and local experiences|Junseo Ma,m,Bomi Yang,f|Jeju;;the Pebble payment gateway|;;0.85,0.9"],
+energy:[
+ "Daeryuk Engineering|a Korean engineering and construction contractor|Sangho Ok,m,Jiyeon Bae,f|Seoul;;Helios Iberia|a Spanish solar developer|Marta Iglesias,f,Javier Rubio,m|Seville;;an 85 MW solar-plus-storage plant|a construction contract for an 85 MW solar-plus-storage plant;;1.4,1",
+ "Taeyang Construction|a Korean contractor for power and industrial plants|Eunho Jang,m,Sora Min,f|Busan;;Outback Renewables|an Australian renewable-energy developer|Callum Reid,m,Jessica Doyle,f|Brisbane;;a 40 MW solar-plus-storage plant|a construction contract for a 40 MW solar-plus-storage plant;;0.7,1",
+ "Hanwool E&C|a Korean engineering and construction company|Mijin Kwon,f,Dongwook Suh,m|Incheon;;Atacama Energy|a Chilean solar developer|Ignacio Fuentes,m,Camila Rojas,f|Santiago;;a 120 MW solar-plus-storage plant|a construction contract for a 120 MW solar-plus-storage plant;;1.9,1",
+ "Dongbaek Engineering|a Korean engineering contractor|Youngmin Hong,m,Hyewon Lim,f|Daejeon;;Aegean Power|a Greek renewable-energy developer|Eleni Pappas,f,Nikos Stavros,m|Athens;;a 50 MW solar-plus-storage plant|a construction contract for a 50 MW solar-plus-storage plant;;0.85,1"],
+beauty:[
+ "Dalha Beauty|a Korean clean-beauty brand|Yuna Seol,f,Hajun Kwak,m|Seoul;;Bella Pelle|an Italian beauty chain with a hundred and twenty stores|Chiara Galli,f,Matteo Ricci,m|Milan;;the Dalha Dew skincare line|a distribution agreement for the Dalha Dew skincare line;;1.1,1.2",
+ "Moa Lab|a Korean dermo-cosmetics brand|Sohee Jeon,f,Minhyuk Do,m|Seongnam;;Apotheke Plus|a German pharmacy-and-beauty chain with two hundred stores|Katrin Vogel,f,Lukas Hoffmann,m|Cologne;;the Moa Barrier skincare line|a distribution agreement for the Moa Barrier skincare line;;1.3,1.4",
+ "Haru Bloom|a Korean sun-care and skincare brand|Jiwoo Pyeon,f,Sungjae Noh,m|Busan;;Piel Clara|a Spanish beauty retailer with seventy stores|Isabel Marin,f,Alvaro Pena,m|Barcelona;;the Haru Daily sun-care line|a distribution agreement for the Haru Daily sun-care line;;0.8,0.8",
+ "Seowon Botanics|a Korean herbal-skincare brand|Chaeyoung Ma,f,Doyoon Gil,m|Jeju;;De Linde|a Dutch beauty and wellness retailer with sixty stores|Sanne de Vries,f,Bram Jansen,m|Amsterdam;;the Seowon Root skincare line|a distribution agreement for the Seowon Root skincare line;;1.2,0.6"],
+fnb:[
+ "Jangdok Kitchen|a Korean maker of gochujang and marinades|Eunji Ham,f,Sunwoo Gye,m|Jeonju;;Maple & Rye|a Canadian grocery and food-hall group|Ethan Clarke,m,Sophie Tremblay,f|Toronto;;Jangdok gochujang and marinades|a supply agreement for Jangdok gochujang and marinades;;1.1,0.7",
+ "Bada Foods|a Korean maker of kimchi and ready meals|Hyunwoo Seong,m,Narae Ki,f|Gwangju;;Harvest Lane|a US natural-foods grocery chain|Megan Riley,f,Tom Garrison,m|Denver;;Bada kimchi and ready meals|a supply agreement for Bada kimchi and ready meals;;0.9,1.3",
+ "Nuri Table|a Korean maker of tteokbokki kits and sauces|Soyoung Bin,f,Jaeho Yeom,m|Daegu;;Southern Smoke|a US restaurant group with eighty locations|Travis Boone,m,Angela Brooks,f|Atlanta;;Nuri tteokbokki kits and sauces|a supply agreement for Nuri tteokbokki kits and sauces;;0.8,0.8",
+ "Sanmaeul Foods|a Korean maker of bibimbap sauces and meal kits|Minah Geum,f,Seokjin Wi,m|Chuncheon;;Kingsway Kitchens|a British restaurant and grocery group|Oliver Grant,m,Emma Hughes,f|London;;Sanmaeul bibimbap sauces and meal kits|a supply agreement for Sanmaeul bibimbap sauces and meal kits;;1.2,0.6"],
+ads:[
+ "Fieldhouse Creative|an integrated marketing agency|Hazel Monroe,f,Derek Shaw,m|New York;;Aurelia Motors|an Italian electric-car brand entering Korea|Bianca Leone,f,Stefano Greco,m|Turin;;|a twelve-month agency retainer for the Aurelia launch in Korea;;1.3,1",
+ "Common Thread|a creative and media agency|Naomi Fischer,f,Ben Ashford,m|Berlin;;Kestrel EV|a British electric-car brand entering Korea|Hugh Pemberton,m,Alice Rowe,f|Oxford;;|a twelve-month agency retainer for the Kestrel launch in Korea;;0.8,1",
+ "Sunday & Co|an integrated marketing agency|Lauren Castillo,f,Adam Novak,m|Sydney;;Jade Auto|a Chinese electric-car brand entering Korea|Li Wei,m,Chen Jing,f|Shanghai;;|a twelve-month agency retainer for the Jade launch in Korea;;1.5,1",
+ "Tall Order|a brand and performance-marketing agency|Ingrid Solberg,f,Mattias Ek,m|Stockholm;;Sierra Volt|an American electric-pickup brand entering Korea|Dylan Carter,m,Paige Sullivan,f|Denver;;|a twelve-month agency retainer for the Sierra Volt launch in Korea;;1.1,1"]
+};
+/* two more Episode-3 problems per field (added to the field's own three): [whose fault, label, what happened, consequence] */
+const CAMP_PROB2 = {
+semi:[['provider','a yield problem','a third of the latest batch failed burn-in testing, and replacements will take five weeks','capacity promised to an anchor customer is not available'],['buyer','a specification change',"the customer changed the power-connector specification after production had started",'1,200 finished cards do not fit the new racks']],
+saas:[['provider','a data-quality bug','a release bug merged thousands of customer profiles that belonged to different people','loyalty points were credited to the wrong customers'],['buyer','unlicensed use','the platform is being used by twice as many staff as the licence covers','the vendor has asked for back-payment']],
+mfg:[['provider','a tooling breakdown','the main casting die cracked, and output has been at half rate for three weeks','the customer is running on four days of safety stock'],['buyer','a late engineering change','the customer changed a mounting-point dimension after the tooling was approved','new tooling is needed and six weeks are lost']],
+cpg:[['provider','a product fault','one batch has a faulty thermostat, and returns are running at 6%','stores are pulling the product from display'],['buyer','a missed promotion','the launch promotion agreed in the contract was never run','first-quarter sales are 40% below plan']],
+game:[['provider','a delayed content update','the anniversary content update arrived six weeks late','the publisher had already paid for the marketing'],['buyer','unapproved marketing','the publisher ran advertising with artwork the studio had not approved','the studio is threatening to stop the campaign']],
+bio:[['provider','a supply shortfall','only 60% of the ordered cartridges were delivered this quarter','the distributor has had to ration its hospitals'],['buyer','off-label promotion',"the distributor's sales team promoted the test for a use that is not approved",'the regulator has opened an inquiry']],
+logi:[['provider','damaged cargo','two containers arrived water-damaged after a transhipment','the insurance claim is being disputed'],['buyer','late shipping documents','shipping instructions arrived late and incomplete for three sailings in a row','containers missed their cut-off and were charged storage']],
+fin:[['provider','a fraud-filter failure','the fraud filter blocked legitimate payments for six hours','sellers lost a full evening of sales'],['buyer','a data-handling breach',"card data was stored in the marketplace's logs, against the security rules",'a compliance audit has been ordered']],
+energy:[['provider','a failed inspection','the first battery containers failed the fire-safety inspection','energisation cannot start until they are re-tested'],['buyer','a late permit','the grid-connection permit the developer was responsible for is three months late','the site team has been stood down']],
+beauty:[['provider','a stock-out','the best-selling product has been out of stock for seven weeks','the retailer gave the shelf space to a rival brand'],['buyer','poor display','the brand was moved from the agreed front-of-store display to a back shelf','sales are 35% below forecast']],
+fnb:[['provider','a foreign-object complaint','a customer found a piece of plastic in a sauce pouch','one production lot has been put on hold'],['buyer','an unagreed deduction','the customer deducted a promotion fee from the invoice that was never agreed','the account is in dispute']],
+ads:[['provider','a team change','the lead creative team was moved to another client without notice','the next campaign phase is two weeks behind'],['buyer','a changing brief','the brief was changed three times after sign-off','production costs are 25% over the estimate']]
+};
+/* two more Episode-4 shocks per field: [who is hit, label, what happened, size %] */
+const CAMP_SHOCK2 = {
+semi:[['buyer','a power-cost shock','electricity prices at the data centres have risen 25%, and the expansion budget is under review',9],['provider','a memory-chip shortage','high-bandwidth memory is on allocation, and its price has risen 20%',8]],
+saas:[['buyer','a merger','the retailer is merging with a rival and has to cut duplicated software contracts',11],['provider','an AI-processing cost rise','the cost of the AI services built into the platform has risen 18%',7]],
+mfg:[['provider','an energy-cost surge','industrial electricity prices have risen 22%, pushing up casting costs',7],['buyer','a model cancellation','the vehicle model the parts were made for has been cut from the line-up',12]],
+cpg:[['buyer','a sales-tax rise','a higher sales tax on appliances has cut demand',7],['provider','a component shortage','a key electronic component is on allocation, and its price has risen 15%',6]],
+game:[['buyer','an advertising-cost surge','the cost of acquiring new players has risen 30%',9],['provider','an engine-licence fee change','the game-engine supplier has changed its fees, raising the cost of every release',8]],
+bio:[['buyer','a lost tender','the distributor has lost a national hospital tender to a cheaper rival',11],['provider','a packaging-rule change','new packaging and labelling rules mean every box has to be redesigned',6]],
+logi:[['provider','port congestion','congestion at the destination port is adding ten days and daily surcharges',9],['buyer','a factory relocation','the exporter is moving part of its production to Vietnam',10]],
+fin:[['buyer','a cap on seller fees','a new rule caps the fees a marketplace may charge its sellers',9],['provider','a banking-partner change','the acquiring bank has raised its charges after a risk review',7]],
+energy:[['buyer','a fall in power prices','wholesale power prices have fallen, and the project no longer meets its return target',6],['provider','a labour shortage','site labour rates have risen 20% after a regional shortage',5]],
+beauty:[['buyer','a rent increase','store rents have risen sharply, and the retailer needs better margins',7],['provider','a packaging-waste rule','a new packaging-waste rule requires recyclable packs, adding cost to every unit',5]],
+fnb:[['buyer','a consumer slowdown','restaurant traffic has fallen 12%, and menus are being cut back',8],['provider','a packaging-cost rise','packaging and glass prices have risen 20%',6]],
+ads:[['provider','a talent-cost rise','the celebrity ambassador has doubled the fee for the second phase',8],['buyer','a pricing reset','the brand has cut its car prices in Korea and wants marketing costs cut to match',9]]
+};
+/* five personalities for the day-to-day contact. needAdj: extra pushes before they move · acks / tics: how they sound */
+const CAMP_PERS = [
+ {id:'fair', name:'Fair professional', traits:{warmth:.55,patience:.6,assert:.55}, needAdj:0,
+  brief:'Professional and fair; opens up when asked well and shown respect.'},
+ {id:'warm', name:'Relationship-builder', traits:{warmth:.8,patience:.72,assert:.38}, needAdj:0,
+  brief:'Warm and talkative; wants a partner, not just a contract. Enjoys small talk, dislikes pressure, and needs something to show the boss.',
+  about:"I've always believed deals are done between people, not companies.",
+  acks:['Sure.','Of course.','I appreciate that.',"That's fair.",'Thanks for being open about it.'],
+  tics:["I'd really like to make this work for both of us.","Let's find something we can both be happy with.","I want us to still be on good terms when this is signed."]},
+ {id:'numbers', name:'Numbers person', traits:{warmth:.36,patience:.55,assert:.66}, needAdj:0, wantsProof:true,
+  brief:'Analytical and reserved; little small talk. Moves for data, benchmarks and total-cost arguments — not for charm.',
+  about:"I came up through finance, so I tend to start with the spreadsheet.",
+  acks:['Noted.','Understood.','Okay.','Let me write that down.'],
+  tics:["Show me the numbers and I can move.","I need a figure I can defend line by line.","What does that do to the total cost?"]},
+ {id:'tough', name:'Tough bargainer', traits:{warmth:.28,patience:.36,assert:.86}, needAdj:1,
+  brief:'A hard, impatient negotiator who anchors high and tests your limits. Respects people who hold their ground and trade, not people who give in.',
+  about:"I'll be direct with you — it saves us both time.",
+  acks:['Hmm.','Right.','Look —','Let me be direct.'],
+  tics:["You'll have to do better than that.","I do have other options, you know.","That's as generous as I get today."]},
+ {id:'careful', name:'Cautious rule-follower', traits:{warmth:.5,patience:.82,assert:.3}, needAdj:0, wantsProof:true,
+  brief:'Careful, polite and risk-averse; follows policy and checks with the manager. Patient, but needs reasons in writing and hates surprises.',
+  about:"I like to get things right the first time, so forgive me if I ask a lot of questions.",
+  acks:['I see.','Let me note that.','Understood.','Right, okay.'],
+  tics:["I'll need to run that past my manager.","I have to stay inside our policy on this.","Could you put that reasoning in an email as well?"]}
+];
+/* five kinds of senior decision-maker (joins from Episode 5) */
+const CAMP_SENIOR = [
+ {traits:{warmth:.3,patience:.45,assert:.8}, brief:'Direct, numbers-driven, short on time. Moves only for evidence or a trade.'},
+ {traits:{warmth:.45,patience:.6,assert:.7}, brief:'Calm, formal and precise. Listens fully, then asks the one question you hoped to avoid.'},
+ {traits:{warmth:.25,patience:.3,assert:.9}, brief:'Impatient and blunt. Wants the answer first and the explanation only if asked.'},
+ {traits:{warmth:.5,patience:.55,assert:.65}, brief:'Politically careful. Thinks about how the deal will look to the board; needs a story as well as a number.'},
+ {traits:{warmth:.35,patience:.7,assert:.6}, brief:'Detail-minded. Has read every clause and will test whether you have too.'}
+];
+
 /* ---------- storage ---------- */
 const campUser = () => (session&&session.user&&session.user.id)||'guest';
 const campKey = () => 'pactli_camps_'+campUser();
@@ -5608,13 +5798,38 @@ function campPush(c){ syncSoon(1200) }
 function campPull(){ return syncNow() }
 
 /* ---------- context: who is who in this campaign ---------- */
+/* ---------- variety: company pair · personality · problem · shock ---------- */
+const campVarN = fid => 1 + (((typeof CAMP_VAR!=='undefined') && CAMP_VAR[fid]) || []).length;
+function campVariant(F, n){
+  const row = (((typeof CAMP_VAR!=='undefined') && CAMP_VAR[F.id]) || [])[n-1]; if(!row) return F;
+  const [p,b,pr,k] = row.split(';;'), P = p.split('|'), B = b.split('|'), PR = pr.split('|'), K = k.split(',').map(Number);
+  const scale = (o, f) => { if(!o || !o.P || !f || f===1) return o; const g = o.round||1, m = v => +(Math.round(v*f/g)*g).toFixed(4), n2 = Object.assign({}, o, {P:o.P.map(m), B:o.B.map(m), range:o.range?o.range.map(m):o.range, step:Math.max(g, m(o.step||g))});
+    const strict = a => a.every((v,i)=>i===0 || v!==a[i-1]); return strict(n2.P) && strict(n2.B) ? n2 : o };
+  return Object.assign({}, F, {pco:P[0], pd:P[1], pn:P[2].split(','), bco:B[0], bd:B[1], bn:B[2].split(','), loc:[P[3],B[3]], prod:PR[0]||F.prod, deal:PR[1]||F.deal, price:scale(F.price,K[0]), volume:scale(F.volume,K[1]), _var:n});
+}
+const campProblems = F => F.problems.concat(((typeof CAMP_PROB2!=='undefined') && CAMP_PROB2[F.id]) || []);
+const campShocks = F => F.shocks.concat(((typeof CAMP_SHOCK2!=='undefined') && CAMP_SHOCK2[F.id]) || []);
+/* roll the next deal for this field: prefer what this member has met least, never the same company or personality twice running */
+function campRoll(fid, avoid){
+  const all = Object.values(campAll()).sort((a,b)=>(a.created||0)-(b.created||0)), same = all.filter(c=>c.field===fid), F = campFields().find(f=>f.id===fid);
+  const v = c => c.var || {co:0, per:0, sen:0, prob:-1, shock:-1};
+  const pick = (n, used, last, ban) => { if(n<=1) return 0; const cnt = Array.from({length:n},()=>0); used.forEach(i=>{ if(i>=0 && i<n) cnt[i]++ });
+    let pool = cnt.map((x,i)=>i).filter(i=>i!==last && i!==ban); if(!pool.length) pool = cnt.map((x,i)=>i);
+    const min = Math.min.apply(null, pool.map(i=>cnt[i])); pool = pool.filter(i=>cnt[i]===min); return pool[Math.floor(Math.random()*pool.length)] };
+  const lastS = same.length ? v(same[same.length-1]) : {}, lastA = all.length ? v(all[all.length-1]) : {}, a = avoid||{};
+  const nP = F ? campProblems(F).length : 3, nS = F ? campShocks(F).length : 3;
+  return {co:pick(campVarN(fid), same.map(c=>v(c).co), lastS.co, a.co), per:pick(CAMP_PERS.length, all.map(c=>v(c).per), lastA.per, a.per), sen:pick(CAMP_SENIOR.length, all.map(c=>v(c).sen), lastA.sen, a.sen),
+    prob:pick(nP, same.map(c=>v(c).prob), lastS.prob, a.prob), shock:pick(nS, same.map(c=>v(c).shock), lastS.shock, a.shock)};
+}
 function campCtx(c){
-  const F=campFields().find(f=>f.id===c.field), R=campRoles().find(r=>r.id===c.role); if(!F||!R) return null;
+  const F0=campFields().find(f=>f.id===c.field), R=campRoles().find(r=>r.id===c.role); if(!F0||!R) return null;
+  const V=c.var||null, F = V && V.co ? campVariant(F0, V.co) : F0;
+  const per = CAMP_PERS[V ? (V.per||0) : 0] || CAMP_PERS[0], sen = CAMP_SENIOR[V ? (V.sen||0) : 0] || CAMP_SENIOR[0];
   const side=c.side, oth=side==='provider'?'buyer':'provider';
   const me=side==='provider'?F.pco:F.bco, them=side==='provider'?F.bco:F.pco, n=side==='provider'?F.bn:F.pn;
   const peer=(R.peer&&R.peer[side])||'Account Director', senT=R.id==='legal'?'General Counsel':'Chief Financial Officer';
   const first=x=>x.split(' ')[0];
-  return {c,F,R,side,oth,me,them, myTitle:((R.title&&R.title[side])||R.name)+', '+me, themDesc:side==='provider'?F.bd:F.pd, meDesc:side==='provider'?F.pd:F.bd,
+  return {c,F,R,side,oth,me,them,per,sen, myTitle:((R.title&&R.title[side])||R.name)+', '+me, themDesc:side==='provider'?F.bd:F.pd, meDesc:side==='provider'?F.pd:F.bd,
     C:{name:n[0],gender:n[1],role:peer+', '+them,first:first(n[0])}, Sn:{name:n[2],gender:n[3],role:senT+', '+them,first:first(n[2]),title:senT}};
 }
 function campIssue(id, X, o){
@@ -5678,11 +5893,11 @@ function campKB(X, ep){
 }
 function campPersona(X, who, i, o){
   const p=X[who], lead=who==='C';
-  const loc=(typeof CAMP_LOC!=='undefined'&&CAMP_LOC[X.F.id])||[], city=loc[X.oth==='provider'?0:1]||'';
+  const loc=X.F.loc||(typeof CAMP_LOC!=='undefined'&&CAMP_LOC[X.F.id])||[], city=loc[X.oth==='provider'?0:1]||'', per=X.per||CAMP_PERS[0], sen=X.sen||CAMP_SENIOR[0];
   return Object.assign({name:p.name, role:p.role, gender:p.gender, city, color:PCOLORS[i%PCOLORS.length], stance:'lead',
-    traits: lead ? {warmth:.55,patience:.6,assert:.55} : {warmth:.3,patience:.45,assert:.8},
-    brief: lead ? `Your day-to-day contact at ${X.them} for the whole deal. Professional and fair; opens up when asked well and shown respect.` : `Senior decision-maker at ${X.them}. Direct, numbers-driven, short on time. Moves only for evidence or a trade.`,
-    about: lead ? [`I'm ${p.role.split(',')[0]} at ${X.them}. This one is on my desk from start to finish.`] : [`I'm the ${X.Sn.title}. Anything that changes a signed contract ends up with me.`],
+    traits: Object.assign({}, lead ? per.traits : sen.traits), needAdj: lead ? (per.needAdj||0) : 0, wantsProof: lead && !!per.wantsProof, acks: lead ? per.acks : undefined, tics: lead ? per.tics : undefined, style: lead ? per.name : undefined,
+    brief: lead ? `Your day-to-day contact at ${X.them} for the whole deal. ${per.brief}` : `Senior decision-maker at ${X.them}. ${sen.brief}`,
+    about: lead ? [`I'm ${p.role.split(',')[0]} at ${X.them}. This one is on my desk from start to finish.`].concat(per.about?[per.about]:[]) : [`I'm the ${X.Sn.title}. Anything that changes a signed contract ends up with me.`],
     cares: lead ? (X.oth==='buyer' ? 'Solving the problem on time, at a number they can defend internally.' : 'Closing a profitable customer who stays.') : 'The numbers, the precedent, and not being surprised.'}, o||{});
 }
 function campTermDoc(L, title){
@@ -5744,8 +5959,8 @@ function campEp2(X, IN){
     phrases:[["Could we agree the order of the points first?","Structuring the negotiation"],["If you can move on that, we can be flexible on this.","Trading, not giving"],["That's beyond what I can agree today.","Protecting your limit"],["I'd need to check that with my team before I commit.","Deferring a point outside your authority"],["What happens to the price if costs or exchange rates move sharply?","Raising a future risk"],["Let me confirm what we've agreed so far.","Summarising"]],
     firstMail:[0,`Draft terms — ${X.F.prod}`,["As promised, our draft terms are in the document panel.","Our position is as set out there. Let me know which points you would like to discuss when we meet."]]};
 }
-function campProblem(X){ return X.F.problems[X.c.seed % X.F.problems.length] }
-function campShock(X){ return X.F.shocks[Math.floor(X.c.seed/7) % X.F.shocks.length] }
+function campProblem(X){ const V=X.c.var; if(V && V.prob>=0){ const a=campProblems(X.F); return a[V.prob % a.length] } return X.F.problems[X.c.seed % X.F.problems.length] }
+function campShock(X){ const V=X.c.var; if(V && V.shock>=0){ const a=campShocks(X.F); return a[V.shock % a.length] } return X.F.shocks[Math.floor(X.c.seed/7) % X.F.shocks.length] }
 function campEp3(X, IN){
   const C=X.C, P=campProblem(X), by=P[0], rel= by==='shared' ? 'shared' : by===X.side ? 'me' : 'them';
   const trust=IN.trust==null?50:IN.trust, cap=(IN.terms.sla&&IN.terms.sla.v<999?IN.terms.sla.v:15), h=v=>Math.max(.5,campRd(v,.5));
@@ -5915,6 +6130,8 @@ function campBuild(c, n){
   if(n===5 && IN.senior!=null) sc.startEmo[0]={trust:campClamp(IN.senior,10,95)};
   sc.campaign.trust0 = sc.startEmo[ci] ? sc.startEmo[ci].trust : Math.round(30+sc.personas[ci].traits.warmth*40);
   sc.goals=sc.goals.slice(0,6); sc.goalRules=sc.goalRules.slice(0,6);
+  if(IN.mail && IN.mail.ep===n-1 && IN.mail.notes && IN.mail.notes.length){ const N=IN.mail.notes.slice(0,3), fixed=N.filter(x=>!x.open), open=N.filter(x=>x.open);
+    sc.mailNote = 'Thanks for your emails after our last meeting.' + (fixed.length ? ` I've updated my notes: ${fixed.map(x=>`${x.label} is now ${x.text}`).join(', and ')}.` : '') + (open.length ? ` ${cap1(open.map(x=>x.label).join(' and '))} ${open.length>1?'are':'is'} still open after what you wrote.` : '') }
   sc.stHeard=!!(IN.small&&IN.small.heard); if(n>0 && sc.smalltalk!==false) sc.icebreak=stCallback(IN.small, stLife(sc, ci));
   CAMP_CACHE.set(key, sc); return sc;
 }
@@ -5925,15 +6142,41 @@ function campScenarios(){
 }
 
 /* ---------- create / advance ---------- */
-function campNew(role, field, side, difficulty){
+function campNew(role, field, side, difficulty, roll){
   const prev=campActive(); if(prev){ prev.status='abandoned'; campPut(prev) }
-  const c={id:'c'+Date.now().toString(36), v:1, role, field, side, difficulty, seed:Math.floor(Math.random()*1e9), created:Date.now(), status:'active', ep:0,
+  const c={id:'c'+Date.now().toString(36), v:2, role, field, side, difficulty, var:roll||campRoll(field), seed:Math.floor(Math.random()*1e9), created:Date.now(), status:'active', ep:0,
     L:{trust:null, senior:null, rapport:40, cred:45, goodwill:0, needs:{}, leaks:[], terms:{}, items:[], promises:[], flags:{}, history:[], chain:[]}, eps:CAMP_EPS.map(()=>({done:false}))};
   c.eps[0].in=campSnap(c.L); campPut(c); return c;
 }
 /* the follow-up email after an episode is how promises are kept */
 function campBridgeDone(c, n){ const cs=getCase(campSid(c,n), false), e=c.eps[n]; if(!cs||!e||!e.endedAt) return false; return cs.emails.some(m=>m.me && m.t>e.endedAt) }
+/* What was said by email after an episode counts too. The episode's result is rebuilt from the email thread's final state
+   (terms corrected or agreed by email, promises, trust), so the next meeting starts from what was actually agreed last. */
+function campMailMerge(c, n){
+  const e=c.eps[n]; if(!e || !e.done || !e.in || !e.endedAt) return [];
+  const cs=getCase(campSid(c,n), false); if(!cs || !cs.state || cs.state.v!==2 || !cs.emails.some(m=>m.me && m.t>e.endedAt)) return [];
+  const sc=campBuild(c, n); if(!sc) return [];
+  const view=L=>{ const o={}; (L.items||[]).filter(i=>i.ep===n).forEach(i=>{ o[i.id]={v:i.v, text:i.text, label:i.label, src:i.src} }); if(n===1) Object.values(L.terms||{}).forEach(i=>{ o[i.id]={v:i.v, text:i.text, label:i.label, src:i.src} }); return o };
+  const before=view(c.L), oldHist=(c.L.history||[]).find(h=>h.ep===n), keep=campSnap(c.L), notes=[];
+  try{
+    const st=caseState(cs, sc);
+    c.L=campSnap(e.in);
+    withCtx(Object.assign({}, emailCtx(cs), {sc, eng:st}), ()=>campHarvest(c, n, {fb:{overall:oldHist?oldHist.score:(e.score||0), level:oldHist?oldHist.level:'', goals:[]}}));
+    const h=(c.L.history||[]).find(x=>x.ep===n); if(h && oldHist){ h.met=oldHist.met; h.goals=oldHist.goals; h.date=oldHist.date }
+    const after=view(c.L);
+    Object.keys(after).forEach(id=>{ const a=after[id], b=before[id];
+      if(a.src==='you' && (!b || b.src!=='you' || Math.abs((+b.v)-(+a.v))>1e-9)) notes.push({id, label:a.label, text:a.text, was:b&&b.src==='you'?b.text:''}) });
+    Object.keys(before).forEach(id=>{ if(before[id].src==='you' && after[id] && after[id].src!=='you') notes.push({id, label:before[id].label, text:after[id].text, was:before[id].text, open:true}) });
+  }catch(err){ c.L=keep; return [] }
+  if(notes.length){
+    c.L.mail={ep:n, notes};
+    c.L.chain.push({ep:n, good:0, text:`By email after Episode ${n+1}: ${notes.map(x=>x.open?`${x.label} was reopened (was ${x.was})`:x.was?`${x.label} changed from ${x.was} to ${x.text}`:`${x.label} agreed at ${x.text}`).join('; ')}.`});
+  }
+  e.mailMerged=Date.now();
+  return notes;
+}
 function campUnlock(c, n){   // freeze the ledger snapshot that episode n is built from
+  if(n>0) campMailMerge(c, n-1);
   const L=c.L, prev=n-1;
   if(prev>=0 && !c.eps[prev].bridged){
     const ok=campBridgeDone(c, prev); c.eps[prev].bridged=ok?'kept':'skipped';
@@ -5944,7 +6187,7 @@ function campUnlock(c, n){   // freeze the ledger snapshot that episode n is bui
       if(hit>=2){ L.trust=campClamp(L.trust+3,5,95); L.chain.push({ep:0, good:1, text:`Your follow-up reflected ${hit} of their needs accurately — trust +3.`}) } }
     L.chain.push({ep:prev, good:ok?1:-1, text: ok?`You sent the follow-up after Episode ${prev+1} — trust +4.`:`No follow-up email after Episode ${prev+1} — trust −5${(L.promises||[]).some(p=>p.ep===prev)?', and a promise left open':''}.`});
   }
-  c.eps[n].in=campSnap(L); c.eps[n].rev=(c.eps[n].rev||0)+1; c.ep=Math.max(c.ep,n); campPut(c);
+  c.eps[n].in=campSnap(L); c.eps[n].rev=(c.eps[n].rev||0)+1; c.ep=Math.max(c.ep,n); delete L.mail; campPut(c);
 }
 function campOpenEp(n){
   const c=campActive(); if(!c) return;
@@ -6124,6 +6367,7 @@ function campFinish(c){
 /* ---------- UI: builder, hub, arc report ---------- */
 let campSel = {role:'sales', field:'saas', side:'provider', difficulty:'medium'};
 function openCampaign(){ go('campaign'); renderCampaign(); campPull() }
+function campShuffle(){ const cur=campSel.roll&&campSel.roll.var; campSel.roll={key:campSel.field, var:campRoll(campSel.field, cur?{co:cur.co, per:cur.per, prob:cur.prob, shock:cur.shock}:null)}; renderCampaign() }
 function campPick(k, v){
   campSel[k]=v; const R=campRoles().find(r=>r.id===campSel.role);
   if(R && !R.sides.includes(campSel.side)) campSel.side=R.sides[0];
@@ -6131,7 +6375,7 @@ function campPick(k, v){
 }
 function campStart(){
   const cur=campActive(); if(cur && !confirm('You already have a campaign in progress. Starting a new one closes it. Continue?')) return;
-  const c=campNew(campSel.role, campSel.field, campSel.side, campSel.difficulty); CAMP_CACHE.clear(); renderCampaign(); window.scrollTo(0,0); toast('Campaign started — Episode 1 is ready');
+  const c=campNew(campSel.role, campSel.field, campSel.side, campSel.difficulty, campSel.roll&&campSel.roll.key===campSel.field?campSel.roll.var:null); campSel.roll=null; CAMP_CACHE.clear(); renderCampaign(); window.scrollTo(0,0); toast('Campaign started — Episode 1 is ready');
 }
 function campBar(label, v, note){ return `<div class="bar"><div><span>${esc(label)}${note?`<small style="display:block;color:var(--dim);font-size:11px;font-weight:400">${esc(note)}</small>`:''}</span><b>${v==null?'–':v}</b></div><i><u style="width:${v==null?0:v}%"></u></i></div>` }
 function renderCampaign(){
@@ -6162,7 +6406,7 @@ function renderCampaign(){
   el.innerHTML=`
     <div class="hero cp-hero"><div><div class="eyebrow">Campaign · ${esc(dlabel(c.difficulty))}</div><h1>${esc(X.them)}<br><em>one client, six meetings.</em></h1></div>
       <div><p>You are <b style="color:#fff">${esc(X.myTitle)}</b>, negotiating ${esc(X.F.deal)} with ${esc(X.C.name)}. Everything you say carries forward.</p>
-      <div class="cp-chips"><span>${esc(X.R.name)}</span><span>${esc(X.F.name)}</span><span>${c.side==='provider'?'Provider side':'Buyer side'}</span></div></div></div>
+      <div class="cp-chips"><span>${esc(X.R.name)}</span><span>${esc(X.F.name)}</span><span>${c.side==='provider'?'Provider side':'Buyer side'}</span>${c.var?`<span>${esc(X.per.name)}</span>`:''}</div></div></div>
     <div class="cp-grid">
       <div><div class="section-h" style="margin-top:26px"><h2>Episodes</h2><span>${c.eps.filter(e=>e.done).length} / 6</span></div>
         ${c.eps.map(epCard).join('')}
@@ -6191,7 +6435,8 @@ function renderCampaign(){
 function renderCampBuilder(){
   const roles=campRoles(), fields=campFields(), R=roles.find(r=>r.id===campSel.role)||roles[0], F=fields.find(f=>f.id===campSel.field)||fields[0];
   if(!R.sides.includes(campSel.side)) campSel.side=R.sides[0];
-  const X=campCtx({role:R.id, field:F.id, side:campSel.side, seed:1, difficulty:campSel.difficulty});
+  if(!campSel.roll || campSel.roll.key!==F.id) campSel.roll={key:F.id, var:campRoll(F.id)};
+  const X=campCtx({role:R.id, field:F.id, side:campSel.side, seed:1, difficulty:campSel.difficulty, var:campSel.roll.var});
   const past=Object.values(campAll()).filter(c=>c.status==='done'||c.status==='walked').sort((a,b)=>b.updated-a.updated).slice(0,6);
   const iss=campEp2Issues(X);
   return `
@@ -6216,7 +6461,8 @@ function renderCampBuilder(){
       </div>
       <div><div class="section-h" style="margin-top:26px"><h2>Your deal</h2><span>preview</span></div>
         <div class="pane cp-ledger">
-          <div class="brief" style="margin-bottom:14px">You are <b>${esc(X.myTitle)}</b> — ${esc(X.meDesc)}. You will negotiate ${esc(F.deal)} with <b>${esc(X.C.name)}</b>, ${esc(X.C.role)} (${esc(X.themDesc)}).</div>
+          <div class="brief" style="margin-bottom:14px">You are <b>${esc(X.myTitle)}</b> — ${esc(X.meDesc)}. You will negotiate ${esc(X.F.deal)} with <b>${esc(X.C.name)}</b>, ${esc(X.C.role)} (${esc(X.themDesc)}).
+            <div class="cp-roll"><span>Counterpart style: <b>${esc(X.per.name)}</b></span><button class="btn ghost" onclick="campShuffle()" title="Meet a different company and counterpart">Shuffle ↻</button></div></div>
           <label>You own</label><ul class="goals" style="margin-bottom:14px">${iss.filter(i=>i.weight>=3).map(i=>`<li>${esc(cap1(i.label))}</li>`).join('')||'<li>Every commercial point</li>'}</ul>
           <label>Outside your authority</label><ul class="goals" style="margin-bottom:14px">${iss.filter(i=>i.outside).map(i=>`<li>${esc(cap1(i.label))} — check with your team</li>`).join('')||'<li>Nothing — you can decide everything yourself</li>'}</ul>
           <label>You are measured on</label><div class="hint" style="margin:0 0 18px;font-size:13.5px;color:var(--ink2)">${esc(cap1(R.kpi||''))}</div>
