@@ -6286,7 +6286,7 @@ const admOpen = new Set();
 function admGroups(list){
   const solo=[], tagged={}, loose=[], asc=list.slice().sort((a,b)=>+new Date(a.date)-+new Date(b.date));
   const parse = r => { const m=String(r.scenario||'').match(/^(First Meeting|The Term Sheet|The Problem|The Shock|The Renegotiation|The Closing) — (.+)$/), a=String(r.scenario||'').match(/^Campaign — (.+?) \((.+)\)$/);
-    return m ? {them:m[2], ep:ADM_EP.indexOf(m[1]), arc:false} : a ? {them:a[1], ep:99, arc:true, ending:a[2]} : null };
+    return m ? {them:m[2], ep:ADM_EP.indexOf(m[1]), arc:false, byEvent:/^The (Problem|Shock)$/.test(m[1])} : a ? {them:a[1], ep:99, arc:true, ending:a[2]} : null };   // Episodes 3 and 4 are titled by what happened, not by the company
   // 1. reports that know their campaign
   asc.forEach(r=>{ const c=r.camp; if(c && c.id){ const k=r.userId+'|'+c.id, g=tagged[k]=tagged[k]||{cid:c.id, userId:r.userId, name:r.name, them:'', role:'', field:'', rows:[]};
       g.them=c.them||g.them; g.role=c.role||g.role; g.field=c.field||g.field; g.rows.push(Object.assign({ep:c.arc?99:c.ep, arc:!!c.arc, ending:c.ending||''}, r)) }
@@ -6295,7 +6295,13 @@ function admGroups(list){
   // 2. older reports (saved before campaigns were tagged): join the same member's campaign with that company if one overlaps in time,
   //    otherwise build campaigns from the titles — a new one starts only after an Arc Report closed the previous one, or after a long gap
   const span = g => { const ts=g.rows.map(x=>+new Date(x.date)); return [Math.min.apply(null,ts), Math.max.apply(null,ts), g.rows.some(x=>x.arc)] };
-  loose.forEach(x=>{ const t=+new Date(x.r.date), same=groups.filter(g=>g.userId===x.r.userId && g.them===x.them);
+  loose.forEach(x=>{ const t=+new Date(x.r.date);
+    if(x.byEvent){   // join the member's campaign that was running at the time
+      const live=groups.filter(g=>g.userId===x.r.userId && g.rows.some(y=>+new Date(y.date)<=t) && !g.rows.some(y=>y.arc && +new Date(y.date)<t) && t-Math.max.apply(null,g.rows.filter(y=>+new Date(y.date)<=t).map(y=>+new Date(y.date)))<864e5*30);
+      const fit=live.filter(g=>!g.rows.some(y=>!y.arc && y.ep>x.ep && +new Date(y.date)<=t)), pool=fit.length?fit:live;
+      const g=pool.sort((a,b)=>Math.max.apply(null,b.rows.filter(y=>+new Date(y.date)<=t).map(y=>+new Date(y.date)))-Math.max.apply(null,a.rows.filter(y=>+new Date(y.date)<=t).map(y=>+new Date(y.date))))[0];
+      if(g){ g.rows.push(Object.assign({ep:x.ep, arc:false, ending:''}, x.r)); return } }
+    const same=groups.filter(g=>g.userId===x.r.userId && g.them===x.them);
     let g = same.find(g=>{ const [a,b,closed]=span(g); return t>=a-864e5*45 && (t<=b || !closed) && !(closed && t>b) && !(g.rows.some(y=>y.arc) && x.arc) });
     if(!g){ const prev=same.filter(g=>g.cid.indexOf('h|')===0).slice(-1)[0]; if(prev){ const [a,b,closed]=span(prev); if(!closed && t-b<864e5*30) g=prev } }
     if(!g){ g={cid:'h|'+x.r.userId+'|'+x.them+'|'+groups.length, userId:x.r.userId, name:x.r.name, them:x.them, role:'', field:'', rows:[]}; groups.push(g) }
