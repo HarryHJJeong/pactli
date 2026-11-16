@@ -2536,13 +2536,17 @@ const rx = src => { if(!src) return null; if(RX[src]) return RX[src]; try{ RX[sr
 
 /* ---------- 1. NLU ---------- */
 function normText(t){
-  let s = ' '+String(t).toLowerCase().replace(/,(?=\d{3})/g,'').replace(/[“”]/g,'"').replace(/[‘’]/g,"'")+' ';
+  let s = ' '+String(t).toLowerCase().replace(/\b(one|two|three|four|five|six|seven|eight|nine) (one|two|three|four|five|six|seven|eight|nine) (k|kay|thousand|million)\b/g,(m,a,b,u)=>W2N[a]+'.'+W2N[b]+' '+u).replace(/,(?=\d{3})/g,'').replace(/[“”]/g,'"').replace(/[‘’]/g,"'")+' ';
   s = s.replace(/\b(twenty|thirty|forty|fifty|sixty|seventy|eighty|ninety)[ -](one|two|three|four|five|six|seven|eight|nine)\b/g,(m,a,b)=>String(W2N[a]+W2N[b]));
   s = s.replace(/\b(zero|one|two|three|four|five|six|seven|eight|nine|ten|eleven|twelve|thirteen|fourteen|fifteen|sixteen|seventeen|eighteen|nineteen|twenty|thirty|forty|fifty|sixty|seventy|eighty|ninety)\b(?! of (the|our|your|us|them|my)\b)( ([a-z]+))?/g,(m,w,_o,sp,nx)=>{
     if(nx && !NUM_FOLLOW.test(nx) && !/^(zero|one|two|three|four|five|six|seven|eight|nine|ten|eleven|twelve|twenty|thirty|forty|fifty|sixty|seventy|eighty|ninety)$/.test(nx)) return w==='one'||W2N[w]<=12 ? m : String(W2N[w])+sp;
     return String(W2N[w])+(sp||'') });
   s = s.replace(/(\d+) hundred( and)?( \d+)?( thousand)?/g,(m,a,_,b,k)=>String((+a*100+(b?+b:0))*(k?1000:1)));
+  s = s.replace(/\bhalf a (million|thousand)\b/g,(m,u)=>u==='million'?'500000':'500').replace(/\ba million and a half\b/g,'1500000').replace(/\ba hundred (and )?(\d+ )?thousand\b/g,(m,_,b)=>String((100+(b?+b:0))*1000)).replace(/\ba (thousand|million)\b(?! (thanks|times|things|reasons|apologies))/g,(m,u)=>u==='million'?'1000000':'1000');
+  s = s.replace(/\b(one|\d+) and a half\b/g,(m,a)=>String((a==='one'?1:+a)+.5));
+  s = s.replace(/(\d+(?:\.\d+)?) thousand,?( and)? (\d{1,3})\b(?!\s*(%|k\b|x\b|thousand|million|days?|months?|years?|weeks?|per ?cent))/g,(m,a,_,b)=>String(Math.round(+a*1000)+ +b));
   s = s.replace(/(\d) point (\d)/g,'$1.$2').replace(/\bper ?cent\b/g,'%').replace(/(\d)\s+%/g,'$1%');
+  s = s.replace(/\bpoint (\d+)(?=\s*(%|k\b|x\b|million|thousand))/g,'0.$1').replace(/(\d)\s*kay\b/g,'$1k').replace(/(^|[^\d.,])(\d) (\d)\s*(k\b|thousand\b|million\b)/g,'$1$2.$3 $4');
   s = s.replace(/\b(\d+)\s*(?:x|times)\b/g,'$1x');
   return s;
 }
@@ -2573,11 +2577,11 @@ function entities(low){
 const COUNT_NOUN = /^\s*(user )?(units?|pieces?|seats?|users?|licen[cs]es?|wafers?|chips?|cards?|tonnes?|tons?|containers?|stores?|cases?|boxes|pallets?|shipments?|bottles?|kits?|devices?|vehicles?|copies|downloads|subscribers|transactions?|orders|housings?|parts|panels?|modules?|cartridges?)\b/;
 const has = (low,re) => re.test(low);
 function sentences(text){
-  return String(text).replace(/\s+/g,' ').split(/(?<=[!?]|(?<!\b(?:mr|mrs|ms|dr|vs|no|e\.g|i\.e|etc))\.)(?=\s+|$)/i).map(s=>s.trim()).filter(Boolean);
+  return String(text).replace(/\s+/g,' ').replace(/(\d)\.\s+(\d+\s*(?:k\b|thousand|million|%))/gi,'$1.$2').split(/(?<=[!?]|(?<!\b(?:mr|mrs|ms|dr|vs|no|e\.g|i\.e|etc))\.)(?=\s+|$)/i).map(s=>s.trim()).filter(Boolean);
 }
 function nlu(text){
   const low = normText(text), n = (text.match(/[A-Za-z0-9$%']+/g)||[]).length;
-  const a = { t:text, low, n, ents:entities(low),
+  const a = { t:text, low, n, ents:entities(low), correct: CORRECT_RX.test(low),
     q: /\?\s*$/.test(text.trim()) || /^\s*(so,? )?(tell me|let me know|i'?d (like|love) to (know|hear)|i'?m curious|i was wondering|walk me through|can i ask)\b/i.test(text.trim()) || has(low,/^\s*(what|how|why|when|where|who|which|could|can|would|do|does|did|is there|are there|is it|are you|have you|may i|shall we|will you)\b/),
     open: has(low,/\b(what|how|why|tell me|walk me through|could you (explain|describe|share|tell)|can you (explain|describe|share|tell)|help me understand)\b/),
     whyQ: has(low,/^\s*why\b|\bwhy (do|does|is|are|should|would|can'?t|not)\b/),
@@ -2676,14 +2680,18 @@ function issuesMentioned(sc, low){
 function bindOffers(sc, st, a, sentLow){
   const out=[]; const iss=sc.issues||[]; if(!iss.length) return out;
   const mentioned = issuesMentioned(sc, sentLow);
-  const ents = entities(sentLow).filter(e=>e.type!=='yearnum'&&e.type!=='ref');
+  const cT = (st.expect && /^(correct|number|confirm)$/.test(st.expect.type) ? iss.find(i=>i.id===st.expect.issue) : a.correct ? corrTarget(sc, st, sentLow) : null) || null;
+  const cA = cT ? (st.agreed[cT.id]!=null ? st.agreed[cT.id] : (st.expect && st.expect.type==='confirm' && st.expect.issue===cT.id ? st.expect.value : null)) : null;
+  const ents = entities(sentLow).filter(e=>e.type!=='yearnum' && (e.type!=='ref' || (cT && /^\d+\.\d+$/.test(e.raw) && !/\b(clause|section|article|para(graph)?|item|point|page|schedule|annex)\s*$/.test(sentLow.slice(Math.max(0,e.idx-12),e.idx))))).map(e=>e.type==='ref'?Object.assign({},e,{type:'num'}):e);
+  if(cT) ents.forEach(e=>{ const A=cA!=null?cA:st.issues[cT.id].pos; if((e.type==='num'||e.type==='money') && !/k\b|thousand|grand|million|\bm\b/.test(e.raw) && Math.abs(A)>=1000 && e.v<100) e.v*=1000 });
   ents.forEach(e=>{
     let cands = iss.filter(is=>(is.unit===UNIT_OF[e.type] || (e.type==='num' && is.unit!=='option')) && (!is.range || (e.v>=is.range[0] && e.v<=is.range[1]) || (e.type==='num'&&is.unit==='money')));
-    if(e.type==='num') cands = cands.filter(is=>mentioned.includes(is) && (a.propose||a.cond||a.accept||a.n<=6||(st.expect&&st.expect.issue===is.id)));
+    if(e.type==='num') cands = cands.filter(is=>(mentioned.includes(is) || is===cT) && (a.propose||a.cond||a.accept||a.correct||a.n<=6||(st.expect&&st.expect.issue===is.id)));
     if(a.q && !a.propose && !a.cond && !/\b(accept|agree|consider|do|work|go)\b/.test(sentLow)) return;   // "what's driving the 20%?" quotes a number, doesn't offer one
     if(!cands.length) return;
     if(/^(days|months|years)$/.test(e.type) && mentioned.length && mentioned.every(m=>m.unit==='option') && !cands.some(c=>mentioned.includes(c))) return;
     let pick = cands.find(is=>mentioned.includes(is) && is.unit===UNIT_OF[e.type]) || cands.find(is=>mentioned.includes(is))
+             || (cT && cands.find(is=>is===cT))
              || (st.expect && cands.find(is=>is.id===st.expect.issue))
              || ((a.propose||a.cond||a.accept||a.n<=6) && st.focus && cands.find(is=>is.id===st.focus))
              || ((a.propose||a.cond||a.n<=6) && cands.length===1 ? cands[0] : null);
@@ -2692,7 +2700,10 @@ function bindOffers(sc, st, a, sentLow){
     const pre=sentLow.slice(Math.max(0,e.idx-30),e.idx);
     if(/\b(forecast|expect(ed|ing)?|projected|estimate[sd]?|sales( of)?|revenue|turnover|we (will|can|could) sell|sell|sold|grew|growth|budget of|competitor|last year|in year)\b[^.]{0,22}$/.test(pre) && !/\b(propose|offer|accept|mg|guarantee|fee|price)\b[^.]{0,12}$/.test(pre)) return;   // context numbers, not offers
     if(/\b(you|your|their|they|competitor|current(ly)?|draft|says?|asked|asking|request(ed)?|want(ed)?)\b.{0,25}$/.test(pre) && !/\b(we|i)\b[^.]{0,12}\b(can|could|will|would|propose|offer|accept)\b/.test(pre) && (Math.abs(e.v-st.issues[pick.id].pos)<1e-9 || Math.abs(e.v-pick.open)<1e-9)) return;
-    if(!a.accept && !a.propose && !a.cond && (Math.abs(e.v-st.issues[pick.id].pos)<1e-9 || a.reject)) return;   // restating / rejecting their number ("ninety days is too long")
+    if(pick===cT && cA!=null){ const A=cA, vv=(pick.unit==='money' && e.v<1000 && !/k\b|thousand/.test(e.raw) && pick.open>=1000)?e.v*1000:e.v;
+      if(Math.abs(vv-A)<1e-9 && ents.some(x=>x!==e)) return;                                             // the recorded figure, quoted ("not 4,000")
+      if(/\b(not|instead of|rather than|n'?t|heard|noted|recorded|wrote)\s*\$?\s*$/.test(sentLow.slice(Math.max(0,e.idx-14),e.idx+1)) && ents.some(x=>x!==e)) return }
+    if(!cT && !a.accept && !a.propose && !a.cond && (Math.abs(e.v-st.issues[pick.id].pos)<1e-9 || a.reject)) return;   // restating / rejecting their number ("ninety days is too long")
     if(out.some(o=>o.issue.id===pick.id)) return;
     let v=e.v; if(pick.unit==='money' && v<1000 && /k\b|thousand/.test(e.raw)===false && pick.open>=1000) v*=1000;
     out.push({issue:pick, v});
@@ -2719,7 +2730,163 @@ function resolveAuto(is, v, st){
   is.target=Math.round(is.target/g)*g; is.reserve=Math.round(is.reserve/g)*g; if(is.step==null) is.step=Math.max(g, Math.abs(o-is.reserve)/3);
   if(st){ st.autoRes=st.autoRes||{}; st.autoRes[is.id]={better:is.better,target:is.target,reserve:is.reserve,step:is.step} }
 }
+/* =========================================================
+   CORRECTIONS, READ-BACKS AND REOPENING AN AGREED POINT
+   · "Sorry, I said 2,400 — not 4,000": a correction is recognised and handled like a real counterpart would:
+     at once → simply put right; later → it costs something (meet in the middle, or a trade) depending on difficulty, mood and manner
+   · a surprisingly generous number is read back before it is locked in ("Just to confirm — 4,000 units?")
+   · pushing on a settled point never produces the same sentence twice: the reply escalates and then moves on
+   ========================================================= */
+const CORRECT_RX = new RegExp('\\b(' + [
+  "mis-?spoke","mis-?heard","mis-?stated","mis-?typed","mis-?quoted","mis-?read","misunderst(ood|anding)","miscommunicat\\w+","mix-?up","typo","slip of the tongue",
+  "(a|my|our|some|an|honest|genuine) (mistake|error)","by mistake","in error","made (a|an) (mistake|error)",
+  "(wrong|incorrect) (number|figure|amount|quantity|volume|price|value|rate|term)","(number|figure|amount|quantity|volume|price|value|rate) (is|was|are|were|looks|seems) (wrong|incorrect|not right|not correct|off)",
+  "correction","correct (that|this|myself|the (number|figure|record|amount|volume|quantity|price))","(to|must|should|let me|need to|have to|like to|want to|wanted to) (correct|rectify|set the record)",
+  "(that'?s|that is|that was|it'?s|it is|it was|which is|this is) not what (i|we) (said|meant|proposed|offered|agreed)",
+  "(i|we) (actually |really |only |just )?(meant|said|intended)\\b","what (i|we) (actually |really )?(meant|said)","(i|we) (didn'?t|did not|never) (say|mean|agree to|propose|offer)",
+  "should (have been|have read|have said|read|say)\\b","(was|is) (supposed|meant) to be",
+  "you (may|might|must|seem to|appear to)( have)? (have )?(misheard|heard|misunderstood|got|noted|written|recorded)","i think you (misheard|heard|misunderstood|noted|wrote)","(heard|noted|recorded|wrote|written|put) (it |that |me |down )?(wrong|incorrectly|down wrong)",
+  "(there'?s|there is|there was|there has been|there'?s been|there seems to be|there may have been|there might be) (a|some|been a|been some) (misunderstanding|mistake|confusion|error|mix-?up)",
+  "not \\$?\\d[\\d.,]*\\s*(k|thousand|%|million|m)?,? ?(but|it'?s|it is|rather|—|-)","\\d[\\d.,]*\\s*(k|thousand|%|million|units?|days?|months?|years?)?,? not \\$?\\d"
+].join('|') + ')', 'i');
+const corrMeta = st => (st.agMeta = st.agMeta || {});
+const corrGran = is => is.roundTo || (is.unit==='money' ? (is.open>=200000?25000:is.open>=20000?5000:is.open>=2000?100:50) : is.unit==='days' ? 5 : is.unit==='pct'||is.unit==='multiple' ? .5 : (Math.abs(is.open)>=2000?100:Math.abs(is.open)>=200?10:1));
+const corrClaim = (st, is, a) => !!(a.correct || (st.expect && st.expect.type==='correct' && st.expect.issue===is.id));
+/* which settled point is a correction without a clear label about? */
+function corrTarget(sc, st, low){
+  const ag = (sc.issues||[]).filter(is=>st.agreed[is.id]!=null && !is.never);
+  if(st.expect && st.expect.type==='correct') return ag.find(is=>is.id===st.expect.issue) || null;
+  return issuesMentioned(sc, low).find(is=>ag.includes(is)) || ag.find(is=>is.id===st.lastAgreed) || (ag.length===1 ? ag[0] : null);
+}
+/* undo an agreement so the point is live again */
+function corrUndo(st, is, pos){
+  const A = st.agreed[is.id], m = corrMeta(st)[is.id] || {};
+  delete st.agreed[is.id];
+  st.issues[is.id].pos = pos!=null ? pos : A; st.issues[is.id].pushes = 0;
+  st.offers[is.id] = (st.offers[is.id]||[]).filter(v=>Math.abs(v-A)>1e-9);
+  st.corrN = st.corrN || {}; st.corrN[is.id] = (st.corrN[is.id]||0) + 1;
+  st.flags.allDone = false; st.sumInvite = false;
+}
+/* a settled point is raised again with a different number. Returns lines, or null when the point was reopened and the new number should now be weighed normally */
+function reopenAgreed(sc, st, offer, a, sentLow){
+  const is = offer.issue, A = st.agreed[is.id], lead = is.owner||0, fv = v => fmtVal(is, v), mood = moodOf(st, lead), diff = S.difficulty;
+  st._noInvite = true;
+  const meta = corrMeta(st)[is.id] || {}, email = st._ch==='email', claim = corrClaim(st, is, a);
+  if(st.expect && st.expect.type==='correct') st.expect = null;
+  if(better(is, offer.v, A)){          // they change it in the counterpart's favour — nobody argues with that
+    st.agreed[is.id] = offer.v; st.issues[is.id].pos = offer.v; ev(st,'overgive',`Changed ${is.label} from ${fv(A)} to ${fv(offer.v)} after it was settled — in their favour.`,-1);
+    return [ln(lead, fresh(st,'reoGift',[`${cap1(fv(offer.v))} instead of ${fv(A)}? Of course — I'll update my notes.`,`Happy to change that to ${fv(offer.v)}. Consider it done.`]))];
+  }
+  const n = st.flags['reo_'+is.id] || 0;
+  if(!claim || (st.corrN && st.corrN[is.id] >= 1 && !meta.fresh)){
+    st.flags['reo_'+is.id] = n + 1;
+    const again = claim && st.corrN && st.corrN[is.id] >= 1;
+    if(n===0){ ev(st,'reopen',`Tried to reopen ${is.label} after agreeing ${fv(A)}.`,-1); feel(st,lead,-6,-6);
+      return [ln(lead, again ? `We've already corrected ${is.label} once — it now stands at ${fv(A)}. I really can't keep changing it.`
+        : fresh(st,'reopen',[`Hold on — we already agreed ${fv(A)} on ${is.label}. I'd rather not reopen that.`,`We settled ${is.label} at ${fv(A)}. Let's not go backwards.`]))] }
+    if(n===1){ feel(st,lead,-3,-4);
+      return [ln(lead, fresh(st,'reopen2',[`As I said, ${is.label} is settled at ${fv(A)}. If something has genuinely changed on your side — or there was a mistake — tell me what happened, and what you could offer in return.`,`I hear you, but ${fv(A)} is what we shook on. Has something changed, or was there a mistake? If so, walk me through it.`]))] }
+    return [ln(lead, email ? fresh(st,'reopen3e',[`I don't think going back and forth by email will get us further on ${is.label}. Let's keep ${fv(A)} for now and put it on the agenda for our next meeting.`,`On ${is.label}, my answer is the same, and I'd rather not argue it by email. Add it to the agenda for our next call and we'll look at it properly.`,`Let's park ${is.label} at ${fv(A)} until we next speak. I'd like to move the other points forward in the meantime.`])
+      : fresh(st,'reopen3',[`I've been clear on ${is.label}. Shall we move on to the other points?`,`We're going round in circles on ${is.label}. Let's leave it at ${fv(A)} and use the time for what's still open.`,`${cap1(is.label)} stays at ${fv(A)}. What else do we need to cover today?`]))];
+  }
+  // ---- a correction ("I said 2,400, not 4,000")
+  const turnsSince = st.learnerTurns.length - (meta.lt==null ? -99 : meta.lt), sameSitting = (meta.ch||'voice') === (st._ch||'voice') && !meta.carried;
+  const sorry = !!(a.apology || /\b(sorry|apolog|excuse me|my (mistake|bad|fault|error)|forgive)\b/.test(sentLow));
+  if(sameSitting && !email && turnsSince <= 2 && meta.by !== 'theirs'){          // caught straight away: an honest mishearing, simply put right
+    corrUndo(st, is); ev(st,'correctOK',`Corrected a misheard figure straight away: ${is.label} ${fv(A)} → ${fv(offer.v)}.`,1);
+    st._pre = diff==='veryhard' ? fresh(st,'corrNowVH',[`I had ${fv(A)} down. Fine — ${fv(offer.v)}. Let's be careful with the numbers.`,`${cap1(fv(offer.v))}, not ${fv(A)}. Noted — though I'd rather we got figures right the first time.`])
+      : fresh(st,'corrNow',[`Oh — ${fv(offer.v)}, not ${fv(A)}? Sorry, I misheard you.`,`Ah, ${fv(offer.v)}. My mistake — I'd written down ${fv(A)}.`,`${cap1(fv(offer.v))}, not ${fv(A)} — thanks for catching that.`]);
+    return null;
+  }
+  let Lz = ({easy:3, medium:2, hard:1, veryhard:0})[diff] + (mood==='warm'?1:0) - (mood==='cold'||mood==='angry'?1:0) + (sorry?1:0) - (meta.by==='theirs'?1:0) + (st.flags['corrPush_'+is.id]||0)
+         + ((a.cond || (is.trades && rx(is.trades).test(sentLow))) ? 1 : 0);
+  if(Lz >= 1){
+    const okFull = is.reserve==null || atLeast(is, offer.v, is.reserve);
+    if(Lz >= 4 && okFull){          // good relationship, handled well: simply put right
+      corrUndo(st, is); st.agreed[is.id] = offer.v; st.issues[is.id].pos = offer.v; (st.offers[is.id]=st.offers[is.id]||[]).push(offer.v); st.lastAgreed = is.id;
+      corrMeta(st)[is.id] = {lt:st.learnerTurns.length, prev:A, by:'offer', ch:st._ch||'voice'}; feel(st,lead,-1,0);
+      ev(st,'correctOK',`Corrected ${is.label} after it was recorded as ${fv(A)} — handled ${sorry?'politely':'clearly'}, and they accepted ${fv(offer.v)}.`,1);
+      if(is.limit!=null && better(is, offer.v, is.limit)) ev(st,'limit',`Agreed ${fv(offer.v)} on ${is.label}, outside your mandate (${fv(is.limit)}).`,-1);
+      return [ln(lead, fresh(st,'corrFull',[`Thanks for flagging it — better now than in the contract. I'd written down ${fv(A)}, but ${fv(offer.v)} it is. I'll correct my notes.`,`No problem, these things happen. I had ${fv(A)}; I'll change it to ${fv(offer.v)}.`,`Understood — ${fv(offer.v)}, not ${fv(A)}. I'll update the summary on our side.`]))];
+    }
+    const frac = Lz >= 3 ? .75 : Lz === 2 ? .5 : .3, g = corrGran(is);
+    let mid = Math.round((A + (offer.v - A) * frac) / g) * g;
+    if(!(better(is, mid, offer.v) && better(is, A, mid))) mid = A + (offer.v - A) * frac;
+    if(is.reserve!=null && !atLeast(is, mid, is.reserve) && better(is, A, is.reserve)) mid = is.reserve;
+    corrUndo(st, is, mid); st.issues[is.id].moves = (st.issues[is.id].moves||0) + 1; st.focus = is.id; (st.offers[is.id]=st.offers[is.id]||[]).push(offer.v);
+    st.expect = {type:'offer', issue:is.id, value:mid}; feel(st,lead, Lz>=3?-2:-4, Lz>=3?-1:-3);
+    ev(st, Lz>=3?'correctOK':'correctCost', Lz>=3 ? `Corrected ${is.label} late but ${sorry?'politely':'clearly'} (${fv(A)} had been recorded): they came most of the way, to ${fv(mid)}.` : `Corrected ${is.label} late (${fv(A)} had been recorded): they would only reopen at ${fv(mid)}.`, Lz>=3?1:0);
+    return [ln(lead, (Lz>=3 ? fresh(st,'corrMost',[`Thanks for flagging it. ${cap1(fv(A))} is already in our plan, so I can't go all the way back to ${fv(offer.v)} — but I can do ${fv(mid)}.`,`I appreciate you flagging it. I'd recorded ${fv(A)} and shared it internally; I can move it to ${fv(mid)}.`])
+      : fresh(st,'corrMid',[`I understand, but ${fv(A)} has already gone to my team, so I can't simply go back to ${fv(offer.v)}. I could meet you at ${fv(mid)}.`,`I take your point — but I've planned around ${fv(A)}. The best I can do is ${fv(mid)}.`,`Mistakes happen, but ${fv(A)} is already in our internal numbers. I can go as far as ${fv(mid)}.`])) + ' ' + fresh(st,'corrMidQ',["Would that work?","Can you live with that?","Is that workable on your side?"]))];
+  }
+  st.flags['corrPush_'+is.id] = (st.flags['corrPush_'+is.id]||0) + 1; st.expect = {type:'correct', issue:is.id}; feel(st,lead,-5,-4);
+  ev(st,'correctDenied',`Asked to correct ${is.label} from ${fv(A)} to ${fv(offer.v)} — they refused at first.`,-1);
+  return [ln(lead, fresh(st,'corrNo',[`I'm sorry, {name}, but ${fv(A)} is what we both confirmed, and it has already gone to my director. If it was a genuine mistake, what can you offer to make the change workable on our side?`,`${cap1(fv(A))} is the figure I took away, and I've committed to it internally. I can't just undo that — but if you can give me something in return, I'm listening.`,`That's difficult. We both said ${fv(A)}. Help me out here: what would you put on the table to change it?`]))];
+}
+/* read a suspiciously generous number back before locking it in */
+function needsReadback(st, is, offer, prevMine){
+  if(st._ch==='email' || S.difficulty==='veryhard' || is.unit==='option' || is.never) return false;
+  const S_ = st.issues[is.id]; if(isUnl(is, S_.pos) || isUnl(is, offer.v)) return false;
+  if(st.flags['cf_'+is.id+'_'+offer.v]) return false;
+  if(better(is, offer.v, S_.pos)) return true;                                                     // more than they even asked for
+  if(prevMine!=null && better(is, offer.v, prevMine)){ const gap = Math.abs(S_.pos - prevMine), jump = Math.abs(offer.v - prevMine); if(gap > 0 && jump/gap >= .6 && jump >= 2*corrGran(is)) return true }   // a very large jump in one step
+  if(is.limit!=null && better(is, offer.v, is.limit) && atLeast(is, offer.v, S_.pos)) return true;
+  return false;
+}
+/* the wrapper every offer goes through */
 function evaluateOffer(sc, st, offer, a, sentLow){
+  const is = offer.issue, id = is.id, fv = v => fmtVal(is, v), lead = is.owner||0; let pre = '';
+  if(st.agreed[id]!=null && Math.abs(offer.v - st.agreed[id]) > 1e-9){
+    resolveAuto(is, offer.v, st);
+    const r = reopenAgreed(sc, st, offer, a, sentLow); if(r) return r;
+    pre = st._pre || ''; st._pre = ''; st.flags['cf_'+id+'_'+offer.v] = 1;
+  } else if(st.agreed[id]==null){
+    if(st.expect && st.expect.type==='confirm' && st.expect.issue===id){       // answering our read-back
+      const was = st.expect.value; st.expect = null; st.flags['cf_'+id+'_'+offer.v] = 1;
+      if(Math.abs(was - offer.v) > 1e-9){ ev(st,'readback',`Caught a misheard figure at the read-back: ${is.label} ${fv(was)} → ${fv(offer.v)}.`,1); pre = fresh(st,'rbFix',[`Ah — ${fv(offer.v)}. Glad I checked.`,`${cap1(fv(offer.v))} — thanks for clarifying.`,`Right, ${fv(offer.v)} — I'd misheard.`]) }
+    } else {
+      resolveAuto(is, offer.v, st);
+      const prevMine = (st.offers[id]||[]).slice(-1)[0];
+      if(needsReadback(st, is, offer, prevMine)){
+        st.expect = {type:'confirm', issue:id, value:offer.v}; st.focus = id; st.issues[id].raised = true; tr(st,'RB:'+id);
+        return [ln(lead, fresh(st,'readback',[`${cap1(fv(offer.v))}? Just to make sure I heard you right — ${fv(offer.v)} for ${is.label}?`,`Sorry, can I check that figure? You said ${fv(offer.v)} for ${is.label}?`,`Let me read that back: ${fv(offer.v)} for ${is.label}. Is that right?`]))];
+      }
+    }
+  }
+  const before = st.agreed[id]==null, S_ = st.issues[id], prev = S_.pos;
+  const lines = evaluateOffer0(sc, st, offer, a, sentLow);
+  if(before && st.agreed[id]!=null){ corrMeta(st)[id] = {lt:st.learnerTurns.length, prev, by:'offer', ch:st._ch||'voice', fresh:!!pre}; st.lastAgreed = id }
+  if(st.agreed[id]!=null && st.expect && st.expect.issue===id) st.expect = null;
+  if(pre && lines && lines.length){ if(lines[0].p===lead) lines[0] = ln(lead, pre + ' ' + lines[0].t); else lines.unshift(ln(lead, pre)) }
+  return lines;
+}
+/* before the sentence-by-sentence pass: answers to a read-back, and corrections that name no figure */
+function corrPre(sc, st, whole, turnOffers){
+  const ex = st.expect;
+  if(ex && ex.type==='confirm'){
+    const is = (sc.issues||[]).find(i=>i.id===ex.issue); if(!is){ st.expect=null; return null }
+    if(turnOffers.some(o=>o.issue.id===is.id)) return null;                                   // a number came back — the wrapper handles it
+    const yes = (whole.accept || /\b(yes|yeah|yep|right|correct|exactly|that'?s (right|correct|it)|you heard (me )?(right|correctly)|confirmed?|indeed)\b/.test(whole.low)) && !/^\s*(no|nope|not)\b/.test(whole.low) && !whole.correct;
+    if(yes){ st.expect = null; st.flags['cf_'+is.id+'_'+ex.value] = 1; return {issue:is.id, lines: evaluateOffer(sc, st, {issue:is, v:ex.value}, whole, whole.low)} }
+    if(/^\s*(no|nope|not)\b/.test(whole.low) || whole.correct || whole.reject){ st.expect = {type:'number', issue:is.id}; return {issue:is.id, lines:[ln(is.owner||0, fresh(st,'rbAsk',[`Sorry about that — what figure did you say for ${is.label}?`,`My mistake. Could you give me the number for ${is.label} again?`]))]} }
+    st.expect = null; return null;
+  }
+  if(!ex && !turnOffers.length && st.lastAgreed && st.agreed[st.lastAgreed]!=null && whole.n<=14 && !whole.q && !whole.correct && !whole.reject
+     && (whole.accept || /\b(accept|agreed?|works for (us|me)|fine with (that|me|us)|that'?s fine|sounds good|thank you|thanks)\b/.test(whole.low)) && !issuesMentioned(sc, whole.low).length){
+    const is = (sc.issues||[]).find(i=>i.id===st.lastAgreed), k = 'ack_'+is.id+'_'+st.agreed[is.id];
+    if(is && !st.flags[k] && (corrMeta(st)[is.id]||{}).lt >= st.learnerTurns.length-2){ st.flags[k] = 1;
+      return {issue:is.id, lines:[ln(is.owner||0, fresh(st,'ackDeal',[`Good — then ${is.label} stands at ${fmtVal(is, st.agreed[is.id])}. I'll reflect that in the summary.`,`Thank you. I'll note ${fmtVal(is, st.agreed[is.id])} for ${is.label} on our side.`]))]} }
+  }
+  if(whole.correct && !turnOffers.length){
+    const is = corrTarget(sc, st, whole.low); if(!is) return null;
+    if(st.flags['corrAsk_'+is.id] >= 2) return null;
+    st.flags['corrAsk_'+is.id] = (st.flags['corrAsk_'+is.id]||0) + 1; st.expect = {type:'correct', issue:is.id}; st.focus = is.id;
+    return {issue:is.id, lines:[ln(is.owner||0, fresh(st,'corrAsk',[`I have ${fmtVal(is, st.agreed[is.id])} for ${is.label} in my notes. Which figure did you mean?`,`Let's clear that up. I'd recorded ${fmtVal(is, st.agreed[is.id])} for ${is.label} — what should it be?`]))]};
+  }
+  return null;
+}
+
+function evaluateOffer0(sc, st, offer, a, sentLow){
   tr(st,'O:'+offer.issue.id);
   resolveAuto(offer.issue, offer.v, st);
   const is=offer.issue, S_=st.issues[is.id], diff=S.difficulty, lead=is.owner||0, mood=moodOf(st,lead);
@@ -2975,7 +3142,7 @@ function questionFallback(sc, st, a, p){
 /* ---------- 4. Dialogue: main turn ---------- */
 function engineTurn(sc, st, text, channel){
   st.usedSet = st.usedSet || new Set(st.used||[]);
-  st.turn++; st._tr=[]; const whole=nlu(text), lead=0, P=sc.personas.length;
+  st.turn++; st._tr=[]; st._ch=channel||'voice'; st._pre=''; st._noInvite=false; const whole=nlu(text), lead=0, P=sc.personas.length;
   TURN_REFS = whole.low.match(/\b\d{1,2}\.\d{1,2}\b/g);
   st.learnerTurns.push({t:text, n:whole.n, a:{q:whole.q,open:whole.open,reason:whole.reason,evidence:whole.evidence,cond:whole.cond,propose:whole.propose,empathy:whole.empathy,signpost:whole.signpost,summary:whole.summary}});
   const R=[]; const add=(pri,lines)=>{ if(lines&&lines.length) R.push({pri,lines}) };
@@ -3033,6 +3200,7 @@ function engineTurn(sc, st, text, channel){
   }
   // ---- per-sentence processing
   const sents = sentences(text); const handledIssues=new Set(), handledHidden=new Set(), handledTopics=new Set();
+  { const cp = corrPre(sc, st, whole, bindOffers(sc, st, whole, whole.low)); if(cp){ R.push({pri:30, lines:cp.lines}); handledIssues.add(cp.issue); if(whole.n<=14) return {lines:cp.lines} } }
   let offersMade=0;
   const turnOffers = bindOffers(sc, st, whole, whole.low); let handledK=false;
   sents.forEach(sent=>{
@@ -3048,7 +3216,7 @@ function engineTurn(sc, st, text, channel){
     const strongAccept = /\b(accept|agree|deal|works for (us|me)|fine with|go with|that'?s fine|sounds good|we can live with)\b/.test(sl) || (a.accept && a.n<=4);
     if(strongAccept && !a.reject && st.expect && st.expect.type==='offer' && !handledIssues.has(st.expect.issue)){
       const is=(sc.issues||[]).find(i=>i.id===st.expect.issue); tr(st,'ACC:'+is.id); handledIssues.add(is.id);
-      st.agreed[is.id]=st.expect.value; ev(st,'acceptTheirs',`Accepted their ${is.label}: ${fmtVal(is,st.expect.value)}.`, (is.limit!=null && better(is, st.expect.value, is.limit))?-1:0);
+      st.agreed[is.id]=st.expect.value; corrMeta(st)[is.id]={lt:st.learnerTurns.length, prev:st.issues[is.id].pos, by:'theirs', ch:st._ch||'voice'}; st.lastAgreed=is.id; ev(st,'acceptTheirs',`Accepted their ${is.label}: ${fmtVal(is,st.expect.value)}.`, (is.limit!=null && better(is, st.expect.value, is.limit))?-1:0);
       if(is.limit!=null && better(is, st.expect.value, is.limit)) ev(st,'limit',`Accepted ${fmtVal(is,st.expect.value)} on ${is.label}, outside your mandate.`,-1);
       st.expect=null; feel(st,is.owner||0,+5,+5);
       add(30,[ln(is.owner||0, fresh(st,'deal',[`Good. ${cap1(fmtVal(is,st.agreed[is.id]))} it is.`,`Great — then we're agreed on ${is.label}.`]))]); return;
@@ -3593,7 +3761,7 @@ function stCallback(small, life){
 }
 
 /* ---------- public API ---------- */
-function engineOpen(sc, st, emails){
+function engineOpen(sc, st, emails){ Object.values(st.agMeta||{}).forEach(m=>{ m.carried=true });
   st.usedSet = st.usedSet || new Set(st.used||[]);
   let o = sc.opening ? sc.opening.map(x=>ln(x[0],x[1])) : null;
   if(!o) o=[ln(0, S.doc ? "Hi {name}, thanks for joining. I've got the document in front of me. Where would you like to start?" : S.custom ? "Hi {name}, thanks for making the time. So — let's get into it. What did you want to discuss today?" : "Hi {name}, thanks for making the time. Shall we get started?")];
@@ -3626,7 +3794,7 @@ function engineReply(sc, st, text, opts){
   if(res.end) return {turns:composeTurns(sc, st, res, {noExtras:true}), end:true};
   // everything resolved → invite a summary
   const open=(sc.issues||[]).filter(is=>!is.never && is.weight>=2 && st.agreed[is.id]==null);
-  if((sc.issues||[]).length && !open.length && !st.flags.allDone && st.turn>=6 && opts.channel!=='email'){ st.flags.allDone=true; st.sumInvite=true; res.lines.push(ln(0, "I think we've covered the main points. Would you like to summarise where we've landed?")); return {turns:composeTurns(sc, st, res, {noExtras:true}), end:false} }
+  if((sc.issues||[]).length && !open.length && !st.flags.allDone && !st._noInvite && st.turn>=6 && opts.channel!=='email'){ st.flags.allDone=true; st.sumInvite=true; res.lines.push(ln(0, "I think we've covered the main points. Would you like to summarise where we've landed?")); return {turns:composeTurns(sc, st, res, {noExtras:true}), end:false} }
   return {turns:composeTurns(sc, st, res, {a:nlu(text), noExtras:opts.channel==='email'}), end:false, slow:res.slow};
 }
 /* =========================================================
@@ -3815,7 +3983,9 @@ function engineAnalyze(m, sc, st){
     concede:[t=>"If you can commit to [something they value], we could move to that.", L('Concessions should come with a condition attached.','')],
     limit:[t=>"That's beyond what I'm authorised to agree today. What I can offer is…", L('This crossed your walk-away point. Hold the line or trade for more.','')],
     retract:[t=>"Let me be clear about where we stand — our offer remains what I said earlier.", L('Moving backwards destroys trust. Stay consistent.','')],
-    reopen:[t=>"Building on what we've agreed, could we now look at…?", L('Reopening a settled point annoys the other side — move forward instead.','')],
+    reopen:[t=>"Sorry, I need to correct one figure: I said 2,400, not 4,000. Could we put that right?", L('Reopening a settled point annoys the other side. If a number was recorded wrongly, say so at once and name both figures; otherwise move forward.','')],
+    correctDenied:[t=>"I'm sorry — that was my mistake, and I should have caught it earlier. To make the change workable for you, we could …", L('A late correction costs something. Apologise, name both figures, and offer something in return.','')],
+    correctCost:[t=>"Let me read that back before we move on: 2,400 units, starting in March. Is that what you have?", L('Read every agreed number back on the spot — a correction made later is only half accepted.','')],
     excuse:[t=>"I'm sorry — that's on us. Here's what happened, briefly, and here's what we're doing about it.", L('Own the problem before explaining it.','')],
     vague:[t=>"You'll have it by Thursday at 5 p.m., and I'll update you at noon tomorrow.", L('Replace "ASAP / soon" with a specific day and time.','')],
     aggressive:[t=>"I understand where you're coming from, but I see it differently.", L('Disagree without attacking — it keeps them listening.','')],
@@ -3885,7 +4055,7 @@ function engineAnalyze(m, sc, st){
   /* ---- scores ---- */
   const clamp=v=>Math.max(30,Math.min(96,Math.round(v)));
   const goodN=E.filter(e=>e.good>0).length, badN=E.filter(e=>e.good<0).length;
-  const negK=['trade','agree','package','reveal','commit','goodanswer','summary','apology','acceptTheirs'], badK=['overgive','limit','concede','retract','reopen','excuse','aggressive','vague','misquote','vagueanswer','impatient'];
+  const negK=['trade','agree','package','reveal','commit','goodanswer','summary','apology','acceptTheirs','correctOK','readback'], badK=['overgive','limit','concede','retract','reopen','correctDenied','excuse','aggressive','vague','misquote','vagueanswer','impatient'];
   const negScore = E.reduce((s,e)=>s+(negK.includes(e.kind)?4:0)-(badK.includes(e.kind)?({limit:10,overgive:8,retract:8,excuse:7,aggressive:7}[e.kind]||5):0),0);
   const fr=Math.max(m.myWords?m.fTotal/m.myWords:0, fillRate), avg=m.avgLen, errRate=errs.length/Math.max(1,N/4);
   const sc6 = {
