@@ -823,6 +823,12 @@ html.mob body{overflow-x:hidden}
 .hgrp-in .hist{padding:14px 16px}
 .hgrp .hcamp small{white-space:normal;overflow:visible;text-overflow:clip;line-height:1.45}
 .hgrp-in .hist b{white-space:normal}
+/* admin: campaign rows */
+.tbl tr.adm-camp td{background:#f4f6f1;border-top:1px solid #dfe6d6}
+.tbl tr.adm-camp.open td{background:#eaf0e4}
+.tbl tr.adm-sub td{background:#fbfbf8}
+.tbl tr.adm-sub td:nth-child(3){padding-left:26px}
+.adm-chev{white-space:nowrap;font-weight:700;color:var(--ink2);text-align:right}
 @media print{
   body{background:#fff}
   .top,.noprint{display:none!important}
@@ -1039,6 +1045,19 @@ html.mob .fx-alt,.fx-alt.one{grid-template-columns:1fr}
 .warm-it .b{font-weight:650;margin-top:3px}
 [data-mephr]:not(:empty){background:#c24a3a;color:#fff;border-radius:9px;font-size:11px;font-weight:800;padding:1px 7px;margin-left:6px}
 .ph-ans[hidden],.warm-it .b[hidden],#phModal [hidden]{display:none!important}
+
+/* level up */
+.fx-lvl{background:#e9e4f6;color:#5b4794}
+.lv{display:inline-block;font-size:10.5px;font-weight:800;border-radius:6px;padding:1px 6px;letter-spacing:.02em;font-style:normal;vertical-align:1px}
+.lv-C2{background:#2e2350;color:#fff}.lv-C1{background:#5b4794;color:#fff}.lv-B2p,.lv-B2{background:#ddd5f0;color:#3f3270}
+.fx .o.plain,.ph-it .o.plain,.ph-q.plain{text-decoration:none;color:var(--ink2)}
+.lv-used{background:#f1eef9;border-radius:12px;padding:10px 12px;margin:10px 0 4px;display:grid;gap:6px;font-size:13.5px}
+.lv-used span{display:flex;gap:7px;align-items:baseline;overflow-wrap:anywhere}
+.lib-g{margin-top:16px}.lib-g h4{margin:0 0 4px;font-size:13px;color:var(--muted);font-weight:700}
+.lib-it{border-top:1px solid var(--line);padding:10px 0;min-width:0}
+.lib-t{display:flex;gap:8px;align-items:baseline}.lib-t b{font-weight:650;overflow-wrap:anywhere}
+.lib-it small{display:block;color:var(--muted);margin-top:3px}
+.lv{flex-shrink:0;white-space:nowrap}
 
 </style>
 </head>
@@ -5629,7 +5648,7 @@ function fixList(f){
   (f.rewrites||[]).forEach(w=>{ if(!out.some(x=>w.original.includes(x.original) || x.original.includes(w.original))) out.push({original:w.original, better:w.better, why:w.why, kinds:['move'], ids:['E:'+String(w.why).slice(0,40)], polite:'', firm:''}) });
   ((f.smalltalk&&f.smalltalk.fixes)||[]).forEach(x=>{ if(!out.some(y=>y.original===x.said)) out.push({original:x.said, better:x.better, why:x.why, kinds:['st'], ids:['S:'+x.better.slice(0,30)], polite:'', firm:''}) });
   const rank=x=>(x.kinds.includes('err')?0:x.kinds.includes('tone')?1:x.kinds.includes('move')?2:3);
-  return out.sort((a,b)=>rank(a)-rank(b)).slice(0,14);
+  return out.sort((a,b)=>rank(a)-rank(b)).slice(0,12);
 }
 const _engineAnalyze = engineAnalyze;
 engineAnalyze = function(){ const f=_engineAnalyze.apply(this, arguments); try{ f.fixes=fixList(f); if(f.fixes.length) f.rewrites=f.fixes.slice(0,7).map(x=>({original:x.original, better:x.better, why:x.why})) }catch(e){} return f };
@@ -5685,7 +5704,7 @@ const PH_KEY='pactli_phrases', MS_KEY='pactli_mistakes', PH_GAP=[0,1,3,7,14,30];
 const phrasesAll = () => { const a=LS.get(PH_KEY,[]); return Array.isArray(a)?a:[] };
 const phrasesPut = a => LS.set(PH_KEY, a.slice(-400));
 const phraseHas = b => phrasesAll().some(p=>p.better===b);
-function phraseAdd(x, src){ const a=phrasesAll(); if(a.some(p=>p.better===x.better)) return; a.push({id:'p'+Date.now().toString(36)+Math.random().toString(36).slice(2,5), original:x.original, better:x.better, why:x.why||'', polite:x.polite||'', firm:x.firm||'', kinds:x.kinds||[], src:src||'', at:Date.now(), box:0, due:Date.now(), ok:0, miss:0}); phrasesPut(a); meBadge() }
+function phraseAdd(x, src){ const a=phrasesAll(); if(a.some(p=>p.better===x.better)) return; a.push({id:'p'+Date.now().toString(36)+Math.random().toString(36).slice(2,5), lvl:x.lvl||'', original:x.original, better:x.better, why:x.why||'', polite:x.polite||'', firm:x.firm||'', kinds:x.kinds||[], src:src||'', at:Date.now(), box:0, due:Date.now(), ok:0, miss:0}); phrasesPut(a); meBadge() }
 function phraseToggle(x, src){ if(phraseHas(x.better)){ phrasesPut(phrasesAll().filter(p=>p.better!==x.better)); meBadge(); return false } phraseAdd(x, src); return true }
 function phraseResult(better, ok){ const a=phrasesAll(), p=a.find(q=>q.better===better); if(!p) return; phraseGrade(p, ok); phrasesPut(a) }
 function phraseGrade(p, ok){ if(ok){ p.ok++; p.box=Math.min(PH_GAP.length-1,(p.box||0)+1); p.due=Date.now()+PH_GAP[p.box]*864e5 } else { p.miss++; p.box=Math.max(0,(p.box||0)-1); p.due=Date.now()+10*60000 } p.last=Date.now() }
@@ -5715,9 +5734,9 @@ function phRender(){
   const all=phrasesAll(), due=phrasesDue(), top=mistakesTop(3), list=(phTab==='due'?due:all.slice().reverse());
   $('phBody').innerHTML = `<h2 style="margin:0 0 4px">My phrases</h2><div class="hint">${all.length} saved · ${due.length} to review now</div>
     ${top.length?`<div class="ph-ms"><b>Mistakes you repeat</b>${top.map(x=>`<div class="ph-msr"><span class="o">${esc(x.o)}</span><span class="b">${esc(x.b)}</span><small>${esc(x.why||'')} · ${x.n} meetings</small></div>`).join('')}</div>`:''}
-    <div class="seg ph-seg"><button class="${phTab==='due'?'on':''}" onclick="phTab='due';phRender()">To review (${due.length})</button><button class="${phTab==='all'?'on':''}" onclick="phTab='all';phRender()">All (${all.length})</button></div>
+    <div class="seg ph-seg"><button class="${phTab==='due'?'on':''}" onclick="phTab='due';phRender()">To review (${due.length})</button><button class="${phTab==='all'?'on':''}" onclick="phTab='all';phRender()">All (${all.length})</button><button onclick="phTab='lib';phRender()">Library</button></div>
     ${due.length?`<button class="btn gold ph-go" onclick="phPractice()">Practise ${Math.min(due.length,10)} now</button>`:''}
-    ${list.length?list.map(p=>`<div class="ph-it"><div class="o">${esc(p.original)}</div><div class="b">${esc(p.better)}</div>${p.firm?`<small class="ph-alt">${p.polite?`Diplomatic: ${esc(p.polite)}<br>`:''}More direct: ${esc(p.firm)}</small>`:''}<div class="ph-meta"><span>${esc(p.src||'')}</span><span>${p.ok}✓ ${p.miss}✗</span><span>${(p.due||0)<=Date.now()?'due now':'next '+new Date(p.due).toLocaleDateString()}</span><button class="lnk" onclick='sayBack(${JSON.stringify(p.better).replace(/'/g,"&#39;")})'>Listen</button><button class="lnk" style="color:var(--bad)" onclick="phDel('${p.id}')">Remove</button></div></div>`).join('')
+    ${list.length?list.map(p=>`<div class="ph-it"><div class="o${(p.kinds||[]).includes('lvl')?' plain':''}">${(p.kinds||[]).includes('lvl')?`<span class="lv lv-${String(p.lvl||'C1').replace('+','p')}">${p.lvl||'C1'}</span> `:''}${esc(p.original)}</div><div class="b">${esc(p.better)}</div>${p.firm?`<small class="ph-alt">${p.polite?`Diplomatic: ${esc(p.polite)}<br>`:''}More direct: ${esc(p.firm)}</small>`:''}<div class="ph-meta"><span>${esc(p.src||'')}</span><span>${p.ok}✓ ${p.miss}✗</span><span>${(p.due||0)<=Date.now()?'due now':'next '+new Date(p.due).toLocaleDateString()}</span><button class="lnk" onclick='sayBack(${JSON.stringify(p.better).replace(/'/g,"&#39;")})'>Listen</button><button class="lnk" style="color:var(--bad)" onclick="phDel('${p.id}')">Remove</button></div></div>`).join('')
       : `<div class="empty">${phTab==='due'?'Nothing to review right now.':'No saved phrases yet. Save sentences from "Fix & practice" in any meeting report.'}</div>`}`;
 }
 function phDel(id){ phrasesPut(phrasesAll().filter(p=>p.id!==id)); meBadge(); phRender() }
@@ -5726,8 +5745,8 @@ function phPractice(){ phRun={list:phrasesDue().slice(0,10).map(p=>p.id), i:0, o
 function phCard(){
   const p=phrasesAll().find(q=>q.id===phRun.list[phRun.i]);
   if(!p){ const n=phRun.list.length; $('phBody').innerHTML=`<h2>Done</h2><p>${phRun.ok} of ${n} said well. The ones you missed will come back sooner.</p><button class="btn gold" onclick="phTab='all';phRender()">Back to My phrases</button>`; meBadge(); return }
-  $('phBody').innerHTML = `<div class="hint">${phRun.i+1} of ${phRun.list.length}</div><h3 style="margin:6px 0 2px">Say it better</h3>
-    <div class="ph-q">${esc(p.original)}</div>${p.why?`<div class="hint" style="margin-top:6px">${esc(p.why.split(/(?<=[.!?])\s/)[0])}</div>`:''}
+  $('phBody').innerHTML = `<div class="hint">${phRun.i+1} of ${phRun.list.length}</div><h3 style="margin:6px 0 2px">${(p.kinds||[]).includes('lvl')?'Level it up':'Say it better'}</h3>
+    <div class="ph-q${(p.kinds||[]).includes('lvl')?' plain':''}">${esc(p.original)}</div>${(p.kinds||[]).includes('lvl')?`<div class="hint">Say it at ${p.lvl||'C1'} level.</div>`:''}${p.why?`<div class="hint" style="margin-top:6px">${esc(p.why.split(/(?<=[.!?])\s/)[0])}</div>`:''}
     <div class="ph-ans" id="phAns" hidden><b>${esc(p.better)}</b>${p.firm?`<small>${p.polite?`Diplomatic: ${esc(p.polite)}<br>`:''}More direct: ${esc(p.firm)}</small>`:''}</div>
     <div class="fx-act" style="margin-top:14px"><button onclick="phSay('${p.id}')">🎤 Say it</button><button onclick="$('phAns').hidden=false">Show answer</button><button onclick='sayBack(${JSON.stringify(p.better).replace(/'/g,"&#39;")})'>▶ Listen</button></div>
     <div class="fx-res" id="phRes"></div>
@@ -5742,6 +5761,128 @@ openBriefing = function(){ const r=_openBriefing.apply(this, arguments); try{ co
   $('briefBody').insertAdjacentHTML('afterbegin', `<div class="warm" id="warmBox"><div class="warm-h"><b>1-minute warm-up</b><button class="lnk" onclick="$('warmBox').remove()">Skip</button></div><div class="hint">Say these the better way before you go in.</div>${pick.map((p,i)=>`<div class="warm-it"><div class="o">${esc(p.original)}</div><div class="b" id="wa${i}" hidden>${esc(p.better)}</div><div class="fx-act"><button onclick="warmSay(${i},'${p.id}')">🎤 Say it</button><button onclick="$('wa${i}').hidden=false">Show</button></div><div class="fx-res" id="wr${i}"></div></div>`).join('')}</div>`) } }catch(e){} return r };
 function warmSay(i, id){ const p=phrasesAll().find(q=>q.id===id); if(!p) return; sayCheck(p.better, $('wr'+i), ok=>{ $('wa'+i).hidden=false; phraseResult(p.better, ok) }) }
 setTimeout(meBadge, 1500);
+
+/* =========================================================
+   LEVEL UP — sentences that are correct but plain get a C1–C2 version,
+   and a library of advanced negotiation language to study, save and use.
+   Levels are a guide (CEFR-style), judged for spoken business English.
+   ========================================================= */
+/* [pattern on the learner's sentence, [replacement, level], [replacement, level], why it sounds more advanced] */
+const LVL_RULES = [
+  [/^(i think|i believe) (that )?/i, ["My sense is that ",'C1'], ["From where I sit, ",'C2'], 'Signals a considered view rather than a guess.'],
+  [/^in my opinion,? /i, ["The way I see it, ",'C1'], ["If you ask me, ",'B2+'], 'Sounds more conversational and confident than "in my opinion".'],
+  [/^i (fully |totally |completely )?agree( with you)?[.!]?$/i, ["I'm fully on board with that.",'C1'], ["I couldn't agree more.",'C1'], 'Agreement with more warmth and conviction.'],
+  [/^i (don'?t|do not) agree( with (you|that|this))?\b/i, ["I'm not sure I'd go that far",'C1'], ["I see it slightly differently",'C1'], 'Disagrees without sounding confrontational.'],
+  [/\b(that'?s|it'?s|this is) (too|very|so|really) expensive\b/i, ["that's well above what we'd budgeted for",'C1'], ["that would be hard to justify internally",'C2'], 'Explains the problem instead of judging their price.'],
+  [/\b(can|could) you (lower|reduce|cut|bring down) (the|your) (price|fee|rate|cost)\b/i, ["is there any flexibility on the $4",'C1'], ["is there any room for movement on the $4",'C1'], 'Invites a move without demanding one.'],
+  [/\bwe need more time\b/i, ["we'd need a little more runway on this",'C2'], ["we'd need to revisit the timeline",'C1'], 'Business idiom for "more time".'],
+  [/\b(it'?s|this is|that'?s) (very|really|so) important( (to|for) (us|me))?\b/i, ["this is a top priority for us",'C1'], ["this is non-negotiable for us",'C1'], 'Says exactly how important — and whether it can move.'],
+  [/^let'?s talk about /i, ["I'd like to turn to ",'C1'], ["Shall we move on to ",'B2+'], 'A smoother way to change the subject.'],
+  [/^what do you think( about (it|that|this))?\?*$/i, ["Where do you stand on this?",'C1'], ["How does that land with you?",'C2'], 'Asks for their position, not just an opinion.'],
+  [/^i understand( your (point|position|situation|concern))?[.!]?$/i, ["I appreciate where you're coming from.",'C1'], ["I take your point.",'C1'], 'Shows you have heard them before you push back.'],
+  [/^(let me|i will|i'?ll) check( (it|that|this|with my team|internally))?\b/i, ["Let me run that by my team and come back to you",'C1'], ["I'll take that away and get back to you",'C1'], 'A precise promise of what happens next.'],
+  [/\bwe (can'?t|cannot) (do|accept) (that|this|it)\b/i, ["that's a step too far for us",'C2'], ["our hands are tied on that",'C2'], 'Firm, but blames the constraint rather than the person.'],
+  [/\b(that'?s|it'?s) a good idea\b/i, ["that has real merit",'C1'], ["I can see that working",'B2+'], 'Precise praise that sounds measured.'],
+  [/^(to sum up|in conclusion|so in summary),? /i, ["So, to recap where we've landed: ",'C1'], ["Let me pull this together: ",'C1'], 'Natural spoken framing for a summary.'],
+  [/\bthe (main |big |biggest )?problem is\b/i, ["the sticking point for us is",'C1'], ["what's holding us back is",'B2+'], 'Negotiation vocabulary for what blocks agreement.'],
+  [/^if you (\w+)/i, [(m,v)=>"If you could see your way to "+FIX_ING(v.toLowerCase()),'C2'], ["Provided you $1",'C1'], 'A conditional that sounds like an offer, not a demand.'],
+  [/\bwe want (a|some) (discount|better price|lower price)\b/i, ["we'd be looking for a more competitive rate",'C1'], ["we'd need the numbers to work harder for us",'C2'], 'Asks for a better price without sounding blunt.'],
+  [/^(sorry,? )?i (don'?t|do not) understand\b/i, ["Sorry, I'm not sure I follow",'C1'], ["Could you unpack that a little?",'C1'], 'Polite and precise about what you need.'],
+  [/^(can|could) you explain( (it|that|this))?\b/i, ["Could you walk me through that",'C1'], ["Could you elaborate on that",'C1'], 'Invites a step-by-step explanation.'],
+  [/\b(let'?s|we can|we could) (meet|go) (in|to) the middle\b/i, ["shall we split the difference",'C1'], ["let's meet each other halfway",'B2+'], 'The standard idiom for a compromise.'],
+  [/^honestly,? /i, ["To be candid, ",'C1'], ["Frankly, ",'C1'], 'Professional ways to signal openness.'],
+  [/\bit'?s possible\b/i, ["that's not out of the question",'C1'], ["that could work",'B2'], 'Opens a door without committing.'],
+  [/\b(a lot of|lots of) (time|money|effort|work|risk|value)\b/i, ["considerable $2",'C1'], ["a significant amount of $2",'B2+'], 'More precise than "a lot of".'],
+  [/\b(a )?big problem\b/i, ["a major concern",'C1'], ["a serious sticking point",'C1'], 'Business vocabulary instead of "big problem".'],
+  [/\b(that'?s|it'?s) a good point\b/i, ["that's a fair point",'B2+'], ["that's a valid point",'C1'], 'Acknowledges the argument, not just the person.'],
+  [/\bwe have to say no\b/i, ["we'll have to decline",'C1'], ["we're going to have to pass on this",'C1'], 'A softer, more professional no.'],
+  [/\bmaybe we can\b/i, ["perhaps we could",'B2+'], ["we might be in a position to",'C1'], 'Hedged, more tentative offer.'],
+  [/^(ok|okay|alright|all right),? (deal|agreed)[.!]?$/i, ["Then we have a deal.",'B2+'], ["Good — let's shake on that.",'C1'], 'Closes the point with confidence.'],
+  [/\bthank you for your time\b/i, ["thank you for making the time",'B2+'], ["I appreciate you making the time today",'C1'], 'Acknowledges that their time is valuable.'],
+  [/\bwe (will|'ll) (send|give) you (the|a|our) (proposal|offer|quote)\b/i, ["we'll put a proposal in front of you",'C1'], ["we'll come back to you with a formal proposal",'C1'], 'More precise next-step language.'],
+  [/\bwhat is your (budget|price range)\b/i, ["what sort of budget are you working with",'C1'], ["what figure did you have in mind",'C1'], 'A softer way to ask for a number.']
+];
+function lvlSentence(text){
+  for(const [re,a,b,why] of LVL_RULES){ const m=text.match(re); if(!m) continue;
+    const mk=([to,lvl])=>{ let r=text.replace(re, to); r=r.replace(/^\s*([a-z])/,c=>c.toUpperCase()).replace(/([?!])\s*[.?!]+$/,'$1'); const q=/\?\s*$/.test(text) && !/^(what'?s|that|this|it|the|our|we|i)\b/i.test(r) || /^(could|shall|where|how|is there|would|can)\b/i.test(r); r=r.replace(/[.?!]*$/, q?'?':(/[?!]$/.test(r)?'':'.')); if(!/[.?!]$/.test(r)) r+='.'; return {t:r,lvl} };
+    const ups=[mk(a), mk(b)].filter((u,i,arr)=>u.t!==text && arr.findIndex(x=>x.t===u.t)===i);
+    if(ups.length) return {original:text, better:ups[0].t, lvl:ups[0].lvl, alt:ups[1]||null, why:LVL_WHY(why), kinds:['lvl'], ids:['V:'+re.source.slice(0,30)], polite:'', firm:''} }
+  return null;
+}
+const LVL_WHY = w => w;
+/* the library: advanced language for each part of a negotiation. plain = what learners usually say */
+const LVL_LIB = [
+  ['Opening', 'C1', "It's good to finally put faces to names.", "Nice to meet you.", 'First meeting after emails.', /put (faces|a face) to (names|the name)/],
+  ['Opening', 'C1', "Before we dive in, could we agree on what we'd like to get out of today?", "Let's start.", 'Setting the agenda.', /before we dive in|get out of today/],
+  ['Opening', 'C1', "I'd like to start by setting out where we stand.", "First, our position.", 'Opening a negotiation.', /setting out where we stand|set out where we stand/],
+  ['Probing', 'C1', "Could you walk me through how you arrived at that figure?", "Why is the price like that?", 'Questioning a number.', /walk me through how you arrived/],
+  ['Probing', 'C1', "What's driving the timeline on your side?", "Why is it urgent?", 'Finding the reason behind a deadline.', /what'?s driving/],
+  ['Probing', 'C2', "Help me understand what would make this work for you.", "What do you want?", 'Uncovering their real need.', /help me understand what would make/],
+  ['Probing', 'C1', "What sort of budget are you working with?", "What is your budget?", 'Asking for a number softly.', /what sort of budget are you working with/],
+  ['Pushing back', 'C2', "That's a non-starter for us, I'm afraid.", "We can't accept that.", 'A firm no to a whole proposal.', /non-?starter/],
+  ['Pushing back', 'C2', "I'm afraid our hands are tied on that.", "We can't change it.", 'Blaming a constraint, not the person.', /hands are tied/],
+  ['Pushing back', 'C1', "That's well above what we'd budgeted for.", "That's too expensive.", 'Rejecting a price.', /well above what we'?d budgeted/],
+  ['Pushing back', 'C1', "I'm not sure I'd go that far.", "I don't agree.", 'Soft disagreement.', /not sure i'?d go that far/],
+  ['Pushing back', 'C2', "With respect, that doesn't quite reflect the value we're bringing.", "Your price is too low.", 'Defending your price.', /doesn'?t (quite )?reflect the value/],
+  ['Trading', 'C1', "I'd be prepared to consider that, provided you can commit to a longer term.", "OK if you sign for longer.", 'A concession with a condition.', /prepared to consider|provided (that )?you/],
+  ['Trading', 'C2', "If you could see your way to net 45, we'd be in a position to move on volume.", "If you give net 45, we give more volume.", 'An if-then trade.', /see your way to|in a position to/],
+  ['Trading', 'C1', "Shall we split the difference?", "Let's meet in the middle.", 'Proposing a compromise.', /split the difference/],
+  ['Trading', 'C1', "Is there any room for movement on the fee?", "Can you lower the price?", 'Asking them to move.', /room for movement|flexibility on/],
+  ['Trading', 'C2', "We'd need the numbers to work a little harder for us.", "We want a discount.", 'Asking for a better price.', /numbers to work (a little )?harder/],
+  ['Holding firm', 'C1', "This is non-negotiable for us.", "We can't change this.", 'A point that will not move.', /non-?negotiable/],
+  ['Holding firm', 'C2', "That's about as far as I can stretch.", "This is my last price.", 'Signalling your limit.', /as far as i can stretch/],
+  ['Holding firm', 'C1', "I'd need a compelling reason to move on that.", "Why should I change?", 'Asking for justification.', /compelling reason/],
+  ['Parking', 'C1', "Let's park that for now and come back to it.", "Let's skip it.", 'Moving past a stuck point.', /park (that|this|it)/],
+  ['Parking', 'C1', "Let me run that by my team and come back to you.", "I will check.", 'Buying time.', /run (that|this|it) by/],
+  ['Parking', 'C2', "I'll need to take that away and give it some thought.", "I need to think.", 'Not committing on the spot.', /take (that|this|it) away/],
+  ['Correcting', 'C1', "Sorry, I may not have been clear — I said 2,400, not 4,000.", "You heard wrong.", 'Correcting a misheard figure.', /may not have been clear/],
+  ['Correcting', 'C1', "Just so we're on the same page, could I read that back?", "Let me check.", 'Confirming a number.', /on the same page|read that back/],
+  ['Closing', 'C1', "So, to recap where we've landed:", "To sum up.", 'Summarising agreements.', /recap where we'?ve landed|where we'?ve landed/],
+  ['Closing', 'C1', "I think we're within touching distance of a deal.", "We are close.", 'Signalling you are near agreement.', /touching distance/],
+  ['Closing', 'C1', "I'll put that in writing and send it over by Thursday.", "I will send an email.", 'A precise next step.', /put (that|this|it) in writing/],
+  ['Closing', 'C2', "I'd like to see this over the line before the end of the month.", "I want to finish soon.", 'Pushing to close.', /over the line/],
+  ['Walking away', 'C1', "I'm afraid we'll have to step back from this for now.", "I'll leave the deal.", 'Ending talks without burning bridges.', /step back from/],
+  ['Walking away', 'C2', "If anything changes on your side, our door is always open.", "Bye.", 'Leaving the door open.', /door is (always )?open/],
+  ['Small talk', 'C1', "It's been a bit of a whirlwind week, to be honest.", "I was very busy.", 'Talking about a busy week.', /whirlwind/],
+  ['Small talk', 'C1', "I've been meaning to ask — how did the launch go?", "How was the launch?", 'Following up on their news.', /been meaning to ask/],
+  ['Small talk', 'C2', "I managed to squeeze in a few days off.", "I took a vacation.", 'Talking about time off.', /squeeze in/]
+];
+function lvlUsed(texts){ const all=texts.join(' ').toLowerCase(); return LVL_LIB.filter(x=>x[5].test(all)).map(x=>({fn:x[0], lvl:x[1], t:x[2]})) }
+
+/* hook into the analysis: level-up cards for plain-but-correct sentences, and credit for advanced language used */
+const _engineAnalyze2 = engineAnalyze;
+engineAnalyze = function(){ const f=_engineAnalyze2.apply(this, arguments);
+  try{ const me=(S&&S.log||[]).filter(l=>l.me).map(l=>l.text.trim());
+    // don't "fix" advanced language the learner used well; replace template coaching with a real upgrade where one exists
+    f.fixes=(f.fixes||[]).filter(x=>!((x.kinds||[]).includes('move') && LVL_LIB.some(l=>l[5].test(x.original.toLowerCase())))).map(x=>{ if((x.kinds||[]).includes('move') && /\[issue\]|^Coming back to the terms/.test(x.better)){ const u=lvlSentence(x.original); if(u) return u } return x });
+    const done=new Set((f.fixes||[]).map(x=>x.original.toLowerCase())), ups=[];
+    me.forEach(t=>sentences(t).filter(s=>/[a-z]/i.test(s) && s.split(/\s+/).length>=2).forEach(s=>{ s=s.trim(); if(done.has(s.toLowerCase()) || ups.length>=6) return; const u=lvlSentence(s); if(u && !ups.some(x=>x.ids[0]===u.ids[0])){ ups.push(u); done.add(s.toLowerCase()) } }));
+    f.levelUps=ups; f.advUsed=lvlUsed(me) }catch(e){}
+  return f };
+const _fixPane = fixPane;
+fixPane = function(f){
+  const up=f.levelUps||[], used=f.advUsed||[];
+  let h=_fixPane(Object.assign({}, f, {fixes:(f.fixes||[]).concat(up)}));
+  if(used.length) h=h.replace('<div class="hint">', `<div class="lv-used"><b>Advanced language you used</b>${used.map(u=>`<span><i class="lv lv-${u.lvl.replace('+','p')}">${u.lvl}</i>${esc(u.t)}</span>`).join('')}</div><div class="hint">`);
+  return h };
+/* the level badge and the second version on each card */
+const _fxRender = () => document.querySelectorAll('.fx').forEach((el,i)=>{ const x=fxItems[i]; if(!x || !x.lvl || el.dataset.lv) return; el.dataset.lv=1;
+  const k=el.querySelector('.fx-k'); if(k) k.innerHTML=`<span class="fx-c fx-lvl">Level up</span><span class="lv lv-${x.lvl.replace('+','p')}">${x.lvl}</span>`;
+  if(x.alt){ el.querySelector('.b').insertAdjacentHTML('afterend', `<div class="fx-alt one"><div><small>Another way · ${x.alt.lvl}</small><span>${esc(x.alt.t)}</span><button class="fx-mini" onclick='sayBack(${JSON.stringify(x.alt.t).replace(/'/g,"&#39;")})' aria-label="Listen">▶</button></div></div>`) }
+  const o=el.querySelector('.o'); if(o) o.classList.add('plain') });
+const _renderReport = renderReport;
+renderReport = function(){ const r=_renderReport.apply(this, arguments); try{ _fxRender() }catch(e){} return r };
+FIX_KIND.lvl='Level up';
+
+/* library tab in My phrases */
+const _phRender = phRender;
+phRender = function(){ if(phTab!=='lib') return _phRender(); 
+  const all=phrasesAll(), due=phrasesDue(), saved=new Set(all.map(p=>p.better)), fns=[...new Set(LVL_LIB.map(x=>x[0]))];
+  $('phBody').innerHTML = `<h2 style="margin:0 0 4px">My phrases</h2><div class="hint">Advanced language for each stage of a negotiation. Save the ones you want to practise.</div>
+    <div class="seg ph-seg"><button onclick="phTab='due';phRender()">To review (${due.length})</button><button onclick="phTab='all';phRender()">All (${all.length})</button><button class="on">Library</button></div>
+    ${fns.map(fn=>`<div class="lib-g"><h4>${esc(fn)}</h4>${LVL_LIB.filter(x=>x[0]===fn).map((x,i)=>{ const k=LVL_LIB.indexOf(x); return `<div class="lib-it"><div class="lib-t"><span class="lv lv-${x[1].replace('+','p')}">${x[1]}</span><b>${esc(x[2])}</b></div><small>Instead of “${esc(x[3])}” · ${esc(x[4])}</small><div class="ph-meta"><button class="lnk" onclick='sayBack(${JSON.stringify(x[2]).replace(/'/g,"&#39;")})'>Listen</button><button class="lnk" onclick="libSave(${k},this)">${saved.has(x[2])?'★ Saved':'☆ Save'}</button></div></div>` }).join('')}</div>`).join('')}`;
+};
+function libSave(k, btn){ const x=LVL_LIB[k]; const on=phraseToggle({original:x[3], better:x[2], why:x[4], kinds:['lvl'], lvl:x[1]}, 'Library'); btn.textContent=on?'★ Saved':'☆ Save' }
 
 /* =========================================================
    HISTORY & SETTINGS
@@ -6031,7 +6172,7 @@ function localGas(action, d){
       if(d.id===me.id) throw new Error("You can't delete your own account.");
       db.users=db.users.filter(u=>u.id!==d.id); save(); return {ok:true};
     case 'reports.save': { const r=d.record;
-      const rowId='r'+Date.now(); db.reports.unshift({rowId,date:r.date,userId:me.id,name:me.name,scenario:r.title,difficulty:r.difficulty,overall:r.fb&&r.fb.overall,level:r.fb&&r.fb.level,duration:r.metrics.duration,json:r});
+      const rowId='r'+Date.now(); db.reports.unshift({rowId,date:r.date,userId:me.id,name:me.name,scenario:r.title,difficulty:r.difficulty,overall:r.fb&&r.fb.overall,level:r.fb&&r.fb.level,duration:r.metrics.duration,camp:r.camp?{id:r.camp.id,ep:r.camp.ep,them:r.camp.them,role:r.camp.role,field:r.camp.field,counted:r.camp.counted,arc:!!r.camp.arc,ending:r.camp.ending}:null,json:r});
       db.reports=db.reports.slice(0,60); save(); return {ok:true,rowId}; }
     case 'reports.delete': {
       const ids=[].concat(d.rowIds||d.rowId||[]); const rs=db.reports.filter(r=>ids.includes(r.rowId));
@@ -6139,16 +6280,46 @@ async function renderAdmin(){
     }
   }catch(e){ b.innerHTML=`<div class="empty">${esc(e.message)}</div>` }
 }
+/* admin › Sessions: one row per campaign (per member), its episodes underneath — like History */
+const ADM_EP = ['First Meeting','The Term Sheet','The Problem','The Shock','The Renegotiation','The Closing'];
+const admOpen = new Set();
+function admGroups(list){
+  const out=[], solo=[], by={}, asc=list.slice().sort((a,b)=>+new Date(a.date)-+new Date(b.date));
+  asc.forEach(r=>{
+    let cid=null, ep=null, them='', arc=false, meta=r.camp||null;
+    if(meta && meta.id){ cid=meta.id; ep=meta.arc?99:meta.ep; them=meta.them||''; arc=!!meta.arc }
+    else { const m=String(r.scenario||'').match(/^(First Meeting|The Term Sheet|The Problem|The Shock|The Renegotiation|The Closing) — (.+)$/), a=String(r.scenario||'').match(/^Campaign — (.+?) \((.+)\)$/);
+      if(m){ them=m[2]; ep=ADM_EP.indexOf(m[1]) } else if(a){ them=a[1]; ep=99; arc=true } else { solo.push(r); return }
+      const k=r.userId+'|'+them, cur=by[k]; // old reports without a campaign id: a new First Meeting after later episodes starts a new campaign
+      if(!cur || (ep===0 && cur.rows.some(x=>x.ep>0)) || cur.closed) { cid='h'+k+'|'+(out.length); by[k]={cid, rows:[], closed:false} } else cid=cur.cid;
+      if(arc) by[k].closed=true; }
+    let g=out.find(x=>x.cid===cid && x.userId===r.userId); if(!g){ g={cid, userId:r.userId, name:r.name, them, role:meta&&meta.role||'', field:meta&&meta.field||'', rows:[]}; out.push(g); if(!meta && by[r.userId+'|'+them]) by[r.userId+'|'+them].rows=g.rows }
+    if(!g.them && them) g.them=them; if(meta && meta.role) g.role=meta.role; if(meta && meta.field) g.field=meta.field;
+    g.rows.push(Object.assign({ep, arc, ending:meta&&meta.ending||(arc?(String(r.scenario).match(/\((.+)\)$/)||[])[1]:'')}, r));
+  });
+  return {groups:out, solo};
+}
+function admToggle(k){ if(admOpen.has(k)) admOpen.delete(k); else admOpen.add(k); drawSessions() }
 function drawSessions(){
   const people=[...new Map(admReports.map(r=>[r.userId,r.name||r.userId])).entries()];
-  const list=admReports.filter(r=>!admFilter||r.userId===admFilter);
-  $('admBody').innerHTML = `<div class="admbar"><span class="hint">${list.length} session${list.length===1?'':'s'} · click to open the debrief</span>
+  const list=admReports.filter(r=>!admFilter||r.userId===admFilter), G=admGroups(list), items=[];
+  const row=(r,sub)=>`<tr class="${sub?'adm-sub':''}" style="cursor:pointer" onclick="showHist('${esc(r.rowId)}','admin')"><td>${new Date(r.date).toLocaleString([], {dateStyle:'medium',timeStyle:'short'})}</td><td><b>${esc(r.name||r.userId)}</b><small>${esc(r.userId)}</small></td>
+      <td>${sub ? (r.arc ? `<span class="hep">Arc</span>Arc Report${r.ending?` <small>${esc(r.ending)}</small>`:''}` : `<span class="hep">Ep ${r.ep+1}</span>${esc(String(r.scenario).replace(/\s+—\s+.*$/,''))}${r.practice?' <span class="hprac">practice</span>':''}`) : esc(r.scenario)}</td><td>${esc(dlabel(r.difficulty))}</td><td>${r.arc?'–':fmt(r.duration||0)}</td><td>${esc(r.arc?'':(r.level||''))}</td><td><span class="sc">${r.overall??'–'}</span></td><td><button class="delbtn" onclick="event.stopPropagation();delReport('${esc(r.rowId)}','admin')">Delete</button></td></tr>`;
+  G.solo.forEach(r=>items.push({t:+new Date(r.date), html:row(r,false)}));
+  G.groups.forEach(g=>{ const k=g.userId+'|'+g.cid, eps=g.rows.filter(r=>!r.arc).sort((a,b)=>(a.ep-b.ep)||(+new Date(a.date)-+new Date(b.date))), arcs=g.rows.filter(r=>r.arc);
+    const seen={}; eps.forEach(r=>{ if(r.camp && r.camp.counted===false) r.practice=true }); eps.slice().reverse().forEach(r=>{ if(r.camp) return; if(seen[r.ep]) r.practice=true; seen[r.ep]=1 });
+    const main=eps.filter(r=>!r.practice), sc=main.map(r=>r.overall).filter(v=>v!=null), avg=sc.length?Math.round(sc.reduce((a,b)=>a+ +b,0)/sc.length):null;
+    const done=new Set(main.map(r=>r.ep)).size, end=arcs.length?(arcs[arcs.length-1].ending||'Finished'):'In progress', last=Math.max.apply(null,g.rows.map(r=>+new Date(r.date))), open=admOpen.has(k);
+    const head=`<tr class="adm-camp${open?' open':''}" style="cursor:pointer" onclick="admToggle('${esc(k)}')"><td>${new Date(last).toLocaleString([], {dateStyle:'medium',timeStyle:'short'})}</td><td><b>${esc(g.name||g.userId)}</b><small>${esc(g.userId)}</small></td>
+      <td><span class="hep">Campaign</span><b>${esc(g.them||'Campaign')}</b><small>${[g.role,g.field].filter(Boolean).map(esc).join(' · ')}${g.role||g.field?' · ':''}${done} of 6 episodes · ${esc(end)}</small></td><td>${esc(dlabel((main[0]||g.rows[0]).difficulty))}</td><td>${fmt(main.reduce((a,r)=>a+(+r.duration||0),0))}</td><td></td><td><span class="sc">${avg??'–'}</span></td><td class="adm-chev">${g.rows.length} ${open?'↑':'↓'}</td></tr>`;
+    items.push({t:last, html: head + (open ? eps.map(r=>row(r,true)).join('') + arcs.map(r=>row(r,true)).join('') : '')}) });
+  items.sort((a,b)=>b.t-a.t);
+  $('admBody').innerHTML = `<div class="admbar"><span class="hint">${list.length} session${list.length===1?'':'s'}${G.groups.length?` · ${G.groups.length} campaign${G.groups.length===1?'':'s'}`:''} · click to open the debrief</span>
     <select class="scsel" onchange="admFilter=this.value;drawSessions()"><option value="">All members</option>${people.map(([id,n])=>`<option value="${esc(id)}" ${admFilter===id?'selected':''}>${esc(n)} (${esc(id)})</option>`).join('')}</select></div>
-    ${list.length?`<div class="tblw"><table class="tbl"><thead><tr><th>Date</th><th>Member</th><th>Scenario</th><th>Difficulty</th><th>Length</th><th>Level</th><th>Score</th><th></th></tr></thead><tbody>
-    ${list.map(r=>`<tr style="cursor:pointer" onclick="showHist('${esc(r.rowId)}','admin')"><td>${new Date(r.date).toLocaleString([], {dateStyle:'medium',timeStyle:'short'})}</td><td><b>${esc(r.name||r.userId)}</b><small>${esc(r.userId)}</small></td>
-      <td>${esc(r.scenario)}</td><td>${esc(dlabel(r.difficulty))}</td><td>${fmt(r.duration||0)}</td><td>${esc(r.level||'')}</td><td><span class="sc">${r.overall??'–'}</span></td><td><button class="delbtn" onclick="event.stopPropagation();delReport('${esc(r.rowId)}','admin')">Delete</button></td></tr>`).join('')}</tbody></table></div>`
+    ${items.length?`<div class="tblw"><table class="tbl"><thead><tr><th>Date</th><th>Member</th><th>Scenario</th><th>Difficulty</th><th>Length</th><th>Level</th><th>Score</th><th></th></tr></thead><tbody>${items.map(i=>i.html).join('')}</tbody></table></div>`
     :'<div class="empty">No sessions yet.</div>'}`;
 }
+
 function editMember(i){
   const u = i==null ? null : admUsers[i]; editing = u;
   $('memTitle').textContent = u?'Edit member':'Add member';
@@ -7224,6 +7395,7 @@ function campAfterMeeting(rec){
   const meta=S.sc.campaign, c=campGet(meta.id); if(!c) return;
   const n=meta.ep, X=campCtx(c);
   rec.camp={id:c.id, ep:n, label:`Episode ${n+1} of 6 · ${CAMP_EPS[n].t}`, carry:[], counted:false};
+  try{ const X0=campCtx(c); Object.assign(rec.camp,{them:X0.them, role:X0.R.name, field:X0.F.name, side:c.side}) }catch(e){}
   if(c.eps[n].done || c.status!=='active'){ rec.camp.note='This episode was already completed — this run was practice and did not change the campaign.'; return }
   if(S.log.filter(l=>l.me).length<3){ rec.camp.note='Too short to count — speak at least three times to complete the episode.'; return }
   rec.camp.carry=campHarvest(c, n, rec); rec.camp.counted=true;
@@ -7269,7 +7441,7 @@ function campArcData(c){
 function campFinish(c){
   const arc=campArcData(c), O=arc.outcome;
   const rec={id:Date.now(), kind:'arc', date:new Date().toISOString(), title:`Campaign — ${arc.them} (${O.title})`, tag:'Campaign', difficulty:c.difficulty, name:myName(), role:arc.role,
-    metrics:{duration:0, turns:0, share:0, wpm:null, avgLen:0, longest:0, fTotal:0, fillers:{}, myWords:0}, fb:{overall:O.overall, level:O.title, headline:O.title, summary:O.text}, log:[], arc};
+    metrics:{duration:0, turns:0, share:0, wpm:null, avgLen:0, longest:0, fTotal:0, fillers:{}, myWords:0}, fb:{overall:O.overall, level:O.title, headline:O.title, summary:O.text}, log:[], arc, camp:{id:c.id, ep:99, arc:true, them:arc.them, role:arc.role, field:arc.field, ending:O.title}};
   if(!c.arcSaved){ c.arcSaved=true; campPut(c); gas('reports.save',{record:rec}).then(r=>{ if(r&&r.rowId){ const cc=campGet(c.id); if(cc){ cc.arcRow=r.rowId; campPut(cc) } try{ swrDrop('reports.list') }catch(e){} } }).catch(()=>{}) }
   if(c.status==='walked') openArc(c.id);
 }
