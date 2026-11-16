@@ -6284,20 +6284,23 @@ async function renderAdmin(){
 const ADM_EP = ['First Meeting','The Term Sheet','The Problem','The Shock','The Renegotiation','The Closing'];
 const admOpen = new Set();
 function admGroups(list){
-  const out=[], solo=[], by={}, asc=list.slice().sort((a,b)=>+new Date(a.date)-+new Date(b.date));
-  asc.forEach(r=>{
-    let cid=null, ep=null, them='', arc=false, meta=r.camp||null;
-    if(meta && meta.id){ cid=meta.id; ep=meta.arc?99:meta.ep; them=meta.them||''; arc=!!meta.arc }
-    else { const m=String(r.scenario||'').match(/^(First Meeting|The Term Sheet|The Problem|The Shock|The Renegotiation|The Closing) — (.+)$/), a=String(r.scenario||'').match(/^Campaign — (.+?) \((.+)\)$/);
-      if(m){ them=m[2]; ep=ADM_EP.indexOf(m[1]) } else if(a){ them=a[1]; ep=99; arc=true } else { solo.push(r); return }
-      const k=r.userId+'|'+them, cur=by[k]; // old reports without a campaign id: a new First Meeting after later episodes starts a new campaign
-      if(!cur || (ep===0 && cur.rows.some(x=>x.ep>0)) || cur.closed) { cid='h'+k+'|'+(out.length); by[k]={cid, rows:[], closed:false} } else cid=cur.cid;
-      if(arc) by[k].closed=true; }
-    let g=out.find(x=>x.cid===cid && x.userId===r.userId); if(!g){ g={cid, userId:r.userId, name:r.name, them, role:meta&&meta.role||'', field:meta&&meta.field||'', rows:[]}; out.push(g); if(!meta && by[r.userId+'|'+them]) by[r.userId+'|'+them].rows=g.rows }
-    if(!g.them && them) g.them=them; if(meta && meta.role) g.role=meta.role; if(meta && meta.field) g.field=meta.field;
-    g.rows.push(Object.assign({ep, arc, ending:meta&&meta.ending||(arc?(String(r.scenario).match(/\((.+)\)$/)||[])[1]:'')}, r));
-  });
-  return {groups:out, solo};
+  const solo=[], tagged={}, loose=[], asc=list.slice().sort((a,b)=>+new Date(a.date)-+new Date(b.date));
+  const parse = r => { const m=String(r.scenario||'').match(/^(First Meeting|The Term Sheet|The Problem|The Shock|The Renegotiation|The Closing) — (.+)$/), a=String(r.scenario||'').match(/^Campaign — (.+?) \((.+)\)$/);
+    return m ? {them:m[2], ep:ADM_EP.indexOf(m[1]), arc:false} : a ? {them:a[1], ep:99, arc:true, ending:a[2]} : null };
+  // 1. reports that know their campaign
+  asc.forEach(r=>{ const c=r.camp; if(c && c.id){ const k=r.userId+'|'+c.id, g=tagged[k]=tagged[k]||{cid:c.id, userId:r.userId, name:r.name, them:'', role:'', field:'', rows:[]};
+      g.them=c.them||g.them; g.role=c.role||g.role; g.field=c.field||g.field; g.rows.push(Object.assign({ep:c.arc?99:c.ep, arc:!!c.arc, ending:c.ending||''}, r)) }
+    else { const p=parse(r); if(p) loose.push(Object.assign({}, p, {r})); else solo.push(r) } });
+  const groups=Object.values(tagged);
+  // 2. older reports (saved before campaigns were tagged): join the same member's campaign with that company if one overlaps in time,
+  //    otherwise build campaigns from the titles — a new one starts only after an Arc Report closed the previous one, or after a long gap
+  const span = g => { const ts=g.rows.map(x=>+new Date(x.date)); return [Math.min.apply(null,ts), Math.max.apply(null,ts), g.rows.some(x=>x.arc)] };
+  loose.forEach(x=>{ const t=+new Date(x.r.date), same=groups.filter(g=>g.userId===x.r.userId && g.them===x.them);
+    let g = same.find(g=>{ const [a,b,closed]=span(g); return t>=a-864e5*45 && (t<=b || !closed) && !(closed && t>b) && !(g.rows.some(y=>y.arc) && x.arc) });
+    if(!g){ const prev=same.filter(g=>g.cid.indexOf('h|')===0).slice(-1)[0]; if(prev){ const [a,b,closed]=span(prev); if(!closed && t-b<864e5*30) g=prev } }
+    if(!g){ g={cid:'h|'+x.r.userId+'|'+x.them+'|'+groups.length, userId:x.r.userId, name:x.r.name, them:x.them, role:'', field:'', rows:[]}; groups.push(g) }
+    g.rows.push(Object.assign({ep:x.ep, arc:x.arc, ending:x.ending||''}, x.r)) });
+  return {groups, solo};
 }
 function admToggle(k){ if(admOpen.has(k)) admOpen.delete(k); else admOpen.add(k); drawSessions() }
 function drawSessions(){
@@ -6307,7 +6310,7 @@ function drawSessions(){
       <td>${sub ? (r.arc ? `<span class="hep">Arc</span>Arc Report${r.ending?` <small>${esc(r.ending)}</small>`:''}` : `<span class="hep">Ep ${r.ep+1}</span>${esc(String(r.scenario).replace(/\s+—\s+.*$/,''))}${r.practice?' <span class="hprac">practice</span>':''}`) : esc(r.scenario)}</td><td>${esc(dlabel(r.difficulty))}</td><td>${r.arc?'–':fmt(r.duration||0)}</td><td>${esc(r.arc?'':(r.level||''))}</td><td><span class="sc">${r.overall??'–'}</span></td><td><button class="delbtn" onclick="event.stopPropagation();delReport('${esc(r.rowId)}','admin')">Delete</button></td></tr>`;
   G.solo.forEach(r=>items.push({t:+new Date(r.date), html:row(r,false)}));
   G.groups.forEach(g=>{ const k=g.userId+'|'+g.cid, eps=g.rows.filter(r=>!r.arc).sort((a,b)=>(a.ep-b.ep)||(+new Date(a.date)-+new Date(b.date))), arcs=g.rows.filter(r=>r.arc);
-    const seen={}; eps.forEach(r=>{ if(r.camp && r.camp.counted===false) r.practice=true }); eps.slice().reverse().forEach(r=>{ if(r.camp) return; if(seen[r.ep]) r.practice=true; seen[r.ep]=1 });
+    const seen={}; eps.forEach(r=>{ if(r.camp && r.camp.counted===false) r.practice=true }); eps.slice().sort((a,b)=>+new Date(a.date)-+new Date(b.date)).forEach(r=>{ if(r.camp && r.camp.id) { if(r.camp.counted!==false) seen[r.ep]=1; return } if(seen[r.ep]) r.practice=true; seen[r.ep]=1 });   // an episode counts once; later runs are practice
     const main=eps.filter(r=>!r.practice), sc=main.map(r=>r.overall).filter(v=>v!=null), avg=sc.length?Math.round(sc.reduce((a,b)=>a+ +b,0)/sc.length):null;
     const done=new Set(main.map(r=>r.ep)).size, end=arcs.length?(arcs[arcs.length-1].ending||'Finished'):'In progress', last=Math.max.apply(null,g.rows.map(r=>+new Date(r.date))), open=admOpen.has(k);
     const head=`<tr class="adm-camp${open?' open':''}" style="cursor:pointer" onclick="admToggle('${esc(k)}')"><td>${new Date(last).toLocaleString([], {dateStyle:'medium',timeStyle:'short'})}</td><td><b>${esc(g.name||g.userId)}</b><small>${esc(g.userId)}</small></td>
