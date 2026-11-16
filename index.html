@@ -828,6 +828,167 @@ html.mob body{overflow-x:hidden}
   .top,.noprint{display:none!important}
   .pane,.kpi{box-shadow:none}
 }
+
+/* =========================================================
+   REPORT CARD — the saved / printed version of a debrief
+   Two designed layouts from the same record: .rc-pc (A4, paginated) and .rc-m (one long phone-width strip).
+   Look: a signed record of the meeting — deep-green header, a 0–100 ruler showing where the speaker landed, ruled ledger rows instead of cards.
+   ========================================================= */
+#cardView{position:fixed;inset:0;z-index:400;background:#e4e2d9;display:none;flex-direction:column}
+#cardView.on{display:flex}
+.cv-bar{display:flex;align-items:center;gap:10px;padding:10px 14px;background:#293e36;color:#fff;flex-wrap:wrap}
+.cv-bar b{font-size:15px;font-weight:700;margin-right:auto;white-space:nowrap}
+.cv-seg{display:flex;background:rgba(255,255,255,.12);border-radius:10px;padding:3px}
+.cv-seg button{padding:7px 14px;border-radius:8px;font-size:13px;font-weight:600;color:#dfe8e1}
+.cv-seg button.on{background:#fff;color:#293e36}
+.cv-save{background:#c7e48b;color:#22342c;font-weight:700;font-size:13.5px;padding:9px 16px;border-radius:10px}
+.cv-x{width:36px;height:36px;border-radius:50%;background:rgba(255,255,255,.12);font-size:18px;line-height:1}
+.cv-note{font-size:12px;color:#5d655f;text-align:center;padding:8px 14px 0}
+.cv-stage{flex:1;overflow:auto;padding:16px 12px 40px;-webkit-overflow-scrolling:touch}
+.cv-fit{margin:0 auto}
+
+.rc{background:#fffefb;color:#252b29;font-family:Inter,system-ui,-apple-system,sans-serif;line-height:1.5;margin:0 auto;box-shadow:0 6px 30px rgba(37,43,41,.14);-webkit-print-color-adjust:exact;print-color-adjust:exact;overflow:hidden}
+.rc *{box-sizing:border-box;margin:0;padding:0}
+.rc-top{background:#293e36;color:#eef3ee}
+.rc-brandrow{display:flex;justify-content:space-between;align-items:baseline}
+.rc-brand{font-weight:800;letter-spacing:-.03em;color:#fff}
+.rc-brand i{color:#c7e48b;font-style:normal}
+.rc-kind{color:#b9c9be;font-weight:500}
+.rc-top h1{font-weight:750;letter-spacing:-.025em;line-height:1.12;color:#fff}
+.rc-who{display:grid}
+.rc-who dt{color:#9fb3a6;font-weight:500}
+.rc-who dd{color:#fff;font-weight:600}
+.rc-score{display:grid;align-items:end;border-bottom:1px solid #dbe3dd}
+.rc-num{font-weight:800;letter-spacing:-.05em;line-height:.82;color:#293e36;white-space:nowrap}
+.rc-num small{display:block;font-weight:500;letter-spacing:0;color:#7b807c;line-height:1.3}
+.rc-level{display:inline-block;background:#d4e8ad;color:#22342c;font-weight:750;border-radius:999px}
+.rc-verdict h2{font-weight:700;letter-spacing:-.015em;line-height:1.22;color:#252b29}
+.rc-verdict p{color:#4b534f}
+.rc-ruler{grid-column:1/-1;position:relative}
+.rc-track{position:relative;height:10px;border-radius:5px;background:#e9efe6;overflow:hidden}
+.rc-track u{position:absolute;left:0;top:0;bottom:0;background:#455d50;border-radius:5px}
+.rc-mark{position:absolute;top:-7px;width:3px;height:24px;background:#252b29;border-radius:2px;transform:translateX(-1.5px)}
+.rc-mark::after{content:'';position:absolute;left:50%;top:-5px;width:11px;height:11px;border-radius:50%;background:#c7e48b;border:2.5px solid #252b29;transform:translateX(-50%)}
+.rc-ticks{display:flex;justify-content:space-between;color:#9aa19c;font-variant-numeric:tabular-nums}
+.rc-ticks span{width:0;display:flex;justify-content:center;white-space:nowrap}
+.rc-kpis{display:grid;border-bottom:1px solid #dbe3dd}
+.rc-kpi small{display:block;color:#7b807c;font-weight:500}
+.rc-kpi b{display:block;font-weight:750;letter-spacing:-.02em;color:#293e36;line-height:1.15;font-variant-numeric:tabular-nums}
+.rc-kpi span{display:block;color:#7b807c}
+.rc-sec{break-inside:avoid;page-break-inside:avoid}
+.rc-sec.flow{break-inside:auto;page-break-inside:auto}
+.rc-sec h3{break-after:avoid;page-break-after:avoid;font-weight:750;letter-spacing:-.01em;color:#293e36;border-bottom:2px solid #293e36}
+.rc-bar{display:grid;grid-template-columns:1fr auto;align-items:baseline;column-gap:10px;break-inside:avoid}
+.rc-bar span{font-weight:550}
+.rc-bar b{font-weight:750;font-variant-numeric:tabular-nums;color:#293e36}
+.rc-bar i{grid-column:1/-1;display:block;height:4px;border-radius:2px;background:#e9efe6;overflow:hidden}
+.rc-bar i u{display:block;height:100%;background:#455d50;border-radius:2px}
+.rc-row{display:grid;grid-template-columns:auto 1fr;column-gap:10px;border-bottom:1px solid #eae6dd;break-inside:avoid;page-break-inside:avoid}
+.rc-row:last-child{border-bottom:0}
+.rc-row small{display:block;color:#7b807c}
+.rc-dot{display:inline-flex;align-items:center;justify-content:center;border-radius:50%;font-weight:800;line-height:1;flex-shrink:0}
+.rc-dot.y{background:#dcebd5;color:#2f6a45}.rc-dot.p{background:#f1e7d3;color:#8a572c}.rc-dot.n{background:#f3dcd7;color:#a13d32}
+.rc-list{list-style:none}
+.rc-list li{position:relative;border-bottom:1px solid #eae6dd;break-inside:avoid}
+.rc-list li:last-child{border-bottom:0}
+.rc-list li::before{content:'';position:absolute;left:0;width:6px;height:6px;border-radius:50%;background:#455d50}
+.rc-list.minus li::before{background:#b8793f}
+.rc-rw{border-bottom:1px solid #eae6dd;break-inside:avoid;page-break-inside:avoid}
+.rc-rw:last-child{border-bottom:0}
+.rc-rw .o{color:#7b807c;text-decoration:line-through;text-decoration-color:#c9bfae}
+.rc-rw .b{font-weight:650;color:#293e36}
+.rc-rw .w{color:#4b534f}
+.rc-ph{break-inside:avoid;border-bottom:1px solid #eae6dd}
+.rc-ph b{display:block;font-weight:650;color:#293e36}
+.rc-ph small{display:block;color:#7b807c}
+.rc-tbl{width:100%;border-collapse:collapse;font-variant-numeric:tabular-nums}
+.rc-tbl th{text-align:left;font-weight:600;color:#7b807c;border-bottom:1px solid #dbe3dd}
+.rc-tbl td{border-bottom:1px solid #eae6dd;vertical-align:top}
+.rc-tbl tr{break-inside:avoid}
+.rc-tbl .in{color:#2f6a45;font-weight:650}.rc-tbl .out{color:#a13d32;font-weight:650}.rc-tbl .dim{color:#7b807c}
+.rc-foot{display:flex;justify-content:space-between;gap:12px;color:#9aa19c;border-top:1px solid #dbe3dd;flex-wrap:wrap}
+.rc-foot b{color:#455d50;font-weight:700}
+
+/* ---- PC: A4 portrait (794 CSS px wide) ---- */
+.rc-pc{width:794px;min-height:1123px;font-size:12px}
+.rc-pc .rc-top{padding:34px 52px 30px}
+.rc-pc .rc-brand{font-size:22px}.rc-pc .rc-kind{font-size:12px}
+.rc-pc .rc-top h1{font-size:30px;margin-top:26px;max-width:600px}
+.rc-pc .rc-who{grid-template-columns:repeat(4,auto);justify-content:start;column-gap:44px;margin-top:20px}
+.rc-pc .rc-who dt{font-size:10.5px}.rc-pc .rc-who dd{font-size:12.5px;margin-top:2px}
+.rc-pc .rc-score{grid-template-columns:auto 1fr;column-gap:36px;padding:30px 52px 22px}
+.rc-pc .rc-num{font-size:104px}.rc-pc .rc-num small{font-size:11.5px;margin-top:12px}
+.rc-pc .rc-level{font-size:11.5px;padding:3px 11px}
+.rc-pc .rc-verdict h2{font-size:19px;margin-top:9px}.rc-pc .rc-verdict p{font-size:12.5px;margin-top:6px;max-width:520px}
+.rc-pc .rc-ruler{margin-top:26px}.rc-pc .rc-ticks{font-size:9.5px;margin-top:6px}
+.rc-pc .rc-kpis{grid-template-columns:repeat(5,1fr);padding:0 52px}
+.rc-pc .rc-kpi{padding:16px 14px 16px 0}.rc-pc .rc-kpi + .rc-kpi{padding-left:14px;border-left:1px solid #eae6dd}
+.rc-pc .rc-kpi small{font-size:10.5px}.rc-pc .rc-kpi b{font-size:22px;margin-top:3px}.rc-pc .rc-kpi span{font-size:10.5px;margin-top:2px}
+.rc-pc .rc-body{padding:8px 52px 0}
+.rc-pc .rc-two{display:grid;grid-template-columns:1fr 1fr;column-gap:40px;align-items:start}
+.rc-pc .rc-sec{margin-top:24px}
+.rc-pc .rc-goals{columns:2;column-gap:40px}
+.rc-pc .rc-goals .rc-row{border-bottom:1px solid #eae6dd}
+.rc-pc .rc-sec h3{font-size:13.5px;padding-bottom:6px;margin-bottom:6px}
+.rc-pc .rc-bar{padding:7px 0}.rc-pc .rc-bar i{margin-top:5px}
+.rc-pc .rc-row{padding:8px 0}.rc-pc .rc-row small{font-size:10.5px;margin-top:2px}
+.rc-pc .rc-dot{width:17px;height:17px;font-size:10px;margin-top:1px}
+.rc-pc .rc-list li{padding:8px 0 8px 16px}.rc-pc .rc-list li::before{top:14px}
+.rc-pc .rc-rw{padding:10px 0;display:grid;grid-template-columns:1fr 1fr;column-gap:28px}
+.rc-pc .rc-rw .w{grid-column:2;font-size:10.5px;margin-top:3px}
+.rc-pc .rc-phs{display:grid;grid-template-columns:1fr 1fr;column-gap:40px}
+.rc-pc .rc-ph{padding:8px 0}.rc-pc .rc-ph small{font-size:10.5px;margin-top:1px}
+.rc-pc .rc-tbl th{font-size:10.5px;padding:6px 8px 6px 0}.rc-pc .rc-tbl td{padding:7px 8px 7px 0}
+.rc-pc .rc-foot{margin:30px 52px 0;padding:12px 0 30px;font-size:10px}
+
+/* ---- Phone: one continuous strip, 390 CSS px wide ---- */
+.rc-m{width:390px;font-size:13.5px}
+.rc-m .rc-top{padding:22px 22px 24px}
+.rc-m .rc-brand{font-size:20px}.rc-m .rc-kind{font-size:12px}
+.rc-m .rc-top h1{font-size:25px;margin-top:22px}
+.rc-m .rc-who{grid-template-columns:1fr 1fr;gap:12px 16px;margin-top:18px}
+.rc-m .rc-who dt{font-size:11px}.rc-m .rc-who dd{font-size:13px;margin-top:1px}
+.rc-m .rc-score{grid-template-columns:1fr;row-gap:14px;padding:26px 22px 20px}
+.rc-m .rc-num{font-size:112px}.rc-m .rc-num small{font-size:12.5px;margin-top:12px}
+.rc-m .rc-level{font-size:12px;padding:3px 11px}
+.rc-m .rc-verdict h2{font-size:19px;margin-top:9px}.rc-m .rc-verdict p{font-size:13.5px;margin-top:6px}
+.rc-m .rc-ruler{margin-top:14px}.rc-m .rc-ticks{font-size:10px;margin-top:6px}
+.rc-m .rc-kpis{grid-template-columns:1fr 1fr;padding:6px 22px}
+.rc-m .rc-kpi{padding:13px 0;border-bottom:1px solid #eae6dd}
+.rc-m .rc-kpi:nth-child(odd){padding-right:12px}.rc-m .rc-kpi:nth-child(even){padding-left:14px;border-left:1px solid #eae6dd}
+.rc-m .rc-kpi:last-child{grid-column:1/-1;border-bottom:0;border-left:0;padding-left:0}
+.rc-m .rc-kpi small{font-size:11.5px}.rc-m .rc-kpi b{font-size:24px;margin-top:2px}.rc-m .rc-kpi span{font-size:11.5px;margin-top:1px}
+.rc-m .rc-body{padding:4px 22px 0}
+.rc-m .rc-sec{margin-top:26px}
+.rc-m .rc-sec h3{font-size:15px;padding-bottom:7px;margin-bottom:6px}
+.rc-m .rc-bar{padding:8px 0}.rc-m .rc-bar i{margin-top:6px;height:5px}
+.rc-m .rc-row{padding:10px 0}.rc-m .rc-row small{font-size:11.5px;margin-top:2px}
+.rc-m .rc-dot{width:19px;height:19px;font-size:11px;margin-top:1px}
+.rc-m .rc-list li{padding:10px 0 10px 17px}.rc-m .rc-list li::before{top:17px}
+.rc-m .rc-rw{padding:12px 0}.rc-m .rc-rw .b{margin-top:5px}.rc-m .rc-rw .w{font-size:12px;margin-top:4px}
+.rc-m .rc-ph{padding:10px 0}.rc-m .rc-ph small{font-size:12px;margin-top:1px}
+.rc-m .rc-tbl thead{display:none}
+.rc-m .rc-tbl tr{display:block;padding:10px 0;border-bottom:1px solid #eae6dd}
+.rc-m .rc-tbl td{display:block;border:0;padding:0}
+.rc-m .rc-tbl td[data-l]::before{content:attr(data-l) ' ';color:#7b807c;font-weight:400}
+.rc-m .rc-tbl td.lead{font-weight:700;color:#293e36;margin-bottom:2px}
+.rc-m .rc-foot{margin:28px 22px 0;padding:14px 0 26px;font-size:11px}
+
+@media print{
+  body.cardprint{background:#fff!important;padding:0!important;height:auto!important;overflow:visible!important}
+  html:has(body.cardprint){height:auto!important;overflow:visible!important}
+  body.cardprint > *:not(#cardView){display:none!important}
+  body.cardprint #cardView{display:block!important;position:static!important;background:#fff!important}
+  body.cardprint .cv-bar, body.cardprint .cv-note{display:none!important}
+  body.cardprint .cv-stage{padding:0!important;overflow:visible!important}
+  body.cardprint .cv-fit{width:auto!important;height:auto!important;margin:0!important}
+  body.cardprint .rc{zoom:1!important;transform:none!important;box-shadow:none!important;margin:0!important;min-height:0!important}
+  body.cardprint .rc-pc{width:210mm!important}
+}
+
+.rc-tbl thead{break-after:avoid}
+@media (max-width:540px){ .cv-bar{flex-wrap:nowrap;padding:10px 10px} .cv-bar b{display:none} .cv-seg{margin-right:auto} .cv-seg button{padding:7px 12px} }
+
 </style>
 </head>
 <body>
@@ -1042,7 +1203,7 @@ html.mob body{overflow-x:hidden}
     <div class="top">
       <div class="brand" onclick="go('home')"><b>pactli<i>.</i></b><span>Debrief</span></div>
       <div class="nav noprint">
-        <button onclick="window.print()">Save PDF</button>
+        <button onclick="openCard()">Save PDF</button>
         <button onclick="openHistory()">History</button>
         <button onclick="go('home')">New meeting</button>
         <button id="repDel" style="display:none;color:var(--bad)" onclick="curReport&&delReport(curReport.rowId,curReport.from)">Delete</button>
@@ -1108,7 +1269,7 @@ html.mob body{overflow-x:hidden}
   <div class="wrap">
     <div class="top">
       <div class="brand" onclick="go('home')"><b>pactli<i>.</i></b><span>Arc Report</span></div>
-      <div class="nav noprint"><button onclick="window.print()">Save PDF</button><button onclick="openCampaign()">← Campaign</button></div>
+      <div class="nav noprint"><button onclick="openCard('arc')">Save PDF</button><button onclick="openCampaign()">← Campaign</button></div>
     </div>
     <div id="arcBody"></div>
   </div>
@@ -4865,8 +5026,103 @@ async function endMeeting(auto){
 function retryReport(){ if(S){ S.ended=false; endMeeting(true) } }
 function cleanup(){ clearInterval(S.timer); speechSynthesis.cancel(); if(recOn) stopMic(false) }
 
+/* =========================================================
+   REPORT CARD (PDF) — a designed, print-ready version of the debrief, for phone and for PC
+   ========================================================= */
+let cardRec = null, cardArc = null, cardMode = 'm', cardKind = 'rep';
+const rcDot = g => g>0 ? '<span class="rc-dot y">✓</span>' : g<0 ? '<span class="rc-dot n">✕</span>' : '<span class="rc-dot p">–</span>';
+const rcBar = (k, v, note) => `<div class="rc-bar"><span>${esc(k)}${note?`<small style="display:block;font-weight:400;color:#7b807c">${esc(note)}</small>`:''}</span><b>${v==null?'–':v}</b><i><u style="width:${Math.max(0,Math.min(100,+v||0))}%"></u></i></div>`;
+const rcSec = (title, inner, cls) => inner ? `<section class="rc-sec${cls?' '+cls:''}"><h3>${esc(title)}</h3>${inner}</section>` : '';
+function rcRuler(v){ v=Math.max(0,Math.min(100,+v||0)); return `<div class="rc-ruler"><div style="position:relative"><div class="rc-track"><u style="width:${v}%"></u></div><div class="rc-mark" style="left:${v}%"></div></div><div class="rc-ticks">${[0,20,40,60,80,100].map(x=>`<span>${x}</span>`).join('')}</div></div>` }
+function rcTop(kind, title, who){ return `<header class="rc-top"><div class="rc-brandrow"><div class="rc-brand">pactli<i>.</i></div><div class="rc-kind">${esc(kind)}</div></div><h1>${esc(title)}</h1><dl class="rc-who">${who.filter(x=>x[1]).map(([k,v])=>`<div><dt>${esc(k)}</dt><dd>${esc(v)}</dd></div>`).join('')}</dl></header>` }
+const rcFoot = name => `<footer class="rc-foot"><span><b>pactli.</b> business English meeting practice</span><span>${esc(name||'')}${name?' · ':''}saved ${new Date().toLocaleDateString()}</span></footer>`;
+const rcDate = d => { try{ return new Date(d).toLocaleDateString(undefined,{year:'numeric',month:'short',day:'numeric'}) }catch(e){ return '' } };
+
+function cardReportHTML(r, mode){
+  const f=r.fb||{}, m=r.metrics||{}, pc=mode==='pc';
+  const fill = m.fTotal ? Object.entries(m.fillers||{}).sort((a,b)=>b[1]-a[1]).slice(0,2).map(([k,v])=>`"${k}" ×${v}`).join(', ') : 'none heard';
+  const kpis = [['Length', fmt(m.duration||0), (m.turns||0)+' turns'], ['Speaking share', (m.share??'–')+'%', m.share<30?'speak up more':m.share>65?'leave them room':'good balance'], ['Pace', m.wpm??'–', m.wpm?(m.wpm<100?'words a minute, a little slow':m.wpm>170?'words a minute, a little fast':'words a minute, comfortable'):'typed'], ['Average turn', m.avgLen??'–', 'words, longest '+(m.longest??'–')], ['Fillers', m.fTotal??0, fill]];
+  const evalS = f.rubric ? rcSec('Evaluation', [['Content / Relevance','Relevant content that addresses the issue'],['Logic / Development','Reasons and examples that hold together'],['Delivery','Expressions, grammar and fluency']].map(([k,d])=>rcBar(k, f.rubric[k], d)).join('')) : '';
+  const skills = Object.keys(f.scores||{}).length ? rcSec('Skills', Object.entries(f.scores).map(([k,v])=>rcBar(k,v)).join('')) : '';
+  const goals = (f.goals||[]).length ? rcSec('Objectives', `<div class="rc-goals">${f.goals.map(g=>`<div class="rc-row">${rcDot(g.status==='met'?1:g.status==='partial'?0:-1)}<div>${esc(g.goal)}${g.note?`<small>${esc(g.note)}</small>`:''}</div></div>`).join('')}</div>`) : '';
+  const worked = (f.strengths||[]).length ? rcSec('What worked', `<ul class="rc-list">${f.strengths.map(s=>`<li>${esc(s)}</li>`).join('')}</ul>`) : '';
+  const focus = (f.improvements||[]).length ? rcSec('Focus next time', `<ul class="rc-list minus">${f.improvements.map(s=>`<li>${esc(s)}</li>`).join('')}</ul>`) : '';
+  const camp = r.camp && (r.camp.carry||[]).length ? rcSec(r.camp.label+': what carries forward', r.camp.carry.map(x=>`<div class="rc-row">${rcDot(x.good)}<div>${esc(x.text)}</div></div>`).join('')) : '';
+  const moments = (f.moments||[]).length ? rcSec('Key moments', f.moments.slice(0,8).map(x=>`<div class="rc-row">${rcDot(x.good)}<div>${esc(x.text)}<small>Turn ${x.turn}</small></div></div>`).join('')) : '';
+  const st = f.smalltalk && (f.smalltalk.checks||[]).length ? rcSec('Small talk', f.smalltalk.checks.map(c=>`<div class="rc-row">${rcDot(c.ok)}<div>${esc(c.label)}${c.tip&&c.ok<=0?`<small>${esc(c.tip)}</small>`:''}</div></div>`).join('')) : '';
+  const rws = (f.rewrites||[]).map(w=>({o:w.original,b:w.better,w:w.why})).concat(((f.smalltalk&&f.smalltalk.fixes)||[]).map(x=>({o:x.said,b:x.better,w:x.why}))).slice(0,7);
+  const rewrites = rws.length ? rcSec('Say it better', rws.map(w=>`<div class="rc-rw"><div class="o">${esc(w.o)}</div><div class="b">${esc(w.b)}</div>${w.w?`<div class="w">${esc(w.w)}</div>`:''}</div>`).join(''), 'flow') : '';
+  const phrases = (f.phrases||[]).length ? rcSec('Phrases to keep', `<div class="rc-phs">${f.phrases.slice(0,8).map(p=>`<div class="rc-ph"><b>${esc(p.phrase)}</b><small>${esc(p.use||'')}</small></div>`).join('')}</div>`, 'flow') : '';
+  const habits = (f.habits||[]).length ? rcSec('Speaking habits', `<ul class="rc-list minus">${f.habits.map(h=>`<li>${esc(h)}</li>`).join('')}</ul>`) : '';
+  const two = (a,b) => pc && a && b ? `<div class="rc-two"><div>${a}</div><div>${b}</div></div>` : a+b;
+  return `<article class="rc rc-${mode}">
+    ${rcTop('Meeting report', r.title||'Meeting', [['Speaker', [r.name, r.role].filter(Boolean).join(', ')], ['Date', rcDate(r.date)], ['Difficulty', dlabel(r.difficulty)], ['Counterpart', (r.log||[]).filter(l=>!l.me).map(l=>l.speaker).filter((x,i,a)=>x&&a.indexOf(x)===i).slice(0,2).join(', ')]])}
+    <section class="rc-score"><div class="rc-num">${f.overall??'–'}<small>out of 100</small></div>
+      <div class="rc-verdict">${f.level?`<span class="rc-level">${esc(String(f.level).replace(/\s*·\s*rule-based/i,''))}</span>`:''}<h2>${esc(f.headline||'')}</h2><p>${esc(f.summary||'')}</p></div>${rcRuler(f.overall)}</section>
+    <section class="rc-kpis">${kpis.map(([k,v,s])=>`<div class="rc-kpi"><small>${esc(k)}</small><b>${esc(String(v))}</b><span>${esc(s)}</span></div>`).join('')}</section>
+    <div class="rc-body">${two(evalS, skills)}${two(worked, focus)}${goals}${camp}${two(moments, st+habits)}${rewrites}${phrases}</div>
+    ${rcFoot(r.name)}</article>`;
+}
+function cardArcHTML(arc, mode){
+  const O=arc.outcome||{}, pc=mode==='pc', chain=(arc.chain||[]).slice().sort((a,b)=>a.ep-b.ep);
+  const kpis=[['Deal value', O.dv, O.dv>=75?'strong terms':O.dv>=50?'inside your limits':'value given away'], ['Relationship', O.rel, O.rel>=62?'they want more':O.rel>=48?'workable':'damaged'], ['Risk exposure', O.risk, O.risk<=30?'well protected':O.risk<=50?'some gaps':'exposed'], ['Average episode', O.avg, (arc.eps||[]).filter(e=>e.done).length+' of 6 episodes'], ['Needs uncovered', (arc.needs||0)+' / 5', 'in the first meeting']];
+  const eps = rcSec('Episode by episode', `<table class="rc-tbl"><thead><tr><th>Episode</th><th>Score</th><th>Objectives</th><th>Trust after</th><th>Follow-up</th></tr></thead><tbody>${(arc.eps||[]).map((e,i)=>{ if(!pc && !e.done) return ''; const h=(arc.history||[]).find(x=>x.ep===i); return `<tr><td class="lead">${i+1}. ${esc(e.t)}</td><td data-l="Score">${e.done?e.score:'–'}</td><td data-l="Objectives">${h?h.met+' / '+h.goals:'–'}</td><td data-l="Trust after">${h?h.trust:'–'}</td><td data-l="Follow-up" class="${e.bridged==='kept'?'in':e.bridged==='skipped'?'out':'dim'}">${e.bridged==='kept'?'sent':e.bridged==='skipped'?'skipped':'–'}</td></tr>` }).join('')}${!pc && (arc.eps||[]).some(e=>!e.done) ? `<tr><td class="dim">${(arc.eps||[]).filter(e=>!e.done).length} episode${(arc.eps||[]).filter(e=>!e.done).length>1?'s':''} not played</td></tr>` : ''}</tbody></table>`, 'flow');
+  const carried = chain.length ? rcSec('What carried forward', chain.slice(0,14).map(x=>`<div class="rc-row">${rcDot(x.good)}<div>${esc(x.text)}</div></div>`).join(''), 'flow') : '';
+  const risks = rcSec('Risk exposure', (O.risks||[]).length ? `<ul class="rc-list minus">${O.risks.map(x=>`<li>${esc(x)}</li>`).join('')}</ul>` : `<div class="rc-row">${rcDot(1)}<div>No open risks. The contract is well protected.</div></div>`);
+  const rel = rcSec('Relationship', rcBar('Trust',arc.trust)+rcBar('Rapport',arc.rapport)+rcBar('Credibility',arc.cred));
+  const items=(arc.items||[]).slice().sort((a,b)=>a.ep-b.ep);
+  const nums = rcSec('Every number you negotiated', items.length ? `<table class="rc-tbl"><thead><tr><th>Episode</th><th>Point</th><th>Result</th><th>How</th><th>Against your mandate</th></tr></thead><tbody>${items.map(t=>`<tr><td data-l="Episode" class="dim">${t.ep+1}</td><td class="lead">${esc(cap1(t.label))}</td><td class="${t.ok?'in':'out'}">${esc(t.text)}</td><td class="dim">${t.src==='you'?'negotiated by you':t.src==='team'?'agreed by your team':'settled by default'}</td><td>${t.score>=.9?'At or beyond target':t.score>=.4?'Between limit and target':t.score>=0?'At your limit':'Outside your limit'}</td></tr>`).join('')}</tbody></table>` : `<div class="rc-row">${rcDot(0)}<div>No terms were agreed.</div></div>`, 'flow');
+  const prom = (arc.promises||[]).length ? rcSec('Promises', arc.promises.map(p=>`<div class="rc-row">${rcDot(p.kept===true?1:p.kept===false?-1:0)}<div>${esc(p.text)}<small>Episode ${p.ep+1}, ${p.kept===true?'kept':p.kept===false?'not followed up':'open'}</small></div></div>`).join(''), 'flow') : '';
+  const two = (a,b) => pc && a && b ? `<div class="rc-two"><div>${a}</div><div>${b}</div></div>` : a+b;
+  return `<article class="rc rc-${mode}">
+    ${rcTop('Campaign report', (arc.me?arc.me+' and ':'')+arc.them, [['Your role', arc.role], ['Counterpart', arc.contact], ['Field', arc.field], ['Side and difficulty', (arc.side==='provider'?'Provider':'Buyer')+', '+dlabel(arc.difficulty)]])}
+    <section class="rc-score"><div class="rc-num">${O.overall??'–'}<small>out of 100</small></div>
+      <div class="rc-verdict"><span class="rc-level">${arc.status==='walked'?'Ended by walk-away':'Six meetings, one deal'}</span><h2>${esc(O.title||'')}</h2><p>${esc(O.text||'')}</p></div>${rcRuler(O.overall)}</section>
+    <section class="rc-kpis">${kpis.map(([k,v,s])=>`<div class="rc-kpi"><small>${esc(k)}</small><b>${v==null?'–':esc(String(v))}</b><span>${esc(s)}</span></div>`).join('')}</section>
+    <div class="rc-body">${eps}${two(risks, rel)}${nums}${carried}${prom}</div>
+    ${rcFoot(myName())}</article>`;
+}
+function cardEnsure(){
+  if($('cardView')) return;
+  const d=document.createElement('div'); d.id='cardView';
+  d.innerHTML=`<div class="cv-bar"><b>Report card</b><div class="cv-seg"><button data-m="m" onclick="cardSet('m')">Phone</button><button data-m="pc" onclick="cardSet('pc')">PC</button></div><button class="cv-save" onclick="cardPrint()">Save PDF</button><button class="cv-x" aria-label="Close" onclick="cardClose()">×</button></div><div class="cv-note" id="cvNote"></div><div class="cv-stage"><div class="cv-fit" id="cvFit"></div></div>`;
+  document.body.appendChild(d);
+  window.addEventListener('resize', ()=>{ if($('cardView').classList.contains('on')) cardFit() });
+  window.addEventListener('afterprint', cardAfter);
+}
+function openCard(kind){
+  cardKind = kind || 'rep';
+  if(cardKind==='arc' ? !cardArc : !cardRec){ toast('Open a report first.'); return }
+  if(cardKind==='rep' && cardRec.kind==='arc' && cardRec.arc){ cardArc=cardRec.arc; cardKind='arc' }
+  cardEnsure(); $('cardView').classList.add('on'); cardSet(document.documentElement.classList.contains('mob') ? 'm' : 'pc');
+}
+function cardSet(mode){
+  cardMode=mode; $('cardView').querySelectorAll('.cv-seg button').forEach(b=>b.classList.toggle('on', b.dataset.m===mode));
+  $('cvFit').innerHTML = cardKind==='arc' ? cardArcHTML(cardArc, mode) : cardReportHTML(cardRec, mode);
+  $('cvNote').textContent = mode==='pc' ? 'A4 pages, for a computer or for printing.' : 'One long page, made to be read on a phone.';
+  cardFit(); $('cardView').querySelector('.cv-stage').scrollTop=0;
+}
+function cardFit(){
+  const el=$('cvFit').firstElementChild; if(!el) return; const W=cardMode==='pc'?794:390, avail=$('cardView').querySelector('.cv-stage').clientWidth-24, z=Math.min(1, avail/W);
+  el.style.zoom=z; $('cvFit').style.width=Math.round(W*z)+'px';
+}
+function cardClose(){ $('cardView').classList.remove('on'); $('cvFit').innerHTML='' }
+let cardTitle0='';
+function cardPrint(){
+  const el=$('cvFit').firstElementChild; if(!el) return;
+  el.style.zoom=1; const h=Math.ceil(el.getBoundingClientRect().height)+2;
+  let st=$('cardPage'); if(!st){ st=document.createElement('style'); st.id='cardPage'; document.head.appendChild(st) }
+  st.textContent = cardMode==='pc' ? '@page{size:A4;margin:14mm 0 13mm}@page:first{margin-top:0}' : (h<=14000 ? `@page{size:390px ${h}px;margin:0}` : '@page{size:390px 844px;margin:0}');
+  cardTitle0=document.title; const t = cardKind==='arc' ? 'Campaign '+(cardArc.them||'') : (cardRec.title||'Meeting');
+  document.title = ('Pactli report - '+t+' - '+new Date(cardKind==='arc'?Date.now():cardRec.date).toISOString().slice(0,10)+(cardMode==='pc'?' (PC)':' (phone)')).replace(/[\\/:*?"<>|]+/g,' ');
+  document.body.classList.add('cardprint');
+  setTimeout(()=>{ try{ window.print() }catch(e){ toast('Printing is not available in this browser.') } setTimeout(cardAfter, 1500) }, 60);
+}
+function cardAfter(){ if(!document.body.classList.contains('cardprint')) return; document.body.classList.remove('cardprint'); if(cardTitle0) document.title=cardTitle0; const s=$('cardPage'); if(s) s.textContent=''; if($('cardView').classList.contains('on')) cardFit() }
+
 function renderReport(r){
-  if(r.kind==='arc' && r.arc){ $('repBody').innerHTML = renderArc(r.arc); return }
+  cardRec=r;
+  if(r.kind==='arc' && r.arc){ cardArc=r.arc; $('repBody').innerHTML = renderArc(r.arc); return }
   const f=r.fb, m=r.metrics, C=2*Math.PI*66, off=C*(1-(f.overall||0)/100);
   const st = s=>s==='met'?['y','✓']:s==='partial'?['p','~']:['n','✕'];
   const fillTxt = m.fTotal? Object.entries(m.fillers).sort((a,b)=>b[1]-a[1]).slice(0,3).map(([k,v])=>`"${k}" ×${v}`).join(', ') : 'None detected';
@@ -4902,7 +5158,7 @@ function renderReport(r){
   </div>
   <div class="noprint" style="display:flex;gap:12px;padding:10px 0 60px">
     <button class="btn gold" onclick="go('home')">Start another meeting</button>
-    <button class="btn ghost" onclick="window.print()">Save as PDF</button>
+    <button class="btn ghost" onclick="openCard()">Save report card (PDF)</button>
   </div>`;
 }
 function sayBack(t){ speechSynthesis.cancel(); speak(t,{gender:'f'},0) }
@@ -6488,6 +6744,7 @@ function campCurve(arc){
   return `<svg viewBox="0 0 ${W} ${Ht}" width="100%" role="img" aria-label="Trust after each episode">${grid}${xl}<path d="${path}" fill="none" stroke="#455d50" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/>${dots}</svg>`;
 }
 function renderArc(arc){
+  cardArc=arc;
   const O=arc.outcome, C=2*Math.PI*66, off=C*(1-(O.overall||0)/100);
   const chain=(arc.chain||[]).slice().sort((a,b)=>a.ep-b.ep);
   const dot=g=>g>0?['y','✓']:g<0?['n','✕']:['p','•'];
@@ -6515,7 +6772,7 @@ function renderArc(arc){
   </div>
   <div class="noprint" style="display:flex;gap:12px;padding:10px 0 60px;flex-wrap:wrap">
     <button class="btn gold" onclick="openCampaign()">Back to the campaign</button>
-    <button class="btn ghost" onclick="window.print()">Save as PDF</button>
+    <button class="btn ghost" onclick="openCard('arc')">Save report card (PDF)</button>
   </div>`;
 }
 function openArc(id){ const c=campGet(id); if(!c) return; $('arcBody').innerHTML=renderArc(campArcData(c)); go('arc') }
