@@ -1142,6 +1142,9 @@ html.mob .fx-alt,.fx-alt.one{grid-template-columns:1fr}
 .docn-r.bad{background:#f8e9e5;color:#6d2c23}.docn-r.ok{background:#eaf3e4;color:#2c4f35}.docn-r.mid{background:#f6efdf;color:#6a4b1e}
 .docn-r .say{display:block;margin-top:6px;font-style:italic;color:#3d4440}
 @media print{#docView{display:none!important}}
+.dv-sum div{display:grid;grid-template-columns:minmax(90px,40%) minmax(0,1fr)}
+.dv-sum span{flex-shrink:1;min-width:0;overflow-wrap:break-word}.dv-sum b{min-width:0;overflow-wrap:break-word}
+.att-t{min-width:0}
 
 
 /* ---------- last-meeting recap ---------- */
@@ -1194,6 +1197,15 @@ html.lm-locked body{position:fixed;left:0;right:0;width:100%}
 html.mob.lm-locked body{left:0;right:0;margin:0 auto}
 .lmv-body,.dv-stage,.dv-pop{overscroll-behavior:contain}
 .lmv-dim,.dv-dim{touch-action:none}
+/* rows with a label and a value never squeeze either side into a sliver */
+.lm-r{display:grid;grid-template-columns:minmax(92px,42%) minmax(0,1fr);align-items:center;column-gap:12px}
+.lm-r>span:first-child{overflow-wrap:break-word;word-break:normal}
+.lm-r>span:last-child{flex-shrink:1;min-width:0;text-align:right;overflow-wrap:break-word;line-height:1.45}
+.lm-r>span:last-child b{font-weight:700}
+.lm-r>span:last-child .lm-p{margin-left:4px;margin-top:2px}
+.lm-o .lm-r{grid-template-columns:minmax(0,1fr) auto}
+.lm-gap{flex-wrap:wrap}.lm-gap>span{min-width:0;overflow-wrap:break-word}
+.lm-r>.lm-p{justify-self:end;align-self:center}
 
 
 /* ---------- company file ---------- */
@@ -1236,6 +1248,9 @@ html.mob.lm-locked body{left:0;right:0;margin:0 auto}
 .co-full{width:100%;margin-top:10px;justify-content:center}
 .side .tabs{overflow-x:auto;scrollbar-width:none}.side .tabs::-webkit-scrollbar{display:none}
 .side .tabs button{flex-shrink:0}
+.co-quick div{display:grid;grid-template-columns:minmax(80px,auto) minmax(0,1fr)}
+.co-quick span{flex-shrink:1}
+.co-rv{display:grid;grid-template-columns:minmax(90px,40%) minmax(0,1fr)}.co-rv b{min-width:0}
 
 
 /* ---------- landing page (before login) ---------- */
@@ -1659,7 +1674,10 @@ html.mob #trial h1{font-size:26px}html.mob #trial .lt-btns .lp-btn{flex:1}
 @keyframes trRoom{from{opacity:0;transform:scale(.985)}to{opacity:1;transform:none}}
 @keyframes trUp{from{opacity:0;transform:translateY(18px)}to{opacity:1;transform:none}}
 @keyframes trSheet{from{transform:translateY(100%)}to{transform:none}}
+@keyframes trSheetX{from{transform:translate(-50%,100%)}to{transform:translate(-50%,0)}}
 @keyframes trPop{from{opacity:0;transform:translate(-50%,-48%) scale(.96)}to{opacity:1;transform:translate(-50%,-50%)}}
+@keyframes trPopC{from{opacity:0;transform:translate(-50%,-48%) scale(.96)}to{opacity:1;transform:translate(-50%,-50%)}}
+.dv-pop.on:not(.sheet){animation:trPopC .22s ease}
 html.tr-fwd .screen.on{animation:trIn .42s cubic-bezier(.2,.8,.2,1)}
 html.tr-back .screen.on{animation:trInBack .4s cubic-bezier(.2,.8,.2,1)}
 html.tr-fwd #room.on,html.tr-back #room.on{animation:trRoom .45s cubic-bezier(.2,.8,.2,1)}
@@ -1667,10 +1685,10 @@ html.tr-fwd #room.on,html.tr-back #room.on{animation:trRoom .45s cubic-bezier(.2
 .modal.on{animation:lpFade .22s ease}
 #rcView.on .lmv-dim,#docView.on .dv-dim.on{animation:lpFade .22s ease}
 #rcView.on .lmv-box{animation:trPop .3s cubic-bezier(.2,.8,.2,1)}
-html.mob #rcView.on .lmv-box{animation:trSheet .36s cubic-bezier(.2,.8,.2,1)}
+html.mob #rcView.on .lmv-box{animation:trSheetX .36s cubic-bezier(.2,.8,.2,1)}
 #docView.on{animation:trUp .38s cubic-bezier(.2,.8,.2,1)}
 .dv-pop.on{animation:lpFade .2s ease}
-.dv-pop.sheet.on{animation:trSheet .34s cubic-bezier(.2,.8,.2,1)}
+.dv-pop.sheet.on{animation:trSheetX .34s cubic-bezier(.2,.8,.2,1)}
 .tr-item{animation:trUp .5s cubic-bezier(.2,.8,.2,1) both;animation-delay:calc(var(--i,0) * 45ms)}
 .side .agenda.on,#feed{animation:lpFade .25s ease}
 .toast{transition:opacity .25s,transform .35s cubic-bezier(.2,.8,.2,1)!important}
@@ -1733,6 +1751,13 @@ html.mob #trial .lt-member{text-align:center}
 /* overlays scroll on their own and never drag the page behind */
 .modal{overflow-y:auto;overscroll-behavior:contain;-webkit-overflow-scrolling:touch}
 .modal .pane,.bpanel,#bBody,#cardView,#cardView *,.lmv-body,.dv-stage,.dv-pop,#landing .lp-mbox{overscroll-behavior:contain}
+/* natural voice */
+.kk-chip{display:inline-flex;align-items:center;gap:5px;margin-left:8px;font-size:11.5px;font-weight:700;color:#2f6a45;background:#dcebd5;border-radius:999px;padding:3px 9px;white-space:nowrap}
+.kk-chip.loading{color:#8a572c;background:#f1e7d3}.kk-chip.failed{color:#6b716d;background:#ecebe5}
+.kk-chip::before{content:'';width:6px;height:6px;border-radius:50%;background:currentColor}
+.kk-chip.loading::before{animation:lpBlink 1s infinite}
+.kk-offer{display:grid;gap:4px;background:#f3f8ec;border:1px solid #c7d9b8;border-radius:14px;padding:12px 14px;margin-bottom:12px;font-size:13.5px;line-height:1.5;color:#3b4a35}
+.kk-offer b{color:#293e36;font-size:14.5px}.kk-offer div{display:flex;gap:8px;margin-top:6px}.kk-offer .btn{flex:1;justify-content:center}
 
 .lg-back{display:inline-block;margin-bottom:22px;font-size:13.5px;font-weight:600;color:var(--muted);cursor:pointer}.lg-back:hover{color:var(--ink)}
 html:has(#landing.on){background:#f7f5ee}
@@ -2185,6 +2210,7 @@ html:has(#landing.on){background:#f7f5ee}
       <div><label>Speech recognition</label><select id="setLang"><option value="en-US">English (US)</option><option value="en-GB">English (UK)</option><option value="en-AU">English (AU)</option></select></div>
       <div><label>AI voice speed</label><select id="setRate"><option value="0.85">Slower</option><option value="1">Natural</option><option value="1.12">Faster</option></select></div>
     </div>
+    <div class="row"><div><label>Voice quality</label><select id="setNV"><option value="auto">Natural — on PC, ask on phones</option><option value="on">Natural — always (90 MB, one time)</option><option value="off">Device voice</option></select></div><div></div></div>
     <select id="setFb" hidden><option value="en">English</option></select>
     <div class="toggle"><div>Auto-send when I stop<small>Off = review the recognized text before sending</small></div><button class="sw" id="setAuto" onclick="this.classList.toggle('on')"></button></div>
     <div class="toggle"><div>Show AI captions live<small>Turn off for a harder listening challenge</small></div><button class="sw" id="setCap" onclick="this.classList.toggle('on')"></button></div>
@@ -8852,7 +8878,7 @@ function rcOpener(terms, found){
   if(ag.length && op.length) return `Last time we agreed on ${lst(ag.slice(0,2).map(t=>t.label.replace(/^the /,'')+' at '+t.text))}. The open point is ${op[0].label} — could we start there?`;
   if(op.length) return `Last time we left ${lst(op.slice(0,2).map(t=>t.label))} open. Could we pick up from there?`;
   if(ag.length) return `Last time we agreed on ${lst(ag.slice(0,2).map(t=>t.label.replace(/^the /,'')+' at '+t.text))}. I'd like to confirm the next steps today.`;
-  if(found.length) return `Thanks for making time again. Last time you mentioned that ${found[0].replace(/^the /,'the ')} — I've given that some thought.`;
+  if(found.length) return `Thanks for making time again. Last time you mentioned that ${found[0].charAt(0).toLowerCase()+found[0].slice(1)} — I've given that some thought.`;
   return 'Thanks for making time again. Could we pick up where we left off?';
 }
 function rcSnap(){
@@ -9684,6 +9710,108 @@ speak = function(text, persona, idx){
     if(real && S && !S.skip) setTimeout(next, 120+Math.random()*260); else next();
   });
 };
+
+
+/* =========================================================
+   NATURAL VOICE — free, open-source neural speech (Kokoro, 82M) that runs inside the browser.
+   No account, no API key, no cost: the model (about 90 MB) downloads once from a public CDN and is cached by the browser.
+   · PC: on by default (uses the graphics card when available). Phone: offered once, since it's a large download.
+   · Women and men get different natural voices; two people of the same gender get different voices.
+   · Sentences are made one at a time and the next one is prepared while the current one plays.
+   · If the model isn't ready yet, or a sentence takes too long on a slow device, the device voice speaks instead —
+     the meeting never waits on it.
+   ========================================================= */
+const KK_LIB = 'https://cdn.jsdelivr.net/npm/kokoro-js@1.2.1/dist/kokoro.web.js';
+const KK_MODEL = 'onnx-community/Kokoro-82M-v1.0-ONNX';
+const KK_VOICES = { f:['af_heart','af_bella','af_nicole','af_sarah','af_aoede'], m:['am_michael','am_fenrir','am_puck','am_echo','am_eric'] };
+const KK = { st:'idle', p:null, tts:null, ctx:null, src:null, cache:new Map(), q:Promise.resolve(), pct:0, told:false };
+const kkMob = () => document.documentElement.classList.contains('mob');
+function kkPref(){ return LS.get('pactli_nvoice','auto') }
+function kkWanted(){ const v=kkPref(); return v==='on' || (v==='auto' && !kkMob()) }
+function kkCtx(){ try{ if(!KK.ctx) KK.ctx=new (window.AudioContext||window.webkitAudioContext)(); if(KK.ctx.state==='suspended') KK.ctx.resume() }catch(e){} return KK.ctx }
+function kkLoad(){
+  if(KK.p) return KK.p; KK.st='loading'; KK.pct=0;
+  if(!KK.told){ KK.told=true; toast('Loading the natural voice — a one-time download of about 90 MB. The device voice speaks until it\'s ready.') }
+  KK.p=(async()=>{
+    const m=await import(KK_LIB);
+    const prog=d=>{ if(d && d.status==='progress' && d.total){ KK.pct=Math.round(d.loaded/d.total*100); kkChip() } };
+    const gpu=!!navigator.gpu && !kkMob();
+    try{ KK.tts=await m.KokoroTTS.from_pretrained(KK_MODEL, {dtype:gpu?'fp32':'q8', device:gpu?'webgpu':'wasm', progress_callback:prog}) }
+    catch(e){ if(!gpu) throw e; KK.tts=await m.KokoroTTS.from_pretrained(KK_MODEL, {dtype:'q8', device:'wasm', progress_callback:prog}) }
+    KK.st='ready'; kkChip(); toast('Natural voice ready'); return KK.tts;
+  })().catch(e=>{ console.warn('natural voice unavailable', e); KK.st='failed'; KK.p=null; kkChip(); });
+  return KK.p;
+}
+function kkChip(){ const c=$('kkChip'); if(!c) return; const t = KK.st==='loading' ? `Natural voice ${KK.pct||0}%` : KK.st==='ready' ? 'Natural voice' : (KK.st==='failed'||KK.st==='slow') ? 'Device voice' : ''; c.textContent=t; c.hidden=!t || !kkWanted(); c.className='kk-chip '+KK.st }
+function kkVoiceFor(persona, idx){
+  const g = persona && persona.gender==='f' ? 'f' : 'm'; let nth=idx||0;
+  try{ const P=(S&&S.sc&&S.sc.personas)||[]; if(P.length) nth=P.slice(0, idx).filter(p=>(p.gender==='f'?'f':'m')===g).length }catch(e){}
+  if(!persona || !persona.name) return 'af_heart';
+  return KK_VOICES[g][nth % KK_VOICES[g].length];
+}
+/* one sentence at a time, in order (the model runs one job at a time) */
+function kkGen(text, voice, speed){
+  const key=voice+'|'+speed.toFixed(2)+'|'+text; if(KK.cache.has(key)) return KK.cache.get(key);
+  const job=KK.q.then(async()=>{ const a=await KK.tts.generate(text, {voice, speed}); return {data:a.audio, sr:a.sampling_rate||24000} });
+  KK.q=job.catch(()=>{}); KK.cache.set(key, job); if(KK.cache.size>300) KK.cache.delete(KK.cache.keys().next().value);
+  job.catch(()=>KK.cache.delete(key)); return job;
+}
+const kkWait = (p, ms) => Promise.race([p, new Promise(r=>setTimeout(()=>r(null), ms)), new Promise(r=>{ const iv=setInterval(()=>{ if(S && S.skip){ clearInterval(iv); r(null) } }, 40); setTimeout(()=>clearInterval(iv), ms+50) })]);
+let kkSlow=0;
+function kkTooSlow(){ kkSlow++; if(kkSlow>=2 && KK.st==='ready'){ KK.st='slow'; kkChip(); toast('The natural voice is too slow on this device, so the device voice will speak for now.') } }
+function kkPlay(au){ return new Promise(res=>{ try{ const ctx=kkCtx(); const b=ctx.createBuffer(1, au.data.length, au.sr); b.copyToChannel(au.data instanceof Float32Array?au.data:Float32Array.from(au.data), 0);
+  const s=ctx.createBufferSource(); s.buffer=b; s.connect(ctx.destination); KK.src=s; s.onended=()=>{ if(KK.src===s) KK.src=null; res() }; s.start() }catch(e){ res() } }) }
+function kkStop(){ try{ if(KK.src){ KK.src.onended=null; KK.src.stop() } }catch(e){} KK.src=null }
+const _speakDevice = speak;
+speak = function(text, persona, idx){
+  if(!kkWanted()) return _speakDevice.apply(this, arguments);
+  if(KK.st!=='ready'){ if(KK.st==='idle') kkLoad(); return _speakDevice.apply(this, arguments) }
+  if(S && S.skip) return Promise.resolve();
+  persona=persona||{}; const real=!!persona.name, args=arguments;
+  return new Promise(async resolve=>{
+    let pieces=sayPieces(speakable(text));
+    sayTurnN++;
+    if(real && S && !S.slowNow && sayTurnN>2 && pieces.length && pieces[0].t.split(/\s+/).length>3 && Math.random()<.18
+       && !/^(hi|hello|good (morning|afternoon)|thanks|thank you|well|so|okay|ok|right|hmm|look|yes|no|oh|ha|ah|sure|great|honestly|actually|sorry|apologies)\b/i.test(pieces[0].t)){
+      const pool=SAY_FILL[persona.stance]||SAY_FILL.def; pieces[0]={...pieces[0], t:pool[Math.floor(Math.random()*pool.length)]+' '+pieces[0].t.charAt(0).toLowerCase()+pieces[0].t.slice(1)} }
+    const diffRate = S && S.difficulty==='easy' ? .92 : S && S.difficulty==='veryhard' ? 1.06 : 1;
+    const speed = Math.max(.7, Math.min(1.3, +settings.rate * diffRate * (S && S.slowNow ? .85 : 1))), voice=kkVoiceFor(persona, idx);
+    kkCtx();
+    const jobs=pieces.map(()=>null); const get=i=>jobs[i]||(jobs[i]=kkGen(pieces[i].t, voice, speed));
+    const first=await kkWait(get(0), 4500);
+    if(S && S.skip){ resolve(); return }
+    if(!first){ kkTooSlow(); resolve(_speakDevice.apply(this, args)); return }          // too slow on this device: don't keep them waiting
+    for(let i=0;i<pieces.length;i++){
+      if(S && S.skip){ resolve(); return }
+      const au = i===0 ? first : await kkWait(get(i), 3500);
+      if(S && S.skip){ resolve(); return }
+      if(!au){ kkTooSlow(); await _speakDevice(pieces.slice(i).map(x=>x.t).join(' '), persona, idx); resolve(); return }
+      if(i+1<pieces.length) get(i+1);                                     // prepare the next sentence while this one plays
+      await kkPlay(au);
+      if(S && S.skip){ resolve(); return }
+      if(i+1<pieces.length) await new Promise(r=>setTimeout(r, pieces[i].dash ? 120+Math.random()*100 : pieces[i].q ? 320+Math.random()*180 : 180+Math.random()*180));
+    }
+    resolve();
+  });
+};
+/* stop instantly when they skip, repeat, or the meeting ends */
+const _skipSpeech_kk = skipSpeech; skipSpeech = function(){ kkStop(); return _skipSpeech_kk.apply(this, arguments) };
+const _cleanup_kk = cleanup; cleanup = function(){ kkStop(); return _cleanup_kk.apply(this, arguments) };
+const _sayBack_kk = sayBack; sayBack = function(t){ kkStop(); return _sayBack_kk.apply(this, arguments) };
+/* start loading early (when a brief opens), and unlock audio on the tap that starts a meeting */
+const _startMeeting_kk = startMeeting; startMeeting = function(){ kkCtx(); if(kkWanted() && KK.st==='idle') kkLoad(); const r=_startMeeting_kk.apply(this, arguments); kkRoomChip(); return r };
+const _openBriefing_kk = openBriefing; openBriefing = function(){ const r=_openBriefing_kk.apply(this, arguments); kkOffer(); if(kkWanted() && KK.st==='idle') kkLoad(); return r };
+const _lpTry_kk = lpTry; lpTry = function(){ const r=_lpTry_kk.apply(this, arguments); kkOffer(); if(kkWanted() && KK.st==='idle') kkLoad(); return r };
+function kkRoomChip(){ if(!$('kkChip')){ const c=document.createElement('span'); c.id='kkChip'; c.className='kk-chip'; const t=$('rTimer'); if(t) t.insertAdjacentElement('afterend', c) } kkChip() }
+/* phones: offer it once inside the brief card (it's a big download on mobile data) */
+function kkOffer(){
+  if(!kkMob() || kkPref()!=='auto' || LS.get('pactli_nvoice_asked',false)) return; const bb=$('briefBody'); if(!bb || bb.querySelector('.kk-offer')) return;
+  bb.insertAdjacentHTML('afterbegin', `<div class="kk-offer"><b>Try the natural voice</b><span>Much more human-sounding counterparts. One-time download of about 90 MB — best on Wi-Fi.</span><div><button class="btn ghost" onclick="kkDecide(false)">Not now</button><button class="btn gold" onclick="kkDecide(true)">Use natural voice</button></div></div>`) }
+function kkDecide(on){ LS.set('pactli_nvoice_asked', true); LS.set('pactli_nvoice', on?'on':'off'); const o=document.querySelector('.kk-offer'); if(o) o.remove(); if(on){ kkCtx(); kkLoad() } syncNV() }
+/* settings: Voice quality */
+function syncNV(){ const s=$('setNV'); if(s) s.value=kkPref() }
+const _openSettings_kk = openSettings; openSettings = function(){ const r=_openSettings_kk.apply(this, arguments); syncNV(); return r };
+const _saveSettings_kk = saveSettings; saveSettings = function(){ const s=$('setNV'), v=s?s.value:'auto'; LS.set('pactli_nvoice', v); LS.set('pactli_nvoice_asked', true); const r=_saveSettings_kk.apply(this, arguments); if(kkWanted() && KK.st==='idle') kkLoad(); return r };
 
 
 /* =========================================================
