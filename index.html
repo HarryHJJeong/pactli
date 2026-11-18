@@ -1187,6 +1187,53 @@ html.mob .lmv-box{top:auto;bottom:0;transform:translateX(-50%);width:100%;max-he
 .lm-tap{cursor:pointer;border-radius:10px}.lm-tap:hover b{text-decoration:underline;text-underline-offset:3px}
 .lm-tap::after{content:'›';color:var(--dim);font-size:20px;line-height:1;align-self:center;margin-left:-4px}
 .lm-ep{cursor:pointer}.lm-ep:hover{border-color:var(--line2)}
+html.lm-locked,html.lm-locked body{overflow:hidden!important}
+html.lm-locked body{position:fixed;left:0;right:0;width:100%}
+html.mob.lm-locked body{left:0;right:0;margin:0 auto}
+.lmv-body,.dv-stage,.dv-pop{overscroll-behavior:contain}
+.lmv-dim,.dv-dim{touch-action:none}
+
+
+/* ---------- company file ---------- */
+.co-card{display:flex;align-items:center;gap:12px;width:100%;background:var(--panel);border:1.5px solid #c7d9b8;border-radius:16px;padding:12px 14px;margin:14px 0;font:inherit;color:var(--ink);text-align:left;cursor:pointer}
+.co-card:hover{border-color:#9fbf8a}
+.co-logo{width:42px;height:42px;border-radius:12px;background:var(--green);color:var(--lime);font-weight:900;font-size:17px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.co-t{min-width:0;flex:1}.co-t b{display:block;font-size:14.5px;overflow-wrap:anywhere}.co-t small{color:var(--muted);font-size:12px}
+.co-go{flex-shrink:0;font-size:12px;font-weight:700;color:#2f6a45;background:#dcebd5;border-radius:8px;padding:5px 9px;white-space:nowrap}
+#campBody .co-card{margin:0 0 12px}
+.co-file{padding:12px 0 6px;font-size:13.5px;line-height:1.5;color:var(--ink)}
+.co-id{display:flex;gap:12px;align-items:center}.co-id h3{margin:0;font-size:19px;letter-spacing:-.02em}.co-id small{display:block;color:var(--muted);font-size:12.5px;line-height:1.35}
+.co-what{margin:10px 0 0;color:var(--ink2)}
+.co-you{margin-top:10px;background:var(--soft);border-radius:12px;padding:9px 11px;font-size:13px;color:var(--ink2)}.co-you b{color:var(--ink)}
+.co-sec{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:12px 13px;margin-top:10px;min-width:0}
+.co-sec h5{margin:0 0 7px;font-size:12px;font-weight:700;color:var(--muted)}
+.co-prod{display:flex;gap:11px;align-items:center}.co-prod b{font-size:15px}
+.co-pimg{width:46px;height:46px;border-radius:12px;background:#e3ebe2;flex-shrink:0;position:relative}
+.co-pimg::before{content:'';position:absolute;inset:11px 8px;border-radius:4px;background:var(--green)}.co-pimg::after{content:'';position:absolute;left:14px;right:14px;top:19px;height:7px;border-radius:2px;background:var(--lime)}
+.co-kv{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:6px;margin-top:10px}
+.co-kv div{background:var(--bg);border-radius:10px;padding:7px 9px;font-size:11.5px;color:var(--muted);min-width:0}.co-kv b{display:block;font-size:13px;color:var(--ink);overflow-wrap:anywhere}
+.co-sol{display:flex;gap:9px;padding:6px 0;border-bottom:1px solid var(--line);font-size:13px}.co-sol:last-child{border:0}
+.co-sol i{font-style:normal;width:22px;height:22px;border-radius:7px;background:var(--soft);color:var(--green);font-weight:800;font-size:11px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.co-two{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;margin-top:10px}.co-two .co-sec{margin:0;padding:11px}
+.co-li{display:flex;gap:7px;padding:3px 0;font-size:13px}.co-li em{font-style:normal;font-weight:900;flex-shrink:0;width:10px}
+.co-li em.p{color:#2f6a45}.co-li em.c{color:#a13d32}.co-li em.d,.co-li em.w{color:var(--dim)}
+.co-say{margin-top:7px;font-size:13px;color:var(--ink2);background:#f4f6ef;border-radius:10px;padding:8px 10px}
+.co-say b{display:block;font-size:11px;color:var(--muted);margin-bottom:1px}
+.co-sec.conf{background:#fffaf0;border-color:#f1e7d3}.co-sec.conf h5{color:#8a572c}
+.co-note{margin-top:6px;font-size:12px;color:#8a572c}
+.co-rv{display:flex;gap:10px;padding:4px 0;font-size:13px}.co-rv b{flex:0 0 40%;min-width:0}.co-rv span{color:var(--ink2)}
+.co-room{padding:4px 0 10px}
+.co-q{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:10px 12px;font-size:13.5px;color:var(--ink2)}
+.co-q small{display:block;font-size:11.5px;color:var(--muted);font-weight:600;margin-bottom:2px}
+.co-hit{margin-top:8px;background:#f3f8ec;border:1px solid #c7d9b8;border-radius:14px;padding:11px 12px}
+.co-hit small{font-size:11.5px;font-weight:700;color:#2f6a45}.co-hit p{margin:3px 0 0;font-size:13.5px}
+.co-hit .co-say{background:#fff}.co-hit.none{background:var(--bg);border-color:var(--line)}.co-hit.none small{color:var(--muted);font-weight:600}
+.co-quick{display:grid;gap:6px;margin-top:10px}
+.co-quick div{background:var(--panel);border:1px solid var(--line);border-radius:11px;padding:8px 11px;font-size:12.5px;display:flex;justify-content:space-between;gap:10px}
+.co-quick span{color:var(--muted);flex-shrink:0}.co-quick b{text-align:right;min-width:0;overflow-wrap:anywhere}
+.co-full{width:100%;margin-top:10px;justify-content:center}
+.side .tabs{overflow-x:auto;scrollbar-width:none}.side .tabs::-webkit-scrollbar{display:none}
+.side .tabs button{flex-shrink:0}
 
 </style>
 </head>
@@ -7845,7 +7892,7 @@ function docParties(sc){
   let them='', me='', side='';
   try{ if(sc.campaign){ const c=campGet(sc.campaign.id), X=c&&campCtx(c); if(X){ them=X.them; me=X.me; side=c.side } } }catch(e){}
   if(!them){ const r=String((sc.personas[0]||{}).role||''); them=r.includes(',')?r.split(',').slice(1).join(',').trim():'The Counterparty' }
-  if(!me) me = sc.myCompany || 'Your company';
+  if(!me){ let f=null; try{ f=coFile(sc) }catch(e){} me = sc.myCompany || (f&&f.co) || 'Your company' }
   return {them, me, side};
 }
 const docGran = is => corrGran(is);
@@ -8304,6 +8351,369 @@ const _renderCampaign_rc2 = renderCampaign;
 renderCampaign = function(){ const r=_renderCampaign_rc2.apply(this, arguments); try{ const c=campActive(); if(!c) return r;
   document.querySelectorAll('#campBody .cp-ep').forEach((el,n)=>{ if(!c.eps[n] || !c.eps[n].done) return; const id=campSid(c,n); if(!rcLog(id)) return;
     el.classList.add('lm-ep'); el.onclick=e=>{ if(e.target.closest('button,a')) return; rcOpen(id) } }) }catch(e){} return r };
+
+/* overlays (recap, transcript, documents): lock the page behind so only the sheet scrolls */
+let lmLockY=null;
+function lmLock(on){
+  const b=document.body;
+  if(on && lmLockY===null){ lmLockY=window.scrollY||0; document.documentElement.classList.add('lm-locked'); b.style.top=(-lmLockY)+'px' }
+  else if(!on && lmLockY!==null){ const y=lmLockY; lmLockY=null; document.documentElement.classList.remove('lm-locked'); b.style.top=''; window.scrollTo(0,y) }
+}
+function lmSync(){ const a=$('rcView'), d=$('docView'); lmLock(!!((a&&a.classList.contains('on'))||(d&&d.classList.contains('on')))) }
+['rcOpen','rcTranscript','rcClose','openDoc','closeDoc'].forEach(n=>{ const f=window[n]; if(typeof f!=='function') return; window[n]=function(){ const r=f.apply(this, arguments); lmSync(); return r } });
+rcOpen=window.rcOpen; rcTranscript=window.rcTranscript; rcClose=window.rcClose; openDoc=window.openDoc; closeDoc=window.closeDoc;
+document.addEventListener('touchmove', e=>{ if(lmLockY===null) return; if(!e.target.closest('.lmv-body,.dv-stage,.dv-pop')) e.preventDefault() }, {passive:false});
+
+
+/* =========================================================
+   COMPANY FILES — what the learner's own company is, sells, does well and does badly.
+   Campaigns: one profile per field and side; {co} {brand} {prod} {city} are filled from the company the campaign rolled.
+   "How we work" answers come from CAMP_FACTS, so they always match what the counterpart engine expects.
+   Built-in scenarios: one hand-written file each.
+   ========================================================= */
+const CO_FIELD = {
+semi:{
+ p:{what:'{co} designs AI inference chips and sells them on PCIe cards for data centres. Its main product is {prod}.',
+  specs:[['Power','About 40% less per job than a GPU'],['Form factor','Standard PCIe — fits existing racks'],['Lead time','About 6 months (wafer booking)'],['Warranty','3 years']],
+  sol:[['{brand} Rack Kit','Pre-built racks of 16 cards, tested before shipping'],['{brand} SDK','Moves models from GPUs to our cards in weeks'],['Field engineering','A named engineer on site for the first six months']],
+  pro:['Lowest power per inference job','Drops into the racks customers already have','Proven with cloud providers and research labs'],
+  con:[['Small company next to the big GPU makers',"We're focused on one thing — inference — and our engineers work directly with your team."],['Long lead time for large orders',"We book wafer capacity six months ahead. If you commit by quarter, we can guarantee your slots."],['Smaller software ecosystem than GPUs',"Our SDK covers the common model formats, and our engineers help with the first migrations."]],
+  proof:['Cloud providers already run our cards in production','A research lab cut its power bill by more than a third','Quarterly software updates since launch'],
+  rival:[['Large GPU makers','Better-known software, much higher power use'],['Other AI-chip start-ups','Often cheaper, but few data-centre references']], size:[180,900]},
+ b:{what:'{co} is {desc}. You are looking for a second source of inference hardware.',
+  specs:[['Today','General-purpose GPUs from one supplier'],['Main cost','Electricity for inference'],['Sites','Several data halls, more planned'],['Decision','CTO and procurement together']],
+  pro:['A large, growing order book for the right supplier','A reference customer suppliers want to name','A team that can test new hardware quickly'],
+  con:[['We depend on one GPU supplier today',"That's exactly why we're talking to you — we want a second source we can trust."],['Our engineers are busy',"We'll need your engineers to do most of the integration work with ours."],['Budgets are reviewed every quarter',"We can commit to a yearly volume if the price and delivery dates are firm."]],
+  rival:[['Stay with GPUs','Simple, but expensive to run'],['Another accelerator vendor','Tested last year — software was not ready']], size:[900,6000]}},
+saas:{
+ p:{what:'{co} sells {prod}, which joins up customer records from loyalty, tills, online and service into one profile.',
+  specs:[['First results','Unified profiles in 8–10 weeks'],['Pricing','Annual licence + one-off implementation'],['Hosting','Cloud, with data kept in your region'],['Support','Business hours, named success manager']],
+  sol:[['{brand} Connect','Ready connectors for loyalty, POS and e-commerce'],['{brand} Audiences','Marketing builds segments without IT'],['Onboarding','Training and a success manager for year one']],
+  pro:['Built for retailers with stores and online','Marketing can run it without calling IT','Fast first results — weeks, not months'],
+  con:[['Not the biggest name in the market',"We're smaller, so a retailer your size gets our senior people, not a junior team."],['Support is business hours only',"For peak periods we can add extended support to the contract."],['Some legacy tills need custom work',"We'll check your till system in the first two weeks and fix a price for any custom work."]],
+  proof:['Retail groups of a similar size already use it','Customers see first unified profiles in about two months','Most customers renew after year one'],
+  rival:[['Large marketing clouds','Very broad, but slow and expensive to implement'],['Build it in-house','Full control, but long and risky']], size:[120,700]},
+ b:{what:'{co} is {desc}. You want one view of each customer across stores and online.',
+  specs:[['Today','Separate records in five systems'],['Loyalty','Several million members'],['Users','About 40 marketers every week'],['Decision','Marketing director, IT and procurement']],
+  pro:['A large retail brand vendors want as a reference','Clear goals and an internal sponsor','Ready to move this year'],
+  con:[['A failed in-house project two years ago',"We learned what didn't work. That's why we're looking at a proven platform now."],['IT has limited time',"We need a vendor who can do most of the integration work."],['Several systems are old',"We'd like you to check our till system early, so there are no surprises."]],
+  rival:[['A large marketing cloud','Strong, but expensive and slow'],['Do nothing for now','Cheap today, costly in lost sales']], size:[4000,30000]}},
+mfg:{
+ p:{what:'{co} makes {prod} and other precision aluminium parts for electric vehicles.',
+  specs:[['Ramp-up','About 3 months after sample approval'],['Capacity','One line free now; a second needs 5 months'],['Pricing','Per part, linked to the aluminium index'],['Quality','IATF 16949 certified']],
+  sol:[['Tooling and samples','We build tools and send parts for your approval'],['Safety stock','Stock kept near your plant'],['Programme quality engineer','One engineer assigned to your part']],
+  pro:['Tight tolerances, proven with car makers','Weekly shipments with safety stock','Quality engineer on every programme'],
+  con:[['Shipping from Korea takes time',"We keep safety stock near your plant, so your line never waits for a ship."],['Price moves with aluminium',"The index makes the price transparent — you see exactly why it changes."],['Only one free line today',"If you commit early, we reserve the second line five months ahead."]],
+  proof:['Two car makers already buy from us','Battery-pack makers in Korea and Europe','On-time delivery above 98% last year'],
+  rival:[['Large European suppliers','Close to you, but often late and expensive'],['Low-cost suppliers','Cheaper, but quality problems are common']], size:[300,1500]},
+ b:{what:'{co} is {desc}. You need a second source of battery housings before full production.',
+  specs:[['Today','One European supplier, late three times this year'],['Need','A second source before full production'],['Audit','Supplier audit required'],['Decision','Purchasing and quality together']],
+  pro:['Large, multi-year volumes','A growing EV programme','Clear technical specifications'],
+  con:[['Volumes are lower in year one',"Year one is smaller, but the full-production volume is much higher."],['Strict audit and approval',"Our audit is strict because a failed part stops our line. It protects you too."],['Bad experience with a cheap supplier',"Quality matters more to us than the lowest price."]],
+  rival:[['Stay with one supplier','Simpler, but risky'],['Another Asian supplier','Being audited now']], size:[1500,20000]}},
+cpg:{
+ p:{what:'{co} designs and sells {prod} and other compact home appliances.',
+  specs:[['Launch order','About 10 weeks'],['Warranty','2 years, local repair partner'],['Certifications','Safety approvals for each market'],['Pricing','Wholesale per unit, volume tiers']],
+  sol:[['Retail launch kit','Displays, demo units and store training'],['Marketing fund','Promotions planned together each quarter'],['After-sales','Local service partner for repairs']],
+  pro:['Strong design that sells well in stores','Popular in Korea and nearby markets','Full marketing support for retailers'],
+  con:[['New brand in your region',"That's why we bring a marketing fund and in-store support for the launch."],['Shipping by sea takes time',"We plan orders with you each quarter, so stock arrives before promotions."],['Few large partners abroad so far',"You'd be a priority partner — our senior team works directly with you."]],
+  proof:['Retail chains in Korea and other Asian markets','Strong online reviews','Repeat orders from existing retailers'],
+  rival:[['Global appliance brands','Well known, but lower margins for retailers'],['Private-label imports','Cheap, but no brand pull']], size:[120,600]},
+ b:{what:'{co} is {desc}. You want a fresh brand in this category with better margins.',
+  specs:[['Today','Two competing brands, thin margins'],['Stores','Launch in about a third of stores first'],['Marketing','Store promotions every quarter'],['Decision','Category manager and buying director']],
+  pro:['Many stores and strong foot traffic','A ready launch plan','Good shelf space for the right brand'],
+  con:[['We start in only part of our stores',"If the first quarter goes well, we roll out to every store."],['We need help with marketing',"A brand that supports us in stores will get more space."],['A past brand failed to restock',"Reliable supply matters more to us than a low price."]],
+  rival:[['Keep the current brands','Safe, but tired'],['Another Asian brand','Also talking to us']], size:[3000,15000]}},
+game:{
+ p:{what:'{co} develops and owns {prod}, and licenses it to publishers by region.',
+  specs:[['Korean build','About 4 months after signing'],['Model','Minimum guarantee + revenue share'],['Updates','Regular content updates'],['Support','Live support during launch week']],
+  sol:[['Localised build','Translation and cultural changes for Korea'],['Live-ops content','New seasons and events through the year'],['Launch support','A dedicated producer for Korea']],
+  pro:['A proven game with loyal players','Regular content updates','Strong results in North America and Europe'],
+  con:[['No experience in Asia yet',"That's why we want a strong Korean publisher — you know the market, we know the game."],['Small studio',"We're small, so decisions are fast — no long approval chains."],['Localisation takes time',"We start localisation as soon as we sign, so the build is ready in about four months."]],
+  proof:['Publishing partners in North America and Europe','A steady player base for several years','Good reviews from players and press'],
+  rival:[['Bigger studios','Famous games, but slow approvals'],['Local Korean games','Know the market, but less original']], size:[60,400]},
+ b:{what:'{co} is {desc}. You need a new title for next year.',
+  specs:[['Titles today','Six live games in Korea'],['Goal','A top-20 game for more than a season'],['Strengths','Korean marketing and live operations'],['Decision','Publishing director and CFO']],
+  pro:['Strong Korean marketing and community teams','Servers and live operations in-house','A good record of successful launches'],
+  con:[['Two of our games are getting old',"That's why we have the budget and the marketing slots ready for a new title."],['A past launch slipped twice',"Fast approvals matter to us — we'd like clear approval times in the contract."],['We want a say in marketing',"We know Korean players. Shaping the marketing is how we protect your game."]],
+  rival:[['Another licensed title','Also on our list'],['Our own development','Slow and expensive']], size:[200,1500]}},
+bio:{
+ p:{what:'{co} develops and makes {prod} and other rapid diagnostic tests for hospitals and clinics.',
+  specs:[['Result time','About 15 minutes'],['Approvals','Korean approval; EU file in progress with partner'],['Shipping','Monthly, cold chain'],['Pricing','Transfer price per box, volume tiers']],
+  sol:[['Regulatory support','We prepare the file with your team'],['Clinical specialist','Visits hospitals with your sales team'],['Technical hotline','Answers questions from labs and nurses']],
+  pro:['Strong clinical data','Fast, simple test for busy hospitals','Training and clinical support included'],
+  con:[['New to some European markets',"We work with you on the regulatory file, so approvals move faster."],['Capacity needs a forecast',"With a forecast six months ahead, we can grow production for you."],['Cold-chain shipping costs more',"Cold chain protects test accuracy — that's what hospitals pay for."]],
+  proof:['Used by hospital groups in Korea','Distributors in several countries','Published clinical studies'],
+  rival:[['Large global diagnostics firms','Well known, but more expensive'],['Low-cost test makers','Cheaper, weaker clinical data']], size:[150,800]},
+ b:{what:'{co} is {desc}. You want a second rapid test so you are not dependent on one maker.',
+  specs:[['Today','One competing test, prices keep rising'],['Customers','Hundreds of hospitals and clinics'],['Launch','Largest 30 hospitals first'],['Decision','Product manager and regulatory affairs']],
+  pro:['A large hospital network','A strong sales and service team','Regulatory experience in Europe'],
+  con:[['A past approval took a year longer',"That's why we need a partner with a complete, honest regulatory file."],['We start with 30 hospitals',"Thirty large hospitals is a strong start — the rest follow when it works."],['We need clinical evidence',"Our hospital customers will ask for data, so we need it from day one."]],
+  rival:[['Stay with the current test','Known, but prices keep rising'],['Another manufacturer','In early talks']], size:[400,3000]}},
+logi:{
+ p:{what:'{co} moves containers between Asia and the US west coast and offers warehousing near the ports.',
+  specs:[['Space guarantee','With a forecast 4 weeks ahead'],['Pricing','Yearly rate + fuel surcharge on an index'],['Contact','One account desk for bookings and problems'],['Reports','Weekly shipment reports']],
+  sol:[['Fixed sailings','Reserved space on regular sailings'],['Port warehousing','Storage and cross-docking near the port'],['Account desk','One team that knows your cargo']],
+  pro:['Guaranteed space when shippers give a forecast','One contact who knows your cargo','Warehousing near the port'],
+  con:[['Not the cheapest rate',"Our rate includes guaranteed space — cheaper rates often mean containers left on the dock."],['Fuel surcharge changes',"The surcharge follows a public index, so every change is transparent."],['Space needs a forecast',"A forecast four weeks ahead lets us hold space for you, even in peak season."]],
+  proof:['Many Asian exporters to the US west coast','Electronics, auto parts and consumer goods','High on-time rate last peak season'],
+  rival:[['Large carriers','Big networks, but less personal service'],['Low-cost forwarders','Cheap until peak season']], size:[400,2500]},
+ b:{what:'{co} is {desc}. You need reliable ocean freight to the US, especially in peak season.',
+  specs:[['Today','One carrier on yearly rates'],['Problem','Containers left on the dock in peak season'],['Peak','Heavy shipping before the holidays'],['Decision','Logistics manager and finance']],
+  pro:['Thousands of containers a year','A steady, long-term shipper','Clear monthly forecasts'],
+  con:[['Volumes jump before the holidays',"We share our forecast early so you can plan space."],['We switched before and regretted it',"Reliability matters more than the lowest rate."],['Finance wants a fixed rate',"A fixed yearly rate helps us plan — we can talk about the surcharge."]],
+  rival:[['Stay with our current carrier','Familiar, but unreliable in peak'],['Split volume between carriers','Safer, but more work']], size:[800,8000]}},
+fin:{
+ p:{what:'{co} runs {prod} for online businesses: checkout, card and wallet payments, and payouts to sellers.',
+  specs:[['Go-live','6–8 weeks'],['Pricing','Percentage per transaction, lower with volume'],['Uptime','99.95% target, 24/7 monitoring'],['Security','PCI DSS Level 1']],
+  sol:[['Payment gateway','Cards, wallets and bank transfers'],['Seller payouts','Faster payouts to marketplace sellers'],['Parallel run','Old and new systems side by side before switching']],
+  pro:['Stable at very high peaks','Faster payouts for sellers','People you can reach when something breaks'],
+  con:[['Smaller than the biggest providers',"We're focused on marketplaces, so you get senior engineers, not a ticket queue."],['Switching takes work',"We run both systems side by side, so not one checkout fails during the switch."],['Rate depends on volume',"As your volume grows, your rate comes down automatically."]],
+  proof:['Online marketplaces and subscription services','Sale-day peaks handled without outages','Named technical contacts for every client'],
+  rival:[['Large global gateways','Well known, but slower support'],['Local banks','Cheap, but limited features']], size:[150,900]},
+ b:{what:'{co} is {desc}. You want lower fees and faster payouts without failed checkouts.',
+  specs:[['Today','One provider, high fees'],['Problem','Slow seller payouts, two sale-day outages'],['Volume','Millions of transactions a month'],['Decision','CTO, finance and legal']],
+  pro:['High, growing transaction volume','A respected marketplace brand','A clear plan for switching'],
+  con:[['Two outages on big sale days',"That's why uptime and support matter more to us than anything."],['Sellers want faster payouts',"Fast payouts keep our sellers happy — it's a key part of the deal."],['Switching is risky',"We need a parallel run before we switch fully."]],
+  rival:[['Renegotiate with our current provider','Possible, but trust is low'],['A large global gateway','Also in talks']], size:[200,2000]}},
+energy:{
+ p:{what:'{co} builds power plants as the single contractor: engineering, equipment and construction. This project is {prod}.',
+  specs:[['Contract','Fixed lump-sum price, milestone payments'],['Mobilisation','About 8 weeks after signing'],['Warranty','2 years after completion'],['Team','One project manager on site']],
+  sol:[['Full EPC','Engineering, procurement and construction'],['Grid connection','We manage the connection process'],['Operations contract','We can run the plant after handover']],
+  pro:['One contractor responsible for the whole plant','Experience in several countries','Guarantees that banks accept'],
+  con:[['Not the cheapest bid',"Our price includes guarantees your lenders will accept — that saves time at financial close."],['Equipment prices can move',"A fixed lump sum means that risk stays with us, not you."],['Weather can delay work',"Our schedule includes weather allowances, and we report progress every week."]],
+  proof:['Plants for power companies and developers','Projects in Korea, Southeast Asia and the Middle East','A record of on-time grid connections'],
+  rival:[['Large international contractors','Strong names, higher prices'],['Local contractors','Cheaper, weaker guarantees']], size:[1500,9000]},
+ b:{what:'{co} is {desc}. You need one contractor to build the plant on time and at a fixed price.',
+  specs:[['Status','Land and permits in place'],['Financing','Closes when banks accept the contract'],['Pipeline','First of three plants'],['Decision','CEO, CFO and lenders']],
+  pro:['Permits and land ready','Two more plants after this one','Financing lined up'],
+  con:[['Our last contractor was four months late',"That's why delay damages matter so much to us."],['Lenders must approve the contract',"Terms the banks accept help both of us close quickly."],['We need a fixed price',"A fixed price is a condition for our financing."]],
+  rival:[['Another EPC contractor','Also bidding'],['Split contracts','Cheaper, but more risk for us']], size:[60,400]}},
+beauty:{
+ p:{what:'{co} is a Korean skincare brand. Its main product line is {prod}.',
+  specs:[['Launch order','About 8 weeks'],['Shipping','Monthly from Korea'],['Compliance','EU cosmetics rules and labels covered'],['Pricing','Wholesale list with retailer margin']],
+  sol:[['Store launch kit','Testers, displays and staff training'],['Online content','Photos and copy for your web shop'],['Seasonal launches','New products planned with you each season']],
+  pro:['Strong brand story and loyal fans','Products customers ask for by name','Training and display support'],
+  con:[['New in Europe',"That's why we invest in training and displays for the launch."],['Shipping from Korea',"We plan stock with you each month so nothing runs out."],['Smaller marketing budget than global brands',"We put our budget into your stores, where it sells."]],
+  proof:['Retailers in Korea, Japan and the US','Strong social-media following','High repeat-purchase rate'],
+  rival:[['Global beauty brands','Well known, lower margins'],['Other Korean brands','Popular, but often out of stock']], size:[80,500]},
+ b:{what:'{co} is {desc}. You want one or two strong Korean skincare brands.',
+  specs:[['Today','A dozen small Korean brands, little support'],['Korean skincare','About a tenth of sales'],['Launch','Biggest stores and online first'],['Decision','Beauty buyer and category director']],
+  pro:['Prime shelf space in busy stores','A strong online shop','Customers who already love Korean skincare'],
+  con:[['A trendy brand ran out of stock',"Reliable stock matters more to us than hype."],['We start in our biggest stores',"Big stores first, then a full roll-out if it sells."],['We need marketing support',"Brands that support our stores get the best shelf space."]],
+  rival:[['Keep the small brands','No effort, weak results'],['Another Korean brand','Also pitching']], size:[800,5000]}},
+fnb:{
+ p:{what:'{co} makes {prod} for restaurants and grocery stores.',
+  specs:[['Supply','Produced to forecast, shipped monthly'],['Local stock','Warehouse stock near you'],['Larger orders','About 3 months notice'],['Labels','Help with your local label rules']],
+  sol:[['Food-service packs','Large packs for kitchens'],['Retail range','Shelf-ready packs for stores'],['Recipe development','Working with your chefs']],
+  pro:['Consistent quality in every batch','Products for both kitchens and shelves','Fast answers — within a day'],
+  con:[['Shipping by sea',"We keep stock in a warehouse near you, so supply doesn't wait for ships."],['New brand for your customers',"We help with recipes and promotions to build demand."],['Large orders need notice',"With three months' notice we can scale for big promotions."]],
+  proof:['Food-service groups in Korea','Grocery chains in export markets','Food-safety certifications'],
+  rival:[['Local importers','Easy, but quality varies'],['Large food brands','Well known, less flexible']], size:[150,900]},
+ b:{what:'{co} is {desc}. You want a consistent Korean product for menus and shelves.',
+  specs:[['Today','A local importer, quality varies'],['Locations','Dozens, opening more each year'],['Need','Kitchens and stores'],['Decision','Culinary director and purchasing']],
+  pro:['Many locations and growing','Both restaurants and stores','Strong customer interest in Korean food'],
+  con:[['A supplier ran out mid-promotion',"Reliable stock matters more than price for us."],['Strict label rules',"We need a supplier who handles our labels correctly."],['We test before we roll out',"We start in a few locations, then expand fast if it works."]],
+  rival:[['Stay with the importer','Easy, but inconsistent'],['Another manufacturer','Also in talks']], size:[1500,9000]}},
+ads:{
+ p:{what:'{co} is an integrated marketing agency. This deal is {prod}.',
+  specs:[['Team','8 people, starting next month'],['Fee','Monthly retainer; media and production at cost'],['Reporting','Monthly results report'],['Media','In-house Korean media team']],
+  sol:[['Launch strategy','Workshop and plan for the year'],['Creative and production','Films, digital and events'],['Media buying','TV, digital and outdoor in Korea']],
+  pro:['Knows Korean media and consumers','Runs the whole launch, not just ads','Senior director as your one contact'],
+  con:[['Not a famous global network',"You get our senior people every day, not a junior team."],['Retainer is a fixed cost',"The retainer covers a full team — media and production are billed at cost, with no mark-up."],['Results take a few months',"We report every month, so you see progress early."]],
+  proof:['Global brands entering Korea','Experience in cars and technology','Launches that hit awareness targets'],
+  rival:[['Global agency networks','Famous, but expensive and slow'],['Small specialist agencies','Cheaper, but can\'t run a full launch']], size:[60,400]},
+ b:{what:'{co} is {desc}. You need an agency to run the Korean launch.',
+  specs:[['Today','Global campaign, nothing for Korea'],['Local team','Three people'],['Goal','Awareness and test-drive bookings'],['Decision','Country manager and HQ marketing']],
+  pro:['A big launch budget','A strong global brand','A clear launch date'],
+  con:[['Small local team',"We need an agency that can run most of the work for us."],['Past agency sold nothing',"We care about bookings, not just beautiful films."],['HQ approves big decisions',"Clear monthly reports help us get fast approval from HQ."]],
+  rival:[['A global agency network','Also pitching'],['Several small agencies','Cheaper, harder to manage']], size:[40,200]}}
+};
+
+/* built-in scenarios: the learner's own company */
+const CO_SC = {
+discovery:{intro:"We're Clearpath Digital, a B2B marketing agency. We help industrial and logistics companies get leads their sales teams actually want to call.", co:'Clearpath Digital', what:'Clearpath Digital is a B2B marketing agency. It helps industrial and logistics companies win better-quality leads.', side:'p', loc:'Seoul and Singapore', since:2014, staff:45,
+  prod:'Lead-generation programmes for B2B companies',
+  specs:[['Typical fee','$12–25K a month'],['Start','Within 3–4 weeks'],['Reporting','Weekly dashboard + monthly review'],['Focus','Lead quality, not just traffic']],
+  sol:[['Lead-quality programme','Targeting, forms and scoring so sales gets real leads'],['Content and LinkedIn','Content for operations and supply-chain buyers'],['Weekly reporting','A live dashboard and a call every week']],
+  pro:['Specialists in logistics and industrial B2B','Leads scored before they reach sales','Weekly reporting — no surprises'],
+  con:[['A small agency',"Small means you work with senior people every week, not a junior team."],['No famous brand clients',"Our clients are mid-size B2B firms like you — that's our speciality."],['We won\'t promise lead numbers on day one',"We'd rather agree targets after a short audit than over-promise."]],
+  proof:['Freight and warehousing clients in Asia','A client doubled qualified leads in six months','Most clients stay more than two years'],
+  rival:[['Large full-service agencies','Big names, little B2B focus'],['Freelancers','Cheap, but no reporting or strategy']],
+  conf:['Your minimum engagement: $12K a month','Do not promise a number of leads in the first call']},
+negotiation:{intro:"We're Vantage Systems. We implement CRM platforms for retailers — from set-up and data migration to training.", co:'Vantage Systems', what:'Vantage Systems implements CRM platforms for retailers: set-up, data migration, integrations and training.', side:'p', loc:'Singapore', since:2011, staff:220,
+  prod:'CRM implementation for retail',
+  specs:[['This proposal','$240K a year'],['Go-live','14–16 weeks'],['Team','6 consultants on the project'],['Support','Hypercare for 8 weeks after go-live']],
+  sol:[['Retail CRM set-up','Loyalty, store and online data in one CRM'],['Data migration','Cleaning and moving existing customer records'],['Training and hypercare','Store and HQ training, 8 weeks of close support']],
+  pro:['Many retail rollouts done','Live in 14–16 weeks — before the holidays','Fixed project team from start to finish'],
+  con:[['More expensive than some competitors',"Our price includes retail experience — a failed rollout costs far more than the difference."],['Busy project calendar',"If you sign this month, we can reserve the team and still go live before the holidays."],['We need your IT team\'s time',"About two days a week from your IT lead keeps the timeline safe."]],
+  proof:['Retail rollouts for several chains','Strong references from retail clients','Projects delivered on time before peak season'],
+  rival:[['Low-cost implementers','Cheaper, but often no retail experience'],['The software vendor\'s own team','Expensive and slow to start']],
+  conf:['Your limit: 10% off — only in exchange for something','Trades: a 2-year term, upfront payment or reduced scope']},
+'contract-review':{intro:"We're Brightline Media, a creative and digital agency with a strong healthcare practice.", co:'Brightline Media', what:'Brightline Media is a creative and digital agency. Veritas Health wants to hire it on a 12-month retainer.', side:'p', loc:'Seoul', since:2012, staff:85,
+  prod:'Creative and digital retainer',
+  specs:[['Retainer','$28,000 a month'],['Term','12 months'],['Team','Account director, creatives, digital team'],['Clients','Several in healthcare']],
+  sol:[['Brand and content','Campaign ideas, design and video'],['Digital marketing','Social, search and websites'],['Templates and tools','Our own design systems and tools — reused for clients']],
+  pro:['Strong healthcare experience','Senior team on every account','Reusable tools that speed up work'],
+  con:[['We are a mid-size agency',"That's why unlimited liability is a real risk for us — a cap protects both sides."],['We depend on steady cash flow',"Net 90 is hard for an agency our size. Net 30 to 45 is standard."],['Our tools are used for many clients',"We license our tools to you; the work made for you is yours."]],
+  proof:['Healthcare clients in Korea','Long-term retainers with major brands','Awards for digital work'],
+  rival:[['Large global agencies','More resources, higher fees'],['Freelance teams','Cheaper, less reliable']],
+  conf:['Must fix: unlimited liability, Net 90, your pre-existing IP','Targets: cap = 12 months\' fees · Net 30–45 · 60-day notice']},
+'contract-negotiation':{intro:"We're Nexora AI. Our platform helps retailers forecast demand and set prices, store by store.", co:'Nexora AI', what:'Nexora AI sells an AI demand-forecasting and pricing platform to retailers on enterprise licences.', side:'p', loc:'Seoul and San Francisco', since:2017, staff:260,
+  prod:'Nexora retail AI platform',
+  specs:[['List fee','$420K a year'],['Uptime','99.5% standard'],['Security','SOC 2 Type II and ISO 27001 certified'],['Deployment','Cloud, data kept in-region']],
+  sol:[['Demand forecasting','Forecasts by store, product and day'],['Pricing engine','Suggests prices and markdowns'],['Integration','Connectors for ERP and POS systems']],
+  pro:['Better forecasts cut stock and waste','Certified security — SOC 2 and ISO 27001','Retail-specific models'],
+  con:[['Higher price than some rivals',"Our forecasts usually pay for the licence in the first year."],['99.5% uptime is our standard',"We can offer 99.9% with service credits capped at 20%."],['We can\'t take unlimited liability',"A 12-month cap, with a higher super-cap for data breaches, is what we can insure."]],
+  proof:['Retail groups across Asia and the US','Customers cut out-of-stocks significantly','Independent security audits every year'],
+  rival:[['Large enterprise software vendors','Broad, but less retail focus'],['In-house data teams','Flexible, but slow to deliver']],
+  conf:['Walk-away: $350K a year · minimum term 2 years','SLA 99.9% only with credits capped at 20% · never unlimited liability']},
+'mg-negotiation':{intro:"We're Hanbit Contents. We bring foreign brands to Korea and grow them through our retail network.", co:'Hanbit Contents', what:'Hanbit Contents licenses foreign brands and runs them in Korea: product design, sourcing, retail and marketing.', side:'b', loc:'Seoul', since:2008, staff:140,
+  prod:'Brand licensing and retail in Korea',
+  specs:[['Channels','Department stores, outlets and online'],['Brands','Several foreign brands licensed today'],['Year 1 forecast','$1.6M net sales'],['3-year forecast','$7.2M net sales']],
+  sol:[['Product development','Designs and sources products for Korea'],['Retail network','Department-store and outlet shops'],['Marketing','Campaigns and influencers in Korea']],
+  pro:['A strong retail network across Korea','Experience growing foreign brands','A forecast built from real store data'],
+  con:[['A new brand needs time to grow',"That's why a lower first-year MG makes sense — sales build over three years."],['Our forecast is below their MG',"Our forecast is based on actual sell-through for similar brands."],['Limited cash for a big advance',"An advance of up to $100K, fully recoupable, works for us."]],
+  proof:['Foreign brands grown successfully in Korea','Long-term licensing partners','Strong department-store relationships'],
+  rival:[['Another Korean licensee','Interested, but a weaker retail network'],['The licensor going direct','Costly and slow for them']],
+  conf:['Targets: total MG ≤ $650K (max $720K), low Year 1','Advance ≤ $100K, royalty 10–11% or tiered']},
+escalation:{intro:"We're Studio Arden, a creative agency that produces launch campaigns for beauty and lifestyle brands.", co:'Studio Arden', what:'Studio Arden is a creative agency that produces campaign assets for beauty and lifestyle brands.', side:'p', loc:'Seoul', since:2016, staff:60,
+  prod:'Campaign assets for product launches',
+  specs:[['This job','Spring launch assets for Lumina'],['Status','4 days late — internal approval delay'],['Launch','In 10 days'],['Team','Project lead, designers, producer']],
+  sol:[['Campaign assets','Key visuals, video and social content'],['Production','Shoots and post-production'],['Launch support','Last-minute changes during launch week']],
+  pro:['Strong creative work for beauty brands','A dedicated team on the account','Can add people quickly in a crisis'],
+  con:[['Our approval process caused the delay',"We've removed the extra approval step for your account, starting today."],['We didn\'t tell you early enough',"From today you'll get a status update every evening until launch."],['The timeline is now tight',"We've added two designers so everything is delivered by Thursday."]],
+  proof:['Many beauty launches delivered','Long-term clients in cosmetics','Fast turnarounds for urgent work'],
+  rival:[['Larger agencies','More staff, slower'],['In-house teams','Close to the brand, limited capacity']],
+  conf:['Take ownership — do not blame individuals','Offer compensation only after the plan is agreed']}
+};
+
+/* =========================================================
+   COMPANY FILE — the learner's own company at a glance (campaigns and built-in scenarios).
+   Shown on the setup screen, the campaign page and in the meeting (Company tab, which matches the
+   counterpart's latest question to the right fact and gives a sentence to say).
+   ========================================================= */
+const CO_HOW_P = [['How we work','how (does|would|will) (it|this|that) work|process|how do (you|we) start|steps?|onboard|implement|roll.?out|next step|how do you (usually|normally)'],
+  ['Pricing','pric|cost|fee|rate|charge|quote|how much|budget|discount'],
+  ['Capacity and lead time','lead time|when can|how (soon|fast|quickly)|capacity|deliver|ready|start date|timeline|how long|schedule'],
+  ['Our customers','customer|client|reference|who else|work with|experience|track record|case stud'],
+  ['Support','support|after (the|you)|service|help|problem|warranty|maintenance|go wrong|contact']];
+const CO_HOW_B = [['Our situation today','today|current|right now|at the moment|currently|situation|what do you use|how do you (do|handle|manage)'],
+  ['What we want','goal|achieve|success|look like|objective|priority|why (now|change)|what do you want'],
+  ['What we need from a supplier','need|require|important|criteria|looking for|expect|must.have'],
+  ['What went wrong before','before|in the past|tried|last time|went wrong|previous|bad experience'],
+  ['Our scale','how (many|much|big)|volume|scale|size|quantity|how large']];
+const coHash = s => { let h=7; for(const ch of String(s)) h=(h*31+ch.charCodeAt(0))>>>0; return h };
+const coFill = (t, V) => String(t).replace(/\{(\w+)\}/g, (m,k)=>V[k]!=null?V[k]:m);
+const coLow = t => t ? t.charAt(0).toLowerCase()+t.slice(1) : t;
+function coSentence(t){ t=String(t).trim(); return /[.!?]$/.test(t)?t:t+'.' }
+function coConf(mandate){ return String(mandate||'').split('\n').map(x=>x.trim()).filter(x=>x && (/\d/.test(x) || /\b(limit|walk|never|do not|don't|floor|aim|minimum|maximum|max|target)\b/i.test(x))).slice(0,4) }
+
+function coFile(sc0){
+  if(!sc0) return null;
+  /* campaigns */
+  if(sc0.campaign){ let c, X; try{ c=campGet(sc0.campaign.id); X=c&&campCtx(c) }catch(e){} if(!X) return null; return coCamp(c, X, sc0) }
+  /* built-in scenarios */
+  const D=CO_SC[sc0.id]; if(!D) return null;
+  return {co:D.co, brand:D.co.split(' ')[0], side:D.side, about:`${D.loc} · founded ${D.since} · ${D.staff} employees`, what:D.what, you:sc0.role||'',
+    prodLabel:D.side==='b'?'What we do':'What we sell', prod:D.prod, specs:D.specs, sol:D.sol, pro:D.pro, con:D.con, proof:D.proof, rival:D.rival, how:[], conf:D.conf||coConf(sc0.mandate),
+    intro:D.intro, why:`What sets us apart is ${coLow(D.pro[0])} — and ${coLow(D.pro[1])}.`};
+}
+function coCamp(c, X, sc0){
+  const sideK = X.side==='provider' ? 'p' : 'b', P=(CO_FIELD[X.F.id]||{})[sideK], loc=X.F.loc||(typeof CAMP_LOC!=='undefined'&&CAMP_LOC[X.F.id])||[];
+  const city = loc[X.side==='provider'?0:1] || '', V={co:X.me, brand:X.me.split(' ')[0], prod:String(X.F.prod||'').replace(/^the /,'the '), desc:X.meDesc, city};
+  const h=coHash(X.me), young=/start.?up/i.test(X.meDesc), size=(P&&P.size)||[100,800];
+  const since = young ? 2019+(h%4) : 1998+(h%20), staff = young ? 30+(h%8)*10 : Math.round((size[0]+(h%997)/997*(size[1]-size[0]))/10)*10;
+  const F=(typeof CAMP_FACTS!=='undefined'&&CAMP_FACTS[X.F.id])||null, facts=F?F[sideK]:null;
+  const how=(facts||[]).map((t,i)=>{ const L=(sideK==='p'?CO_HOW_P:CO_HOW_B)[i]; return L?{label:L[0], keys:L[1], say:t}:null }).filter(Boolean);
+  let specs=P?P.specs.map(s=>[s[0], coFill(s[1],V)]):[];
+  if(sideK==='p' && X.F.price){ try{ const is=campIssue('price', X, {}); specs=[['List price', fmtVal(is, X.F.price.P[0])]].concat(specs) }catch(e){} }
+  let mand=''; try{ const ep=sc0&&sc0.campaign?sc0.campaign.ep:c.ep; const b=campBuild(c, Math.min(ep, 5)) || (sc0&&sc0.mandate?sc0:null); mand=(b&&b.mandate)||'' }catch(e){}
+  const what = P ? coFill(P.what, V) : `${X.me} is ${X.meDesc}.`;
+  const pro=P?P.pro.map(x=>coFill(x,V)):[];
+  return {co:X.me, brand:V.brand, side:sideK, about:`${X.meDesc.replace(/^(a|an|the) /,m=>m.charAt(0).toUpperCase()+m.slice(1))}${city?' · '+city:''} · founded ${since} · ${staff.toLocaleString('en-US')} employees`,
+    what, you:X.myTitle, prodLabel:sideK==='p'?'Main product':'Your business', prod:sideK==='p'?cap1(V.prod):cap1(X.meDesc),
+    specs, sol:P&&P.sol?P.sol.map(s=>[coFill(s[0],V), coFill(s[1],V)]):[], pro, con:P?P.con.map(s=>[coFill(s[0],V), coFill(s[1],V)]):[],
+    proof:P&&P.proof?P.proof.map(x=>coFill(x,V)):[], rival:P?P.rival:[], how, conf:coConf(mand),
+    intro: sideK==='p' ? `We're ${X.meDesc}. Our main product is ${V.prod}.` : `We're ${X.meDesc}. ${how[0]?how[0].say:''}`.trim(),
+    why: pro.length>1 ? (sideK==='p' ? `What sets us apart is ${coLow(pro[0])} — and ${coLow(pro[1])}.` : `For the right supplier, we offer ${coLow(pro[0])} and ${coLow(pro[1])}.`) : ''};
+}
+
+/* ---------- views ---------- */
+const coLogo = f => `<span class="co-logo">${esc(f.brand.charAt(0))}</span>`;
+function coCardMini(sc0, onclick){
+  const f=coFile(sc0); if(!f) return '';
+  return `<button class="co-card" onclick="${onclick}">${coLogo(f)}<span class="co-t"><b>${esc(f.co)}</b><small>Your company · ${f.side==='p'?'product, strengths, limits':'business, needs, limits'}</small></span><span class="co-go">Company file</span></button>`;
+}
+function coSheetHTML(f){
+  const li=(a,cls,m)=>a.map(x=>`<div class="co-li"><em class="${cls}">${m}</em><span>${esc(x)}</span></div>`).join('');
+  const sec=(h,b,cls)=>b?`<div class="co-sec ${cls||''}"><h5>${h}</h5>${b}</div>`:'';
+  return `<div class="co-file">
+    <div class="co-id">${coLogo(f)}<div><h3>${esc(f.co)}</h3><small>${esc(f.about)}</small></div></div>
+    <p class="co-what">${esc(f.what)}</p>
+    ${f.you?`<div class="co-you">You are <b>${esc(f.you)}</b>.</div>`:''}
+    ${sec(f.prodLabel, `<div class="co-prod"><span class="co-pimg"></span><b>${esc(f.prod)}</b></div>${f.specs.length?`<div class="co-kv">${f.specs.map(s=>`<div>${esc(s[0])}<b>${esc(s[1])}</b></div>`).join('')}</div>`:''}`)}
+    ${f.sol.length?sec(f.side==='p'?'What else we offer':'What we bring', f.sol.map((s,i)=>`<div class="co-sol"><i>${i+1}</i><span><b>${esc(s[0])}</b> — ${esc(s[1])}</span></div>`).join('')):''}
+    ${(f.pro.length||f.con.length)?`<div class="co-two">${sec('Strengths', li(f.pro,'p','+'),'pro')}${sec('Weak spots', li(f.con.map(x=>x[0]),'c','–'),'con')}</div>`:''}
+    ${f.con.length?sec('If they ask about a weak spot', f.con.map(x=>`<div class="co-say"><b>${esc(x[0])}</b>“${esc(x[1])}”</div>`).join('')):''}
+    ${f.how.length?sec(f.side==='p'?'Answers about how we work':'Answers about our side', f.how.map(x=>`<div class="co-say"><b>${esc(x.label)}</b>“${esc(x.say)}”</div>`).join('')):''}
+    ${f.proof.length?sec('Proof points', li(f.proof,'d','•')):''}
+    ${f.conf.length?sec('Confidential — keep this to yourself', li(f.conf,'w','•')+`<div class="co-note">Saying these out loud weakens your position.</div>`,'conf'):''}
+    ${f.rival.length?sec(f.side==='p'?'Competitors':'Our other options', f.rival.map(r=>`<div class="co-rv"><b>${esc(r[0])}</b><span>${esc(r[1])}</span></div>`).join('')):''}
+    ${sec('Useful phrases', `<div class="co-say"><b>Introducing your company</b>“${esc(f.intro)}”</div>${f.why?`<div class="co-say"><b>${f.side==='p'?'Answering “why you?”':'Why work with us'}</b>“${esc(f.why)}”</div>`:''}`)}
+  </div>`;
+}
+function coOpen(id){ const s0=allSc().find(s=>s.id===id); const f=coFile(s0); if(!f){ toast('No company file for this scenario.'); return }
+  rcEnsure(); $('rcvT').textContent='Company file'; $('rcvX').innerHTML=''; $('rcvB').innerHTML=coSheetHTML(f); $('rcView').classList.add('on'); $('rcvB').scrollTop=0; lmSync() }
+function coOpenCamp(){ const c=campActive(); if(!c) return; const n=Math.min(c.ep||0,5); const id=campSid(c,n); let s0=allSc().find(s=>s.id===id); if(!s0){ try{ s0=campBuild(c,n) }catch(e){} }
+  if(!s0) s0={campaign:{id:c.id, ep:n}}; const f=coFile(s0); if(!f) return; rcEnsure(); $('rcvT').textContent='Company file'; $('rcvX').innerHTML=''; $('rcvB').innerHTML=coSheetHTML(f); $('rcView').classList.add('on'); $('rcvB').scrollTop=0; lmSync() }
+
+/* in the meeting: match their latest question to the file */
+function coEntries(f){
+  const E=[];
+  f.how.forEach(h=>E.push({label:h.label, keys:h.keys, text:'', say:h.say}));
+  f.specs.forEach(s=>E.push({label:s[0], keys:s[0].toLowerCase().replace(/[^a-z ]/g,'').split(' ').filter(w=>w.length>3).join('|')||'x^', text:`${s[0]}: ${s[1]}.`, say:''}));
+  f.con.forEach(c=>E.push({label:'Weak spot', keys:'risk|concern|weak|worr|problem|downside|why should|'+c[0].toLowerCase().split(/\W+/).filter(w=>w.length>4).slice(0,3).join('|'), text:c[0]+'.', say:c[1]}));
+  if(f.pro.length) E.push({label:'Why us', keys:'why (you|should we|your)|different|stand out|advantage|better than|strength|what makes', text:f.pro.join(' · '), say:f.why});
+  if(f.proof.length) E.push({label:'Proof', keys:'reference|who else|clients|customers|example|case stud|proof|track record', text:f.proof.join(' · '), say:''});
+  if(f.rival.length) E.push({label:f.side==='p'?'Competitors':'Other options', keys:'competitor|alternative|other (vendor|supplier|compan|option)|cheaper|compared', text:f.rival.map(r=>r[0]+' — '+r[1]).join(' · '), say:''});
+  E.push({label:'About us', keys:'about (you|your company)|who are you|tell me (a bit )?about|your company|how big|how many (people|employees)|founded|introduce', text:f.what, say:f.intro});
+  return E;
+}
+function coMatch(f, q){
+  const low=String(q||'').toLowerCase(); if(!low) return null; let best=null, bs=0;
+  coEntries(f).forEach(e=>{ let s=0; e.keys.split('|').forEach(k=>{ if(!k) return; try{ const m=low.match(new RegExp('\\b'+k,'g')); if(m) s+=m.length*(k.length>6?2:1) }catch(x){} }); if(s>bs){ bs=s; best=e } });
+  return best;
+}
+function coRoomHTML(){
+  if(!S || !S.sc) return ''; const f=coFile(S.sc); if(!f) return '<div class="empty">No company file for this meeting.</div>';
+  const last=[...(S.log||[])].reverse().find(l=>!l.me), hit=last&&/\?/.test(last.text)?coMatch(f, last.text):null;
+  const top = last && /\?/.test(last.text) ? `<div class="co-q"><small>${esc(firstName(last.speaker))} just asked</small>“${esc(last.text)}”</div>` + (hit ? `<div class="co-hit"><small>From your company file · ${esc(hit.label)}</small>${hit.text?`<p>${esc(hit.text)}</p>`:''}${hit.say?`<div class="co-say"><b>Say it</b>“${esc(hit.say)}”</div>`:''}</div>` : `<div class="co-hit none"><small>Nothing in your file matches this question — answer from the brief, or ask a clarifying question.</small></div>`) : '';
+  const quick=[[f.side==='p'?'Main product':'Business', f.prod], f.specs[0]?[f.specs[0][0], f.specs[0][1]]:null, f.pro[0]?['Strength', f.pro[0]]:null, f.con[0]?['Weak spot', f.con[0][0]]:null].filter(Boolean);
+  return `<div class="co-room">${top}<div class="co-quick">${quick.map(q=>`<div><span>${esc(q[0])}</span><b>${esc(q[1])}</b></div>`).join('')}</div>
+    <button class="btn ghost co-full" onclick="coOpen('${esc(S.sc.id)}')">Open the full company file</button></div>`;
+}
+
+/* ---------- placement ---------- */
+/* 1. setup screen */
+const _openSetup_co = openSetup;
+openSetup = function(id){ const r=_openSetup_co.apply(this, arguments); try{ let w=$('sCompany'); if(!w){ w=document.createElement('div'); w.id='sCompany'; ($('sRecap')||$('sDesc')).insertAdjacentElement('afterend', w) } w.innerHTML = sc ? coCardMini(sc, `coOpen('${esc(sc.id)}')`) : '' }catch(e){} return r };
+/* 2. campaign page */
+const _renderCampaign_co = renderCampaign;
+renderCampaign = function(){ const r=_renderCampaign_co.apply(this, arguments); try{ const c=campActive(); if(!c) return r; const first=document.querySelector('#campBody .cp-ep'); if(!first || document.querySelector('#campBody .co-card')) return r;
+  const n=Math.min(c.ep||0,5), h=coCardMini({campaign:{id:c.id, ep:n}}, 'coOpenCamp()'); if(h) first.insertAdjacentHTML('beforebegin', h) }catch(e){} return r };
+/* 3. in the meeting: Company tab */
+function coRoomTab(){ const tabs=document.querySelector('.side .tabs'); if(!tabs || tabs.querySelector('[data-co]')) return; const b=document.createElement('button'); b.dataset.co='1'; b.textContent='Company'; b.onclick=function(){ sideTab(4,this) }; tabs.appendChild(b);
+  const p=document.createElement('div'); p.className='agenda'; p.id='coPane'; ($('recapPane')||$('emailPane')).insertAdjacentElement('afterend', p) }
+let coTick=null, coSeen=-1;
+function coPaneDraw(force){ const p=$('coPane'); if(!p || !p.classList.contains('on')) return; const n=(S&&S.log||[]).length; if(!force && n===coSeen) return; coSeen=n; p.innerHTML=coRoomHTML() }
+const _sideTab_co = sideTab;
+sideTab = function(i, btn){ coRoomTab(); const p=$('coPane');
+  if(i===4){ document.querySelectorAll('.tabs button').forEach(b=>b.classList.remove('on')); btn.classList.add('on'); $('feed').style.display='none'; $('agenda').classList.remove('on'); $('emailPane').classList.remove('on'); const rp=$('recapPane'); if(rp) rp.classList.remove('on');
+    p.classList.add('on'); coPaneDraw(true); clearInterval(coTick); coTick=setInterval(()=>{ if(!S||S.ended||!p.classList.contains('on')){ clearInterval(coTick); return } coPaneDraw(false) }, 900); return }
+  if(p) p.classList.remove('on'); clearInterval(coTick); return _sideTab_co.apply(this, arguments) };
+const _startMeeting_co = startMeeting;
+startMeeting = function(){ coRoomTab(); const b=document.querySelector('.side .tabs [data-co]'); if(b) b.style.display = coFile(sc) ? '' : 'none'; const p=$('coPane'); if(p) p.classList.remove('on'); return _startMeeting_co.apply(this, arguments) };
 
 </script>
 </body>
