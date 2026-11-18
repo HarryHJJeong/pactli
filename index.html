@@ -1688,6 +1688,13 @@ html.mob #rcView.on .lmv-box{animation:trSheet .36s cubic-bezier(.2,.8,.2,1)}
 .app-g{margin-top:8px;font-size:13.5px;color:var(--ink2);background:var(--bg);border-radius:10px;padding:8px 10px}
 .app-b{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
 
+/* sign-up / trial sheet: scrollable on phones, close button always visible */
+#landing .lp-mbox{max-height:calc(100vh - 40px);max-height:calc(100dvh - 40px);-webkit-overflow-scrolling:touch}
+#landing .lp-mx{position:sticky;top:-14px;float:right;margin:-14px -10px 0 10px;z-index:3;display:flex;align-items:center;justify-content:center;box-shadow:0 2px 10px rgba(29,38,34,.12);cursor:pointer;border:0}
+html.mob #landing .lp-mbox{max-height:calc(100vh - 16px);max-height:calc(100dvh - 16px);padding-top:18px}
+html.mob #landing .lp-mx{top:0;margin:0 -6px 0 10px;width:38px;height:38px}
+html.mob #landing .lp-mbox::before{content:'';display:block;width:40px;height:4px;border-radius:2px;background:#d6d1c4;margin:0 auto 10px}
+
 .lg-back{display:inline-block;margin-bottom:22px;font-size:13.5px;font-weight:600;color:var(--muted);cursor:pointer}.lg-back:hover{color:var(--ink)}
 html:has(#landing.on){background:#f7f5ee}
 </style>
@@ -8973,7 +8980,7 @@ function lmLock(on){
 function lmSync(){ const a=$('rcView'), d=$('docView'); lmLock(!!((a&&a.classList.contains('on'))||(d&&d.classList.contains('on')))) }
 ['rcOpen','rcTranscript','rcClose','openDoc','closeDoc'].forEach(n=>{ const f=window[n]; if(typeof f!=='function') return; window[n]=function(){ const r=f.apply(this, arguments); lmSync(); return r } });
 rcOpen=window.rcOpen; rcTranscript=window.rcTranscript; rcClose=window.rcClose; openDoc=window.openDoc; closeDoc=window.closeDoc;
-document.addEventListener('touchmove', e=>{ if(lmLockY===null) return; if(!e.target.closest('.lmv-body,.dv-stage,.dv-pop')) e.preventDefault() }, {passive:false});
+document.addEventListener('touchmove', e=>{ if(lmLockY===null) return; if(!e.target.closest('.lmv-body,.dv-stage,.dv-pop,.lp-mbox,.modal .pane')) e.preventDefault() }, {passive:false});
 
 
 /* =========================================================
@@ -9334,7 +9341,7 @@ startMeeting = function(){ coRoomTab(); const b=document.querySelector('.side .t
 const lpReduce = () => { try{ return matchMedia('(prefers-reduced-motion: reduce)').matches }catch(e){ return false } };
 function lpLogin(){ go('login'); setTimeout(()=>{ const i=$('lgId'); if(i && !document.documentElement.classList.contains('mob')) i.focus() }, 60) }
 let lpCloseT=null;
-function lpModal(pane){ const m=$('lpModal'); if(!m) return; clearTimeout(lpCloseT); m.classList.remove('lp-out'); ['lpSignupPane','lpDonePane','lpTryPane'].forEach(id=>$(id).classList.toggle('lp-show', id===pane)); m.classList.add('lp-on'); lmLock && lmLockY===null && lmLock(true) }
+function lpModal(pane){ const m=$('lpModal'); if(!m) return; clearTimeout(lpCloseT); m.classList.remove('lp-out'); ['lpSignupPane','lpDonePane','lpTryPane'].forEach(id=>$(id).classList.toggle('lp-show', id===pane)); const was=m.classList.contains('lp-on'); m.classList.add('lp-on'); lmLock && lmLockY===null && lmLock(true); if(!was){ try{ history.pushState({s:'landing',m:1},'') }catch(e){} } }
 function lpClose(){ const m=$('lpModal'); if(!m || !m.classList.contains('lp-on')) return; m.classList.add('lp-out'); clearTimeout(lpCloseT); lpCloseT=setTimeout(()=>{ m.classList.remove('lp-on','lp-out'); try{ lmSync() }catch(e){ lmLock(false) } }, 220) }
 const lpRequest = on => on===false ? lpClose() : lpSignup();
 function lpTo(id){ const el=$(id); if(!el) return; const y=el.getBoundingClientRect().top+scrollY-(document.querySelector('#landing .lp-nav')||{offsetHeight:0}).offsetHeight-8; window.scrollTo({top:y, behavior:lpReduce()?'auto':'smooth'}) }
@@ -9450,6 +9457,7 @@ function lpTrialCard(fb, m){
 function lpTrialHome(){ lpGuestOut(); go('landing'); window.scrollTo(0,0) }
 function lpTry0(){ go('landing'); setTimeout(lpTry, 300) }
 function lpPop(id){
+  const md=$('lpModal'); if(md && md.classList.contains('lp-on')){ lpClose(); return true }
   if(lpGuest && S && !S.ended){ endMeeting(true); return true }
   if(id==='trial' || ($('trial') && $('trial').classList.contains('on'))){ lpTrialHome(); return true }
   return false;
