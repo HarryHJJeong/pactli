@@ -1182,6 +1182,11 @@ html.mob .lmv-box{top:auto;bottom:0;transform:translateX(-50%);width:100%;max-he
 .lmt-l small{color:var(--muted);font-size:11.5px;font-weight:600}.lmt-l p{margin:2px 0 0;font-size:14px;color:var(--ink)}
 .lmt-l.me small{color:var(--green)}
 @media print{#rcView{display:none!important}}
+.lm-sum .lm-copy{float:right;margin:-6px 0 0 10px}
+.lm-copy{padding:6px 12px;font-size:12px;letter-spacing:0;text-transform:none}
+.lm-tap{cursor:pointer;border-radius:10px}.lm-tap:hover b{text-decoration:underline;text-underline-offset:3px}
+.lm-tap::after{content:'›';color:var(--dim);font-size:20px;line-height:1;align-self:center;margin-left:-4px}
+.lm-ep{cursor:pointer}.lm-ep:hover{border-color:var(--line2)}
 
 </style>
 </head>
@@ -8260,6 +8265,45 @@ renderCampaign = function(){ const r=_renderCampaign_rc.apply(this, arguments); 
     const ag=rr.terms.filter(t=>t.status==='agreed').length, op=rr.terms.filter(t=>t.status==='open').length;
     const bits=[ag?`${ag} agreed`:'', op?`${op} open`:'', rr.found.length?`${rr.found.length} found out`:''].filter(Boolean).join(' · ') || `${rr.log.filter(l=>l.me).length} things you said`;
     const p=el.querySelector('.cp-b>p'); if(p) p.insertAdjacentHTML('afterend', `<button class="lm-line" onclick="rcOpen('${esc(id)}')"><span>Recap</span>${esc(bits)}<i>›</i></button>`) }) }catch(e){} return r };
+
+/* history report: copy the full transcript in one tap */
+function rcLogText(r){ const mm=s=>{ s=Math.round(s||0); return Math.floor(s/60)+':'+String(s%60).padStart(2,'0') };
+  return `${r.title||'Meeting'} — ${new Date(r.date||Date.now()).toLocaleString('en-GB',{day:'numeric',month:'short',year:'numeric',hour:'2-digit',minute:'2-digit'})}\n\n` + (r.log||[]).map(l=>`[${mm(l.t)}] ${l.me?l.speaker+' (you)':l.speaker}: ${l.text}`).join('\n') }
+async function rcCopyText(t){ let ok=false;
+  try{ if(navigator.clipboard && window.isSecureContext){ await navigator.clipboard.writeText(t); ok=true } }catch(e){}
+  if(!ok){ const a=document.createElement('textarea'); a.value=t; a.setAttribute('readonly',''); a.style.cssText='position:fixed;top:0;left:0;opacity:0'; document.body.appendChild(a); a.select(); a.setSelectionRange(0,t.length); try{ ok=document.execCommand('copy') }catch(e){} a.remove() }
+  toast(ok?'Transcript copied':'Copy failed — select the text and copy it manually.') }
+rcCopy = async function(caseId){ return rcCopyText(rcText(caseId)) };
+function rcRepCopy(ev){ ev.preventDefault(); ev.stopPropagation(); if(cardRec) rcCopyText(rcLogText(cardRec)) }
+const _renderReport_rc = renderReport;
+renderReport = function(r){ const out=_renderReport_rc.apply(this, arguments); try{
+  document.querySelectorAll('#repBody details>summary').forEach(s=>{ if(!/full transcript/i.test(s.textContent) || s.querySelector('.lm-copy')) return;
+    s.classList.add('lm-sum'); s.insertAdjacentHTML('beforeend', `<button class="btn ghost lm-copy" onclick="rcRepCopy(event)">Copy all</button>`) }) }catch(e){} return out };
+
+/* the meeting report behind a recap (History record) */
+async function rcReport(caseId){
+  const r=rcLog(caseId), sc0=allSc().find(s=>s.id===caseId); if(!r){ toast('No record yet.'); return }
+  let rows=(swrPeek('reports.list',{})||{}).reports;
+  if(!rows){ busy(true,'Opening report'); try{ rows=(await gas('reports.list',{})).reports||[] }catch(e){ busy(false); toast(e.message); return } busy(false) }
+  const k=sc0&&sc0.campaign, at=r.at||Date.now();
+  const cand=rows.filter(x=> k ? (x.camp && x.camp.id===k.id && x.camp.ep===k.ep && !x.camp.arc) : (!x.camp && x.scenario===(r.title||sc0&&sc0.title)));
+  if(!cand.length){ toast('The report for this meeting isn\'t in your History yet.'); return }
+  const best=cand.sort((a,b)=>Math.abs(+new Date(a.date)-at)-Math.abs(+new Date(b.date)-at))[0];
+  rcClose(); showHist(best.rowId);
+}
+/* recap buttons: transcript + report */
+const _rcCard0 = rcCard;
+rcCard = function(id, mode){ let h=_rcCard0(id, mode); if(!h) return h; const R=rcFor(id); if(!R) return h;
+  const rep=`<button class="btn ghost" onclick="rcReport('${esc(R.caseId)}')">Report</button>`;
+  h=h.replace(/(<div class="lm-b">)/, `$1`).replace(/(<div class="lm-b">[\s\S]*?Transcript<\/button>|<div class="lm-b"><button class="btn ghost" onclick="rcTranscript\('[^']*'\)">Full transcript<\/button>)/, m=>m+rep);
+  // the header opens the full record
+  if(mode!=='sheet') h=h.replace('<div class="lm-h">', `<div class="lm-h lm-tap" onclick="rcOpen('${esc(id)}')" title="Open the full recap">`);
+  return h };
+/* campaign page: tapping a finished episode opens its record */
+const _renderCampaign_rc2 = renderCampaign;
+renderCampaign = function(){ const r=_renderCampaign_rc2.apply(this, arguments); try{ const c=campActive(); if(!c) return r;
+  document.querySelectorAll('#campBody .cp-ep').forEach((el,n)=>{ if(!c.eps[n] || !c.eps[n].done) return; const id=campSid(c,n); if(!rcLog(id)) return;
+    el.classList.add('lm-ep'); el.onclick=e=>{ if(e.target.closest('button,a')) return; rcOpen(id) } }) }catch(e){} return r };
 
 </script>
 </body>
