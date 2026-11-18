@@ -560,7 +560,7 @@ html.mob .tbl th,html.mob .tbl td{padding:10px 12px}
 html.mob .hist{padding:14px;gap:12px}
 html.mob .hist .sc{font-size:26px;width:44px}
 html.mob .modal .pane{max-width:410px!important}
-/* mobile view on a large screen → centred phone frame */
+/* mobile view on a large screen → centered phone frame */
 @media (min-width:600px){
   html.mob{background:#e7e3d9}
   html.mob body{max-width:430px;margin:0 auto;min-height:100vh;box-shadow:0 0 0 1px var(--line2),0 30px 80px rgba(37,43,41,.18);background-attachment:scroll}
@@ -779,7 +779,7 @@ html.mob #meSheet{align-items:flex-end;padding:0}
 html.mob #meSheet .pane{max-width:430px!important;border-radius:22px 22px 0 0;padding-bottom:calc(18px + env(safe-area-inset-bottom))!important;animation:shup .25s ease}
 @keyframes shup{from{transform:translateY(40px);opacity:.4}to{transform:none;opacity:1}}
 
-/* PC: the same "Me" sheet as a centred card, plus a small sync line in the sidebar */
+/* PC: the same "Me" sheet as a centered card, plus a small sync line in the sidebar */
 html:not(.mob) #meSheet .me-grab{display:none}
 html:not(.mob) #meSheet .pane{max-width:380px}
 #sideSync{display:flex;align-items:center;gap:7px;width:100%;margin:8px 0 2px;padding:7px 9px;border-radius:10px;font-size:11.5px;font-weight:600;color:inherit;opacity:.78;text-align:left;background:rgba(255,255,255,.07)}
@@ -1832,7 +1832,7 @@ html:has(#landing.on){background:#f7f5ee}
 </div>
 
 <section style="background:var(--paper2);padding:72px 0"><div class="lp-wrap">
-  <div class="lp-sh"><h2>Practise the meetings you actually have</h2></div>
+  <div class="lp-sh"><h2>Practice the meetings you actually have</h2></div>
   <div class="lp-chips2"><span>Discovery call</span><span>Price negotiation</span><span>Contract review</span><span>MG negotiation</span><span>Escalation</span><span>Presentation Q&amp;A</span></div>
   <p class="lp-levels lp-kr">Easy · Medium · Hard · Very hard — 난이도에 따라 상대의 압박이 달라집니다.</p>
 </div></section>
@@ -1865,7 +1865,7 @@ html:has(#landing.on){background:#f7f5ee}
       <div class="lp-two"><label><span>Name <b>*</b></span><input name="name" autocomplete="name" required></label><label><span>Email <b>*</b></span><input name="email" type="email" autocomplete="email" required></label></div>
       <div class="lp-two"><label><span>Phone</span><input name="phone" type="tel" autocomplete="tel" placeholder="010-0000-0000"></label><label><span>Company or school</span><input name="company" autocomplete="organization"></label></div>
       <div class="lp-two"><label><span>Job role</span><select name="role" id="lpRole"></select></label><label><span>English level</span><select name="level"><option value="">Choose</option><option>Beginner</option><option>Intermediate</option><option>Upper-intermediate</option><option>Advanced</option></select></label></div>
-      <label><span>What would you like to practise?</span><textarea name="goal" rows="3" placeholder="Price negotiations with US clients, contract reviews…"></textarea></label>
+      <label><span>What would you like to practice?</span><textarea name="goal" rows="3" placeholder="Price negotiations with US clients, contract reviews…"></textarea></label>
       <input name="website" class="lp-hp" tabindex="-1" autocomplete="off" aria-hidden="true">
       <label class="lp-chk"><input type="checkbox" name="consent"><span class="lp-kr">개인정보 수집·이용에 동의합니다. (이름·연락처 등 — 계정 발급과 안내 목적, 1년 후 파기)</span></label>
       <div class="lp-err" id="lpErr" role="alert"></div>
@@ -2186,7 +2186,7 @@ html:has(#landing.on){background:#f7f5ee}
       <div><label>AI voice speed</label><select id="setRate"><option value="0.85">Slower</option><option value="1">Natural</option><option value="1.12">Faster</option></select></div>
     </div>
     <select id="setFb" hidden><option value="en">English</option></select>
-    <div class="toggle"><div>Auto-send when I stop<small>Off = review the recognised text before sending</small></div><button class="sw" id="setAuto" onclick="this.classList.toggle('on')"></button></div>
+    <div class="toggle"><div>Auto-send when I stop<small>Off = review the recognized text before sending</small></div><button class="sw" id="setAuto" onclick="this.classList.toggle('on')"></button></div>
     <div class="toggle"><div>Show AI captions live<small>Turn off for a harder listening challenge</small></div><button class="sw" id="setCap" onclick="this.classList.toggle('on')"></button></div>
     <div class="toggle"><div>Rule-based engine<small>Built-in counterparts &amp; feedback — no AI needed. Turn off to use the AI (requires the server key).</small></div><button class="sw" id="setDemo" onclick="this.classList.toggle('on')"></button></div>
     <div style="display:flex;gap:10px;margin-top:22px;justify-content:flex-end">
@@ -2360,7 +2360,7 @@ const SCENARIOS = [
   opening:[[0,"Thanks for coming in, {name}. I'll be direct — we like your proposal, but your competitor came in twenty percent lower. We need you to get closer to their number."],[1,"And just so you know, from the operations side, we really liked your implementation plan."]],
   closing:[[0,"Okay. I'll confirm everything in writing tomorrow."],[1,"Thanks, {name}. Good meeting."]],
   onNext:[0,"Fine. Put the revised offer in writing and I'll take it to my director."],
-  phrases:[["Before we talk numbers, can I explain where the extra value comes from?","Defending value first"],["What's driving the 20% request?","Uncovering the real reason"],["If you could commit to two years, we could look at 8%.","Trading, not giving"],["That's as far as we can go on price.","Holding a firm line"],["Let me confirm what we've agreed.","Summarising the deal"]]
+  phrases:[["Before we talk numbers, can I explain where the extra value comes from?","Defending value first"],["What's driving the 20% request?","Uncovering the real reason"],["If you could commit to two years, we could look at 8%.","Trading, not giving"],["That's as far as we can go on price.","Holding a firm line"],["Let me confirm what we've agreed.","Summarizing the deal"]]
 },
 {
   id:'contract-review', tag:'Contract', title:'The Contract Review',
@@ -2385,7 +2385,7 @@ const SCENARIOS = [
     {id:'term',label:'termination notice (5.3)',keys:'\\b5\\.3\\b|terminat|cancel|for convenience|notice period|15 days|fifteen days',owner:0,unit:'days',better:'down',open:15,target:15,reserve:30,limit:30,step:15,weight:1,fmt:"{v} days' notice",
      explain:"We can end the agreement at any time with fifteen days' notice, without paying a penalty.",why:"we need flexibility if our priorities change.",defend:["We need flexibility if our priorities change.","Fifteen days is standard for our marketing vendors."]},
     {id:'ip',label:'intellectual property (7.1)',keys:'\\b7\\.1\\b|intellectual property|\\bip\\b|pre.?existing|tools|templates|methodolog|ownership',owner:0,unit:'option',better:'up',open:1,target:1,reserve:.55,limit:.55,weight:2,
-     options:[{key:'own (everything|all)|full ownership',label:'full ownership of everything',score:1},{key:'licen[cs]e|carve.?out|pre.?existing|keep (our|your)|retain',label:'Agency keeps pre-existing IP; Client gets a perpetual licence',score:.55}],
+     options:[{key:'own (everything|all)|full ownership',label:'full ownership of everything',score:1},{key:'licen[cs]e|carve.?out|pre.?existing|keep (our|your)|retain',label:'Agency keeps pre-existing IP; Client gets a perpetual license',score:.55}],
      explain:"Everything you create for us — and everything you use to create it, including your templates — becomes ours.",why:"if we pay for the work, we want to own it.",defend:["If we pay for the work, we want to own it. All of it.","Our policy is full ownership of all work product."]},
     {id:'liab',label:'liability (9.2)',range:[1,60],keys:'\\b9\\.2\\b|liabilit|unlimited|\\bcap\\b|capped|indemn',owner:0,unit:'months',better:'up',open:999,target:24,reserve:12,limit:12,step:12,weight:3,fmt:"a cap of {v} months' fees",unlimitedLabel:'unlimited liability',
      explain:"It means that if something goes wrong, there's no limit on what your company could owe us — but our liability is capped at one month's fees.",why:"we're trusting you with our brand.",defend:["Unlimited liability is our policy for vendors who handle our brand.","Our board insists on it, I'm afraid."]},
@@ -2400,15 +2400,15 @@ const SCENARIOS = [
   opening:[[0,"Hi {name}, Rebecca Hall from Veritas legal. Thanks for making time. I assume you've read the draft — which points would you like to discuss?"]],
   closing:[[0,"Good. Send me your redline by Wednesday and I'll review it with my team. Thanks, {name}."]],
   onNext:[0,"Good. Send me your redline by Wednesday and I'll review it with my team."],
-  phrases:[["Could you clarify what clause 9.2 means in practice?","Asking for clarification"],["Our main concern with this clause is that…","Flagging a risk"],["Would you be open to a mutual cap of twelve months' fees?","Proposing alternative terms"],["We'd like to propose the following wording:","Introducing a redline"],["So, to confirm, we've agreed on 3.2 and 9.2.","Summarising agreed points"]]
+  phrases:[["Could you clarify what clause 9.2 means in practice?","Asking for clarification"],["Our main concern with this clause is that…","Flagging a risk"],["Would you be open to a mutual cap of twelve months' fees?","Proposing alternative terms"],["We'd like to propose the following wording:","Introducing a redline"],["So, to confirm, we've agreed on 3.2 and 9.2.","Summarizing agreed points"]]
 },
 {
   id:'contract-negotiation', tag:'Contract', title:'The Redline Round',
-  desc:'Final round on an enterprise licence agreement. Six open issues, two stakeholders, one deadline.',
+  desc:'Final round on an enterprise license agreement. Six open issues, two stakeholders, one deadline.',
   role:'Business Development Manager, Nexora AI',
-  brief:'Your company, Nexora AI, is close to signing an enterprise licence with Atlas Retail Group. After two rounds of redlines, six issues are still open (see the document). This meeting is meant to close them.',
+  brief:'Your company, Nexora AI, is close to signing an enterprise license with Atlas Retail Group. After two rounds of redlines, six issues are still open (see the document). This meeting is meant to close them.',
   mandate:'Walk-away: USD 350k/yr. Minimum term: 2 years.\nYou can trade: a longer term or fixed pricing for a lower fee; quarterly payment if the term is 3 years.\nSLA: 99.9% is OK only if credits are capped at 20%.\nLiability: keep the 12-month cap; a data-breach super-cap of up to 3× annual fees is acceptable — never unlimited.',
-  goals:['Agree the order of the issues and keep the meeting structured','Package trades instead of conceding issue by issue','Protect your walk-away points (fee, term, liability)','Summarise every agreed point clearly before closing'],
+  goals:['Agree the order of the issues and keep the meeting structured','Package trades instead of conceding issue by issue','Protect your walk-away points (fee, term, liability)','Summarize every agreed point clearly before closing'],
   goalRules:['agenda','package','limits','summary'],
   doc:"ENTERPRISE LICENSE AGREEMENT — OPEN ISSUES LIST (Round 3)\nVendor: Nexora AI Inc. | Customer: Atlas Retail Group\n\n1. Annual fee (§4.1) — Vendor: USD 420,000/yr | Customer redline: USD 300,000/yr\n2. Term (§5.1) — Vendor: 3 years | Customer: 1 year + renewal option\n3. Payment (§4.3) — Vendor: annual, upfront | Customer: quarterly in arrears, Net 60\n4. Service level (§8.2) — Vendor: 99.5% uptime, credits capped at 10% of monthly fee | Customer: 99.9%, uncapped credits + right to terminate\n5. Liability cap (§11.1) — Vendor: 12 months' fees | Customer: unlimited for data breaches\n6. Price increases (§4.5) — Vendor: up to 7% per year | Customer: fixed for the whole term",
   personas:[
@@ -2419,7 +2419,7 @@ const SCENARIOS = [
   issues:[
     {id:'fee',label:'the annual fee',range:[100000,800000],keys:'\\bfee\\b|price\\b(?! increase)|per year|a year|annual(ly)?|your number|\\$',owner:0,unit:'money',better:'down',open:300000,target:340000,reserve:380000,limit:350000,step:20000,weight:3,
      trades:'three.year|3.year|three years|3 years|multi.year|fixed (price|pricing)|price lock|lock (the )?pric',tradeBonus:20000,
-     explain:"That's what we pay you each year for the licence.",why:"we have a competing offer at three hundred.",defend:["We're at three hundred thousand. That's what the budget allows.","Your number is still well above our budget."]},
+     explain:"That's what we pay you each year for the license.",why:"we have a competing offer at three hundred.",defend:["We're at three hundred thousand. That's what the budget allows.","Your number is still well above our budget."]},
     {id:'term',label:'the contract term',range:[1,10],keys:'\\bterm\\b|\\d+.year|\\byears?\\b|multi.year|duration',owner:0,unit:'years',better:'down',open:1,target:2,reserve:3,limit:2,step:1,weight:1,
      explain:"How long we're locked into the agreement.",why:"we don't want to be locked in without an exit.",defend:["We're not comfortable locking in for three years without an exit clause."]},
     {id:'pay',label:'payment terms',keys:'payment|quarter|upfront|up front|arrears|in advance|annual payment',owner:0,unit:'option',better:'up',open:1,target:1,reserve:.6,weight:2,
@@ -2443,20 +2443,20 @@ const SCENARIOS = [
   opening:[[0,"Alright, {name}. We've got six open issues and not much patience left on our side. Let's close this today. Where do you want to start?"],[1,"And I'll say up front — the liability point matters most to me."]],
   closing:[[0,"Okay. Let's get the lawyers to paper what we agreed. Thanks, {name}."],[1,"Thanks. Please send the updated security annex too."]],
   onNext:[0,"Good. Let's get the lawyers to paper what we agreed."],
-  phrases:[["Let's agree on the order of the issues first.","Structuring the meeting"],["If you can accept quarterly payments, we can lock pricing for three years.","Packaging trades"],["That's below what we can accept.","Protecting your walk-away"],["We can offer a super-cap of three times annual fees for data breaches.","Offering a creative alternative"],["Let me summarise where we've landed on each point.","Summarising before closing"]]
+  phrases:[["Let's agree on the order of the issues first.","Structuring the meeting"],["If you can accept quarterly payments, we can lock pricing for three years.","Packaging trades"],["That's below what we can accept.","Protecting your walk-away"],["We can offer a super-cap of three times annual fees for data breaches.","Offering a creative alternative"],["Let me summarize where we've landed on each point.","Summarizing before closing"]]
 },
 {
   id:'mg-negotiation', tag:'Licensing', title:'The Minimum Guarantee',
-  desc:'Negotiate the MG, royalty and advance on a brand licence for Korea — with numbers to back you up.',
+  desc:'Negotiate the MG, royalty and advance on a brand license for Korea — with numbers to back you up.',
   role:'Licensing Director, Hanbit Contents',
   brief:'Hanbit Contents wants to license the US outdoor brand Driftwood Outdoors for apparel, bags and camping goods in Korea. The licensor sent the term sheet below. Their Minimum Guarantee is far above what your sales forecast supports.',
-  mandate:'Your forecast (net sales): Y1 $1.6M · Y2 $2.4M · Y3 $3.2M → at 12% = $864k royalties over 3 years.\nTargets: total MG ≤ $650k (stretch max $720k) with a low Year 1 · MG cross-collateralised across years (no annual shortfall payments) · advance ≤ $100k, fully recoupable · royalty 10–11% or tiered · approvals within 10 business days · renewal option if MG is met.',
-  goals:['Clarify how the MG, advance and shortfall payments work','Use your sales forecast to justify a lower MG','Negotiate MG level and structure (ramp-up, cross-collateralisation)','Balance royalty, advance and approval terms','Summarise the agreed deal terms'],
+  mandate:'Your forecast (net sales): Y1 $1.6M · Y2 $2.4M · Y3 $3.2M → at 12% = $864k royalties over 3 years.\nTargets: total MG ≤ $650k (stretch max $720k) with a low Year 1 · MG cross-collateralized across years (no annual shortfall payments) · advance ≤ $100k, fully recoupable · royalty 10–11% or tiered · approvals within 10 business days · renewal option if MG is met.',
+  goals:['Clarify how the MG, advance and shortfall payments work','Use your sales forecast to justify a lower MG','Negotiate MG level and structure (ramp-up, cross-collateralization)','Balance royalty, advance and approval terms','Summarize the agreed deal terms'],
   goalRules:['topic:explain','hidden:forecast','agreed:mg','agreedcount:2','summary'],
   doc:"LICENSE TERM SHEET — LICENSOR DRAFT\nLicensor: Driftwood Outdoors LLC | Licensee: Hanbit Contents Co., Ltd.\nTerritory: Republic of Korea\nLicensed categories: apparel, bags, camping accessories\nTerm: 3 years (Jan 2027 – Dec 2029)\nRoyalty: 12% of net sales\nAdvance: USD 150,000 payable on signing, recoupable against royalties\nMinimum Guarantee (MG): USD 900,000 over the term — Year 1 $250,000 / Year 2 $300,000 / Year 3 $350,000. Payable regardless of sales; any shortfall is due within 30 days after the end of each contract year.\nMarketing commitment: 3% of net sales\nProduct approvals: Licensor approval of all products within 30 business days\nRenewal: at Licensor's sole discretion",
   personas:[
     {name:'Karen Whitmore',role:'VP Global Licensing, Driftwood Outdoors',gender:'f',color:'#dff0e4',stance:'lead',traits:{warmth:.5,patience:.55,assert:.75},
-     brief:'Experienced, confident licensing executive. Anchors on the $900k MG and says partners in Japan and Taiwan accepted similar terms. Can go to $700–750k total MG with a lower Year 1 ramp; will accept cross-collateralisation if the advance stays at $150k; won\'t go below 11% royalty unless the MG goes up; offers a renewal option at 110% of MG; approval time negotiable to 15 business days.'},
+     brief:'Experienced, confident licensing executive. Anchors on the $900k MG and says partners in Japan and Taiwan accepted similar terms. Can go to $700–750k total MG with a lower Year 1 ramp; will accept cross-collateralization if the advance stays at $150k; won\'t go below 11% royalty unless the MG goes up; offers a renewal option at 110% of MG; approval time negotiable to 15 business days.'},
     {name:'Ben Torres',role:'Finance Director, Driftwood Outdoors',gender:'m',color:'#e6ede6',stance:'skeptic',traits:{warmth:.45,patience:.6,assert:.6},
      brief:'Analytical. Asks how the licensee built its sales forecast, which distribution channels it has, its marketing plan, and what security it offers (e.g. a bank guarantee). Pushes back on numbers that sound unsupported.'}],
   issues:[
@@ -2468,7 +2468,7 @@ const SCENARIOS = [
     {id:'advance',label:'the advance',range:[0,400000],keys:'advance|on signing|upfront payment',owner:0,unit:'money',better:'up',open:150000,target:150000,reserve:100000,limit:100000,step:25000,weight:1,
      explain:"A payment on signing that you recoup against your first royalties.",why:"it shows commitment.",defend:["The advance is a hundred and fifty thousand, recoupable. That's standard for us."]},
     {id:'cross',label:'how shortfalls are calculated',keys:'cross|carry (over|forward)|across (the )?(three |3 )?years|over the (whole|full|entire) term|aggregate|annual shortfall|pool',owner:0,unit:'option',better:'up',open:1,target:1,reserve:.5,weight:2,
-     options:[{key:'annual|each year|every year',label:'annual shortfall payments',score:1},{key:'cross|across|whole term|aggregate|pool|carry',label:'the MG cross-collateralised across the three years',score:.5}],
+     options:[{key:'annual|each year|every year',label:'annual shortfall payments',score:1},{key:'cross|across|whole term|aggregate|pool|carry',label:'the MG cross-collateralized across the three years',score:.5}],
      explain:"Whether a shortfall is paid each year, or calculated over the whole term.",why:"annual payments protect us if sales are slow.",defend:["We prefer annual shortfall payments — it protects us if sales are slow."]},
     {id:'approval',label:'product approval time',range:[1,90],keys:'approv|business days|turnaround',owner:0,unit:'days',better:'up',open:30,target:20,reserve:15,limit:15,step:5,weight:1,fmt:'{v} business days',
      explain:"How long we take to approve each product design.",why:"our brand team reviews every product globally.",defend:["Thirty business days is our global standard."]}
@@ -2490,7 +2490,7 @@ const SCENARIOS = [
   opening:[[0,"Hi {name}, Karen Whitmore. And this is Ben, our finance director. Thanks for joining. I hope the term sheet was clear — are you happy to move forward on that basis?"],[1,"Hi {name}. Good to meet you."]],
   closing:[[0,"Great. I'll update the term sheet and send it over this week."],[1,"Thanks, {name}. Please send your forecast assumptions as well."]],
   onNext:[0,"Great. I'll update the term sheet with what we discussed and send it over this week."],
-  phrases:[["Could you walk me through how the shortfall payment works?","Clarifying the MG mechanics"],["Based on our forecast of $1.6M in year one, an MG of $900K isn't realistic.","Using data to push back"],["Would you consider cross-collateralising the MG across the three years?","Proposing structure"],["If you can ramp the MG, we can keep the royalty at 12%.","Trading terms"],["So, to recap: $700K MG, ramped, cross-collateralised, with 15-day approvals.","Summarising the deal"]]
+  phrases:[["Could you walk me through how the shortfall payment works?","Clarifying the MG mechanics"],["Based on our forecast of $1.6M in year one, an MG of $900K isn't realistic.","Using data to push back"],["Would you consider cross-collateralizing the MG across the three years?","Proposing structure"],["If you can ramp the MG, we can keep the royalty at 12%.","Trading terms"],["So, to recap: $700K MG, ramped, cross-collateralized, with 15-day approvals.","Summarizing the deal"]]
 },
 {
   id:'escalation', tag:'Client Meeting', title:'The Missed Deadline',
@@ -2634,7 +2634,7 @@ const SCENARIO_KB = {
     topics:[
       {id:'marketing',keys:'marketing (plan|budget|spend|commitment)|advertis|launch campaign|influencer|promotion',owner:1,say:["What's your marketing plan for year one? Three percent of net sales is our minimum.","How much are you planning to spend on the launch itself?"]},
       {id:'channels',keys:'channel|department store|online|e.?commerce|own stores|distribution|retail network|wholesale',owner:1,say:["Which channels are you planning — department stores, online, your own stores?","Distribution is the part I want to understand best. Where will customers actually find the product?"]},
-      {id:'design',keys:'design|local (product|version)|korean (market|customers)|sizing|colou?rs|adapt',owner:0,say:["We're open to Korea-only designs, as long as they go through approvals.","Sizing and colours can be adapted for Korea. The logo and the core range can't."]}
+      {id:'design',keys:'design|local (product|version)|korean (market|customers)|sizing|colou?rs|adapt',owner:0,say:["We're open to Korea-only designs, as long as they go through approvals.","Sizing and colors can be adapted for Korea. The logo and the core range can't."]}
     ]},
   escalation:{
     about:[["I'm Head of Brand at Lumina. This launch is the biggest thing we do all year.","I run the brand team. And right now I'm the one answering to our CEO."]],
@@ -2675,7 +2675,7 @@ const SCENARIO_BRIEF = {
     hint:{board:'Is there a deadline on their side?',cert:'What would ease the liability concern?'},
     target:{fee:370000, term:3, credits:10, liab:2},
     trades:[['A lower annual fee','A 3-year term','three.year|3.year|three years|3 years|multi.year'],['A lower fee','Fixed pricing (price lock)','fixed (price|pricing)|price lock|lock (the )?pric'],['SOC 2 / ISO evidence','A lower breach cap','soc ?2|iso|certif|audit|insurance|pen.?test']]},
-  'mg-negotiation':{cares:["Guaranteed income from the licence, and a strong partner in Korea.","Financial security — he will test your forecast."],
+  'mg-negotiation':{cares:["Guaranteed income from the license, and a strong partner in Korea.","Financial security — he will test your forecast."],
     hint:{forecast:'Will they accept your sales forecast as realistic?',rival:'Do they have other licensees in the region?'},
     target:{mg:650000, royalty:10, advance:75000, approval:10},
     trades:[['A marketing commitment','A lower MG','marketing (commitment|spend|budget)'],['A bank guarantee / letter of credit','A lower MG or a low Year 1','bank guarantee|letter of credit'],['A higher royalty (max 11%)','A lower MG','higher royalty']]},
@@ -2905,7 +2905,7 @@ const SCHEMA = {
     ['trade_keywords','They value in exchange','Comma-separated, e.g. two-year, upfront, case study.','s'],['trade_bonus','Trade worth','How much a trade is worth to them, in the issue\'s unit.','n'],
     ['options','Options (unit = option)','One per line: score | label | keywords (score 0–1, 1 = best for them).','l'],
     ['explain','Explanation','What they say if asked what it means.','l'],['why','Their reason','Short reason, e.g. "we need to see results first."','s'],
-    ['defend','Defence lines','What they say while holding firm. One per line.','l'],
+    ['defend','Defense lines','What they say while holding firm. One per line.','l'],
     ['format','Number format','Optional, {v} = the number, e.g. Net {v}.','s'],['unlimited_label','Label for 999','e.g. unlimited liability.','s'],
     ['never','Non-negotiable','yes = they will never move on this.','e:yesno']
   ],
@@ -3007,7 +3007,7 @@ function validateScenario(sc){
   (sc.issues||[]).forEach(is=>{
     const n=`Issue "${is.label||is.id}"`;
     if(ids.has(is.id)) W.push(`${n}: duplicate ID.`); ids.add(is.id);
-    if(!is.keys) W.push(`${n}: add keywords so the engine can recognise it.`);
+    if(!is.keys) W.push(`${n}: add keywords so the engine can recognize it.`);
     if(is.owner>=(sc.personas||[]).length) W.push(`${n}: persona #${is.owner+1} doesn't exist.`);
     if(is.never) return;
     if(is.unit==='option'){ if((is.options||[]).length<2) W.push(`${n}: an option issue needs at least two options.`); return }
@@ -3118,7 +3118,7 @@ function docIssues(text){
   const top=issues.filter(i=>!i.never).slice(0,8);
   return {issues:top.concat(issues.filter(i=>i.never)).slice(0,9), agenda:[{p:0,text:"Which points would you like to discuss first?"},{p:0,text:"Is there anything else in the document you'd like to raise?"},{p:0,text:"Shall we go through the remaining points?"}],
     goalRules:['clarify:1','raised:'+top.slice(0,2).map(i=>i.id).join(','),'proposals:2'], topics:[{id:'redline',keys:'redline|in writing|wording|mark.?up|track(ed)? changes',owner:0,say:["Send me your proposed wording and I'll review it with my team."]}],
-    phrases:[["Could you clarify what this clause means in practice?","Asking for clarification"],["Our main concern with this clause is that…","Flagging a risk"],["Would you be open to … instead?","Proposing an alternative"],["If you can accept…, we could agree to…","Trading terms"],["So, to confirm, we've agreed on…","Summarising agreed points"]]};
+    phrases:[["Could you clarify what this clause means in practice?","Asking for clarification"],["Our main concern with this clause is that…","Flagging a risk"],["Would you be open to … instead?","Proposing an alternative"],["If you can accept…, we could agree to…","Trading terms"],["So, to confirm, we've agreed on…","Summarizing agreed points"]]};
 }
 function ruleScenarioFromDoc(text, fname){
   const d=docIssues(text);
@@ -3251,10 +3251,10 @@ function buildCaseScenario(c, i){
   return {id:`case-${c.src}-${i}`, caseGroup:c.src, tag:'Case Study', title:c.title.replace(/\s*\(.*\)\s*$/,''), desc:c.context.slice(0,120)+(c.context.length>120?'…':''),
     role:trial?'Mediator':'Meeting participant', brief:`${c.context}${c.scenario?' '+c.scenario:''}\n\nQuestion: ${c.question}`+(trial&&c.issues?`\n\nKey issues:\n• ${c.issues.join('\n• ')}`:''),
     mandate:'', discussion:true, smalltalk:false, personas, hidden, concerns, topics:[], agenda,
-    goals:['State a clear position and back it up with reasons','Ask the stakeholders about their concerns','Respond to at least one objection','Propose a compromise or a final decision','Summarise the outcome'],
+    goals:['State a clear position and back it up with reasons','Ask the stakeholders about their concerns','Respond to at least one objection','Propose a compromise or a final decision','Summarize the outcome'],
     goalRules:['position','hidden:'+hidden.slice(1).map(h=>h.id).join(','),'addressed:1','decision','summary'],
     opening:[[0,opener]], closing:[[0,"Thanks, everyone — and thank you, {name}. That gives us a clear way forward."]],
-    phrases:[["From my point of view, … because …","Stating a position with a reason"],["I see your point, but have you considered …?","Responding to an objection"],["What if we … — would that address your concern?","Proposing a compromise"],["Could you tell me more about why that matters to you?","Asking about concerns"],["So, to sum up, we've agreed to …","Summarising the outcome"]],
+    phrases:[["From my point of view, … because …","Stating a position with a reason"],["I see your point, but have you considered …?","Responding to an objection"],["What if we … — would that address your concern?","Proposing a compromise"],["Could you tell me more about why that matters to you?","Asking about concerns"],["So, to sum up, we've agreed to …","Summarizing the outcome"]],
     kb:{opinion:["It's a fair start. I want to hear how the others see it, though."], priority:[trial?"Fairness — and a decision both sides can accept.":"A decision that most people here can live with."], need:["A clear recommendation, with reasons — and an answer to the main objections."]}};
 }
 const CASE_SCENARIOS = CASE_DATA.map((c,i)=>buildCaseScenario(c,i));
@@ -3273,7 +3273,7 @@ function discussionTurn(sc, st, whole){
     const ok = sk<=0 || st.flags['addr'+sk] || whole.cond || hit.some(t=>t.owner===sk);
     const out=[ln(lead, fresh(st,'dec',["Okay — that's a clear recommendation.","Alright, that's a concrete proposal.","Good, that's something we can actually decide on."])+(sk>0?` ${nm(sk)}, could you live with that?`:''))];
     if(sk>0) out.push(ln(sk, ok ? fresh(st,'decyes',["With that safeguard in place, yes — I could live with that.","If that's part of it, I can support it.","Okay. That addresses most of my concern."]) : fresh(st,'decno',["Only if we deal with my concern first.","Not yet — you haven't really answered my main objection.","I'd need more than that, honestly."])));
-    if(ok){ st.flags.consensus=true; ev(st,'consensus','Moved the group towards agreement.',1); out.push(ln(lead,"Would you like to sum up what we've agreed?")); st.sumInvite=true }
+    if(ok){ st.flags.consensus=true; ev(st,'consensus','Moved the group toward agreement.',1); out.push(ln(lead,"Would you like to sum up what we've agreed?")); st.sumInvite=true }
     return out;
   }
   if(whole.q){
@@ -3556,12 +3556,12 @@ function structuredBrief(sc, st){
 }
 function meetingSystem(){
   const ps = S.personas.map(p=>`- ${p.name} — ${p.role}. ${p.brief}`).join('\n');
-  return `You are running a live, spoken business-English meeting simulation. A non-native English-speaking professional (the learner) is practising by voice. Their speech is transcribed by speech recognition, so expect small transcription errors.
+  return `You are running a live, spoken business-English meeting simulation. A non-native English-speaking professional (the learner) is practicing by voice. Their speech is transcribed by speech recognition, so expect small transcription errors.
 
 SCENARIO: ${S.title}
 ${S.brief}
 ${S.custom?`LEARNER'S DESCRIPTION OF THE MEETING: ${S.custom}\nInvent a realistic name/role for the counterpart if useful, but you MUST use the speaker name "${S.personas[0].name}" in your JSON.`:''}
-${S.topic?`LEARNER'S PRESENTATION TOPIC: ${S.topic}\nFlow: open briefly and invite the learner to present. Let them present without interrupting (respond only with a short acknowledgement like "Please go on" if their turn seems unfinished). Once they finish, the panel asks questions one at a time, mixing both panelists.`:''}
+${S.topic?`LEARNER'S PRESENTATION TOPIC: ${S.topic}\nFlow: open briefly and invite the learner to present. Let them present without interrupting (respond only with a short acknowledgment like "Please go on" if their turn seems unfinished). Once they finish, the panel asks questions one at a time, mixing both panelists.`:''}
 ${S.doc?`REFERENCE DOCUMENT — everyone in the meeting has a copy. Base your positions on its actual terms, refer to clause numbers and figures, and notice if the learner misquotes it:\n"""\n${S.doc.slice(0,15000)}\n"""`:''}
 
 ${S.emailCtx?`EMAILS EXCHANGED IN THIS CASE (both sides have read them; stay consistent with anything agreed or revealed there${S.emailSent?', and open the meeting by briefly referring to the learner\'s email':''}):\n${S.emailCtx}\n`:''}
@@ -3578,7 +3578,7 @@ RULES
 - Usually one speaker per response; occasionally a second participant adds a short line when natural.
 - React specifically to what the learner just said. Ask follow-up questions. Don't volunteer hidden information or concessions unless the learner earns them by asking well or offering something.
 - If the learner's message is garbled or unclear, ask them to clarify, as a real person would.
-- Each learner message starts with [elapsed mm:ss / limit mm:ss]. After about 85% of the limit, steer toward wrapping up: summarise what was agreed, confirm next steps, and close. Set "end": true only on your final goodbye turn.
+- Each learner message starts with [elapsed mm:ss / limit mm:ss]. After about 85% of the limit, steer toward wrapping up: summarize what was agreed, confirm next steps, and close. Set "end": true only on your final goodbye turn.
 
 OUTPUT: ONLY valid JSON, nothing else:
 {"turns":[{"speaker":"<exact participant name>","text":"<what they say>"}],"end":false}`;
@@ -3591,7 +3591,7 @@ OUTPUT: ONLY valid JSON, nothing else:
    2. Emotion  : per-persona trust, patience → mood (warm / neutral / cold / angry)
    3. Strategy : per-issue positions with open / target / reserve, concession curve by difficulty & trust,
                  trades (conditional offers), packages, retractions, over-concessions, never-items
-   4. Dialogue : prioritised responses (social → clarification → questions → offers → statements),
+   4. Dialogue : prioritized responses (social → clarification → questions → offers → statements),
                  ally / skeptic interjections, agenda questions, pressure tactics, wrap-up, summaries checked
    5. NLG      : persona & mood-aware templates, anti-repetition, number formatting, email register
    ========================================================= */
@@ -3808,7 +3808,7 @@ function resolveAuto(is, v, st){
 }
 /* =========================================================
    CORRECTIONS, READ-BACKS AND REOPENING AN AGREED POINT
-   · "Sorry, I said 2,400 — not 4,000": a correction is recognised and handled like a real counterpart would:
+   · "Sorry, I said 2,400 — not 4,000": a correction is recognized and handled like a real counterpart would:
      at once → simply put right; later → it costs something (meet in the middle, or a trade) depending on difficulty, mood and manner
    · a surprisingly generous number is read back before it is locked in ("Just to confirm — 4,000 units?")
    · pushing on a settled point never produces the same sentence twice: the reply escalates and then moves on
@@ -3849,8 +3849,8 @@ function reopenAgreed(sc, st, offer, a, sentLow){
   st._noInvite = true;
   const meta = corrMeta(st)[is.id] || {}, email = st._ch==='email', claim = corrClaim(st, is, a);
   if(st.expect && st.expect.type==='correct') st.expect = null;
-  if(better(is, offer.v, A)){          // they change it in the counterpart's favour — nobody argues with that
-    st.agreed[is.id] = offer.v; st.issues[is.id].pos = offer.v; ev(st,'overgive',`Changed ${is.label} from ${fv(A)} to ${fv(offer.v)} after it was settled — in their favour.`,-1);
+  if(better(is, offer.v, A)){          // they change it in the counterpart's favor — nobody argues with that
+    st.agreed[is.id] = offer.v; st.issues[is.id].pos = offer.v; ev(st,'overgive',`Changed ${is.label} from ${fv(A)} to ${fv(offer.v)} after it was settled — in their favor.`,-1);
     return [ln(lead, fresh(st,'reoGift',[`${cap1(fv(offer.v))} instead of ${fv(A)}? Of course — I'll update my notes.`,`Happy to change that to ${fv(offer.v)}. Consider it done.`]))];
   }
   const n = st.flags['reo_'+is.id] || 0;
@@ -4210,7 +4210,7 @@ function kbAnswer(sc, st, id, a, sl, addr){
 /* =========================================================
    CONVERSATION QUALITY — answer first, never reply with nothing, keep the thread
    · questions asked as statements ("I want to know your budget") are understood as questions
-   · more kinds of ordinary first-meeting questions are recognised (how things are today, goals, what they are looking for, scale, how it works, pricing model, capacity)
+   · more kinds of ordinary first-meeting questions are recognized (how things are today, goals, what they are looking for, scale, how it works, pricing model, capacity)
    · when the counterpart cannot answer, they say so and ask what you mean, or tell you what they can — never just "Good question."
    · when you are the one asking, they answer and let you lead; they come back to their own question later
    · "Can you answer my question?" gets an apology and a straight answer
@@ -4449,7 +4449,7 @@ function negUndo(sc, st, whole, turnOffers){
   const t=st._sorry; st._sorry='';
   return {issue:id, lines:[ln(is.owner||0, t+' '+fresh(st,'undo2',[`So we're not agreed on ${is.label} yet — we're still at ${fmtVal(is,A)}. What would you need to move?`,`Then ${is.label} is still open. We're at ${fmtVal(is,A)}; where can you go?`]))]};
 }
-/* "407k for the annual licence fee 470k" */
+/* "407k for the annual license fee 470k" */
 function negAmbig(st, is, vals){
   st.expect={type:'number', issue:is.id}; st.focus=is.id; tr(st,'AMB:'+is.id);
   const a=vals.map(v=>fmtVal(is,v));
@@ -4479,7 +4479,7 @@ function negFar(sc, st, is, offer, prevMine, mood){
 function srVocab(){ const sc=S&&S.sc; if(!sc) return null; if(sc._vocab) return sc._vocab;
   const w=new Set(); const add=t=>String(t||'').toLowerCase().replace(/\\b|[()?|\[\]\\^$*+{}]/g,' ').split(/[^a-z0-9]+/).forEach(x=>{ if(x.length>3) w.add(x) });
   (sc.issues||[]).forEach(i=>{ add(i.label); add(i.keys) }); (sc.personas||[]).forEach(p=>{ add(p.name); add(p.role) }); add(sc.title); add(sc.company);
-  ['price','licence','license','annual','volume','payment','terms','contract','discount','delivery','agree','accept','proposal','budget','deadline','month','year'].forEach(x=>w.add(x));
+  ['price','license','license','annual','volume','payment','terms','contract','discount','delivery','agree','accept','proposal','budget','deadline','month','year'].forEach(x=>w.add(x));
   return sc._vocab=w }
 function srPick(res){
   if(!res || res.length<2) return res && res[0] ? res[0].transcript : '';
@@ -4667,7 +4667,7 @@ function engineTurn(sc, st, text, channel){
   // ---- scenario needs (escalation-style)
   if(sc.demandDates){
     if(whole.excuse && !whole.apology) add(40,[ln(lead, fresh(st,'exc',["I don't need excuses. I need to know what you're going to do about it.","Honestly, I don't care whose fault it was. What's the plan?"]))]);
-    else if(whole.apology && !st.flags.apologyAck){ st.flags.apologyAck=true; ev(st,'apology','Took ownership and apologised.',1); add(38,[ln(lead, moodOf(st,lead)==='angry'||moodOf(st,lead)==='cold' ? "Okay. I appreciate the apology, but I need more than that." : "Thank you. I appreciate you owning it.")]) }
+    else if(whole.apology && !st.flags.apologyAck){ st.flags.apologyAck=true; ev(st,'apology','Took ownership and apologized.',1); add(38,[ln(lead, moodOf(st,lead)==='angry'||moodOf(st,lead)==='cold' ? "Okay. I appreciate the apology, but I need more than that." : "Thank you. I appreciate you owning it.")]) }
     if(whole.vagueTime && !whole.commitDate){ feelAll(st,-7,-6); ev(st,'vague','Gave a vague timeline ("ASAP" / "soon").',-1); add(36,[ln(lead, fresh(st,'asap',["'As soon as possible' isn't a date. When, exactly?","I need a date, not 'soon'."]))]) }
     else if(whole.commitDate && /deliver|send|ready|finish|complet|final|files|assets|first|draft|batch|get you|have (it|them)/.test(whole.low) && !/update|report|daily|every day|check.?in/.test(whole.low)){
       const first=!st.flags.commitment; st.flags.commitment=true; feelAll(st,+8,+6); ev(st,'commit','Committed to specific dates.',1);
@@ -4718,8 +4718,8 @@ function checkSummary(sc, st, whole){
     else if(Math.abs(ag-o.v)>1e-6) { out.push(ln(o.issue.owner||lead, `Sorry, one correction: we agreed ${fmtVal(o.issue,ag)} on ${o.issue.label}, not ${fmtVal(o.issue,o.v)}.`)); ev(st,'misquote',`Summary misquoted ${o.issue.label}.`,-1) }
   });
   const openKey=(sc.issues||[]).filter(is=>!is.never && (is.weight||1)>=2 && st.agreed[is.id]==null && !st.flags['defer_'+is.id]);
-  if(!out.length && openKey.length && (!Object.keys(st.agreed).length || openKey.length>=2)){ out.push(ln(lead, Object.keys(st.agreed).length ? `Before we wrap up — we still haven't settled ${openKey.slice(0,2).map(i=>i.label).join(' or ')}.` : `Hold on — we haven't actually agreed anything yet. Shall we start with ${openKey[0].label}?`)); ev(st,'prematuresum','Tried to summarise before the key points were agreed.',-1); return out }
-  if(!out.length) ev(st,'summary','Summarised the agreement accurately.',1);
+  if(!out.length && openKey.length && (!Object.keys(st.agreed).length || openKey.length>=2)){ out.push(ln(lead, Object.keys(st.agreed).length ? `Before we wrap up — we still haven't settled ${openKey.slice(0,2).map(i=>i.label).join(' or ')}.` : `Hold on — we haven't actually agreed anything yet. Shall we start with ${openKey[0].label}?`)); ev(st,'prematuresum','Tried to summarize before the key points were agreed.',-1); return out }
+  if(!out.length) ev(st,'summary','Summarized the agreement accurately.',1);
   return out;
 }
 function closeLines(sc, st){ if(st.flags.walked) return [ln(0,"Thanks for your time, {name}.")];
@@ -4801,7 +4801,7 @@ function nextAgenda(sc, st){
   return null;
 }
 
-/* ---------- small talk (warm-ups modelled on real class openers) ---------- */
+/* ---------- small talk (warm-ups modeled on real class openers) ---------- */
 const ICEBREAK = [
   "Before we start — how's your week been so far?",
   "How was your weekend? Do anything nice?",
@@ -4916,13 +4916,13 @@ const ST2_LIFE = [
   keys:/\b(10 ?k|the race|your run(ning)?|the running|your training|the training)\b/, beats:["I've signed up for a 10K in the spring, so I'm supposed to be training.","Training's going… slowly. I ran eight kilometres last week without stopping, which is a record for me.","The 10K is three weeks away. I've stopped telling people my target time.","I finished the 10K! Fifty-eight minutes. Not fast, but I'm calling it a win."]},
  {id:'parent', weekend:"Mostly on the side of a football pitch — both my kids play, so that's my Saturdays gone.", sport:"These days I mostly watch my kids play football. I used to play tennis, a long time ago.", food:"I love cooking at the weekend — it's the only time nobody's in a hurry.", show:"With two kids it's mostly animated films, I'm afraid. I know them all by heart.", travel:"We try to get away once a year as a family. Nothing fancy — the coast, usually.", family:"Two kids — nine and twelve. They keep me busy.", plan:"My daughter has a match on Saturday, so I'll be the one shouting from the sideline.",
   keys:/\b(tournament|football|soccer|your (daughter|kids?|children)|the (match|game|team)|captain)\b/, beats:["My daughter's team has a tournament coming up — she's talked about nothing else for weeks.","The tournament? They reached the semi-final. She's still not speaking to the referee.","New season now — my daughter's been made captain, so I get tactical advice at breakfast.","They won the league last weekend. I may have cried a little. Don't tell anyone."]},
- {id:'renovator', weekend:"Covered in paint, mostly. We're redoing the kitchen and I foolishly offered to do some of it myself.", sport:"Does carrying boxes count? Honestly, I walk a lot, and that's about it.", food:"Ask me again when I have a kitchen. Right now it's a lot of takeaway.", show:"I watch far too many home-renovation shows — which is exactly how I got into this mess.", travel:"Not this year — every spare penny is going into the kitchen.", family:"My partner and I, and a kitchen that's currently a building site.", plan:"More painting. There is always more painting.",
+ {id:'renovator', weekend:"Covered in paint, mostly. We're redoing the kitchen and I foolishly offered to do some of it myself.", sport:"Does carrying boxes count? Honestly, I walk a lot, and that's about it.", food:"Ask me again when I have a kitchen. Right now it's a lot of takeout.", show:"I watch far too many home-renovation shows — which is exactly how I got into this mess.", travel:"Not this year — every spare penny is going into the kitchen.", family:"My partner and I, and a kitchen that's currently a building site.", plan:"More painting. There is always more painting.",
   keys:/\b(kitchen|renovat\w*|paint\w*|building site|worktops?)\b/, beats:["We've just started renovating the kitchen. They say six weeks. I don't believe them.","The kitchen is on week nine of six. We've been washing dishes in the bathtub.","The kitchen's nearly there — the worktops go in next week, apparently.","The kitchen is finished! I cooked a proper meal in it on Sunday. Worth every week."]},
  {id:'dog', weekend:"Long walks, mostly. We got a puppy recently, so my weekends belong to her now.", sport:"Walking the dog is my exercise now — she needs about three hours a day, which is more than I do.", food:"I'm a breakfast person. A good bakery will get me out of bed at any hour.", show:"More podcasts than television these days — they go well with dog walks.", travel:"Less than I used to — it's harder with a dog. But we've found some good places close to home.", family:"My partner, and a puppy who thinks she runs the house.", plan:"There's a hiking trail I want to try with the dog, if it stays dry.",
   keys:/\b(puppy|your dog|the dog)\b/, beats:["We've just got a puppy. She's eaten two pairs of shoes and a phone charger so far.","The puppy's started training classes. Top of the class at everything except coming back when called.","The puppy has doubled in size. She still thinks she fits on my lap.","The dog's finally calmed down — she slept through a whole dinner party last week."]},
  {id:'cook', weekend:"I had a cooking class on Saturday — I'm working my way through dishes I can't pronounce.", sport:"I swim twice a week. It's the only place my phone can't reach me.", food:"Anything spicy. The more it hurts, the happier I am.", show:"Too many cooking shows. I tell myself it's research.", travel:"I plan trips around food, if I'm honest. The sights come second.", family:"I live on my own — which my friends with kids tell me is a luxury.", plan:"Cooking class again on Saturday. This week it's fresh pasta, so wish me luck.",
   keys:/\b(cooking (class|course)|the (class|course)|your cooking|dumplings?|recipe)\b/, beats:["I've started a cooking class — last week was dumplings. Mine looked terrible and tasted fine.","The cooking class is going well — I made a curry from scratch and nobody complained.","I cooked for eight people last weekend. Nobody was ill, so I'm calling it a success.","I finished the cooking course — I got a certificate and everything. It's on the fridge."]},
- {id:'mover', weekend:"Packing boxes. We're moving next month and I had no idea we owned this much stuff.", sport:"I cycle to work when the weather lets me. It clears my head before the first meeting.", food:"I'm a coffee-and-pastry person in the morning, and useless before it.", show:"I'm rewatching an old detective series. I already know who did it, and I don't care.", travel:"Nothing until the move is done — then somewhere warm, with no boxes.", family:"My partner, and a very old cat who dislikes change. Moving is going to be fun.", plan:"More packing. I've started labelling boxes 'miscellaneous', which is a bad sign.",
+ {id:'mover', weekend:"Packing boxes. We're moving next month and I had no idea we owned this much stuff.", sport:"I cycle to work when the weather lets me. It clears my head before the first meeting.", food:"I'm a coffee-and-pastry person in the morning, and useless before it.", show:"I'm rewatching an old detective series. I already know who did it, and I don't care.", travel:"Nothing until the move is done — then somewhere warm, with no boxes.", family:"My partner, and a very old cat who dislikes change. Moving is going to be fun.", plan:"More packing. I've started labeling boxes 'miscellaneous', which is a bad sign.",
   keys:/\b(the move|moving (flat|house|home|in|day)|new (place|flat|apartment|home)|unpack\w*|boxes)\b/, beats:["We're moving next month. I keep finding things in cupboards I don't remember buying.","We've moved! I can't find anything, but the new place has a balcony, so I don't mind.","Still unpacking, if I'm honest. There's one room we just keep the door closed on.","I finally unpacked the last box. It only took four months."]}
 ];
 const ST2_GEN = {
@@ -4932,7 +4932,7 @@ const ST2_GEN = {
   koreaL:["I've lived here most of my life — and I still find new places to eat every month."],
   city:["I'm based in {city}. Do you know it?","{city} — I've been here about eight years now."],
   cityNone:["We're a bit spread out, actually — I work from home half the week."],
-  weather:["Grey, mostly. I've stopped checking the forecast.","Not bad today, actually — which never lasts."],
+  weather:["Gray, mostly. I've stopped checking the forecast.","Not bad today, actually — which never lasts."],
   work:["Busy — but the good kind, mostly. It's that time of year for us.","Non-stop, if I'm honest. This call is the calmest part of my day."],
   commute:["I'm at home today, so the commute was about ten steps.","Not far — though I was nearly late anyway, which is a talent."],
   study:["I keep meaning to learn another language. I have three apps on my phone and I haven't opened one since March."]
@@ -5092,7 +5092,7 @@ const ST_FIX = [
   [/\beye shopping\b/i, "window shopping", "The English phrase is 'window shopping'."],
   [/\bone-?room\b/i, "a studio", "A one-room apartment is 'a studio'."],
   [/\bsalary ?man\b/i, "an office worker", "Say 'I work in an office' or name your role."],
-  [/\bhealth (club|center|centre)\b|\bdid health\b/i, "the gym", "It's 'the gym' — 'I went to the gym'."],
+  [/\bhealth (club|center|center)\b|\bdid health\b/i, "the gym", "It's 'the gym' — 'I went to the gym'."],
   [/\bhand ?phone\b/i, "my phone", "Say 'phone' or 'mobile'."],
   [/\bSNS\b/, "social media", "'SNS' isn't used in English — say 'social media'."],
   [/\b(went|go|going) to (the |a )?hospital\b/i, "went to see a doctor", "For anything minor, say 'see a doctor' — 'hospital' sounds like an emergency."],
@@ -5183,7 +5183,7 @@ function engineReply(sc, st, text, opts){
   if(res.end) return {turns:composeTurns(sc, st, res, {noExtras:true}), end:true};
   // everything resolved → invite a summary
   const open=(sc.issues||[]).filter(is=>!is.never && is.weight>=2 && st.agreed[is.id]==null);
-  if((sc.issues||[]).length && !open.length && !st.flags.allDone && !st._noInvite && st.turn>=6 && opts.channel!=='email'){ st.flags.allDone=true; st.sumInvite=true; res.lines.push(ln(0, "I think we've covered the main points. Would you like to summarise where we've landed?")); return {turns:composeTurns(sc, st, res, {noExtras:true}), end:false} }
+  if((sc.issues||[]).length && !open.length && !st.flags.allDone && !st._noInvite && st.turn>=6 && opts.channel!=='email'){ st.flags.allDone=true; st.sumInvite=true; res.lines.push(ln(0, "I think we've covered the main points. Would you like to summarize where we've landed?")); return {turns:composeTurns(sc, st, res, {noExtras:true}), end:false} }
   return {turns:composeTurns(sc, st, res, {a:nlu(text), noExtras:opts.channel==='email'}), end:false, slow:res.slow};
 }
 /* =========================================================
@@ -5370,10 +5370,10 @@ function engineAnalyze(m, sc, st){
   const EV_FIX = {
     overgive:[t=>"Before I give a number — what would you need to see from us to close today?", L('You offered as much as they asked, or more. Ask what they need, then trade.','')],
     concede:[t=>"If you can commit to [something they value], we could move to that.", L('Concessions should come with a condition attached.','')],
-    limit:[t=>"That's beyond what I'm authorised to agree today. What I can offer is…", L('This crossed your walk-away point. Hold the line or trade for more.','')],
+    limit:[t=>"That's beyond what I'm authorized to agree today. What I can offer is…", L('This crossed your walk-away point. Hold the line or trade for more.','')],
     retract:[t=>"Let me be clear about where we stand — our offer remains what I said earlier.", L('Moving backwards destroys trust. Stay consistent.','')],
     reopen:[t=>"Sorry, I need to correct one figure: I said 2,400, not 4,000. Could we put that right?", L('Reopening a settled point annoys the other side. If a number was recorded wrongly, say so at once and name both figures; otherwise move forward.','')],
-    correctDenied:[t=>"I'm sorry — that was my mistake, and I should have caught it earlier. To make the change workable for you, we could …", L('A late correction costs something. Apologise, name both figures, and offer something in return.','')],
+    correctDenied:[t=>"I'm sorry — that was my mistake, and I should have caught it earlier. To make the change workable for you, we could …", L('A late correction costs something. Apologize, name both figures, and offer something in return.','')],
     correctCost:[t=>"Let me read that back before we move on: 2,400 units, starting in March. Is that what you have?", L('Read every agreed number back on the spot — a correction made later is only half accepted.','')],
     excuse:[t=>"I'm sorry — that's on us. Here's what happened, briefly, and here's what we're doing about it.", L('Own the problem before explaining it.','')],
     vague:[t=>"You'll have it by Thursday at 5 p.m., and I'll update you at noon tomorrow.", L('Replace "ASAP / soon" with a specific day and time.','')],
@@ -5477,7 +5477,7 @@ function engineAnalyze(m, sc, st){
   if(has('reveal')) S1.push(L(`Your questions uncovered hidden information (${E.filter(e=>e.kind==='reveal').length}×): ${pick('reveal').text.replace(/^Uncovered: /,'').replace(/\.$/,'')}.`,''));
   if(has('package')) S1.push(L('You packaged several issues together instead of conceding one by one.',''));
   if(has('summary')) S1.push(L('Your summary matched what was agreed — clean close.',''));
-  if(has('apology')) S1.push(L('You owned the problem and apologised before explaining.',''));
+  if(has('apology')) S1.push(L('You owned the problem and apologized before explaining.',''));
   if(has('commit')) S1.push(L('You committed to specific dates instead of "ASAP".',''));
   if(cnt('goodanswer')>=2) S1.push(L(`You answered ${cnt('goodanswer')} questions directly, with numbers or reasons.`,''));
   if(has('stmemory')) S1.push(L('You remembered something personal from last time and asked about it.',''));
@@ -5682,7 +5682,7 @@ function renderBrief(sc, st, mode){
   /* phrases */
   const ph = (sc.phrases||[]).slice(0,3).map(([p])=>`<span>"${esc(p)}"</span>`).join('');
   /* decision (discussion) */
-  const dec = live && sc.discussion ? `<div class="bdec">${st.flags.consensus?'✓ Group is moving towards agreement':st.flags.decision?'Decision proposed — get the others on board':'No decision proposed yet'}${st.decisionText?`<span>"${esc(st.decisionText)}"</span>`:''}</div>` : '';
+  const dec = live && sc.discussion ? `<div class="bdec">${st.flags.consensus?'✓ Group is moving toward agreement':st.flags.decision?'Decision proposed — get the others on board':'No decision proposed yet'}${st.decisionText?`<span>"${esc(st.decisionText)}"</span>`:''}</div>` : '';
   if(live){
     const nx = lv===0 ? brNext(sc,st) : null;
     const nxBtn = lv===1 && settings.demo ? `<button class="bnextbtn" onclick="brHint(this)">💡 Need a hint?</button>` : '';
@@ -5774,7 +5774,7 @@ function placeSheet(){ const c=document.querySelector('#room .ctrl'); if(c) $('b
    between the email thread and the voice meetings:
    · hidden info revealed / terms agreed by email carry into the meeting (and vice versa)
    · counterparts open the meeting by referring to your emails
-   · after a meeting, a follow-up email summarises what was agreed and asks you to confirm
+   · after a meeting, a follow-up email summarizes what was agreed and asks you to confirm
    ========================================================= */
 /* shared case state = the engine state (dehydrated); old v1 states are discarded */
 function freshState(sc){ return dehydrate(newEngineState(sc)) }
@@ -5804,7 +5804,7 @@ const EMAIL0 = {
   qa:[1,"Thursday's proposal review — pre-read",["Ahead of Thursday's session, could you send Michael and me a short summary of your proposal?","Ideally: the total budget, the timeline, and the expected return. It will help us use the meeting time well."]],
   'contract-review':[0,'MSA draft v2 — Veritas Health',["Please find our draft Master Services Agreement in the document panel.","Let me know which clauses you'd like to discuss. It would help if you could flag your main concerns in writing before our call."]],
   'contract-negotiation':[0,'Round 3 — open issues',["Our position on the six open issues is as set out in the attached list.","We expect to close this week. Please send your revised position on each point."]],
-  'mg-negotiation':[0,'Driftwood x Hanbit — licence term sheet',["Attached is our term sheet for the Korean licence.","Our standard Minimum Guarantee for a market of Korea's size is USD 900,000 over three years. Please confirm you're happy to proceed on this basis, or send any comments."]]
+  'mg-negotiation':[0,'Driftwood x Hanbit — license term sheet',["Attached is our term sheet for the Korean license.","Our standard Minimum Guarantee for a market of Korea's size is USD 900,000 over three years. Please confirm you're happy to proceed on this basis, or send any comments."]]
 };
 function firstEmail(sc){
   const e=sc.firstMail||EMAIL0[sc.id];
@@ -6028,7 +6028,7 @@ async function caseAfterMeeting(){
       const cc=getCase(S.caseId); cc.awaitConfirm=rc.length>0 && !(S.sc&&S.sc.presentation);
       cc.emails.push(...mails); cc.unread+=1; putCase(cc);
     } else {
-      mails=await aiEmails(getCase(S.caseId), "The voice meeting above has just ended. Write ONE follow-up email from the main counterpart: thank them briefly, summarise only what was actually agreed, list any open points, and ask the learner to confirm or respond.");
+      mails=await aiEmails(getCase(S.caseId), "The voice meeting above has just ended. Write ONE follow-up email from the main counterpart: thank them briefly, summarize only what was actually agreed, list any open points, and ask the learner to confirm or respond.");
       const cc=getCase(S.caseId); cc.awaitConfirm=true; cc.emails.push(...mails); cc.unread+=mails.length; putCase(cc);
     }
     if(mails.length) setTimeout(()=>toast(`✉ New email from ${mails[0].from} — check Email`,4500),1500);
@@ -6182,7 +6182,7 @@ function localMetrics(){
 }
 function reportSystem(){
   const lang = settings.fb==='ko' ? '' : 'Write everything in English.';
-  return `You are an expert business-English communication coach for Korean professionals. Assess a learner's performance in a simulated spoken meeting. The transcript comes from speech recognition, so ignore obvious transcription glitches, punctuation and capitalisation; judge vocabulary, grammar, structure, tone, persuasion, negotiation and meeting skills. If a confidential mandate is given, also judge how well the learner protected it (did they concede too much, too early, or for nothing?). If a document is given, check whether the learner referred to it accurately.
+  return `You are an expert business-English communication coach for Korean professionals. Assess a learner's performance in a simulated spoken meeting. The transcript comes from speech recognition, so ignore obvious transcription glitches, punctuation and capitalization; judge vocabulary, grammar, structure, tone, persuasion, negotiation and meeting skills. If a confidential mandate is given, also judge how well the learner protected it (did they concede too much, too early, or for nothing?). If a document is given, check whether the learner referred to it accurately.
 ${lang}
 Be specific and quote the learner's real words. Be honest but encouraging. Scores 0–100 (60 = gets the job done with clear issues, 80 = strong professional, 90+ = near-native executive level). Account for difficulty: performing well at a harder level deserves credit.
 
@@ -6379,7 +6379,7 @@ const FIX_LANG = [
   [/\bthe best thing (i|we) (?:can )?do (right now |now |today |at this point )?(?:would be|is)\b/gi,(m,a,t)=>'the best '+FIX_SUBJ(a)+' can do '+(t||'')+'is','"The best I can do is …" is the fixed phrase for a final offer.','','err'],
   [/^will (write|send|email|call|share|check|prepare|get|follow|update|confirm|draft|put|come)\b/gim,"I'll $1",'Don\'t drop "I": "I\'ll send…" — "Will send…" only works in a quick text message.','','err'],
   [/\b(consider(?:ed|ing|s)?) about\b/gi,'$1','"Consider" takes a direct object — no "about".','','err'],
-  [/\b(emphasi[sz](?:e|ed|es|ing)) on\b/gi,'$1','"Emphasise" takes a direct object — no "on".','','err'],
+  [/\b(emphasi[sz](?:e|ed|es|ing)) on\b/gi,'$1','"Emphasize" takes a direct object — no "on".','','err'],
   [/\b(reach(?:ed|es|ing)?) to (an?|the|our|your|this) (agreement|deal|decision|conclusion|target|goal)\b/gi,'$1 $2 $3','"Reach an agreement" — no "to".','','err'],
   [/\breply (me|us|him|her|them)\b/gi,'reply to $1','"Reply" needs "to": "reply to me".','','err'],
   [/\banswer to (my|the|your|our|this|that) (question|email|request|questions)\b/gi,'answer $1 $2','"Answer" takes a direct object: "answer my question".','','err'],
@@ -6554,7 +6554,7 @@ function phRender(){
   $('phBody').innerHTML = `<h2 style="margin:0 0 4px">My phrases</h2><div class="hint">${all.length} saved · ${due.length} to review now</div>
     ${top.length?`<div class="ph-ms"><b>Mistakes you repeat</b>${top.map(x=>`<div class="ph-msr"><span class="o">${esc(x.o)}</span><span class="b">${esc(x.b)}</span><small>${esc(x.why||'')} · ${x.n} meetings</small></div>`).join('')}</div>`:''}
     <div class="seg ph-seg"><button class="${phTab==='due'?'on':''}" onclick="phTab='due';phRender()">To review (${due.length})</button><button class="${phTab==='all'?'on':''}" onclick="phTab='all';phRender()">All (${all.length})</button><button onclick="phTab='lib';phRender()">Library</button></div>
-    ${due.length?`<button class="btn gold ph-go" onclick="phPractice()">Practise ${Math.min(due.length,10)} now</button>`:''}
+    ${due.length?`<button class="btn gold ph-go" onclick="phPractice()">Practice ${Math.min(due.length,10)} now</button>`:''}
     ${list.length?list.map(p=>`<div class="ph-it"><div class="o${(p.kinds||[]).includes('lvl')?' plain':''}">${(p.kinds||[]).includes('lvl')?`<span class="lv lv-${String(p.lvl||'C1').replace('+','p')}">${p.lvl||'C1'}</span> `:''}${esc(p.original)}</div><div class="b">${esc(p.better)}</div>${p.firm?`<small class="ph-alt">${p.polite?`Diplomatic: ${esc(p.polite)}<br>`:''}More direct: ${esc(p.firm)}</small>`:''}<div class="ph-meta"><span>${esc(p.src||'')}</span><span>${p.ok}✓ ${p.miss}✗</span><span>${(p.due||0)<=Date.now()?'due now':'next '+new Date(p.due).toLocaleDateString()}</span><button class="lnk" onclick='sayBack(${JSON.stringify(p.better).replace(/'/g,"&#39;")})'>Listen</button><button class="lnk" style="color:var(--bad)" onclick="phDel('${p.id}')">Remove</button></div></div>`).join('')
       : `<div class="empty">${phTab==='due'?'Nothing to review right now.':'No saved phrases yet. Save sentences from "Fix & practice" in any meeting report.'}</div>`}`;
 }
@@ -6656,7 +6656,7 @@ const LVL_LIB = [
   ['Parking', 'C2', "I'll need to take that away and give it some thought.", "I need to think.", 'Not committing on the spot.', /take (that|this|it) away/],
   ['Correcting', 'C1', "Sorry, I may not have been clear — I said 2,400, not 4,000.", "You heard wrong.", 'Correcting a misheard figure.', /may not have been clear/],
   ['Correcting', 'C1', "Just so we're on the same page, could I read that back?", "Let me check.", 'Confirming a number.', /on the same page|read that back/],
-  ['Closing', 'C1', "So, to recap where we've landed:", "To sum up.", 'Summarising agreements.', /recap where we'?ve landed|where we'?ve landed/],
+  ['Closing', 'C1', "So, to recap where we've landed:", "To sum up.", 'Summarizing agreements.', /recap where we'?ve landed|where we'?ve landed/],
   ['Closing', 'C1', "I think we're within touching distance of a deal.", "We are close.", 'Signalling you are near agreement.', /touching distance/],
   ['Closing', 'C1', "I'll put that in writing and send it over by Thursday.", "I will send an email.", 'A precise next step.', /put (that|this|it) in writing/],
   ['Closing', 'C2', "I'd like to see this over the line before the end of the month.", "I want to finish soon.", 'Pushing to close.', /over the line/],
@@ -6697,7 +6697,7 @@ FIX_KIND.lvl='Level up';
 const _phRender = phRender;
 phRender = function(){ if(phTab!=='lib') return _phRender(); 
   const all=phrasesAll(), due=phrasesDue(), saved=new Set(all.map(p=>p.better)), fns=[...new Set(LVL_LIB.map(x=>x[0]))];
-  $('phBody').innerHTML = `<h2 style="margin:0 0 4px">My phrases</h2><div class="hint">Advanced language for each stage of a negotiation. Save the ones you want to practise.</div>
+  $('phBody').innerHTML = `<h2 style="margin:0 0 4px">My phrases</h2><div class="hint">Advanced language for each stage of a negotiation. Save the ones you want to practice.</div>
     <div class="seg ph-seg"><button onclick="phTab='due';phRender()">To review (${due.length})</button><button onclick="phTab='all';phRender()">All (${all.length})</button><button class="on">Library</button></div>
     ${fns.map(fn=>`<div class="lib-g"><h4>${esc(fn)}</h4>${LVL_LIB.filter(x=>x[0]===fn).map((x,i)=>{ const k=LVL_LIB.indexOf(x); return `<div class="lib-it"><div class="lib-t"><span class="lv lv-${x[1].replace('+','p')}">${x[1]}</span><b>${esc(x[2])}</b></div><small>Instead of “${esc(x[3])}” · ${esc(x[4])}</small><div class="ph-meta"><button class="lnk" onclick='sayBack(${JSON.stringify(x[2]).replace(/'/g,"&#39;")})'>Listen</button><button class="lnk" onclick="libSave(${k},this)">${saved.has(x[2])?'★ Saved':'☆ Save'}</button></div></div>` }).join('')}</div>`).join('')}`;
 };
@@ -7249,10 +7249,10 @@ const CAMP_ROLES = [
    kpi:'total cost and supply security', phrases:[["Could you walk me through how that price is built up?","Asking for a cost breakdown"],["We could move on volume if the payment terms improve.","Trading across issues"]]},
   {id:'marketing', name:'Marketing / Agency Account Manager', sides:['provider','buyer'], title:{provider:'Marketing Manager',buyer:'Marketing Manager'}, peer:{provider:'Marketing Director',buyer:'Marketing Director'}, focus:['mkt','excl'], outside:['pay'],
    kpi:'launch impact in the market', phrases:[["How will we both measure whether the launch worked?","Agreeing success measures"],["If we share the launch budget, we should share the plan as well.","Linking money to joint planning"]]},
-  {id:'pm', name:'Project Manager', sides:['provider','buyer'], title:{provider:'Project Manager',buyer:'Project Manager'}, peer:{provider:'Programme Manager',buyer:'Programme Manager'}, focus:['lead','sla'], outside:['price'],
+  {id:'pm', name:'Project Manager', sides:['provider','buyer'], title:{provider:'Project Manager',buyer:'Project Manager'}, peer:{provider:'Program Manager',buyer:'Program Manager'}, focus:['lead','sla'], outside:['price'],
    kpi:'on-time delivery', phrases:[["Let me walk you through the critical path.","Explaining a schedule"],["That date is achievable only if we get your sign-off by the fifth.","Stating a dependency"]]},
   {id:'product', name:'Product Manager', sides:['provider','buyer'], title:{provider:'Product Manager',buyer:'Product Manager'}, peer:{provider:'Head of Product',buyer:'Solutions Director'}, focus:['custom','lead'], outside:['price'],
-   kpi:'a product that fits the market', phrases:[["Which of these changes would you give up first?","Prioritising requirements"],["We can commit to two changes this year; the rest go on the roadmap.","Scoping customisation"]]},
+   kpi:'a product that fits the market', phrases:[["Which of these changes would you give up first?","Prioritizing requirements"],["We can commit to two changes this year; the rest go on the roadmap.","Scoping customization"]]},
   {id:'cs', name:'Customer Success', sides:['provider'], title:{provider:'Customer Success Manager'}, peer:{provider:'Operations Director'}, focus:['sla','support'], outside:['price'],
    kpi:'renewal and customer health', phrases:[["What would make you confident enough to renew today?","Testing renewal intent"],["Here is what we will change, and when you will see it.","Making a service commitment"]]},
   {id:'legal', name:'Legal / Contract Manager', sides:['provider','buyer'], title:{provider:'Contract Manager',buyer:'Contract Manager'}, peer:{provider:'Senior Legal Counsel',buyer:'Senior Legal Counsel'}, focus:['liab','termn','change'], outside:['price'],
@@ -7274,7 +7274,7 @@ const CAMP_ROLES = [
    problems: [caused by provider|buyer|shared, short name, what happened, impact]
    shocks: [hits provider|buyer, short name, what happened, size of the price adjustment in %] */
 const CAMP_FIELDS = [
-{id:'semi', name:'Semiconductors / AI Hardware', pco:'Korvex Semiconductor', bco:'Helix Cloud', pd:'a Korean AI-chip maker', bd:'a US cloud provider with eleven data centres',
+{id:'semi', name:'Semiconductors / AI Hardware', pco:'Korvex Semiconductor', bco:'Helix Cloud', pd:'a Korean AI-chip maker', bd:'a US cloud provider with eleven data centers',
  pn:['Jisoo Han','f','Daniel Seo','m'], bn:['Rachel Stone','f','Victor Lang','m'], prod:'the K2 inference accelerator card', deal:'a three-year supply agreement for K2 inference accelerator cards',
  price:{label:'the unit price', unit:'money', fmt:'${v} per card', keys:'unit price|price per (card|unit)|per card', P:[2400,2250,2100], B:[1900,2050,2200], step:50, round:50, range:[1000,4000]},
  volume:{label:'the annual volume commitment', unit:'units', fmt:'{v} cards a year', keys:'volume|cards (a|per) year|minimum (order|quantity)|\\bmoq\\b', P:[12000,10000,8000], B:[5000,7000,9000], step:1000, round:500, range:[4500,50000]},
@@ -7285,12 +7285,12 @@ const CAMP_FIELDS = [
  problems:[['provider','a late shipment','the second batch of 1,500 cards shipped three weeks late because of a substrate shortage','two racks in the new data hall are standing empty'],
    ['buyer','a late payment','the invoice for the first batch is 40 days overdue','the next shipment is on hold in the warehouse'],
    ['shared','a firmware fault',"about 4% of the cards throttle under load — the firmware is the supplier's, but the cooling specification was changed on the customer's side",'a customer launch has slipped by two weeks']],
- shocks:[['provider','new export-licence rules','new export-control rules mean every shipment now needs a licence, adding cost and about four weeks',8],
+ shocks:[['provider','new export-license rules','new export-control rules mean every shipment now needs a license, adding cost and about four weeks',8],
    ['provider','a foundry price increase','the foundry has raised wafer prices by 12% from next quarter',9],
-   ['buyer','a capital-spending freeze',"the cloud provider's board has frozen 15% of this year's data-centre spending",10]]},
+   ['buyer','a capital-spending freeze',"the cloud provider's board has frozen 15% of this year's data-center spending",10]]},
 {id:'saas', name:'SaaS / Cloud', pco:'Nimbus Analytics', bco:'Orbis Retail Group', pd:'a customer-data platform vendor', bd:'a retail group with about three hundred stores',
- pn:['Grace Miller','f','Alan Reed','m'], bn:['Marcus Hale','m','Diane Foster','f'], prod:'the Nimbus customer-data platform', deal:'an enterprise licence for the Nimbus customer-data platform',
- price:{label:'the annual licence fee', unit:'money', keys:'licen[cs]e fee|annual fee|\\bfee\\b|per year|a year', P:[420000,390000,350000], B:[300000,340000,380000], step:20000, round:5000, range:[100000,900000]},
+ pn:['Grace Miller','f','Alan Reed','m'], bn:['Marcus Hale','m','Diane Foster','f'], prod:'the Nimbus customer-data platform', deal:'an enterprise license for the Nimbus customer-data platform',
+ price:{label:'the annual license fee', unit:'money', keys:'licen[cs]e fee|annual fee|\\bfee\\b|per year|a year', P:[420000,390000,350000], B:[300000,340000,380000], step:20000, round:5000, range:[100000,900000]},
  volume:{label:'the committed number of seats', unit:'units', fmt:'{v} user seats', keys:'seats?|users|headcount', P:[1500,1200,900], B:[600,800,1000], step:100, round:50, range:[100,5000]},
  sla:{label:'service credits', fmt:'service credits capped at {v}% of monthly fees'},
  pain:["Our customer data sits in five systems that don't talk to each other. Marketing can't see what the stores see.",'customer data is split across five systems'],
@@ -7301,19 +7301,19 @@ const CAMP_FIELDS = [
    ['shared','a failed data migration',"the migration failed twice — the import tool is the vendor's, but the source data was full of duplicate customer IDs",'go-live has slipped by three weeks']],
  shocks:[['provider','a cloud-hosting price rise',"the vendor's hosting costs have risen 14% after its cloud supplier changed pricing",7],
    ['buyer','a restructuring','the retailer is closing forty stores and has to cut software costs',12],
-   ['provider','a new data-residency law','a new data-residency rule requires a local data centre, raising the cost of serving the contract',8]]},
+   ['provider','a new data-residency law','a new data-residency rule requires a local data center, raising the cost of serving the contract',8]]},
 {id:'mfg', name:'Manufacturing / Components', pco:'Daesung Precision', bco:'Volta Mobility', pd:'a Korean precision-components maker', bd:'a German electric-vehicle maker',
- pn:['Minho Kang','m','Eunji Yoon','f'], bn:['Anna Keller','f','Stefan Brandt','m'], prod:'aluminium battery housings', deal:'a supply contract for aluminium battery housings',
+ pn:['Minho Kang','m','Eunji Yoon','f'], bn:['Anna Keller','f','Stefan Brandt','m'], prod:'aluminum battery housings', deal:'a supply contract for aluminum battery housings',
  price:{label:'the unit price', unit:'money', fmt:'${v} per unit', keys:'unit price|price per unit|per (unit|piece|housing)', P:[118,112,105], B:[92,100,108], step:2, round:1, range:[50,200]},
  volume:{label:'the annual volume commitment', unit:'units', fmt:'{v} units a year', keys:'volume|units (a|per) year|minimum (order|quantity)|\\bmoq\\b|call.?off', P:[60000,50000,40000], B:[25000,35000,45000], step:5000, round:5000, range:[5000,200000]},
  sla:{label:'late-delivery penalties', fmt:'penalties capped at {v}% of the order value'},
  pain:["Our current supplier's scrap rate is killing us. Nearly 3% of housings fail the leak test.",'a 3% failure rate with their current supplier'],
  deadline:["Start of production for the new platform is in September. Tooling has to be approved by June.",'tooling approval is needed by June'],
- driver:["Between us, purchasing is under orders to localise supply in Asia. Price matters, but a second source matters more.",'they are under orders to dual-source in Asia'],
+ driver:["Between us, purchasing is under orders to localize supply in Asia. Price matters, but a second source matters more.",'they are under orders to dual-source in Asia'],
  problems:[['provider','a quality escape',"a batch of 2,000 housings failed the leak test at the customer's plant",'the production line stopped for a full shift'],
    ['buyer','a sudden forecast cut',"the customer cut its call-off by 30% with two weeks' notice",'eight weeks of finished stock are sitting in the warehouse'],
    ['shared','a drawing mismatch','parts were made to revision C while the line expects revision D — the change notice was sent, but never acknowledged','4,000 units need rework']],
- shocks:[['provider','an aluminium price spike','aluminium prices have jumped 18% in two months',8],
+ shocks:[['provider','an aluminum price spike','aluminum prices have jumped 18% in two months',8],
    ['provider','a new import tariff','a new 10% tariff now applies to the parts',7],
    ['buyer','a demand slump','electric-vehicle orders have dropped and production has been cut back',9]]},
 {id:'cpg', name:'Consumer Goods', pco:'Maru Home', bco:'Brightmart', pd:'a Korean small-appliance brand', bd:'a Southeast Asian retail chain with 220 stores',
@@ -7323,23 +7323,23 @@ const CAMP_FIELDS = [
  sla:{label:'late-delivery penalties', fmt:'penalties capped at {v}% of the order value'},
  pain:["Our private-label fryer gets terrible reviews. We need a brand customers trust on that shelf.",'their private-label product has poor reviews'],
  deadline:["The range has to be in stores for the year-end promotion. That means stock in our warehouse by mid-October.",'stock is needed in their warehouse by mid-October'],
- driver:["What we really want is something our competitor can't sell. An exclusive colour or model would change the conversation.",'they want something exclusive to their stores'],
+ driver:["What we really want is something our competitor can't sell. An exclusive color or model would change the conversation.",'they want something exclusive to their stores'],
  problems:[['provider','a short shipment','the first container arrived 20% short and a week late','the launch promotion ran with empty shelves in thirty stores'],
-   ['buyer','unauthorised discounting','the shelf price was cut 25% below the agreed minimum without warning','other retailers are demanding the same price'],
-   ['shared','a labelling error',"energy labels were printed from an old template — the artwork was the brand's, but the retailer approved it",'12,000 units have to be relabelled']],
+   ['buyer','unauthorized discounting','the shelf price was cut 25% below the agreed minimum without warning','other retailers are demanding the same price'],
+   ['shared','a labeling error',"energy labels were printed from an old template — the artwork was the brand's, but the retailer approved it",'12,000 units have to be relabelled']],
  shocks:[['provider','a freight-rate spike','container freight rates have tripled since the contract was signed',6],
    ['buyer','a currency slide',"the retailer's local currency has fallen 12% against the dollar",8],
    ['provider','a new safety standard','a new safety certification is required from next quarter, adding cost to every unit',5]]},
 {id:'game', name:'Gaming / Entertainment / Content', pco:'Lumen Studios', bco:'Hanbit Interactive', pd:'the studio that owns the Starfall Chronicles game', bd:'a Korean game publisher',
- pn:['Claire Dubois','f','Robert Kane','m'], bn:['Jiwon Moon','f','Sean Yoo','m'], prod:'the Starfall Chronicles licence', deal:'a publishing licence for Starfall Chronicles in Korea',
+ pn:['Claire Dubois','f','Robert Kane','m'], bn:['Jiwon Moon','f','Sean Yoo','m'], prod:'the Starfall Chronicles license', deal:'a publishing license for Starfall Chronicles in Korea',
  price:{label:'the royalty rate', unit:'pct', keys:'royalt\\w*|revenue share|rev.?share', P:[30,27,24], B:[18,21,25], step:1, round:.5, range:[5,50]},
  volume:{label:'the minimum guarantee', unit:'money', keys:'\\bmg\\b|minimum guarantee|guarantee', P:[1200000,1000000,800000], B:[500000,700000,900000], step:50000, round:25000, range:[200000,3000000]},
  sla:{label:'penalties for missed launch milestones', fmt:'milestone penalties capped at {v}%', keys:'milestone'},
  pain:["Our last two launches were original titles, and both missed their numbers. We need a game with a fan base already built in.",'they need proven content after two weak launches'],
- deadline:["We want to launch for the winter holiday. That means a signed licence by the end of this month.",'they must sign this month to launch for winter'],
+ deadline:["We want to launch for the winter holiday. That means a signed license by the end of this month.",'they must sign this month to launch for winter'],
  driver:["Frankly, our investors want to see a global-brand partnership before the next funding round.",'investors want a global-brand partnership before the next round'],
- problems:[['provider','slow approvals','localised assets took forty business days to approve instead of fifteen','the Korean launch date has slipped'],
-   ['buyer','a missed guarantee instalment','the second instalment of the minimum guarantee was not paid','the next build is being held back'],
+ problems:[['provider','slow approvals','localized assets took forty business days to approve instead of fifteen','the Korean launch date has slipped'],
+   ['buyer','a missed guarantee installment','the second installment of the minimum guarantee was not paid','the next build is being held back'],
    ['shared','a launch-day server failure',"the servers failed on launch day — the network code is the studio's, but the capacity plan was the publisher's",'reviews dropped to two stars in the first week']],
  shocks:[['buyer','a platform-fee change',"the app stores have changed their fee structure, cutting the publisher's margin",10],
    ['buyer','a ratings ruling','a new ratings ruling restricts in-game purchases and has cut forecast revenue',12],
@@ -7379,7 +7379,7 @@ const CAMP_FIELDS = [
  sla:{label:'service credits', fmt:'service credits capped at {v}% of monthly fees'},
  pain:["Our checkout fails about 4% of the time on mobile. Every failed payment is a lost order.",'4% of their mobile checkouts fail'],
  deadline:["We have to switch before the November sale. After that, nobody touches the checkout until January.",'the switch-over is needed before the November sale'],
- driver:["What the board really wants is instalment payments and a wallet. Our current provider can't do either.",'the board wants instalments and a wallet'],
+ driver:["What the board really wants is installment payments and a wallet. Our current provider can't do either.",'the board wants installments and a wallet'],
  problems:[['provider','a settlement delay','settlements to sellers were delayed by three days after a reconciliation error','hundreds of sellers complained publicly'],
    ['buyer','a chargeback surge','chargebacks have tripled since seller checks were relaxed','the acquiring bank is threatening penalties'],
    ['shared','a failed release',"a checkout update failed — the interface change was the provider's, but the sandbox test was skipped by the marketplace",'payments were down for ninety minutes on a Friday evening']],
@@ -7405,12 +7405,12 @@ const CAMP_FIELDS = [
  price:{label:'the wholesale price', unit:'money', fmt:'${v} per case', keys:'wholesale price|price per case|per case|cost price', P:[340,320,300], B:[260,285,310], step:5, round:5, range:[150,500]},
  volume:{label:'the annual volume commitment', unit:'units', fmt:'{v} cases a year', keys:'volume|cases (a|per) year|minimum (order|quantity|purchase)', P:[36000,30000,24000], B:[12000,18000,26000], step:2000, round:1000, range:[2000,150000]},
  sla:{label:'late-delivery penalties', fmt:'penalties capped at {v}% of the order value'},
- pain:["Our Korean skincare shelf is full of brands nobody has heard of. Customers pick them up and put them back.",'their Korean skincare shelf lacks a brand customers recognise'],
+ pain:["Our Korean skincare shelf is full of brands nobody has heard of. Customers pick them up and put them back.",'their Korean skincare shelf lacks a brand customers recognize'],
  deadline:["Our spring beauty event is in March. Brands that aren't on the shelf by then wait until autumn.",'the line must be on the shelf for the March beauty event'],
  driver:["What I really need is a brand my competitors don't have. If you're also in their stores, it's worth much less to me.",'what they value is a brand their rivals do not have'],
  problems:[['provider','an unannounced formula change','a reformulated batch arrived with a different scent and no notice','customers are returning products'],
-   ['buyer','grey-market sales','stock sold to the retailer is appearing on discount websites in other countries','other distributors are complaining'],
-   ['shared','a labelling non-compliance',"an ingredient list did not meet European rules — the label was the brand's, but the retailer's compliance team signed it off",'8,000 units are blocked in the warehouse']],
+   ['buyer','gray-market sales','stock sold to the retailer is appearing on discount websites in other countries','other distributors are complaining'],
+   ['shared','a labeling non-compliance',"an ingredient list did not meet European rules — the label was the brand's, but the retailer's compliance team signed it off",'8,000 units are blocked in the warehouse']],
  shocks:[['provider','an ingredient restriction','a key ingredient has been restricted in Europe, forcing a reformulation',6],
    ['buyer','a weak consumer market','consumer spending has dropped and inventory is being cut',9],
    ['provider','a currency swing','the Korean won has strengthened 10% against the euro',7]]},
@@ -7420,13 +7420,13 @@ const CAMP_FIELDS = [
  volume:{label:'the annual volume commitment', unit:'units', fmt:'{v} cases a year', keys:'volume|cases (a|per) year|minimum (order|quantity|purchase)', P:[120000,100000,80000], B:[40000,60000,85000], step:5000, round:5000, range:[5000,400000]},
  sla:{label:'late-delivery penalties', fmt:'penalties capped at {v}% of the order value'},
  pain:["Our kitchens can't get consistent Korean sauces. Every batch from our importer tastes different.",'their current sauces are inconsistent from batch to batch'],
- deadline:["The new menu launches in May, in every location on the same day. Product has to be in our distribution centres by April.",'product is needed in their distribution centres by April'],
+ deadline:["The new menu launches in May, in every location on the same day. Product has to be in our distribution centers by April.",'product is needed in their distribution centers by April'],
  driver:["The truth is, our chef has already designed the menu around your sauce. Don't tell procurement I said that.",'their chef has already built the menu around this product'],
  problems:[['provider','a short shelf life','a shipment arrived with five weeks of shelf life left instead of sixteen','half of it may have to be written off'],
-   ['buyer','a storage failure',"pallets were stored outside the temperature range at the customer's distribution centre",'quality complaints are coming in from restaurants'],
+   ['buyer','a storage failure',"pallets were stored outside the temperature range at the customer's distribution center",'quality complaints are coming in from restaurants'],
    ['shared','an allergen-label miss',"sesame was missing from the allergen statement — the label was the producer's, but the pack was resized and reprinted by the customer",'a voluntary recall is under discussion']],
  shocks:[['provider','a chilli crop failure','a poor harvest has doubled the price of red-pepper powder',9],
-   ['buyer','a minimum-wage rise','labour costs have jumped and food costs have to come down',8],
+   ['buyer','a minimum-wage rise','labor costs have jumped and food costs have to come down',8],
    ['provider','a new import-inspection rule','every shipment now needs a costly inspection certificate',5]]},
 {id:'ads', name:'Advertising / Media', pco:'Northlight Agency', bco:'Verano Mobility', pd:'an integrated marketing agency', bd:'an electric-car brand entering Korea',
  pn:['Elena Rossi','f','Mark Ellison','m'], bn:['Sofia Navarro','f','Luis Ortega','m'], prod:'a twelve-month integrated launch campaign', deal:'a twelve-month agency retainer for the Verano launch in Korea',
@@ -7485,8 +7485,8 @@ const CAMP_ISSUES = {
     options:[['standard business-hours support',1,'standard|business.?hours|basic'],['a named support contact with a four-hour response time',.5,'named|4.?hour|four.?hour|response time|account manager'],['a dedicated 24/7 support team',0,'24.?7|dedicated|round the clock|on.?site']], say:{
     buyer:{explain:"Who we call when something goes wrong, and how fast they answer.", why:"when it breaks, we need someone who picks up.", defend:["Business-hours support isn't enough for an operation like ours."], ask:"a named contact and a response time in writing would settle most of it."},
     provider:{explain:"The level of support included in the price.", why:"premium support costs us people.", defend:["Round-the-clock support isn't included at this price."], ask:"we could include a named contact if the term is longer."}}},
-  custom:{label:'customisation', unit:'option', w:2, keys:'customi[sz]\\w*|tailor\\w*|locali[sz]\\w*|bespoke|roadmap|feature request|modif\\w*|adapt\\w*',
-    options:[['the standard product only',1,'standard|as.?is|off.the.shelf|no customi'],['two agreed customisations in the first year',.5,'two |2 |couple|limited|first year'],['a custom version with roadmap commitments',0,'roadmap|full(y)? custom|dedicated version|bespoke']], say:{
+  custom:{label:'customization', unit:'option', w:2, keys:'customi[sz]\\w*|tailor\\w*|locali[sz]\\w*|bespoke|roadmap|feature request|modif\\w*|adapt\\w*',
+    options:[['the standard product only',1,'standard|as.?is|off.the.shelf|no customi'],['two agreed customizations in the first year',.5,'two |2 |couple|limited|first year'],['a custom version with roadmap commitments',0,'roadmap|full(y)? custom|dedicated version|bespoke']], say:{
     buyer:{explain:"How far you'll adapt the product to the way we work.", why:"the standard version doesn't fit our process.", defend:["We need it adapted to our market. The standard version won't do."], ask:"agree the two changes that matter most to us, and we can drop the rest."},
     provider:{explain:"How much we adapt the product for you.", why:"every custom version is something we have to maintain.", defend:["Custom work pulls our engineers off the roadmap."], ask:"limit it to two changes, and we can do them in the first year."}}},
   change:{label:'price adjustment', unit:'option', w:1, sym:true, keys:'price (review|adjust\\w*)|review clause|adjust\\w* clause|index\\w*|escalat\\w*|exchange rate|\\bfx\\b|currenc\\w*|material change|hardship|force majeure|cost increase|if (costs|prices|rates) (go|rise|move|change)|fixed for the (whole |entire |full )?term',
@@ -7513,30 +7513,30 @@ const CAMP_LOC = {semi:['Pangyo','Austin'], saas:['Seattle','Dallas'], mfg:['Cha
    ========================================================= */
 const CAMP_VAR = {
 semi:[
- "Aurum Silicon|a Korean maker of AI inference chips|Seoyeon Baek,f,Hyunwoo Nam,m|Suwon;;Stratus Compute|a Canadian cloud provider with six data centres|Emily Tran,f,Gordon Pike,m|Toronto;;the A7 inference accelerator card|a three-year supply agreement for A7 inference accelerator cards;;0.9,0.7",
- "Taeyang Micro|a Korean fabless AI-chip company|Jaehyun Ryu,m,Soyeon Cha,f|Hwaseong;;Northgate Data|a British data-centre operator serving AI start-ups|Priya Nair,f,Colin Hart,m|Manchester;;the T-One inference accelerator card|a three-year supply agreement for T-One inference accelerator cards;;1.1,0.6",
+ "Aurum Silicon|a Korean maker of AI inference chips|Seoyeon Baek,f,Hyunwoo Nam,m|Suwon;;Stratus Compute|a Canadian cloud provider with six data centers|Emily Tran,f,Gordon Pike,m|Toronto;;the A7 inference accelerator card|a three-year supply agreement for A7 inference accelerator cards;;0.9,0.7",
+ "Taeyang Micro|a Korean fabless AI-chip company|Jaehyun Ryu,m,Soyeon Cha,f|Hwaseong;;Northgate Data|a British data-center operator serving AI start-ups|Priya Nair,f,Colin Hart,m|Manchester;;the T-One inference accelerator card|a three-year supply agreement for T-One inference accelerator cards;;1.1,0.6",
  "Onyx Semiconductor|a Korean AI-accelerator start-up|Minseo Ahn,f,Taejin Woo,m|Daejeon;;Meridian Cloud|a Singapore cloud provider expanding across Southeast Asia|Wei Jie Lim,m,Sharon Koh,f|Singapore;;the Onyx N3 inference accelerator card|a three-year supply agreement for Onyx N3 inference accelerator cards;;0.85,1.2",
  "Hanra Chips|a Korean maker of low-power AI chips|Dohyun Seok,m,Yerin Gil,f|Icheon;;Polar Compute|a Nordic cloud provider running on hydropower|Astrid Holm,f,Erik Lund,m|Stockholm;;the H5 inference accelerator card|a three-year supply agreement for H5 inference accelerator cards;;1.2,0.8"],
 saas:[
- "Loomwise|a Canadian customer-data platform vendor|Hannah Brooks,f,Peter Walsh,m|Vancouver;;Greenfield Stores|a British supermarket chain with about four hundred stores|Imran Shah,m,Joanna Price,f|Leeds;;the Loomwise customer-data platform|an enterprise licence for the Loomwise customer-data platform;;1.2,1.3",
- "Tidewater Software|a loyalty and customer-data software company|Nicole Hayes,f,Samuel Ortiz,m|Boston;;Casa Bella Home|an Italian home-furnishing retailer with a hundred and fifty stores|Lucia Romano,f,Marco Bianchi,m|Milan;;the Tidewater customer-data platform|an enterprise licence for the Tidewater customer-data platform;;0.85,0.7",
- "Beacon CX|a customer-data platform start-up|Tyler Grant,m,Megan Liu,f|Austin;;Daon Mart|a Korean convenience-store chain with nine hundred stores|Sangwoo Pyo,m,Jiyoung Ma,f|Seoul;;the Beacon customer-data platform|an enterprise licence for the Beacon customer-data platform;;0.9,1.5",
- "Wren Insights|a British customer-analytics platform vendor|Olivia Bennett,f,Raj Mehta,m|London;;Koru Sports|an Australian sporting-goods chain with two hundred stores|Liam Fraser,m,Chloe Nguyen,f|Melbourne;;the Wren customer-data platform|an enterprise licence for the Wren customer-data platform;;1.1,0.8"],
+ "Loomwise|a Canadian customer-data platform vendor|Hannah Brooks,f,Peter Walsh,m|Vancouver;;Greenfield Stores|a British supermarket chain with about four hundred stores|Imran Shah,m,Joanna Price,f|Leeds;;the Loomwise customer-data platform|an enterprise license for the Loomwise customer-data platform;;1.2,1.3",
+ "Tidewater Software|a loyalty and customer-data software company|Nicole Hayes,f,Samuel Ortiz,m|Boston;;Casa Bella Home|an Italian home-furnishing retailer with a hundred and fifty stores|Lucia Romano,f,Marco Bianchi,m|Milan;;the Tidewater customer-data platform|an enterprise license for the Tidewater customer-data platform;;0.85,0.7",
+ "Beacon CX|a customer-data platform start-up|Tyler Grant,m,Megan Liu,f|Austin;;Daon Mart|a Korean convenience-store chain with nine hundred stores|Sangwoo Pyo,m,Jiyoung Ma,f|Seoul;;the Beacon customer-data platform|an enterprise license for the Beacon customer-data platform;;0.9,1.5",
+ "Wren Insights|a British customer-analytics platform vendor|Olivia Bennett,f,Raj Mehta,m|London;;Koru Sports|an Australian sporting-goods chain with two hundred stores|Liam Fraser,m,Chloe Nguyen,f|Melbourne;;the Wren customer-data platform|an enterprise license for the Wren customer-data platform;;1.1,0.8"],
 mfg:[
  "Hanbyeol Metalworks|a Korean die-casting and machining company|Sungmin Do,m,Hyejin Seol,f|Ulsan;;Arden Motors|a British electric-van maker|Fiona Marsh,f,Graham Doyle,m|Coventry;;|;;0.9,0.7",
  "Saebit Forming|a Korean maker of precision-formed parts|Yoonah Heo,f,Kyungho Min,m|Gimhae;;Lumio Auto|a French electric-car start-up|Julien Mercier,m,Elise Fabre,f|Lyon;;|;;1.1,0.6",
  "Segye Components|a Korean automotive-components supplier|Jinwoo Tak,m,Dahye Pyo,f|Daegu;;Tessera EV|an American electric-truck maker|Brandon Hayes,m,Karen Whitfield,f|Detroit;;|;;1.2,1.3",
- "Bora Alutech|a Korean aluminium-parts specialist|Nayeon Ok,f,Seungho Bang,m|Gwangju;;Nordvik Mobility|a Swedish electric-bus maker|Johan Berg,m,Sofia Lindqvist,f|Gothenburg;;|;;1.3,0.5"],
+ "Bora Alutech|a Korean aluminum-parts specialist|Nayeon Ok,f,Seungho Bang,m|Gwangju;;Nordvik Mobility|a Swedish electric-bus maker|Johan Berg,m,Sofia Lindqvist,f|Gothenburg;;|;;1.3,0.5"],
 cpg:[
  "Dalbit Living|a Korean air-purifier brand|Jimin Seo,f,Wonho Chae,m|Seongnam;;Casa Nova|a Mexican department-store chain with eighty stores|Diego Herrera,m,Valeria Cruz,f|Mexico City;;the Dalbit compact air-purifier range|a distribution agreement for the Dalbit compact air-purifier range;;1.3,0.7",
  "Onda Kitchen|a Korean rice-cooker and kitchen-appliance brand|Haeun Jo,f,Minjae Ko,m|Busan;;Sakura Home|a Japanese home-electronics chain with 140 stores|Kenji Mori,m,Aya Fujita,f|Osaka;;the Onda smart rice-cooker range|a distribution agreement for the Onda smart rice-cooker range;;1.1,0.9",
  "Pureun Home|a Korean robot-vacuum brand|Taeyang Yoo,m,Subin Hong,f|Incheon;;Siam Fresh Mart|a Thai hypermarket chain with 190 stores|Niran Chai,m,Ploy Srisai,f|Bangkok;;the Pureun robot-vacuum range|a distribution agreement for the Pureun robot-vacuum range;;1.5,0.6",
  "Haneul Care|a Korean hair-dryer and styling-tool brand|Eunseo Ra,f,Jihoon Paek,m|Seoul;;Southern Cross Home|an Australian homeware chain with 110 stores|Hamish Cooper,m,Zoe Mitchell,f|Sydney;;the Haneul AirStyle hair-dryer range|a distribution agreement for the Haneul AirStyle hair-dryer range;;0.8,1.2"],
 game:[
- "Ironwood Games|the studio that owns the Ashen Frontier game|Natalie Price,f,Owen Burke,m|Vancouver;;Dawnlight Play|a Korean mobile-game publisher|Seojun Eom,m,Yuri Bang,f|Seoul;;the Ashen Frontier licence|a publishing licence for Ashen Frontier in Korea;;0.8,0.8",
- "Paper Kite Studio|the studio that owns the Lanternfall game|Amelie Fontaine,f,Hugo Lambert,m|Paris;;Naeil Games|a Korean PC and console publisher|Hyunji Sa,f,Donghyun Ki,m|Pangyo;;the Lanternfall licence|a publishing licence for Lanternfall in Korea;;0.7,0.7",
- "Farpoint Interactive|the studio that owns the Orbit Raiders game|Jason Whitaker,m,Monica Diaz,f|Austin;;Garam Entertainment|a Korean game publisher and esports operator|Chaewon Im,f,Jaemin Hyun,m|Seoul;;the Orbit Raiders licence|a publishing licence for Orbit Raiders in Korea;;1.2,1.2",
- "Fjord Byte|the studio that owns the Winter Crown game|Lars Nilsen,m,Greta Dahl,f|Oslo;;Saebyeok Soft|a Korean publisher of online role-playing games|Minji Ye,f,Woojin Ha,m|Pangyo;;the Winter Crown licence|a publishing licence for Winter Crown in Korea;;1.1,0.9"],
+ "Ironwood Games|the studio that owns the Ashen Frontier game|Natalie Price,f,Owen Burke,m|Vancouver;;Dawnlight Play|a Korean mobile-game publisher|Seojun Eom,m,Yuri Bang,f|Seoul;;the Ashen Frontier license|a publishing license for Ashen Frontier in Korea;;0.8,0.8",
+ "Paper Kite Studio|the studio that owns the Lanternfall game|Amelie Fontaine,f,Hugo Lambert,m|Paris;;Naeil Games|a Korean PC and console publisher|Hyunji Sa,f,Donghyun Ki,m|Pangyo;;the Lanternfall license|a publishing license for Lanternfall in Korea;;0.7,0.7",
+ "Farpoint Interactive|the studio that owns the Orbit Raiders game|Jason Whitaker,m,Monica Diaz,f|Austin;;Garam Entertainment|a Korean game publisher and esports operator|Chaewon Im,f,Jaemin Hyun,m|Seoul;;the Orbit Raiders license|a publishing license for Orbit Raiders in Korea;;1.2,1.2",
+ "Fjord Byte|the studio that owns the Winter Crown game|Lars Nilsen,m,Greta Dahl,f|Oslo;;Saebyeok Soft|a Korean publisher of online role-playing games|Minji Ye,f,Woojin Ha,m|Pangyo;;the Winter Crown license|a publishing license for Winter Crown in Korea;;1.1,0.9"],
 bio:[
  "Haneol Diagnostics|a Korean maker of point-of-care tests|Sujin Mo,f,Jaewon Bok,m|Daejeon;;Vitalis Medical|an Italian hospital-supplies distributor|Giulia Ferri,f,Paolo Conti,m|Bologna;;the Haneol rapid flu-and-RSV test cartridge|a distribution agreement for Haneol rapid flu-and-RSV test cartridges;;0.8,1.3",
  "Clarity Bio|a Korean diagnostics start-up|Yejin Tae,f,Sunghoon Jin,m|Seongnam;;Nordic MedSupply|a Scandinavian medical-device distributor|Henrik Dahl,m,Maja Olsen,f|Copenhagen;;the Clarity rapid sepsis-marker cartridge|a distribution agreement for Clarity rapid sepsis-marker cartridges;;1.3,0.6",
@@ -7576,29 +7576,29 @@ ads:[
 /* two more Episode-3 problems per field (added to the field's own three): [whose fault, label, what happened, consequence] */
 const CAMP_PROB2 = {
 semi:[['provider','a yield problem','a third of the latest batch failed burn-in testing, and replacements will take five weeks','capacity promised to an anchor customer is not available'],['buyer','a specification change',"the customer changed the power-connector specification after production had started",'1,200 finished cards do not fit the new racks']],
-saas:[['provider','a data-quality bug','a release bug merged thousands of customer profiles that belonged to different people','loyalty points were credited to the wrong customers'],['buyer','unlicensed use','the platform is being used by twice as many staff as the licence covers','the vendor has asked for back-payment']],
+saas:[['provider','a data-quality bug','a release bug merged thousands of customer profiles that belonged to different people','loyalty points were credited to the wrong customers'],['buyer','unlicensed use','the platform is being used by twice as many staff as the license covers','the vendor has asked for back-payment']],
 mfg:[['provider','a tooling breakdown','the main casting die cracked, and output has been at half rate for three weeks','the customer is running on four days of safety stock'],['buyer','a late engineering change','the customer changed a mounting-point dimension after the tooling was approved','new tooling is needed and six weeks are lost']],
 cpg:[['provider','a product fault','one batch has a faulty thermostat, and returns are running at 6%','stores are pulling the product from display'],['buyer','a missed promotion','the launch promotion agreed in the contract was never run','first-quarter sales are 40% below plan']],
 game:[['provider','a delayed content update','the anniversary content update arrived six weeks late','the publisher had already paid for the marketing'],['buyer','unapproved marketing','the publisher ran advertising with artwork the studio had not approved','the studio is threatening to stop the campaign']],
 bio:[['provider','a supply shortfall','only 60% of the ordered cartridges were delivered this quarter','the distributor has had to ration its hospitals'],['buyer','off-label promotion',"the distributor's sales team promoted the test for a use that is not approved",'the regulator has opened an inquiry']],
 logi:[['provider','damaged cargo','two containers arrived water-damaged after a transhipment','the insurance claim is being disputed'],['buyer','late shipping documents','shipping instructions arrived late and incomplete for three sailings in a row','containers missed their cut-off and were charged storage']],
 fin:[['provider','a fraud-filter failure','the fraud filter blocked legitimate payments for six hours','sellers lost a full evening of sales'],['buyer','a data-handling breach',"card data was stored in the marketplace's logs, against the security rules",'a compliance audit has been ordered']],
-energy:[['provider','a failed inspection','the first battery containers failed the fire-safety inspection','energisation cannot start until they are re-tested'],['buyer','a late permit','the grid-connection permit the developer was responsible for is three months late','the site team has been stood down']],
+energy:[['provider','a failed inspection','the first battery containers failed the fire-safety inspection','energization cannot start until they are re-tested'],['buyer','a late permit','the grid-connection permit the developer was responsible for is three months late','the site team has been stood down']],
 beauty:[['provider','a stock-out','the best-selling product has been out of stock for seven weeks','the retailer gave the shelf space to a rival brand'],['buyer','poor display','the brand was moved from the agreed front-of-store display to a back shelf','sales are 35% below forecast']],
 fnb:[['provider','a foreign-object complaint','a customer found a piece of plastic in a sauce pouch','one production lot has been put on hold'],['buyer','an unagreed deduction','the customer deducted a promotion fee from the invoice that was never agreed','the account is in dispute']],
 ads:[['provider','a team change','the lead creative team was moved to another client without notice','the next campaign phase is two weeks behind'],['buyer','a changing brief','the brief was changed three times after sign-off','production costs are 25% over the estimate']]
 };
 /* two more Episode-4 shocks per field: [who is hit, label, what happened, size %] */
 const CAMP_SHOCK2 = {
-semi:[['buyer','a power-cost shock','electricity prices at the data centres have risen 25%, and the expansion budget is under review',9],['provider','a memory-chip shortage','high-bandwidth memory is on allocation, and its price has risen 20%',8]],
+semi:[['buyer','a power-cost shock','electricity prices at the data centers have risen 25%, and the expansion budget is under review',9],['provider','a memory-chip shortage','high-bandwidth memory is on allocation, and its price has risen 20%',8]],
 saas:[['buyer','a merger','the retailer is merging with a rival and has to cut duplicated software contracts',11],['provider','an AI-processing cost rise','the cost of the AI services built into the platform has risen 18%',7]],
 mfg:[['provider','an energy-cost surge','industrial electricity prices have risen 22%, pushing up casting costs',7],['buyer','a model cancellation','the vehicle model the parts were made for has been cut from the line-up',12]],
 cpg:[['buyer','a sales-tax rise','a higher sales tax on appliances has cut demand',7],['provider','a component shortage','a key electronic component is on allocation, and its price has risen 15%',6]],
-game:[['buyer','an advertising-cost surge','the cost of acquiring new players has risen 30%',9],['provider','an engine-licence fee change','the game-engine supplier has changed its fees, raising the cost of every release',8]],
-bio:[['buyer','a lost tender','the distributor has lost a national hospital tender to a cheaper rival',11],['provider','a packaging-rule change','new packaging and labelling rules mean every box has to be redesigned',6]],
+game:[['buyer','an advertising-cost surge','the cost of acquiring new players has risen 30%',9],['provider','an engine-license fee change','the game-engine supplier has changed its fees, raising the cost of every release',8]],
+bio:[['buyer','a lost tender','the distributor has lost a national hospital tender to a cheaper rival',11],['provider','a packaging-rule change','new packaging and labeling rules mean every box has to be redesigned',6]],
 logi:[['provider','port congestion','congestion at the destination port is adding ten days and daily surcharges',9],['buyer','a factory relocation','the exporter is moving part of its production to Vietnam',10]],
 fin:[['buyer','a cap on seller fees','a new rule caps the fees a marketplace may charge its sellers',9],['provider','a banking-partner change','the acquiring bank has raised its charges after a risk review',7]],
-energy:[['buyer','a fall in power prices','wholesale power prices have fallen, and the project no longer meets its return target',6],['provider','a labour shortage','site labour rates have risen 20% after a regional shortage',5]],
+energy:[['buyer','a fall in power prices','wholesale power prices have fallen, and the project no longer meets its return target',6],['provider','a labor shortage','site labor rates have risen 20% after a regional shortage',5]],
 beauty:[['buyer','a rent increase','store rents have risen sharply, and the retailer needs better margins',7],['provider','a packaging-waste rule','a new packaging-waste rule requires recyclable packs, adding cost to every unit',5]],
 fnb:[['buyer','a consumer slowdown','restaurant traffic has fallen 12%, and menus are being cut back',8],['provider','a packaging-cost rise','packaging and glass prices have risen 20%',6]],
 ads:[['provider','a talent-cost rise','the celebrity ambassador has doubled the fee for the second phase',8],['buyer','a pricing reset','the brand has cut its car prices in Korea and wants marketing costs cut to match',9]]
@@ -7647,13 +7647,13 @@ const CAMP_FACTS = {
 semi:{b:["Right now we run inference on general-purpose GPUs from one supplier. They work, but the power bill is brutal and we wait months for stock.","We want to cut the cost of each inference job and stop depending on a single supplier.","Cards that drop into our existing racks, with software our engineers can actually use. Nothing exotic.","We tested another accelerator last year. The hardware was fine, but the software tools were not ready.","We'd start with a few thousand cards a year across our sites, and grow if the first hall goes well."],
   p:["We ship sample cards first, your engineers test them for four to six weeks, and then we agree a delivery schedule by quarter.","We price per card, and the price depends on yearly volume and how firm the commitment is.","We book wafer capacity about six months ahead, so what we can deliver depends on how early you commit.","Mostly cloud providers and a few research labs. I can arrange a reference call once we are further along.","You get a named field engineer for the first six months, and software updates every quarter."]},
 saas:{b:["The loyalty app, the tills, the online shop, the email tool and customer service each keep their own records. Some of it is clean; a lot of it is duplicated.","One view of each customer, so marketing can send offers that match what people actually buy in store.","A platform our marketing team can run without calling IT every day, and that connects to the tills we already have.","We tried to build this in-house two years ago. It took eighteen months, and nobody used it.","Several million loyalty accounts, and around forty people who would use the platform every week."],
-  p:["We connect your systems one by one, usually starting with loyalty and online. Most customers see their first unified profiles in eight to ten weeks.","It's an annual licence based on the number of customer profiles, plus a one-off fee for implementation.","We can start within a month. The pace usually depends on how quickly your IT team gives us access.","Mostly retailers with stores and an online shop. A few are about your size.","A customer success manager, training for your team, and support during your business hours."]},
+  p:["We connect your systems one by one, usually starting with loyalty and online. Most customers see their first unified profiles in eight to ten weeks.","It's an annual license based on the number of customer profiles, plus a one-off fee for implementation.","We can start within a month. The pace usually depends on how quickly your IT team gives us access.","Mostly retailers with stores and an online shop. A few are about your size.","A customer success manager, training for your team, and support during your business hours."]},
 mfg:{b:["We buy housings from one supplier in Europe today. Quality is acceptable, but they've been late three times this year.","A second source we can rely on before the new model goes into full production.","A supplier who can hold our tolerances, pass our audit, and ship every week without drama.","We once moved a part to a cheaper supplier and spent a year fixing quality problems. I don't want to repeat that.","Tens of thousands of housings a year once the line is at full speed, and fewer in the first year."],
-  p:["We start with tooling and sample parts, you approve them, and then we ramp up over about three months.","We quote per part. Tooling is charged separately, and the part price follows volume and the aluminium index.","We have one line free now. A second line needs about five months' notice.","Two car makers and several battery-pack companies, mostly in Korea and Europe.","A quality engineer is assigned to your programme, and we can keep safety stock near your plant."]},
+  p:["We start with tooling and sample parts, you approve them, and then we ramp up over about three months.","We quote per part. Tooling is charged separately, and the part price follows volume and the aluminum index.","We have one line free now. A second line needs about five months' notice.","Two car makers and several battery-pack companies, mostly in Korea and Europe.","A quality engineer is assigned to your program, and we can keep safety stock near your plant."]},
 cpg:{b:["We sell two competing brands in this category today. Sales are steady, but the margins are thin and the range looks tired.","A fresh product that brings people into the stores and earns a better margin than what's on the shelf now.","A brand that supports us with marketing, delivers on time, and takes back what doesn't sell.","We launched an imported brand two years ago. It sold well for a month, and then the supplier couldn't restock.","We'd start in about a third of our stores and roll out to the rest if the first quarter goes well."],
-  p:["We ship from Korea by sea, you receive at your distribution centre, and we plan promotions together each quarter.","There's a wholesale price per unit with volume tiers, and a marketing fund we agree separately.","Our factory can supply a launch order in about ten weeks. Repeat orders are faster.","Retail chains in Korea and a few other Asian markets. You would be one of our first big partners in your region.","In-store display materials, staff training, and a local service partner for warranty repairs."]},
-game:{b:["We publish six titles in Korea today. Two of them are getting old, and we need something new for next year.","A title that can reach the top twenty in Korea and stay there for more than a season.","A studio that will localise properly, hit the dates, and let us shape the Korean marketing.","We licensed a Western game before, and the studio was slow to approve anything. The launch slipped twice.","We'd plan for a few hundred thousand players in the first year, with a marketing budget to match."],
-  p:["We deliver a localised build, you run the servers and the marketing, and we review revenue together every month.","A minimum guarantee up front, then a revenue share. The split depends on how much marketing you commit.","The Korean build could be ready about four months after signing.","We work with publishers in North America and Europe. Korea would be our first market in Asia.","A dedicated producer for Korea, regular content updates, and live support during launch week."]},
+  p:["We ship from Korea by sea, you receive at your distribution center, and we plan promotions together each quarter.","There's a wholesale price per unit with volume tiers, and a marketing fund we agree separately.","Our factory can supply a launch order in about ten weeks. Repeat orders are faster.","Retail chains in Korea and a few other Asian markets. You would be one of our first big partners in your region.","In-store display materials, staff training, and a local service partner for warranty repairs."]},
+game:{b:["We publish six titles in Korea today. Two of them are getting old, and we need something new for next year.","A title that can reach the top twenty in Korea and stay there for more than a season.","A studio that will localize properly, hit the dates, and let us shape the Korean marketing.","We licensed a Western game before, and the studio was slow to approve anything. The launch slipped twice.","We'd plan for a few hundred thousand players in the first year, with a marketing budget to match."],
+  p:["We deliver a localized build, you run the servers and the marketing, and we review revenue together every month.","A minimum guarantee up front, then a revenue share. The split depends on how much marketing you commit.","The Korean build could be ready about four months after signing.","We work with publishers in North America and Europe. Korea would be our first market in Asia.","A dedicated producer for Korea, regular content updates, and live support during launch week."]},
 bio:{b:["We distribute a competing rapid test today. Hospitals like it, but the supplier keeps raising the price.","A reliable second product, so we're not dependent on one manufacturer.","A test with solid clinical data, the right approvals, and a manufacturer who answers the phone.","We took on a new test three years ago, and the approval took a year longer than promised.","We supply a few hundred hospitals and clinics. We'd start with the largest thirty."],
   p:["We handle the regulatory file together, train your sales team, and ship every month under cold chain.","A transfer price per box, with tiers by annual volume. Exclusivity changes the numbers.","Current capacity covers your first year. Beyond that, we'd need a forecast six months ahead.","Hospital groups in Korea, and distributors in a few other countries.","Product training, a clinical specialist for hospital visits, and a hotline for technical questions."]},
 logi:{b:["We ship most of our volume with one carrier on yearly rates. Last peak season they left our containers on the dock twice.","Space we can count on in peak season, and one person who can tell us where our cargo is.","Guaranteed space, a fixed rate for the year, and tracking our planners can trust.","We switched to a cheaper forwarder once. We saved on the rate and lost it again in delays.","A few thousand containers a year, with a heavy peak before the holidays."],
@@ -7661,7 +7661,7 @@ logi:{b:["We ship most of our volume with one carrier on yearly rates. Last peak
 fin:{b:["We use one payment provider today. It works, but the fees are high and payouts to our sellers take too long.","Lower cost per transaction and faster payouts, without a single failed checkout during the switch.","A gateway that's stable at peak, pays sellers quickly, and has people we can reach when something breaks.","Our current provider had two outages on big sale days. Sellers still remind me.","Several million transactions a month, with big spikes on sale days."],
   p:["Your developers connect to our interface, we run both systems side by side for a few weeks, and then you switch over.","A percentage of each transaction, and the rate comes down as volume goes up.","The platform handles far more than your peak. Going live usually takes six to eight weeks.","Online marketplaces and subscription services, mostly in Korea.","Round-the-clock monitoring, a named technical contact, and a service-level agreement on uptime."]},
 energy:{b:["The land and the permits are in place. Financing closes once we have a construction contract the banks accept.","The plant connected to the grid on time, at a fixed price our lenders are comfortable with.","One contractor who takes responsibility for the whole plant, with guarantees the banks will accept.","On our last project the contractor finished four months late, and we paid for it.","This is the first of three plants we plan to build over the next four years."],
-  p:["We take the whole job: engineering, equipment and construction, with one project manager on site.","A fixed lump-sum price, paid against milestones.","We could mobilise a site team about eight weeks after signing.","Power companies and developers in Korea, Southeast Asia and the Middle East.","A two-year warranty period, and an operations contract if you want one."]},
+  p:["We take the whole job: engineering, equipment and construction, with one project manager on site.","A fixed lump-sum price, paid against milestones.","We could mobilize a site team about eight weeks after signing.","Power companies and developers in Korea, Southeast Asia and the Middle East.","A two-year warranty period, and an operations contract if you want one."]},
 beauty:{b:["Korean skincare is about a tenth of our sales, spread over a dozen small brands. None of them has real support behind it.","One or two strong Korean brands that customers ask for by name.","A brand with a clear story, reliable stock, and a budget for marketing in our stores.","We listed a trendy brand last year. It sold out, and then we waited three months for more.","We'd launch in our biggest stores and online first, and then roll out to the rest."],
   p:["We ship from Korea every month, train your store teams, and plan launches with you each season.","A wholesale price list with a retailer margin, plus a marketing contribution we agree each year.","We can supply a launch order within about eight weeks.","Retailers in Korea, Japan and the United States. Europe is new for us.","Testers and display units, staff training, and content for your online shop."]},
 fnb:{b:["We buy Korean sauces from a local importer today. The quality changes from batch to batch.","A consistent product we can put on menus and shelves in every location.","A manufacturer who can supply both our kitchens and our stores, with labels that meet our rules.","We had a supplier run out of stock in the middle of a promotion. That was a bad week.","Dozens of locations today, and we're opening more every year."],
@@ -7840,10 +7840,10 @@ function campEp1(X, IN){
     closing:[[0,"Good. This was more useful than I expected, {name}. Send me that follow-up, and let's talk terms next."]],
     closingLow:[[0,"Thanks, {name}. I don't think we got to the heart of it today, but send me that follow-up and we'll take it from there."]],
     onNext:[0,"That works. Send me a short summary of what you understood, and we'll go from there."],
-    phrases:[["What's the biggest challenge you're facing with this at the moment?","Opening up their real problem"],["Could you walk me through how the decision will be made?","Mapping the sign-off process"],["What would make this a success for you personally?","Finding the real driver"],["Do you have a number in mind that we should be working towards?","Asking about budget politely"],["As a next step, I'll send you a short summary by Thursday.","Closing with a concrete action"]].concat(X.R.phrases||[]).slice(0,6),
+    phrases:[["What's the biggest challenge you're facing with this at the moment?","Opening up their real problem"],["Could you walk me through how the decision will be made?","Mapping the sign-off process"],["What would make this a success for you personally?","Finding the real driver"],["Do you have a number in mind that we should be working toward?","Asking about budget politely"],["As a next step, I'll send you a short summary by Thursday.","Closing with a concrete action"]].concat(X.R.phrases||[]).slice(0,6),
     firstMail: buyer ? [0,`Introductory call — ${X.them} and ${X.me}`,[`Thanks for getting in touch about ${X.F.prod}.`,`Before we speak, it would help to know a little about how ${X.me} works with companies like ours. I have about thirty minutes.`]]
                      : [0,`Introductory call — ${X.them} and ${X.me}`,[`Thank you for your enquiry about ${X.F.prod}.`,`I'd be glad to talk it through. Before we speak, could you tell me a little about what you're looking for?`]],
-    followUp:["Thanks for the conversation today.","Could you send me a short note summarising what you understood about our situation, with your proposed next step? It will help me brief my team."]};
+    followUp:["Thanks for the conversation today.","Could you send me a short note summarizing what you understood about our situation, with your proposed next step? It will help me brief my team."]};
 }
 function campEp2Issues(X){
   const R=X.R, focus=R.focus||[], out=R.outside||[];
@@ -7862,7 +7862,7 @@ function campEp2(X, IN){
   return {title:`The Term Sheet — ${X.them}`, desc:`${C.first} has sent ${poss(X.them)} draft terms. Negotiate them — anything you leave untouched is settled close to their position.`,
     brief:`${C.first} has sent ${poss(X.them)} draft terms for ${X.F.deal} (see the document). Today you negotiate them. Points you do not settle today are closed by email afterwards, close to their position.`,
     mandate:mine.map(campMandateLine).join('\n')+(outs.length?`\nNot your call — check with your team before agreeing: ${outs.map(i=>i.label).join(', ')}.`:'')+(found.length?`\nFrom your first meeting: ${found.map(h=>h.recap).join('; ')}.`:'\nYou learned little about their needs in the first meeting — ask before you offer.')+hintClause,
-    goals:['Set the agenda and the order of the issues','Trade — every concession gets something back','Stay inside your limits','Protect the contract against future cost or currency changes'].concat(outs.length?['Leave the points outside your authority to your team']:[],['Summarise what was agreed']),
+    goals:['Set the agenda and the order of the issues','Trade — every concession gets something back','Stay inside your limits','Protect the contract against future cost or currency changes'].concat(outs.length?['Leave the points outside your authority to your team']:[],['Summarize what was agreed']),
     goalRules:['agenda','trade','limits','agreed:change'].concat(outs.length?['deferred']:[],['summary']),
     personas:[campPersona(X,'C',0)], issues, hidden:needs.filter(h=>!IN.needs[h.id]).map(({card,keysAdd,...h})=>h), tradeCards:cards,
     topics:[{id:'redline',keys:'redline|in writing|wording|mark.?up|revised (draft|terms)',owner:0,say:["Send me your proposed wording and I'll turn it around quickly."]}],
@@ -7872,7 +7872,7 @@ function campEp2(X, IN){
     greeting: warm ? `Good to see you again, {name}.` : `Hello again, {name}.`,
     opening:[[0, warm ? `Good to see you again, {name}. Thanks for the follow-up after our first call — it helped. You've seen our draft. Where would you like to start?` : `Hello again, {name}. You've seen our draft terms. I'd like to get through them today — where do you want to start?`]],
     closing:[[0,"Good. I'll have the contract drawn up on that basis. Thanks, {name}."]], onNext:[0,"Fine. I'll put what we agreed in writing — please confirm it by email."],
-    phrases:[["Could we agree the order of the points first?","Structuring the negotiation"],["If you can move on that, we can be flexible on this.","Trading, not giving"],["That's beyond what I can agree today.","Protecting your limit"],["I'd need to check that with my team before I commit.","Deferring a point outside your authority"],["What happens to the price if costs or exchange rates move sharply?","Raising a future risk"],["Let me confirm what we've agreed so far.","Summarising"]],
+    phrases:[["Could we agree the order of the points first?","Structuring the negotiation"],["If you can move on that, we can be flexible on this.","Trading, not giving"],["That's beyond what I can agree today.","Protecting your limit"],["I'd need to check that with my team before I commit.","Deferring a point outside your authority"],["What happens to the price if costs or exchange rates move sharply?","Raising a future risk"],["Let me confirm what we've agreed so far.","Summarizing"]],
     firstMail:[0,`Draft terms — ${X.F.prod}`,["As promised, our draft terms are in the document panel.","Our position is as set out there. Let me know which points you would like to discuss when we meet."]]};
 }
 function campProblem(X){ const V=X.c.var; if(V && V.prob>=0){ const a=campProblems(X.F); return a[V.prob % a.length] } return X.F.problems[X.c.seed % X.F.problems.length] }
@@ -7919,7 +7919,7 @@ function campEp3(X, IN){
     hidden:[{id:'cause',keys:'your (side|part|team|role)|what happened|why (did|was|were)|cause|how did (this|it)|root cause|went wrong|both',owner:0,unlock:'open',guard:["From where I sit, this started with you.","Let's not turn this into a blame game."],reveal:"If I'm honest, our side should have caught it earlier too. That part is on us.",recap:'they accept part of the responsibility',hint:'Will they acknowledge their part?'}],
     agenda:[{p:0,text:"How do you see what happened?"},{p:0,text:"So how do you propose we share the cost?",tag:'split'},{p:0,text:"What changes on your side so this doesn't happen again?",tag:'prevent'}],
     opening:[[0,`Hi {name}. Thanks for making the time. I'd rather sort this out between the two of us than through lawyers. How do you see it?`]],
-    phrases:[["Let's set out what happened on both sides first.","Establishing facts"],["I think we both had a part in this.","Sharing responsibility"],["I'd propose we split the cost sixty–forty.","Proposing a cost split"],["From now on, every change notice gets a written acknowledgement.","Agreeing a process fix"],["I'll confirm this in writing this afternoon.","Closing with a next step"]],
+    phrases:[["Let's set out what happened on both sides first.","Establishing facts"],["I think we both had a part in this.","Sharing responsibility"],["I'd propose we split the cost sixty–forty.","Proposing a cost split"],["From now on, every change notice gets a written acknowledgment.","Agreeing a process fix"],["I'll confirm this in writing this afternoon.","Closing with a next step"]],
     firstMail:[0,`${cap1(P[1])} — we need to talk`,[`You will have seen the report: ${P[2]}.`,`${cap1(P[3])}. I would like to agree how we handle this before it goes any further. Can we speak today?`]]});
 }
 function campEp4(X, IN){
@@ -7995,7 +7995,7 @@ function campEp5(X, IN){
   return {title:`The Renegotiation — ${X.them}`, desc:`${Sn.name}, their ${Sn.title}, joins the table. One meeting to agree the new terms.`,
     brief:`${Sn.name}, ${poss(X.them)} ${Sn.title}, has joined to settle the change to the contract. ${C.first} is in the room too. ${rel==='me'?`You are asking to move ${pr.label.replace(/^the new /,'the ')} from ${fmtVal(pr,G.old)}.`:`They are asking to move ${pr.label.replace(/^the new /,'the ')} from ${fmtVal(pr,G.old)} to ${fmtVal(pr,pr.open)}.`} ${G.clause?'The review clause in your contract obliges both sides to negotiate.':'There is no review clause, so everything depends on the relationship and on what you can trade.'}`,
     mandate:((X.R.outside||[]).includes('price')?`Your director has delegated this negotiation to you, within these limits.\n`:'')+G.issues.map(campMandateLine).join('\n')+`\n${rel==='me'?'Justify every number. Offer something in return.':'Give nothing without getting something back.'}`+(found.length&&lv<=2?`\nWhat you know: ${found.map(h=>h.recap).join('; ')}.`:''),
-    goals:['Open with a clear, structured proposal','Justify your numbers with evidence','Trade — give nothing without getting something','Agree the new terms inside your mandate','Summarise the new terms accurately'],
+    goals:['Open with a clear, structured proposal','Justify your numbers with evidence','Trade — give nothing without getting something','Agree the new terms inside your mandate','Summarize the new terms accurately'],
     goalRules:['agenda','evidence:2','trade','agreed:price','summary'],
     personas:[P0,P1], issues:G.issues, tradeCards:cards, doc, kb:campKB(X,4), kbOwner:{company:1,past:1,whyus:1}, smalltalk:false,
     hidden:needs.filter(h=>!IN.needs[h.id]&&(h.id==='driver'||h.id==='deadline')).map(({card,keysAdd,...h})=>Object.assign(h,{owner:1})).concat([
@@ -8004,7 +8004,7 @@ function campEp5(X, IN){
     agenda:[{p:0,text:rel==='me'?"So what number are you asking for, and why?":"So how far can you move, and when?",tag:'price'},{p:0,text:"And from when would it apply?",tag:'phase'},{p:1,text:ally?"What could you offer that would help us get this approved?":"What exactly do we get out of this?"}],
     pressure, opening:[[0,`{name}, ${Sn.name} — I'm ${poss(X.them)} ${Sn.title}. ${C.first} has briefed me. ${rel==='me'?"You want to change a signed contract. Convince me.":"We need relief on this contract, and I'd like to leave today with a number."}`],[1, ally?`And for what it's worth, {name} — I've told ${Sn.first} how you handled things earlier this year. I want this to work.`:`Hello, {name}.`]],
     closing:[[0,"Good. Have the amendment drafted, and we'll sign next week."],[1,"Thanks, {name}. I'll be in touch about the paperwork."]], onNext:[0,"Fine. Send the amendment in writing and we'll review it."],
-    phrases:[["I'd like to cover three things: the number, the start date, and what we offer in return.","Opening with a structure"],["Our costs have risen by nine percent; we're asking you to share half of that.","Justifying a number"],["If we extend the term by a year, could you accept that figure?","Trading for value"],["That's beyond what I'm authorised to agree.","Holding your mandate"],["So, to confirm the new terms: …","Summarising accurately"]],
+    phrases:[["I'd like to cover three things: the number, the start date, and what we offer in return.","Opening with a structure"],["Our costs have risen by nine percent; we're asking you to share half of that.","Justifying a number"],["If we extend the term by a year, could you accept that figure?","Trading for value"],["That's beyond what I'm authorized to agree.","Holding your mandate"],["So, to confirm the new terms: …","Summarizing accurately"]],
     firstMail:[0,`Renegotiation meeting — agenda`,[`${C.first} has briefed me on the situation, and I will join the meeting.`,"Please come with a concrete proposal: the number, the start date, and what you offer in return. I would like to close this in one meeting."]]};
 }
 function campEp6(X, IN){
@@ -8026,7 +8026,7 @@ function campEp6(X, IN){
     agenda:[{p:0,text:"One last thing before we sign — I'd like a one-off signing rebate of two percent. Call it a goodwill gesture.",tag:'rebate'},{p:1,text:"Could you walk us through the final terms, so we're all hearing the same thing?",tag:'summary'},{p:0,text:"And what are the next steps on your side?",tag:'next'}],
     opening:[[0,`{name}, good to see you. The paperwork is nearly ready, so let's keep this short.`],[1, ally?"Good to see you, {name}. Nearly there.":"Hello, {name}."]],
     closing:[[0,"Good. We'll sign on your written confirmation. Thank you, {name}."],[1, ally?"Thanks, {name}. Here's to a quieter year.":"Thanks, {name}."]], onNext:[0,"Good. Send the final confirmation in writing and we'll sign."],
-    phrases:[["I can't offer that as a gesture, but I could look at it in exchange for a case study.","Handling a last-minute request"],["Let me confirm the final terms, point by point.","Summarising before signature"],["I'll send the confirmation today; could you sign by Friday?","Agreeing next steps"],["Thank you — it hasn't always been easy, and I appreciate how you've handled it.","Closing warmly"],["I look forward to the next phase.","Ending on a positive note"]],
+    phrases:[["I can't offer that as a gesture, but I could look at it in exchange for a case study.","Handling a last-minute request"],["Let me confirm the final terms, point by point.","Summarizing before signature"],["I'll send the confirmation today; could you sign by Friday?","Agreeing next steps"],["Thank you — it hasn't always been easy, and I appreciate how you've handled it.","Closing warmly"],["I look forward to the next phase.","Ending on a positive note"]],
     firstMail:[0,`Signature — final call`,["The amendment is drafted. I have a few minutes this week to close it out.","One point I would like to raise when we speak. Nothing dramatic."]],
     followUp:["Thanks for today.","Please send the final confirmation email listing every agreed term. We will sign on your confirmation."]};
 }
@@ -8703,7 +8703,7 @@ function dvRender(){
     <div class="dv-cl"><h5>2. Definitions</h5><p>2.1 Terms marked “subject to agreement” are proposals and are not yet agreed. Terms marked “To be agreed” have not been discussed.</p></div>
     ${d.items.map((it,i)=>dvClause(d,it,i)).join('')}${extraHtml}
     <div class="dv-cl"><h5>${d.items.length+(extra?4:3)}. Governing law</h5><p>${DOC_LAW}</p></div>
-    <div class="dv-cl"><h5>${d.items.length+(extra?5:4)}. Signatures</h5><p>Signed by the authorised representatives of the parties.</p></div>
+    <div class="dv-cl"><h5>${d.items.length+(extra?5:4)}. Signatures</h5><p>Signed by the authorized representatives of the parties.</p></div>
     <div class="dv-sigs">${sig('me', myName(), d.myRole && d.myRole.includes(d.me) ? d.myRole : d.me+(d.myRole?', '+d.myRole:''), d.signedAt, d.sigImg)}${sig('them', d.from, d.them, d.counterAt, null)}</div>
     ${d.counterAt?`<div class="dv-stamp">SIGNED<small>by both parties · ${dvDate(d.counterAt)}</small></div>`:''}
   </div>${live?`<div class="dv-tip">Tap any clause to request a change.</div>`:''}`;
@@ -8765,7 +8765,7 @@ function dvSignSheet(){
   dvPop(`<h3>Sign the agreement</h3><div class="dv-s">These are the terms as written in this document. Check them against what you agreed before you sign — signing makes them binding.</div>
     <div class="dv-sum">${rows}</div>
     <div class="dv-pad"><canvas id="dvCanvas" width="600" height="200"></canvas><button class="dv-clr" onclick="dvClear()">Clear</button><div class="dv-ln"></div><small>${esc(myName())} · ${esc(d.me)} · ${dvDate(Date.now())}</small></div>
-    <label class="dv-chk"><input type="checkbox" id="dvOk"> I have read the agreement and I'm authorised to sign for ${esc(d.me)}.</label>
+    <label class="dv-chk"><input type="checkbox" id="dvOk"> I have read the agreement and I'm authorized to sign for ${esc(d.me)}.</label>
     <button class="dv-big" onclick="dvSign()">Sign and send to ${esc(firstName(d.from))}</button>`);
   $('dvPop').classList.add('sheet'); dvPadInit();
 }
@@ -9021,13 +9021,13 @@ document.addEventListener('touchmove', e=>{ if(lmLockY===null) return; if(!e.tar
    ========================================================= */
 const CO_FIELD = {
 semi:{
- p:{what:'{co} designs AI inference chips and sells them on PCIe cards for data centres. Its main product is {prod}.',
+ p:{what:'{co} designs AI inference chips and sells them on PCIe cards for data centers. Its main product is {prod}.',
   specs:[['Power','About 40% less per job than a GPU'],['Form factor','Standard PCIe — fits existing racks'],['Lead time','About 6 months (wafer booking)'],['Warranty','3 years']],
   sol:[['{brand} Rack Kit','Pre-built racks of 16 cards, tested before shipping'],['{brand} SDK','Moves models from GPUs to our cards in weeks'],['Field engineering','A named engineer on site for the first six months']],
   pro:['Lowest power per inference job','Drops into the racks customers already have','Proven with cloud providers and research labs'],
   con:[['Small company next to the big GPU makers',"We're focused on one thing — inference — and our engineers work directly with your team."],['Long lead time for large orders',"We book wafer capacity six months ahead. If you commit by quarter, we can guarantee your slots."],['Smaller software ecosystem than GPUs',"Our SDK covers the common model formats, and our engineers help with the first migrations."]],
   proof:['Cloud providers already run our cards in production','A research lab cut its power bill by more than a third','Quarterly software updates since launch'],
-  rival:[['Large GPU makers','Better-known software, much higher power use'],['Other AI-chip start-ups','Often cheaper, but few data-centre references']], size:[180,900]},
+  rival:[['Large GPU makers','Better-known software, much higher power use'],['Other AI-chip start-ups','Often cheaper, but few data-center references']], size:[180,900]},
  b:{what:'{co} is {desc}. You are looking for a second source of inference hardware.',
   specs:[['Today','General-purpose GPUs from one supplier'],['Main cost','Electricity for inference'],['Sites','Several data halls, more planned'],['Decision','CTO and procurement together']],
   pro:['A large, growing order book for the right supplier','A reference customer suppliers want to name','A team that can test new hardware quickly'],
@@ -9035,7 +9035,7 @@ semi:{
   rival:[['Stay with GPUs','Simple, but expensive to run'],['Another accelerator vendor','Tested last year — software was not ready']], size:[900,6000]}},
 saas:{
  p:{what:'{co} sells {prod}, which joins up customer records from loyalty, tills, online and service into one profile.',
-  specs:[['First results','Unified profiles in 8–10 weeks'],['Pricing','Annual licence + one-off implementation'],['Hosting','Cloud, with data kept in your region'],['Support','Business hours, named success manager']],
+  specs:[['First results','Unified profiles in 8–10 weeks'],['Pricing','Annual license + one-off implementation'],['Hosting','Cloud, with data kept in your region'],['Support','Business hours, named success manager']],
   sol:[['{brand} Connect','Ready connectors for loyalty, POS and e-commerce'],['{brand} Audiences','Marketing builds segments without IT'],['Onboarding','Training and a success manager for year one']],
   pro:['Built for retailers with stores and online','Marketing can run it without calling IT','Fast first results — weeks, not months'],
   con:[['Not the biggest name in the market',"We're smaller, so a retailer your size gets our senior people, not a junior team."],['Support is business hours only',"For peak periods we can add extended support to the contract."],['Some legacy tills need custom work',"We'll check your till system in the first two weeks and fix a price for any custom work."]],
@@ -9047,16 +9047,16 @@ saas:{
   con:[['A failed in-house project two years ago',"We learned what didn't work. That's why we're looking at a proven platform now."],['IT has limited time',"We need a vendor who can do most of the integration work."],['Several systems are old',"We'd like you to check our till system early, so there are no surprises."]],
   rival:[['A large marketing cloud','Strong, but expensive and slow'],['Do nothing for now','Cheap today, costly in lost sales']], size:[4000,30000]}},
 mfg:{
- p:{what:'{co} makes {prod} and other precision aluminium parts for electric vehicles.',
-  specs:[['Ramp-up','About 3 months after sample approval'],['Capacity','One line free now; a second needs 5 months'],['Pricing','Per part, linked to the aluminium index'],['Quality','IATF 16949 certified']],
-  sol:[['Tooling and samples','We build tools and send parts for your approval'],['Safety stock','Stock kept near your plant'],['Programme quality engineer','One engineer assigned to your part']],
-  pro:['Tight tolerances, proven with car makers','Weekly shipments with safety stock','Quality engineer on every programme'],
-  con:[['Shipping from Korea takes time',"We keep safety stock near your plant, so your line never waits for a ship."],['Price moves with aluminium',"The index makes the price transparent — you see exactly why it changes."],['Only one free line today',"If you commit early, we reserve the second line five months ahead."]],
+ p:{what:'{co} makes {prod} and other precision aluminum parts for electric vehicles.',
+  specs:[['Ramp-up','About 3 months after sample approval'],['Capacity','One line free now; a second needs 5 months'],['Pricing','Per part, linked to the aluminum index'],['Quality','IATF 16949 certified']],
+  sol:[['Tooling and samples','We build tools and send parts for your approval'],['Safety stock','Stock kept near your plant'],['Program quality engineer','One engineer assigned to your part']],
+  pro:['Tight tolerances, proven with car makers','Weekly shipments with safety stock','Quality engineer on every program'],
+  con:[['Shipping from Korea takes time',"We keep safety stock near your plant, so your line never waits for a ship."],['Price moves with aluminum',"The index makes the price transparent — you see exactly why it changes."],['Only one free line today',"If you commit early, we reserve the second line five months ahead."]],
   proof:['Two car makers already buy from us','Battery-pack makers in Korea and Europe','On-time delivery above 98% last year'],
   rival:[['Large European suppliers','Close to you, but often late and expensive'],['Low-cost suppliers','Cheaper, but quality problems are common']], size:[300,1500]},
  b:{what:'{co} is {desc}. You need a second source of battery housings before full production.',
   specs:[['Today','One European supplier, late three times this year'],['Need','A second source before full production'],['Audit','Supplier audit required'],['Decision','Purchasing and quality together']],
-  pro:['Large, multi-year volumes','A growing EV programme','Clear technical specifications'],
+  pro:['Large, multi-year volumes','A growing EV program','Clear technical specifications'],
   con:[['Volumes are lower in year one',"Year one is smaller, but the full-production volume is much higher."],['Strict audit and approval',"Our audit is strict because a failed part stops our line. It protects you too."],['Bad experience with a cheap supplier',"Quality matters more to us than the lowest price."]],
   rival:[['Stay with one supplier','Simpler, but risky'],['Another Asian supplier','Being audited now']], size:[1500,20000]}},
 cpg:{
@@ -9075,9 +9075,9 @@ cpg:{
 game:{
  p:{what:'{co} develops and owns {prod}, and licenses it to publishers by region.',
   specs:[['Korean build','About 4 months after signing'],['Model','Minimum guarantee + revenue share'],['Updates','Regular content updates'],['Support','Live support during launch week']],
-  sol:[['Localised build','Translation and cultural changes for Korea'],['Live-ops content','New seasons and events through the year'],['Launch support','A dedicated producer for Korea']],
+  sol:[['Localized build','Translation and cultural changes for Korea'],['Live-ops content','New seasons and events through the year'],['Launch support','A dedicated producer for Korea']],
   pro:['A proven game with loyal players','Regular content updates','Strong results in North America and Europe'],
-  con:[['No experience in Asia yet',"That's why we want a strong Korean publisher — you know the market, we know the game."],['Small studio',"We're small, so decisions are fast — no long approval chains."],['Localisation takes time',"We start localisation as soon as we sign, so the build is ready in about four months."]],
+  con:[['No experience in Asia yet',"That's why we want a strong Korean publisher — you know the market, we know the game."],['Small studio',"We're small, so decisions are fast — no long approval chains."],['Localization takes time',"We start localization as soon as we sign, so the build is ready in about four months."]],
   proof:['Publishing partners in North America and Europe','A steady player base for several years','Good reviews from players and press'],
   rival:[['Bigger studios','Famous games, but slow approvals'],['Local Korean games','Know the market, but less original']], size:[60,400]},
  b:{what:'{co} is {desc}. You need a new title for next year.',
@@ -9126,7 +9126,7 @@ fin:{
   rival:[['Renegotiate with our current provider','Possible, but trust is low'],['A large global gateway','Also in talks']], size:[200,2000]}},
 energy:{
  p:{what:'{co} builds power plants as the single contractor: engineering, equipment and construction. This project is {prod}.',
-  specs:[['Contract','Fixed lump-sum price, milestone payments'],['Mobilisation','About 8 weeks after signing'],['Warranty','2 years after completion'],['Team','One project manager on site']],
+  specs:[['Contract','Fixed lump-sum price, milestone payments'],['Mobilization','About 8 weeks after signing'],['Warranty','2 years after completion'],['Team','One project manager on site']],
   sol:[['Full EPC','Engineering, procurement and construction'],['Grid connection','We manage the connection process'],['Operations contract','We can run the plant after handover']],
   pro:['One contractor responsible for the whole plant','Experience in several countries','Guarantees that banks accept'],
   con:[['Not the cheapest bid',"Our price includes guarantees your lenders will accept — that saves time at financial close."],['Equipment prices can move',"A fixed lump sum means that risk stays with us, not you."],['Weather can delay work',"Our schedule includes weather allowances, and we report progress every week."]],
@@ -9181,9 +9181,9 @@ ads:{
 /* built-in scenarios: the learner's own company */
 const CO_SC = {
 discovery:{intro:"We're Clearpath Digital, a B2B marketing agency. We help industrial and logistics companies get leads their sales teams actually want to call.", co:'Clearpath Digital', what:'Clearpath Digital is a B2B marketing agency. It helps industrial and logistics companies win better-quality leads.', side:'p', loc:'Seoul and Singapore', since:2014, staff:45,
-  prod:'Lead-generation programmes for B2B companies',
+  prod:'Lead-generation programs for B2B companies',
   specs:[['Typical fee','$12–25K a month'],['Start','Within 3–4 weeks'],['Reporting','Weekly dashboard + monthly review'],['Focus','Lead quality, not just traffic']],
-  sol:[['Lead-quality programme','Targeting, forms and scoring so sales gets real leads'],['Content and LinkedIn','Content for operations and supply-chain buyers'],['Weekly reporting','A live dashboard and a call every week']],
+  sol:[['Lead-quality program','Targeting, forms and scoring so sales gets real leads'],['Content and LinkedIn','Content for operations and supply-chain buyers'],['Weekly reporting','A live dashboard and a call every week']],
   pro:['Specialists in logistics and industrial B2B','Leads scored before they reach sales','Weekly reporting — no surprises'],
   con:[['A small agency',"Small means you work with senior people every week, not a junior team."],['No famous brand clients',"Our clients are mid-size B2B firms like you — that's our speciality."],['We won\'t promise lead numbers on day one',"We'd rather agree targets after a short audit than over-promise."]],
   proof:['Freight and warehousing clients in Asia','A client doubled qualified leads in six months','Most clients stay more than two years'],
@@ -9207,12 +9207,12 @@ negotiation:{intro:"We're Vantage Systems. We implement CRM platforms for retail
   proof:['Healthcare clients in Korea','Long-term retainers with major brands','Awards for digital work'],
   rival:[['Large global agencies','More resources, higher fees'],['Freelance teams','Cheaper, less reliable']],
   conf:['Must fix: unlimited liability, Net 90, your pre-existing IP','Targets: cap = 12 months\' fees · Net 30–45 · 60-day notice']},
-'contract-negotiation':{intro:"We're Nexora AI. Our platform helps retailers forecast demand and set prices, store by store.", co:'Nexora AI', what:'Nexora AI sells an AI demand-forecasting and pricing platform to retailers on enterprise licences.', side:'p', loc:'Seoul and San Francisco', since:2017, staff:260,
+'contract-negotiation':{intro:"We're Nexora AI. Our platform helps retailers forecast demand and set prices, store by store.", co:'Nexora AI', what:'Nexora AI sells an AI demand-forecasting and pricing platform to retailers on enterprise licenses.', side:'p', loc:'Seoul and San Francisco', since:2017, staff:260,
   prod:'Nexora retail AI platform',
   specs:[['List fee','$420K a year'],['Uptime','99.5% standard'],['Security','SOC 2 Type II and ISO 27001 certified'],['Deployment','Cloud, data kept in-region']],
   sol:[['Demand forecasting','Forecasts by store, product and day'],['Pricing engine','Suggests prices and markdowns'],['Integration','Connectors for ERP and POS systems']],
   pro:['Better forecasts cut stock and waste','Certified security — SOC 2 and ISO 27001','Retail-specific models'],
-  con:[['Higher price than some rivals',"Our forecasts usually pay for the licence in the first year."],['99.5% uptime is our standard',"We can offer 99.9% with service credits capped at 20%."],['We can\'t take unlimited liability',"A 12-month cap, with a higher super-cap for data breaches, is what we can insure."]],
+  con:[['Higher price than some rivals',"Our forecasts usually pay for the license in the first year."],['99.5% uptime is our standard',"We can offer 99.9% with service credits capped at 20%."],['We can\'t take unlimited liability',"A 12-month cap, with a higher super-cap for data breaches, is what we can insure."]],
   proof:['Retail groups across Asia and the US','Customers cut out-of-stocks significantly','Independent security audits every year'],
   rival:[['Large enterprise software vendors','Broad, but less retail focus'],['In-house data teams','Flexible, but slow to deliver']],
   conf:['Walk-away: $350K a year · minimum term 2 years','SLA 99.9% only with credits capped at 20% · never unlimited liability']},
@@ -9372,7 +9372,7 @@ startMeeting = function(){ coRoomTab(); const b=document.querySelector('.side .t
      worked there, "do you like…", "have you tried…") instead of an unrelated anecdote
    · invitations and recommendations ("you should try it", "I can recommend a place") are welcomed
    · follow-up details (an age, a duration, a goal scored, a first time) get a specific reaction, not "That makes sense."
-   · no filler acknowledgement in front of an answer when you only asked a question
+   · no filler acknowledgment in front of an answer when you only asked a question
    ========================================================= */
 const ST3_HOW = /\b(how are you( doing)?( today)?|how('?s| is) it going|how have you been|how are things|how'?s (your )?day( going)?|how'?s everything)\b/;
 const ST3_OFFER = /\b(you should (try|come|visit|go|watch|check)|you (have|need) to (try|visit|come|see|watch)|you must (try|visit|come)|i (can|could|'ll|will|would be happy to) (recommend|show|send|take|introduce|share)|let me (recommend|show|send)|next time you('re| are)? (in|come|visit)|when you (visit|come to|are in) (seoul|korea|busan)|i'?ll take you|my treat)\b/;
