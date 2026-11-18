@@ -1698,6 +1698,38 @@ html.mob #landing .lp-mbox::before{content:'';display:block;width:40px;height:4p
 html.mob #trial .lt-btns{display:grid;grid-template-columns:1fr 1fr;gap:10px}
 html.mob #trial .lt-btns .lp-btn{width:100%;padding:13px 10px}
 html.mob #trial .lt-link{grid-column:1/-1;justify-self:center;margin:6px 0 0}
+/* ---------- trial brief card ---------- */
+#briefModal.trybr .trybr-top{display:flex;align-items:center;gap:10px;flex-wrap:wrap;font-size:12.5px;color:var(--muted);margin-bottom:10px}
+.trybr-tag{background:#293e36;color:#c7e48b;font-weight:800;font-size:11.5px;border-radius:999px;padding:4px 10px}
+.trybr-guide{background:#f3f8ec;border:1px solid #c7d9b8;border-radius:14px;padding:11px 13px;font-size:13.5px;line-height:1.55;color:#3b4a35;margin-bottom:14px}
+.trybr-guide b{color:#293e36}
+.trybr-go{margin-top:16px;border-top:1px solid var(--line);padding-top:14px}
+.trybr-go label{display:grid;gap:6px;font-size:13px;font-weight:600;color:var(--ink2)}
+.trybr-go input{font:inherit;font-size:15px;border:1px solid var(--line);border-radius:12px;padding:11px 12px;background:#fff}
+.trybr-go input:focus{outline:0;border-color:#3d5a4d;box-shadow:0 0 0 4px #e6f2cd}
+.trybr-err{min-height:18px;font-size:13px;color:#a13d32;font-weight:600;margin-top:4px}
+.trybr-btns{display:flex;gap:10px;justify-content:flex-end;margin-top:6px}
+html.mob .trybr-btns .btn{flex:1;justify-content:center}
+/* ---------- room guide ---------- */
+#tourX{position:fixed;inset:0;z-index:500;display:none}
+#tourX.on{display:block}
+.tour-spot{position:fixed;border-radius:14px;box-shadow:0 0 0 9999px rgba(20,28,25,.62);transition:left .35s cubic-bezier(.2,.8,.2,1),top .35s cubic-bezier(.2,.8,.2,1),width .35s cubic-bezier(.2,.8,.2,1),height .35s cubic-bezier(.2,.8,.2,1);pointer-events:none;outline:2px solid #c7e48b;outline-offset:2px}
+.tour-card{position:fixed;background:#fff;color:#1d2622;border-radius:18px;padding:16px 16px 12px;box-shadow:0 16px 40px rgba(0,0,0,.28);font-size:14px;line-height:1.55}
+.tour-card.tour-in{animation:trUp .32s cubic-bezier(.2,.8,.2,1)}
+.tour-n{font-size:11.5px;font-weight:700;color:#7b847e}
+.tour-card h4{font-size:17px;letter-spacing:-.02em;margin:2px 0 4px}
+.tour-card p{color:#47524c;margin:0}
+.tour-b{display:flex;justify-content:space-between;align-items:center;margin-top:12px;gap:10px}
+.tour-skip{font:inherit;font-size:13px;color:#7b847e;background:none;border:0;cursor:pointer;padding:6px 0;text-decoration:underline;text-underline-offset:3px}
+.tour-next{font:inherit;font-weight:700;font-size:14px;color:#fff;background:#293e36;border:0;border-radius:11px;padding:10px 16px;cursor:pointer}
+.tour-next:focus-visible{outline:3px solid #c7e48b;outline-offset:2px}
+.tour-dots{display:flex;gap:5px;justify-content:center;margin-top:10px}.tour-dots i{width:6px;height:6px;border-radius:50%;background:#e2ddd0}.tour-dots i.on{background:#293e36;width:16px;border-radius:3px;transition:width .25s}
+.tour-q{padding:7px 12px!important;font-weight:800}
+html.mob .tour-q{display:none}
+@media (prefers-reduced-motion:reduce){.tour-spot{transition:none}.tour-card.tour-in{animation:none}}
+#trial .lt-member{margin-top:14px;font-size:14px;color:#b9c9be}
+#trial .lt-member a{color:#c7e48b;font-weight:700;text-decoration:underline;text-underline-offset:3px;cursor:pointer}
+html.mob #trial .lt-member{text-align:center}
 
 .lg-back{display:inline-block;margin-bottom:22px;font-size:13.5px;font-weight:600;color:var(--muted);cursor:pointer}.lg-back:hover{color:var(--ink)}
 html:has(#landing.on){background:#f7f5ee}
@@ -1843,15 +1875,6 @@ html:has(#landing.on){background:#f7f5ee}
     <h3>Application received</h3>
     <p class="lp-kr">신청이 접수되었습니다. 계정이 준비되면 남겨 주신 이메일로 알려 드릴게요.<br>그동안 3분 미팅을 체험해 보세요.</p>
     <div class="lp-cta" style="justify-content:center;margin-top:20px"><a class="lp-btn lp-p" onclick="lpTry()">Try a 3-minute meeting</a></div>
-  </div>
-  <div class="lp-mpane" id="lpTryPane">
-    <h3>Try a 3-minute meeting</h3>
-    <div class="lp-scene"><b>The Price Push</b> · Halcyon Retail<p class="lp-kr">당신은 CRM 구축 회사의 영업 담당입니다. 고객사 구매 담당 Sofia가 경쟁사가 20% 싸게 불렀다며 할인을 요구합니다. 할인을 최소로 지키면서 미팅을 마무리해 보세요.</p>
-      <div class="lp-goal"><span>Your limit</span><b>10% off at most — and only for something in return</b></div></div>
-    <ul class="lp-tips lp-kr"><li>마이크 버튼을 누르고 영어로 말하세요. 타이핑도 됩니다.</li><li>3분이 지나면 상대가 마무리를 요청합니다.</li><li>끝나면 점수와 고칠 문장 하나를 보여 드려요.</li></ul>
-    <label class="lp-nm">What should they call you?<input id="lpName" autocomplete="given-name" placeholder="Your first name" onkeydown="if(event.key==='Enter')lpStartTrial()"></label>
-    <div class="lp-err" id="lpTryErr" role="alert"></div>
-    <button class="lp-btn lp-p lp-full" onclick="lpStartTrial()">Start the meeting</button>
   </div>
 </div></div>
 
@@ -9339,13 +9362,227 @@ startMeeting = function(){ coRoomTab(); const b=document.querySelector('.side .t
 
 
 /* =========================================================
+   SMALL TALK v3 — the counterpart now listens to the question it asked.
+   · "How about you?" is answered about the same thing they asked you (commute, lunch, office, holidays…)
+   · your answer gets a reaction that fits their question (office vs home, near vs far, coffee vs lunch)
+   · questions outside their prepared life story get a sensible answer (the office today, how long they've
+     worked there, "do you like…", "have you tried…") instead of an unrelated anecdote
+   · invitations and recommendations ("you should try it", "I can recommend a place") are welcomed
+   · follow-up details (an age, a duration, a goal scored, a first time) get a specific reaction, not "That makes sense."
+   · no filler acknowledgement in front of an answer when you only asked a question
+   ========================================================= */
+const ST3_HOW = /\b(how are you( doing)?( today)?|how('?s| is) it going|how have you been|how are things|how'?s (your )?day( going)?|how'?s everything)\b/;
+const ST3_OFFER = /\b(you should (try|come|visit|go|watch|check)|you (have|need) to (try|visit|come|see|watch)|you must (try|visit|come)|i (can|could|'ll|will|would be happy to) (recommend|show|send|take|introduce|share)|let me (recommend|show|send)|next time you('re| are)? (in|come|visit)|when you (visit|come to|are in) (seoul|korea|busan)|i'?ll take you|my treat)\b/;
+const ST3_OFFER_R = ["I'd love that — send me the name and I'll hold you to it.","Oh, I'll take you up on that. Next time I'm over.","Deal! I'm writing that down.","That's kind of you — yes, please."];
+function st3LastQ(){ try{ const l=[...(S&&S.log||[])].reverse().find(x=>!x.me); if(!l) return ''; const qs=String(l.text).match(/[^.!?]*\?/g); return qs?qs[qs.length-1].trim():'' }catch(e){ return '' } }
+const ST3_Q = [
+  ['wfh',/working from home|in the office|work from home|remote/i],['far',/far to come|long.*(get here|commute)|how did you get here|traffic/i],
+  ['lunch',/lunch|running on coffee|had breakfast|eaten/i],['busy',/busy time|busy (week|season)|keeping you busy/i],
+  ['holiday',/plans for the holidays|holidays coming|plans? (for|this) (the )?weekend|anything nice planned/i],['free',/free time|when you'?re not working|things are quieter|hobb/i],
+  ['weather',/weather/i],['eat',/anywhere good to eat|good (place|restaurant)|recommend/i],['week',/how'?s your week|how has your week|week been/i],
+  ['weekend',/weekend\??$|how was your weekend|do anything nice/i],['howold',/how old/i],['howlong',/how long (have|has|were|did)/i],
+  ['regular',/regular thing|new resolution|training for something/i],['good',/(is it|was it) (any )?good/i],['about',/what'?s it about/i],
+  ['first',/been before|first time/i],['better',/feeling better/i],['where',/is that near|where (is|was) (it|that)/i],['cook',/do you cook/i],['when',/when do you leave/i]
+];
+function st3QKey(q){ if(!q) return ''; const f=ST3_Q.find(([,r])=>r.test(q)); return f?f[0]:'' }
+const ST3_QSHARE = {wfh:'wfh', far:'commute', lunch:'lunch', busy:'work', holiday:'plan', free:'sport', weather:'weather', eat:'eatplace', week:'weekend', weekend:'weekend', cook:'food'};
+const ST3_RESCUE = {
+  wfh:["Ha — fair enough. Do you prefer the office, or home?"], far:["Okay! Was it an easy trip in, at least?"], lunch:["Ha — so coffee, then? I'm the same."],
+  busy:["Ha — is that a yes? It looks like a busy-season face."], holiday:["Nothing planned yet? Sometimes that's the best plan."], eat:["Fair enough — do you have a usual place, at least?"],
+  free:["Ha — mostly sleep, then? I understand completely."], weather:["Ha — same here. Is it usually like this?"], week:["Ha — a busy one, then? Or a calm one?"]
+};
+function st3HasStatement(raw){ return String(raw).split(/(?<=[.!?])\s+/).some(s=>!/\?\s*$/.test(s) && s.split(/\s+/).filter(Boolean).length>=4 && !/^(hi|hello|thanks|thank you|nice to (meet|see)|good (morning|afternoon))/i.test(s.trim())) }
+function st3Brief(low, qk){ return qk && /\b(yes|yeah|yep|no|nope|not really|a little|a bit|definitely|sure|of course|kind of|sometimes|both)\b/.test(low) && low.split(/\s+/).length<=3 ? false : false }
+/* better detection: family beats sport, cold weather is a complaint, film titles with numbers */
+function st3Detect(low, raw){
+  const d=stDetect(low, raw);
+  if(/\bmy (son|daughter|kids?|children|child)\b/.test(low) && d.id!=='family'){ d.id='family'; d.kid=true; d.x=(low.match(/\bmy (son|daughter|kids?|children|child)\b/)||[])[1]||'' }
+  if(d.id==='weather' && /\b(cold|freezing|chilly|rain\w*|snow\w*|humid|hot|fine dust|typhoon)\b/.test(low) && !/\b(nice|lovely|beautiful|perfect|sunny)\b/.test(low)) d.tone='neg';
+  if(d.id==='shows'){ d.film=/\b(movie|film|cinema)\b/.test(low); if(!d.x){ const m=String(raw||'').match(/(?:watched|saw|seen|movie|film)[,:]?\s+(?:a |the )?["“]?([A-Z][\w'’]*(?:\s+(?:[A-Z0-9][\w'’]*|of|the|in|and|a))*)/); if(m) d.x=m[1].replace(/\s+(of|the|in|and|a)$/,'') } }
+  if(d.id==='shows' && /^(netflix|youtube|tv|disney ?plus|tving|wavve)$/i.test(d.x||'')) d.x='';
+  if(/\b(lost|lose|failed|missed)\b/.test(low) && /\b(scored|won|goal|passed|but)\b/.test(low)) d.tone='mid';
+  if(d.id==='none' && /\b(crazy|hectic|insane|big|long|full|tough) (week|day|month)\b|\b(launch|presentation|deadline|big project|board meeting)\b/.test(low)){ d.id='workbusy'; d.tone=/\b(good|great|exciting|fun)\b/.test(low)?'mid':'neg' }
+  return d;
+}
+/* a reaction that fits the question they asked, or the detail you gave */
+const ST3_QR = {
+  wfh:{office:["In the office — that's dedication.","Ha — the office. At least the coffee's free."], home:["Working from home — I'm jealous of your commute.","Home, nice. Mine involves a dog who thinks every call is for her."], both:["A bit of both — that sounds like the right balance.","Hybrid — best of both, as long as the Wi-Fi behaves."]},
+  far:{near:["Lucky you — that's a short trip.","Oh, nice and close."], far:["That's a trek — thanks for making the trip.","Oh, that's a long way. I appreciate you coming in."]},
+  lunch:{coffee:["Ha — a person after my own heart.","Coffee counts as a meal, I've decided."], ate:["Good — meetings go much better on a full stomach.","Smart. I skipped mine, so forgive me if I fade."]},
+  busy:{yes:["Ah, one of those weeks. I know the feeling.","It's that time of year, isn't it?"], no:["Lucky — enjoy it while it lasts.","A calm week — I didn't know those still existed."]},
+  holiday:{none:["No plans can be the best plan.","Honestly, a quiet break sounds perfect."]},
+  eat:{yes:["Oh, I'll take that as a recommendation.","Noted — I'm always looking for somewhere new."], no:["Ha, same — I always end up at the same place."]}
+};
+function st3React(st, d, qk, low, S2, answeredFollow){
+  const Q=ST3_QR[qk]; let pool=null;
+  const lowQ=low.replace(/\bso far\b/g,'');
+  if(/\byour (office|building|view|place|website|team|city)\b.{0,20}\b(nice|beautiful|great|lovely|impressive|amazing|cool)\b|\b(nice|beautiful|great|lovely|amazing) (office|view|building|place)\b/.test(low)) return fresh(st,'st3cmp',["Oh, thank you — we moved in last year, and I still get lost.","Thanks! The view's the best part — on a clear day, anyway."]);
+  if(/^(i'?m |i am )?(doing )?(very |really |pretty |quite )?(good|well|great|fine|not bad)\b/.test(low.trim()) && low.split(/\s+/).length<=8 && d.id==='none') return fresh(st,'st3glad',["Glad to hear it.","Good — glad to hear it."]);
+  const ON={wfh:/\b(office|home|remote|hybrid|in person|on site)\b/, far:/\b(far|close|near|minutes?|hours?|traffic|subway|bus|train|drive|drove|commute|walk(ed)?|taxi)\b/, lunch:/\b(lunch|coffee|ate|eat|sandwich|breakfast|starving|hungry|skipped)\b/, busy:/\b(busy|quiet|calm|hectic|crazy|slow|swamped)\b|^(yes|yeah|yep|no|not really)\b/, holiday:/\b(plans?|holidays?|trip|nothing|stay(ing)? home)\b/, eat:/\b(place|restaurant|food|eat|caf[eé]|not really|no|yes)\b/};
+  if(Q && ON[qk] && !ON[qk].test(lowQ)) return st3Detail(lowQ, qk);
+  if(Q && d.id!=='travel' && d.id!=='celebrate' && d.id!=='health' && (!d.x || ['lunch','wfh','far','busy'].includes(qk))){
+    if(qk==='wfh') pool = /\b(both|hybrid|days a week|mix|some days|sometimes|half)\b/.test(low)?Q.both : /\b(home|remote)\b/.test(low)?Q.home : /\b(office|in person|on site)\b/.test(low)?Q.office : null;
+    else if(qk==='far') pool = /\b(not (far|really)|close|near|minutes|walk|nearby|just down)\b/.test(lowQ)?Q.near : /\b(far|hour|hours|long|traffic|across|other side)\b/.test(lowQ)?Q.far : null;
+    else if(qk==='lunch') pool = /\bcoffee\b/.test(low)&&!/\b(had|ate|grabbed) (lunch|a sandwich|something)\b/.test(low)?Q.coffee : /\b(had|ate|grabbed|yes|already)\b/.test(low)?Q.ate : null;
+    else if(qk==='busy') pool = /\b(not (really|too|that|very)|quiet|calm|slow)\b/.test(low)?Q.no : /\b(yes|yeah|very|so|crazy|busy|hectic|always)\b/.test(low)?Q.yes : null;
+    else if(qk==='holiday') pool = /\b(no plans|nothing (planned|yet)|not (yet|sure|really)|stay(ing)? home)\b/.test(low)?Q.none : null;
+    else if(qk==='eat') pool = /\b(no|not really|not yet|haven'?t)\b/.test(low)?Q.no : /\b(yes|there'?s|try|place|restaurant|good)\b/.test(low)?Q.yes : null;
+  }
+  if(pool) return fresh(st,'st3q'+qk, pool);
+  if(d.id==='food' && d.x==='coffee') return fresh(st,'st3cof',["Ha — coffee's the only thing keeping me going too.","Coffee — the true business fuel."]);
+  if(/^(i'?m |i am )?(doing )?(very |really |pretty |quite )?(good|well|great|fine|not bad)\b/.test(low.trim()) && low.split(/\s+/).length<=8 && d.id==='none') return fresh(st,'st3glad',["Glad to hear it.","Good — glad to hear it."]);
+  if(d.id==='shows' && d.film && !answeredFollow) return fresh(st,'st3film', d.x?[`Oh, ${d.x} — I've heard that one's good.`,`${d.x}? That's on my list.`]:["A good film is the best way to switch off.","Ha — I can't remember the last film I saw in a cinema."]);
+  if(S2.n>1 && (answeredFollow || d.id==='none')){ const s=st3Detail(low, qk); if(s) return fresh(st,'st3d'+s.length, [s]) }
+  return null;
+}
+function st3Detail(low, qk){
+  const num=w=>({one:1,two:2,three:3,four:4,five:5,six:6,seven:7,eight:8,nine:9,ten:10,eleven:11,twelve:12}[w]||parseInt(w,10));
+  const age=low.match(/\b(?:he'?s|she'?s|they'?re|is|are|turned|turning)\s+(\d{1,2}|one|two|three|four|five|six|seven|eight|nine|ten|eleven|twelve)\b(?!\s*(minutes?|hours?|km|%))/) || low.match(/\b(\d{1,2}|[a-z]+) (?:years?|yrs?) old\b/);
+  const W=s=>s.charAt(0).toUpperCase()+s.slice(1);
+  if(age && (qk==='howold' || /years? old|he'?s|she'?s/.test(low))){ const n=num(age[1]); if(n){ const NW=['zero','one','two','three','four','five','six','seven','eight','nine','ten','eleven','twelve'], a=W(/^\d+$/.test(age[1])&&n<=12?NW[n]:age[1]); if(/\b(scored|a goal|won)\b/.test(low)) return `${a}, and scoring already — that's what ${/\bshe\b/.test(low)?'she':'he'}'ll remember, not the result.`; return n<=3?`${a} — oh, that's a lovely, exhausting age.`:n<=12?`${a} — that's such a fun age.`:`${a} — so not a baby any more.` } }
+  if(/\b(scored|a goal|won|win|first place|passed|got (the job|promoted|in))\b/.test(low)) return /\b(lost|but)\b/.test(low) ? "Lost, but scored — that's still a good day. That's what they'll remember." : "Oh, brilliant — congratulations!";
+  if(/\b(lost|didn'?t win|failed)\b/.test(low)) return "Ah — next time.";
+  if(/\bfirst time\b/.test(low)) return "First time? Then I'm glad it went well.";
+  const dur=low.match(/\b(about |around |almost |nearly |over )?(an?|one|two|three|\d+|half an?)\s+(hours?|minutes?|years?|months?|weeks?)\b/);
+  if(dur){ const u=dur[3]; if(/hour|minute/.test(u)) return /podcast|music|read|book/.test(low) ? "Good idea — a podcast makes any commute shorter." : /\bhours?\b/.test(u) && !/half/.test(dur[2]) ? "That's a long time — I'd lose my mind." : "Not bad at all.";
+    return /years?/.test(u) ? "That's real commitment." : "Oh, still fairly new, then." }
+  if(/\b(podcast|music|audiobook)\b/.test(low)) return "Smart — that's how I survive mine.";
+  if(/\b(recommend|you should|must try)\b/.test(low)) return "I'll take that as a recommendation.";
+  return null;
+}
+/* sensible answers to small-talk questions their life story doesn't cover */
+function st3Answer(low, life, st){
+  const L=life.L;
+  if(/\b(quiet|busy|crowded|empty|many people|lot of people)\b.*\b(office|today|here)\b|\b(office|team)\b.*\b(today|quiet|busy)\b/.test(low)) return fresh(st,'st3off',["Pretty quiet, actually — half the team's out today, which makes it a good day for meetings.","Busy — everyone seems to come in on the same day."]);
+  if(/\bhow long have you (been|worked|lived)\b/.test(low)){ const y=3+(life.h%9); return /lived/.test(low) ? `About ${y+4} years now. It's home.` : `Almost ${y} years now — it doesn't feel that long, honestly.` }
+  if(/\bwhere (did you|do you) (grow up|come from)|where are you (originally )?from\b/.test(low)) return life.city ? `Originally? Not far from ${life.city}, actually. I never got very far.` : "All over, a bit — we moved a lot when I was young.";
+  if(/\b(do|did) you (like|enjoy|love)\b|\bare you (into|a fan of)\b/.test(low)){
+    const s=ST_SPORT.find(([r])=>r.test(low)); if(s) return L.sport && new RegExp(s[1].split(' ')[0],'i').test(L.sport) ? L.sport : `I've never really tried ${s[1]}, honestly. ${L.sport}`;
+    if(ST_FOOD.test(low)) return `I do! ${L.food}`;
+    if(/\b(korea|seoul|it here|your job|your work|working (there|here))\b/.test(low)) return fresh(st,'st3like',["I do — most days, anyway. The people make it.","I really do. Some weeks more than others."]);
+    return "I do, actually — more than I expected.";
+  }
+  if(/\bhave you (ever )?(tried|been to|seen|watched|read|heard of|visited)\b/.test(low)) return fresh(st,'st3tried',["Not yet — but it's on my list now.","I haven't, no. Should I?","Once, years ago. I'd go again."]);
+  if(/\bwhat (do|did) you think (of|about)\b/.test(low)) return "I liked it, actually — more than I expected to.";
+  if(/\bwhat (time|when) did you (get|arrive|land|start)\b/.test(low)) return "Early — too early. I'm on my second coffee.";
+  return null;
+}
+const ST2_GEN_X = {
+  how:["Very well, thanks — a busy morning, but a good one.","I'm good, thanks — glad it's nearly the weekend.","Pretty well, thanks for asking. It's been a full week."],
+  wfh:["Mostly in the office — I like keeping home and work separate.","Home two days, office three. The office has better coffee."],
+  lunch:["Coffee, mostly — lunch was a sandwich at my desk, as usual.","I grabbed something quick. Proper lunch is a rare luxury this week."],
+  eatplace:["There's a little noodle place round the corner I go to far too often.","Honestly, I always end up at the same café downstairs. I should be more adventurous."]
+};
+ST2_ACK.pos = ST2_ACK.pos.map(s=>s==="Nice. I'll take that as a recommendation."?"Nice — glad to hear it.":s);
+Object.assign(ST2_GEN, ST2_GEN_X);
+
+function smalltalkTurn(sc, st, whole){
+  const p=st.stBy||0, low=whole.low, raw=((st.learnerTurns||[]).slice(-1)[0]||{}).t||'';
+  const S2 = st.st2 || (st.st2=stInit(sc, st, false));
+  const askBack=ST2_ASKBACK.test(low), life=stLife(sc,p); let pq=stPersonal(low, life, S2, whole);
+  const qk=st3QKey(st3LastQ()), howQ=ST3_HOW.test(low) && !/\bhow (was|were|is|'s) (your|the) (weekend|week|trip|flight|holiday)/.test(low), offer=ST3_OFFER.test(low) && !whole.q;
+  if(howQ && (!pq || pq==='weekend')) pq='how';
+  if(askBack && /\byour (week|weekend|day)\b/.test(low)) pq='weekend';
+  if(pq && pq!=='how' && pq!=='weekend' && !whole.q && !askBack && !/\byou(r|rs)?\b/.test(low)) pq=null;   // a statement about yourself is not a question to them
+  if(askBack && !pq && ST3_QSHARE[qk]) pq=ST3_QSHARE[qk];
+  const askOnly = whole.q && !st3HasStatement(raw||low);
+  const bridgeNow = ST2_SELF_BRIDGE.test(low) && !askBack && !pq && S2.n>=1;
+  const business = !bridgeNow && !askBack && !pq && (whole.agenda || (whole.q && ST2_BIZ.test(low)) || (whole.propose && whole.n>4) || (issuesMentioned(sc,low).length && (whole.q||whole.ents.length)) || ((sc.hidden||[]).some(h=>rx(h.keys).test(low)) && whole.q));
+  const mkPend=()=>{ const o=(st.pendingOpen||[]).filter((x,i)=>!(i>0 && x[0]===p)).map((x,i)=>ln(x[0], i? x[1] : x[1].replace(/^(hi|hello|good (morning|afternoon|evening))\b[^.!?—]*[.!?—,]\s*/i,'').replace(/^\{name\},? good to see you( again)?[.!,]\s*/i,'').replace(/^good to see you( again)?,? \{name\}[.!,]\s*/i,'').replace(/^(thanks?|thank you) (you )?for [^.!?]*[.!?]\s*/i,'')||x[1])).filter(l=>l.t); st.pendingOpen=null; return o };
+  const done=()=>{ st.expect=null };
+  if(business){ if(!S2.n) ev(st,'skipsmall','Went straight to business without small talk.',0); done(); st.pendingOpen=null; return null }
+  S2.n++; S2.sharedNow=false;
+  const d=st3Detect(low, raw), out=[], selfBridge=ST2_SELF_BRIDGE.test(low) && !askBack && !pq;
+  let qa = (!pq && !askBack && whole.q && !selfBridge) ? st3Answer(low, life, st) : null;
+  if(S2.cb && S2.n===1 && d.id!=='health'){ d.id='none'; d.x='' }                                   // answering "how was …?" about something they told us before
+  if(!qa && !pq && !askBack && !selfBridge && S2.last && whole.q && d.id==='none') pq = (/\bhow old\b/.test(low) && life.L.id==='parent' && !S2.shared.family) ? 'family' : S2.shared.thread ? 'plan' : 'thread';   // a follow-up question about what the counterpart just shared
+  const warm=((sc.personas[p]||{}).traits||{}).warmth||.5;
+  const gain=v=>{ const g=Math.min(v, (S.difficulty==='easy'?12:10)-S2.gain); if(g>0){ S2.gain+=g; feelAll(st,g,1) } };
+  /* did they pick up on what the counterpart just shared? */
+  if(S2.last && !S2.picked && (S2.last.rx.test(low) || (whole.q && pq) || (ST2_PICK.test(low) && whole.n>=3))){ S2.picked=true; gain(3); ev(st,'stpick','Picked up on what they told you about themselves — that is how rapport is built.',1) }
+  /* remembered their story from an earlier meeting */
+  if(pq==='thread' && S2.heard && !S2.toldThread && !S2.memory){ S2.memory=true; feel(st,p,5,2); ev(st,'stmemory','Remembered something personal they told you last time, and asked about it.',1) }
+  if(pq && !S2.askedEv){ S2.askedEv=true; ev(st,'stask','Asked them a personal question instead of only answering.',1) }
+  if(askBack||pq) st.flags.askedBack=true;
+  /* remember what the learner said (for later episodes) — never health */
+  if(d.id!=='none' && d.id!=='health' && d.id!=='rest' && d.id!=='weather' && d.id!=='commute' && d.id!=='workbusy' && S2.facts.length<3 && !S2.facts.some(f=>f.id===d.id)) S2.facts.push({id:d.id, x:d.x||'', place:d.place||'', future:!!d.future, kid:d.kid});
+  const nothing=/\b(nothing (special|much|new)|not much|same as usual|as usual|so-?so)\b/.test(low) && whole.n<=7 && !pq && !askBack;
+  const short = !qa && !offer && !st3Brief(low, qk) && ((whole.n<=3 && !pq && !askBack && !selfBridge) || (nothing && S2.n===1));
+  if(selfBridge){
+    if(!S2.engaged && whole.n>=6){ S2.engaged=true; ev(st,'smalltalk','Engaged in small talk before business.',1) }
+    ev(st,'stbridge','Moved from small talk to business yourself — a smooth, confident transition.',1); done();
+    const pend=mkPend(); out.push(ln(p, fresh(st,'stok',["Sure — let's.","Yes, let's do that.","Good idea."]))); if(pend.length) out.push(...pend); return out;
+  }
+  if(short){
+    if(!S2.shortEv && S2.n===1){ S2.shortEv=true; ev(st, nothing?'stnothing':'shortsmall', nothing?'"Nothing special" closes the conversation — offer one small detail instead.':'Gave a one-word answer to small talk — add a detail and ask back.', -1) }
+    if(!S2.rescued && S2.n===1 && S2.max>1 && warm>=.4){ S2.rescued=true; out.push(ln(p, fresh(st,'strescue', ST3_RESCUE[qk] || ST2_RESCUE))); return out }   // a second, easier question
+    out.push(ln(p, fresh(st,'stshort',["Ha, okay.","Okay!","Fair enough."])));
+  } else {
+    if(!S2.engaged){ S2.engaged=true; ev(st,'smalltalk', S2.led?'Opened with small talk yourself and kept it going.':(askBack||pq)?'Built rapport with small talk and asked back.':'Engaged in small talk before business.',1) }
+    gain(whole.n>=8?4:2);
+    const answeredFollow = S2.pendingQ && d.id===S2.pendingQ; S2.pendingQ=null;
+    /* 1) react to what they said */
+    const react = offer ? fresh(st,'stoffer',ST3_OFFER_R) : st3React(st, d, qk, low, S2, answeredFollow);
+    if(offer && !S2.offerEv){ S2.offerEv=true; gain(2); ev(st,'stoffer','Offered something personal — a recommendation or an invitation builds warmth.',1) }
+    if(!(askOnly && !offer) && !(whole.q && !react && d.id==='none') && (d.id!=='none' || !pq || offer || (S2.cb && S2.n===1 && whole.n>=4))) out.push(ln(p, react || ((S2.n>1 && (answeredFollow || d.id==='none')) ? fresh(st,'stack'+d.tone, ST2_ACK[d.tone]) : stReact(st, d))));
+    if(qa){ out.push(ln(p, qa)); S2.sharedNow=true; if(!S2.askedEv){ S2.askedEv=true; ev(st,'stask','Asked them a personal question instead of only answering.',1) } }
+    /* 2) answer their question / share something back, or 3) ask a follow-up */
+    if(qa||offer){}
+    else if(pq||askBack){
+      const key = pq || ST3_QSHARE[qk] || ({exercise:'sport',food:'food',shows:'show',travel:'travel',family:'family',pets:'family',workbusy:'work',weather:'weather',commute:'commute',study:'study',rest:'weekend',celebrate:'weekend',none:'weekend'}[d.id]||'weekend');
+      let s=stShare(sc, st, p, key);
+      if(S2.led && S2.n===1 && warm>=.4 && !/\?$/.test(s) && d.id==='none') s+=' How about you?';
+      if(key==='work' && d.id==='workbusy' && out.length) out[out.length-1].t=fresh(st,'stsame',["Ha — same here.","Sounds familiar."]);
+      out.push(ln(p, s));
+    } else if(S2.n<S2.max){
+      const qk = d.id==='travel'&&d.future ? 'travelF' : d.id==='family'&&d.kid ? 'kids' : d.id==='workbusy'&&d.hang ? 'hang' : d.id;
+      const canAsk = d.id!=='health' && !S2.asked[d.id] && (d.id!=='none' || S2.n===1), canShare = warm>=.45 && !Object.keys(S2.shared).length;
+      const share=()=>{ const key={exercise:'sport',food:'food',shows:'show',travel:'travel',family:'family',pets:'family'}[d.id]||'thread'; out.push(ln(p, fresh(st,'stfunny',["Funny you should say that — ","Well, since we're sharing — ","I'll tell you mine, then: "])+stShare(sc, st, p, key).replace(/^[A-Z](?=[a-z' ])/, c=>c==='I'?c:c.toLowerCase()))) };
+      if(S2.n>1 && canShare) share();
+      else if(canAsk){ S2.asked[d.id]=1; S2.pendingQ=d.id; out.push(ln(p, fresh(st,'stq'+qk, ST2_ASK[qk]||ST2_ASK.none))) }
+      else if(canShare) share();
+    }
+  }
+  /* bridge to business when the budget is used up or nothing kept it going */
+  const open = !!S2.pendingQ || (out.length && /\?\s*$/.test(out[out.length-1].t));
+  if(open && S2.n>=S2.max && !S2.ext){ S2.ext=true; S2.max=S2.n+1 }            // they just asked something — let the learner answer first
+  if(!(open || (S2.sharedNow && S2.n<S2.max))){
+    done(); const pend=mkPend();
+    if(pend.length){ pend[0].t = fresh(st,'stbr',["Anyway.","Right — to business.","Okay, we should probably do some work."]) + ' ' + pend[0].t; out.push(...pend) }
+    else out.push(ln(S2.led?p:0, fresh(st,'stbridge', S2.led?ST2_BRIDGE_LED:ST2_BRIDGE)));
+  }
+  out.forEach(l=>{ if(/How old are they\?/.test(l.t) && /\bmy (son|daughter)\b/.test(low)) l.t=l.t.replace('How old are they?', /\bmy son\b/.test(low)?'How old is he?':'How old is she?') });
+  for(let i=1;i<out.length;i++){ const a=out[i-1].t, b=out[i].t; if(/^Right\.$/.test(a.trim()) && /^Right\b/.test(b)) out[i-1].t='Okay!' }
+  out.forEach(l=>{ l.t=l.t.replace(/\bRight\. Right —/,'Okay — right,').replace(/^(Right|Okay|Ha)[.!,]? (Right|Okay) —/,'$1 —') });
+  return out;
+}
+
+/* after the small talk has closed: a friendly word before steering back, instead of a cold "let's keep to the agenda" */
+const ST3_REDIRECT = /^(i'?m not sure i follow|i'?m not sure how that helps|let'?s stay focused|okay\. and how does that relate|how does that relate|what does that have to do|let'?s keep to the agenda|let'?s park that|ha — fair\. but let'?s get back|interesting! coming back to the deal|hmm — i'?m not sure how to answer that)/i;
+const _engineReply_st3 = engineReply;
+engineReply = function(sc, st, text, o){
+  const r=_engineReply_st3.apply(this, arguments);
+  try{
+    if(!r || !r.turns || !r.turns.length || (o&&o.channel==='email') || (st.learnerTurns||[]).length>7) return r;
+    const low=String(text||'').toLowerCase(), L=r.turns[0]; if(!ST3_REDIRECT.test(L.text)) return r;
+    if(ST2_SELF_BRIDGE.test(low)){ L.text=fresh(st,'st3go',["Yes — let's. So, where do you stand?","Sure. Over to you, then.","Please — go ahead."]); return r }
+    let pre=null;
+    if(ST3_OFFER.test(low)) pre=fresh(st,'st3offer2',["Ha — I'd like that.","I'll hold you to that!"]);
+    else { const d=st3Detect(low, text); if(d.id!=='none' && !issuesMentioned(sc, low).length) pre=stReact(st, d).replace(/\?$/,'.') }
+    if(pre) L.text = pre+' '+fresh(st,'st3back',["Okay — back to the deal.","But let's get back to it.","Anyway — where were we?"]);
+  }catch(e){}
+  return r;
+};
+
+
+/* =========================================================
    LANDING PAGE — shown before login. PC and mobile follow the app's own view switch (html.mob).
    Motion: one orchestrated hero (a live meeting playing out), then one small story per feature panel as it scrolls in.
    ========================================================= */
 const lpReduce = () => { try{ return matchMedia('(prefers-reduced-motion: reduce)').matches }catch(e){ return false } };
 function lpLogin(){ go('login'); setTimeout(()=>{ const i=$('lgId'); if(i && !document.documentElement.classList.contains('mob')) i.focus() }, 60) }
 let lpCloseT=null;
-function lpModal(pane){ const m=$('lpModal'); if(!m) return; clearTimeout(lpCloseT); m.classList.remove('lp-out'); ['lpSignupPane','lpDonePane','lpTryPane'].forEach(id=>$(id).classList.toggle('lp-show', id===pane)); const was=m.classList.contains('lp-on'); m.classList.add('lp-on'); lmLock && lmLockY===null && lmLock(true); if(!was){ try{ history.pushState({s:'landing',m:1},'') }catch(e){} } }
+function lpModal(pane){ const m=$('lpModal'); if(!m) return; clearTimeout(lpCloseT); m.classList.remove('lp-out'); ['lpSignupPane','lpDonePane','lpTryPane'].forEach(id=>{ const e=$(id); if(e) e.classList.toggle('lp-show', id===pane) }); const was=m.classList.contains('lp-on'); m.classList.add('lp-on'); lmLock && lmLockY===null && lmLock(true); if(!was){ try{ history.pushState({s:'landing',m:1},'') }catch(e){} } }
 function lpClose(){ const m=$('lpModal'); if(!m || !m.classList.contains('lp-on')) return; m.classList.add('lp-out'); clearTimeout(lpCloseT); lpCloseT=setTimeout(()=>{ m.classList.remove('lp-on','lp-out'); try{ lmSync() }catch(e){ lmLock(false) } }, 220) }
 const lpRequest = on => on===false ? lpClose() : lpSignup();
 function lpTo(id){ const el=$(id); if(!el) return; const y=el.getBoundingClientRect().top+scrollY-(document.querySelector('#landing .lp-nav')||{offsetHeight:0}).offsetHeight-8; window.scrollTo({top:y, behavior:lpReduce()?'auto':'smooth'}) }
@@ -9410,16 +9647,26 @@ function lpTrialSc(){
   if(typeof CO_SC!=='undefined' && CO_SC.negotiation) CO_SC.trial=CO_SC.negotiation;
   return t;
 }
-function lpTry(){ $('lpTryErr').textContent=''; const n=$('lpName'); n.value=n.value||LS.get('pactli_name','')||''; lpModal('lpTryPane'); setTimeout(()=>{ if(!document.documentElement.classList.contains('mob')) n.focus() }, 250) }
+function lpTry(){
+  const t=lpTrialSc(); if(!t){ toast('The trial is not available right now.'); return }
+  lpClose(); sc=t; cfg.difficulty='easy'; cfg.minutes=3; cfg.docText=''; cfg.docName=''; if($('fRole')) $('fRole').value='Account Lead';
+  const nm=LS.get('pactli_name','')||'';
+  $('briefBody').innerHTML = renderBrief(sc, null, 'pre');
+  const bb=$('briefBody'), g=`<div class="trybr-guide"><b>This is your brief card.</b> Read your goal and your limit before you start — the people, what to find out and your negotiation range are all here. You can open it again any time in the meeting.</div>`;
+  const first=bb.querySelector('.bsec'); if(first) first.insertAdjacentHTML('beforebegin', g); else bb.insertAdjacentHTML('afterbegin', g);
+  const ready=[...bb.querySelectorAll('button')].find(x=>/I'm ready/.test(x.textContent));
+  if(ready){ const row=ready.parentNode; row.outerHTML = `<div class="trybr-go"><label>What should they call you?<input id="lpName" autocomplete="given-name" placeholder="Your first name" value="${esc(nm)}" onkeydown="if(event.key==='Enter')lpStartTrial()"></label><div class="trybr-err" id="lpTryErr" role="alert"></div><div class="trybr-btns"><button class="btn ghost" onclick="closeBriefing()">Back</button><button class="btn gold" onclick="lpStartTrial()">I'm ready — start →</button></div></div>` }
+  $('briefModal').classList.add('on','trybr'); $('briefModal').scrollTop=0;
+  setTimeout(()=>{ const n=$('lpName'); if(n && !document.documentElement.classList.contains('mob') && !n.value) n.focus() }, 300);
+}
 function lpStartTrial(){
-  const n=$('lpName').value.trim(); if(!n){ $('lpTryErr').textContent='Enter a name so they can address you.'; $('lpName').focus(); return }
-  const t=lpTrialSc(); if(!t){ $('lpTryErr').textContent='The trial is not available right now.'; return }
-  lpClose(); lpGuest=true; document.documentElement.classList.add('guest');
+  const n=($('lpName')&&$('lpName').value||'').trim(); if(!n){ $('lpTryErr').textContent='Enter a name so they can address you.'; $('lpName').focus(); return }
+  LS.set('pactli_name', n); closeBriefing(); $('briefModal').classList.remove('trybr');
+  lpGuest=true; document.documentElement.classList.add('guest');
   try{ LS.set('pactli_cases_guest', {}) }catch(e){}
-  settings.demo=true; sc=t; cfg.difficulty='easy'; cfg.minutes=3; cfg.docText=''; cfg.docName='';
-  $('fName').value=n; if($('fRole')) $('fRole').value='Account Lead';
+  settings.demo=true; $('fName').value=n; tourWant=true;
   setTimeout(()=>{ startMeeting();
-    clearInterval(lpGuestT); lpGuestT=setInterval(()=>{ if(!S || S.ended || !lpGuest){ clearInterval(lpGuestT); return } if((Date.now()-S.start)/1000 > 225 && !S.busy) endMeeting(true) }, 1000) }, 240);
+    clearInterval(lpGuestT); lpGuestT=setInterval(()=>{ if(!S || S.ended || !lpGuest || tourOn){ return } if((Date.now()-S.start)/1000 > 225 && !S.busy) endMeeting(true) }, 1000) }, 240);
 }
 function lpGuestOut(){ lpGuest=false; document.documentElement.classList.remove('guest'); clearInterval(lpGuestT); try{ LS.set('pactli_cases_guest', {}) }catch(e){} }
 const _endMeeting_lp = endMeeting;
@@ -9453,13 +9700,14 @@ function lpTrialCard(fb, m){
       ${up?`<section><h3>Say it at C1 level</h3>${fx(up)}</section>`:''}
     </article>
     <div class="lt-next"><h2>Keep going with an account</h2><p class="lp-kr">계정이 있으면 리포트가 저장되고, 6번의 미팅으로 이어지는 캠페인, 이메일 협상, 계약서 서명까지 모두 연습할 수 있어요.</p>
-      <div class="lt-btns"><a class="lp-btn lp-p" onclick="lpTrialHome();setTimeout(lpSignup,350)">Sign up</a><a class="lp-btn lp-s" onclick="lpGuestOut();lpTry0()">Try again</a><a class="lt-link" onclick="lpTrialHome()">Back to home</a></div></div>
+      <div class="lt-btns"><a class="lp-btn lp-p" onclick="lpTrialHome();setTimeout(lpSignup,350)">Sign up</a><a class="lp-btn lp-s" onclick="lpGuestOut();lpTry0()">Try again</a><a class="lt-link" onclick="lpTrialHome()">Back to home</a></div>
+      <p class="lt-member">Already a member? <a onclick="lpGuestOut();lpLogin()">Sign in</a></p></div>
   </div>`;
   requestAnimationFrame(()=>requestAnimationFrame(()=>{ s.querySelector('.lt-card').classList.add('lt-in'); const b=s.querySelector('.lt-score b'), to=+b.dataset.to, t0=performance.now();
     if(lpReduce()){ b.textContent=to; return } const step=t=>{ const k=Math.min(1,(t-t0)/1300); b.textContent=Math.round(to*(1-Math.pow(1-k,3))); if(k<1) requestAnimationFrame(step) }; requestAnimationFrame(step) }));
 }
 function lpTrialHome(){ lpGuestOut(); go('landing'); window.scrollTo(0,0) }
-function lpTry0(){ go('landing'); setTimeout(lpTry, 300) }
+function lpTry0(){ go('landing'); setTimeout(lpTry, 350) }
 function lpPop(id){
   const md=$('lpModal'); if(md && md.classList.contains('lp-on')){ lpClose(); return true }
   if(lpGuest && S && !S.ended){ endMeeting(true); return true }
@@ -9514,6 +9762,54 @@ saveMember = async function(){ const sv=$('memModal').querySelector('[onclick*="
   return r };
 async function appMark(i){ const a=admApps[i]; if(!a) return; try{ await gas('apply.change',{t:a.t, status:a.status==='done'?'new':'done'}); renderAdmin() }catch(e){ toast(e.message) } }
 async function appDel(i){ const a=admApps[i]; if(!a || !confirm(`Delete ${a.name}'s application?`)) return; try{ await gas('apply.delete',{t:a.t}); renderAdmin() }catch(e){ toast(e.message) } }
+
+
+/* ---------- room guide: a short walkthrough the first time (and in every trial) ---------- */
+let tourWant=false, tourOn=false, tourHeld=null, tourI=0, tourSteps=[];
+const _aiTurn_tour = aiTurn;
+aiTurn = function(c){ if(tourWant && S && !S.ended && S.log.length===0 && /meeting is starting now/.test(String(c||''))){ tourWant=false; tourHeld=[...arguments]; setTimeout(tourStart, 450); return Promise.resolve() } return _aiTurn_tour.apply(this, arguments) };
+const _startMeeting_tour = startMeeting;
+startMeeting = function(){ if(!lpGuest && !LS.get('pactli_toured',false)) tourWant=true; const r=_startMeeting_tour.apply(this, arguments); tourGuideBtn(); return r };
+function tourVis(sel){ return [...document.querySelectorAll(sel)].find(e=>{ const r=e.getBoundingClientRect(); return r.width>0 && r.height>0 && getComputedStyle(e).visibility!=='hidden' }) }
+function tourBuild(){
+  const mob=document.documentElement.classList.contains('mob'), trial=lpGuest;
+  return [
+    {sel:'#bBtn2,#bBtn', h:'Your brief card', b:'Tap here any time to open your brief — your goal, your limit, and what you need to find out.', next:()=>toggleBrief(true)},
+    {sel:'#bPanel', h:'Everything for this meeting', b:'Your mandate is confidential — they can\'t see it. The bar shows how far you can go, and the goals tick themselves off as you reach them.', wait:350, next:()=>{ if(mob) toggleBrief(false) }},
+    {sel:'#tiles', h:'Who\'s in the room', b:'A green ring shows who is speaking. Each person has their own priorities and mood — it changes with what you say.'},
+    {sel:'#mic', h:'Speak your reply', b:'When it\'s your turn, tap the mic and speak in English. Tap again to send. You can also press Space on a keyboard.'},
+    {sel:'.typebox', h:'Or type it', b:'No microphone, or somewhere quiet? Type your reply here and press Enter.'},
+    {sel:'.side .tabs', h:'Transcript', b:'Everything that\'s said is written down here, so you can check a number or a name.'},
+    {sel:'#rTimer', h:trial?'Three minutes':'The clock', b:trial?'You have three minutes. Near the end, they\'ll ask you to wrap up.':'When time is nearly up, they\'ll ask you to sum up and agree next steps.'},
+    {sel:'.rbar .btn.danger', h:'Finish any time', b:trial?'Leave & debrief ends the meeting and shows your report card.':'Leave & debrief ends the meeting and opens your full report.', last:true}
+  ];
+}
+function tourStart(){ tourSteps=tourBuild(); tourI=0; tourOn=true; let o=$('tourX');
+  if(!o){ o=document.createElement('div'); o.id='tourX'; o.innerHTML='<div class="tour-spot" id="tourSpot"></div><div class="tour-card" id="tourCard" role="dialog" aria-live="polite"></div>'; document.body.appendChild(o) }
+  o.classList.add('on'); tourShow() }
+function tourShow(){
+  const s=tourSteps[tourI]; if(!s){ tourEnd(); return }
+  const el=tourVis(s.sel); if(!el){ tourI++; tourShow(); return }
+  const go=()=>{ const r=el.getBoundingClientRect(), pad=8, sp=$('tourSpot'), c=$('tourCard');
+    sp.style.cssText=`left:${r.left-pad}px;top:${r.top-pad}px;width:${r.width+pad*2}px;height:${r.height+pad*2}px`;
+    const n=tourSteps.length;
+    c.innerHTML=`<div class="tour-n">${tourI+1} / ${n}</div><h4>${esc(s.h)}</h4><p>${esc(s.b)}</p><div class="tour-b"><button class="tour-skip" onclick="tourEnd()">Skip guide</button><button class="tour-next" onclick="tourNext()">${s.last?'Start the meeting':'Next'}</button></div><div class="tour-dots">${tourSteps.map((_,i)=>`<i class="${i===tourI?'on':''}"></i>`).join('')}</div>`;
+    const W=innerWidth, H=innerHeight, cw=Math.min(340, W-24); c.style.width=cw+'px';
+    const ch=c.offsetHeight||170, below=r.bottom+pad+14+ch < H, above=r.top-pad-14-ch > 0;
+    let top = below ? r.bottom+pad+12 : above ? r.top-pad-12-ch : Math.max(12, (H-ch)/2);
+    let left = Math.min(Math.max(12, r.left + r.width/2 - cw/2), W-cw-12);
+    c.style.top=top+'px'; c.style.left=left+'px'; c.dataset.pos = below?'below':above?'above':'mid';
+    c.classList.remove('tour-in'); void c.offsetWidth; c.classList.add('tour-in');
+    setTimeout(()=>{ const b=c.querySelector('.tour-next'); if(b && !document.documentElement.classList.contains('mob')) b.focus() }, 50) };
+  if(s.wait) setTimeout(go, s.wait); else go();
+}
+function tourNext(){ const s=tourSteps[tourI]; try{ s.next&&s.next() }catch(e){} tourI++; if(tourI>=tourSteps.length) tourEnd(); else tourShow() }
+function tourEnd(){ const o=$('tourX'); if(o) o.classList.remove('on'); if(!tourOn) return; tourOn=false; if(!lpGuest) LS.set('pactli_toured', true);
+  const rb=document.querySelector('#room .rbody'); if(document.documentElement.classList.contains('mob') && rb && rb.classList.contains('bopen')) toggleBrief(false);
+  if(tourHeld && S && !S.ended){ const a=tourHeld; tourHeld=null; S.start=Date.now(); tick(); _aiTurn_tour.apply(this, a) } }
+addEventListener('resize', ()=>{ if(tourOn) tourShow() });
+addEventListener('keydown', e=>{ if(!tourOn) return; if(e.key==='Escape'){ e.preventDefault(); tourEnd() } else if(e.key==='Enter'||e.key==='ArrowRight'){ e.preventDefault(); e.stopPropagation(); tourNext() } }, true);
+function tourGuideBtn(){ if($('tourBtn')) return; const b=document.createElement('button'); b.id='tourBtn'; b.className='btn ghost tour-q'; b.title='Room guide'; b.setAttribute('aria-label','Room guide'); b.textContent='?'; b.onclick=()=>{ tourHeld=null; tourStart() }; const bb=$('bBtn'); if(bb) bb.insertAdjacentElement('beforebegin', b) }
 
 </script>
 </body>
