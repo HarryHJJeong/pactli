@@ -1730,6 +1730,9 @@ html.mob .tour-q{display:none}
 #trial .lt-member{margin-top:14px;font-size:14px;color:#b9c9be}
 #trial .lt-member a{color:#c7e48b;font-weight:700;text-decoration:underline;text-underline-offset:3px;cursor:pointer}
 html.mob #trial .lt-member{text-align:center}
+/* overlays scroll on their own and never drag the page behind */
+.modal{overflow-y:auto;overscroll-behavior:contain;-webkit-overflow-scrolling:touch}
+.modal .pane,.bpanel,#bBody,#cardView,#cardView *,.lmv-body,.dv-stage,.dv-pop,#landing .lp-mbox{overscroll-behavior:contain}
 
 .lg-back{display:inline-block;margin-bottom:22px;font-size:13.5px;font-weight:600;color:var(--muted);cursor:pointer}.lg-back:hover{color:var(--ink)}
 html:has(#landing.on){background:#f7f5ee}
@@ -9007,7 +9010,7 @@ function lmLock(on){
 function lmSync(){ const a=$('rcView'), d=$('docView'); lmLock(!!((a&&a.classList.contains('on'))||(d&&d.classList.contains('on')))) }
 ['rcOpen','rcTranscript','rcClose','openDoc','closeDoc'].forEach(n=>{ const f=window[n]; if(typeof f!=='function') return; window[n]=function(){ const r=f.apply(this, arguments); lmSync(); return r } });
 rcOpen=window.rcOpen; rcTranscript=window.rcTranscript; rcClose=window.rcClose; openDoc=window.openDoc; closeDoc=window.closeDoc;
-document.addEventListener('touchmove', e=>{ if(lmLockY===null) return; if(!e.target.closest('.lmv-body,.dv-stage,.dv-pop,.lp-mbox,.modal .pane')) e.preventDefault() }, {passive:false});
+document.addEventListener('touchmove', e=>{ if(lmLockY===null) return; if(!e.target.closest('.lmv-body,.dv-stage,.dv-pop,.lp-mbox,.modal,#cardView,.bpanel,#tourX .tour-card')) e.preventDefault() }, {passive:false});
 
 
 /* =========================================================
@@ -9810,6 +9813,19 @@ function tourEnd(){ const o=$('tourX'); if(o) o.classList.remove('on'); if(!tour
 addEventListener('resize', ()=>{ if(tourOn) tourShow() });
 addEventListener('keydown', e=>{ if(!tourOn) return; if(e.key==='Escape'){ e.preventDefault(); tourEnd() } else if(e.key==='Enter'||e.key==='ArrowRight'){ e.preventDefault(); e.stopPropagation(); tourNext() } }, true);
 function tourGuideBtn(){ if($('tourBtn')) return; const b=document.createElement('button'); b.id='tourBtn'; b.className='btn ghost tour-q'; b.title='Room guide'; b.setAttribute('aria-label','Room guide'); b.textContent='?'; b.onclick=()=>{ tourHeld=null; tourStart() }; const bb=$('bBtn'); if(bb) bb.insertAdjacentElement('beforebegin', b) }
+
+/* ---------- every overlay locks the page behind it ----------
+   Any open dialog, sheet or full-screen viewer (brief card, member editor, recap, transcript, company file,
+   documents, report card viewer, sign-up, the room guide, and the brief sheet in the mobile meeting room)
+   freezes the page underneath, so only the overlay scrolls. Watches class changes, so new overlays are covered too. */
+const LM_OVERLAYS = '.modal.on, #rcView.on, #docView.on, #cardView.on, #landing .lp-modal.lp-on, #tourX.on';
+lmSync = function(){
+  const mob=document.documentElement.classList.contains('mob');
+  const open=!!document.querySelector(LM_OVERLAYS) || (mob && !!document.querySelector('#room.on .rbody.bopen'));
+  lmLock(open);
+};
+(function(){ let q=false; const run=()=>{ q=false; try{ lmSync() }catch(e){} };
+  new MutationObserver(()=>{ if(!q){ q=true; requestAnimationFrame(run) } }).observe(document.body, {subtree:true, attributes:true, attributeFilter:['class']}) })();
 
 </script>
 </body>
