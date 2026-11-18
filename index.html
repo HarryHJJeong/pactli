@@ -3397,7 +3397,7 @@ function speak(text, persona, idx){
       const u = new SpeechSynthesisUtterance(parts[i++]);
       if(v) u.voice=v; u.lang = v?v.lang:'en-US';
       const diffRate = S && S.difficulty==='easy' ? .9 : S && S.difficulty==='veryhard' ? 1.08 : 1;
-      u.rate = +settings.rate * diffRate * (S && S.slowNow ? .85 : 1); u.pitch = persona.gender==='m'?0.92:1.05;
+      u.rate = +settings.rate * diffRate * (S && S.slowNow ? .85 : 1); u.pitch = (typeof voicePitch==='function') ? voicePitch(v, persona) : (persona.gender==='m'?0.92:1.05);
       let done=false; const go=()=>{ if(done) return; done=true; clearTimeout(wd); next() };
       const wd=setTimeout(go, 2500 + u.text.length*95/(u.rate||1)); // Chrome sometimes never fires onend
       u.onend=go; u.onerror=go; speechSynthesis.speak(u);
@@ -9575,6 +9575,114 @@ engineReply = function(sc, st, text, o){
     if(pre) L.text = pre+' '+fresh(st,'st3back',["Okay — back to the deal.","But let's get back to it.","Anyway — where were we?"]);
   }catch(e){}
   return r;
+};
+
+
+/* =========================================================
+   VOICES — women speak with a female voice, men with a male voice.
+   Knows the voice names on iPhone/Mac, Windows/Edge (incl. natural voices), Chrome and Android (Google TTS ids).
+   Two people of the same gender get different voices when the device has more than one.
+   If the device only has voices of unknown gender, pitch makes the difference.
+   ========================================================= */
+const VOICE_F = /\b(female|woman|samantha|victoria|karen|moira|tessa|fiona|serena|susan|zira|aria|jenny|libby|sonia|natasha|ava|allison|kate|emma|olivia|nicky|catherine|martha|sandy|shelley|flo|kathy|vicki|princess|michelle|ana|clara|molly|maisie|neerja|hazel|heera|linda|heather|joanna|salli|kimberly|ivy|kendra|amy|emily|nicole|raveena|veena|isha|google us english|google uk english female|sfg|tpf|tpc|iob|iog|gba|gbc|gbg|afa|auc|ahp|cxx|ene)\b/i;
+const VOICE_M = /\b(male|man|daniel|alex|fred|tom|oliver|george|arthur|david|mark|guy|ryan|thomas|aaron|rishi|james|gordon|rocko|eddy|reed|ralph|junior|albert|bruce|lee|evan|nathan|christopher|eric|roger|steffan|brian|andrew|william|liam|mitchell|prabhat|ravi|matthew|justin|joey|russell|google uk english male|iol|iom|tpd|gbb|gbd|rjs|aub|aud)\b/i;
+function voiceGender(v){
+  const n=(v.name+' '+(v.voiceURI||'')).replace(/[-_]/g,' ');
+  if(/\bfemale\b/i.test(n)) return 'f';
+  if(/\bmale\b/i.test(n)) return 'm';
+  const f=VOICE_F.test(n), m=VOICE_M.test(n);
+  return f&&!m ? 'f' : m&&!f ? 'm' : null;
+}
+pickVoice = function(persona, idx){
+  if(!voices.length) return null;
+  const g = persona && persona.gender==='f' ? 'f' : 'm';
+  // which number of this gender is the speaker in the room (0, 1, 2…), so two men don't share a voice
+  let nth = idx||0; try{ const P=(S&&S.sc&&S.sc.personas)||[]; if(P.length){ nth=P.slice(0, idx).filter(p=>(p.gender==='f'?'f':'m')===g).length } }catch(e){}
+  const rank = v => (/natural|neural|online|premium|enhanced|siri/i.test(v.name)?0:/google/i.test(v.name)?1:2) + (/en[-_]US/i.test(v.lang)?0:.5);
+  const sorted = a => a.slice().sort((x,y)=>rank(x)-rank(y));
+  const same = sorted(voices.filter(v=>voiceGender(v)===g));
+  if(same.length){ const v=same[nth % same.length]; v._g=g; return v }
+  const unknown = sorted(voices.filter(v=>!voiceGender(v)));
+  const pool = unknown.length ? unknown : sorted(voices);
+  const v = pool[nth % pool.length]; v._g=null; return v;
+};
+/* a matched voice keeps a natural pitch; an unknown-gender voice is pitched to sound right */
+function voicePitch(v, persona){ const m = persona && persona.gender==='m'; if(v && v._g) return m ? .95 : 1.02; return m ? .78 : 1.18 }
+
+/* =========================================================
+   MORE HUMAN DELIVERY (device voices)
+   · one sentence at a time, with a short, slightly varied breath between sentences
+     (longer after a question, a beat at an em dash or "…")
+   · every sentence is a touch faster/slower and higher/lower than the last — real speech never repeats the same contour
+   · now and then a turn starts with a small spoken filler that fits the person ("Well,", "Hmm,", "Right,", "Look,")
+     — audio only, the transcript stays exactly as written
+   · numbers and shorthand are said the way people say them ($240K → "two hundred and forty thousand dollars", Net 30 → "net thirty"…)
+   · a short "thinking" pause before a reply starts
+   ========================================================= */
+const SAY_ONES=['zero','one','two','three','four','five','six','seven','eight','nine','ten','eleven','twelve','thirteen','fourteen','fifteen','sixteen','seventeen','eighteen','nineteen'];
+const SAY_TENS=['','','twenty','thirty','forty','fifty','sixty','seventy','eighty','ninety'];
+function sayNum(n){ n=Math.round(n); if(n<20) return SAY_ONES[n]; if(n<100) return SAY_TENS[Math.floor(n/10)]+(n%10?'-'+SAY_ONES[n%10]:''); if(n<1000) return SAY_ONES[Math.floor(n/100)]+' hundred'+(n%100?' '+sayNum(n%100):''); return String(n) }
+function sayAmount(x, unit){ // 2.4 + K → "two point four thousand"; 240 + K → "two hundred forty thousand"
+  const w = unit.toLowerCase()==='k'?'thousand':unit.toLowerCase()==='m'?'million':'billion';
+  if(/\./.test(x) && w==='thousand'){ const n=Math.round(parseFloat(x)*1000), th=Math.floor(n/1000), h=n%1000; return sayNum(th)+' thousand'+(h?' '+sayNum(h):'') }
+  if(/\./.test(x)){ const [a,b]=x.split('.'); return sayNum(+a)+' point '+b.split('').map(d=>SAY_ONES[+d]).join(' ')+' '+w }
+  return (+x<1000?sayNum(+x):x)+' '+w;
+}
+function speakable(t){
+  return String(t)
+    .replace(/\$\s?(\d+(?:\.\d+)?)\s?([kKmMbB])\b/g, (m,x,u)=>sayAmount(x,u)+' dollars')
+    .replace(/\b(\d+(?:\.\d+)?)\s?([kKmM])\b(?![a-z])/g, (m,x,u)=>sayAmount(x,u))
+    .replace(/\bNet\s?(\d{2,3})\b/g, (m,n)=>'net '+sayNum(+n))
+    .replace(/\bQ([1-4])\b/g, (m,n)=>'Q '+['','one','two','three','four'][n])
+    .replace(/\bvs\.?\s/gi,'versus ').replace(/\be\.g\.\s?/gi,'for example, ').replace(/\bi\.e\.\s?/gi,'that is, ').replace(/\betc\./gi,'and so on.')
+    .replace(/\bMG\b/g,'M G').replace(/\bSLA\b/g,'S L A').replace(/\bNDA\b/g,'N D A').replace(/\bKPI(s?)\b/g,'K P I$1').replace(/\bROI\b/g,'R O I').replace(/\bEOD\b/g,'end of day')
+    .replace(/(\d)\s?[–-]\s?(\d)/g,'$1 to $2')
+    .replace(/\s+\/\s+/g,' or ')
+    .replace(/[“”"]/g,'');
+}
+function sayPieces(text){
+  // sentences, and a beat at em dashes / ellipses inside long sentences
+  const sents=(String(text).match(/[^.!?]+[.!?]*["”']?\s*/g)||[String(text)]).map(s=>s.trim()).filter(Boolean);
+  const out=[];
+  sents.forEach(s=>{ const parts=s.length>40 ? s.split(/\s+—\s+|…\s*/) : [s]; parts.forEach((p,i)=>{ if(p.trim()) out.push({t:p.trim(), q:/\?\s*$/.test(p), dash:i<parts.length-1}) }) });
+  return out;
+}
+const SAY_FILL = {
+  lead:['Right,','Okay,','So,','Look,'], ally:['Well,','Hmm,','Yeah,','Oh,'], skeptic:['Hmm,','Well,','Look,','Okay,'], def:['Well,','So,','Hmm,','Right,']
+};
+let sayTurnN=0;
+speak = function(text, persona, idx){
+  return new Promise(resolve=>{
+    if(!('speechSynthesis' in window)){ resolve(); return }
+    persona=persona||{}; const real=!!persona.name, v=pickVoice(persona, idx);
+    let pieces=sayPieces(speakable(text));
+    // an occasional natural filler at the start of a turn (not on the very first line, not on short or opening lines)
+    sayTurnN++;
+    if(real && S && !S.slowNow && sayTurnN>2 && pieces.length && pieces[0].t.split(/\s+/).length>3 && Math.random()<.22
+       && !/^(hi|hello|good (morning|afternoon)|thanks|thank you|well|so|okay|ok|right|hmm|look|yes|no|oh|ha|ah|sure|great|honestly|actually|sorry|apologies)\b/i.test(pieces[0].t)){
+      const pool=SAY_FILL[persona.stance]||SAY_FILL.def, f=pool[Math.floor(Math.random()*pool.length)];
+      pieces[0]={...pieces[0], t:f+' '+pieces[0].t.charAt(0).toLowerCase()+pieces[0].t.slice(1)};
+    }
+    const diffRate = S && S.difficulty==='easy' ? .9 : S && S.difficulty==='veryhard' ? 1.08 : 1;
+    const baseRate = +settings.rate * diffRate * (S && S.slowNow ? .85 : 1), basePitch = voicePitch(v, persona);
+    const jit = (a)=> real ? (1 + (Math.random()*2-1)*a) : 1;
+    let i=0;
+    const next=()=>{
+      if(S && S.skip){ resolve(); return }
+      if(i>=pieces.length){ resolve(); return }
+      const pc=pieces[i++], u=new SpeechSynthesisUtterance(pc.t);
+      if(v) u.voice=v; u.lang = v?v.lang:'en-US';
+      u.rate = Math.max(.5, baseRate * jit(.045) * (pc.t.length<18 ? 1.04 : 1));
+      u.pitch = Math.min(2, Math.max(.1, basePitch * jit(.035) * (pc.q ? 1.03 : 1)));
+      let done=false; const go=()=>{ if(done) return; done=true; clearTimeout(wd);
+        const gap = !real ? 120 : pc.dash ? 140+Math.random()*120 : pc.q ? 380+Math.random()*220 : 220+Math.random()*230;
+        if(i>=pieces.length) next(); else setTimeout(next, gap) };
+      const wd=setTimeout(go, 2500 + u.text.length*95/(u.rate||1)); // Chrome sometimes never fires onend
+      u.onend=go; u.onerror=go; speechSynthesis.speak(u);
+    };
+    // a short "thinking" beat before a reply, like a person drawing breath
+    if(real && S && !S.skip) setTimeout(next, 120+Math.random()*260); else next();
+  });
 };
 
 
