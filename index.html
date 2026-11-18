@@ -2210,7 +2210,6 @@ html:has(#landing.on){background:#f7f5ee}
       <div><label>Speech recognition</label><select id="setLang"><option value="en-US">English (US)</option><option value="en-GB">English (UK)</option><option value="en-AU">English (AU)</option></select></div>
       <div><label>AI voice speed</label><select id="setRate"><option value="0.85">Slower</option><option value="1">Natural</option><option value="1.12">Faster</option></select></div>
     </div>
-    <div class="row"><div><label>Voice quality</label><select id="setNV"><option value="auto">Natural — on PC, ask on phones</option><option value="on">Natural — always (90 MB, one time)</option><option value="off">Device voice</option></select></div><div></div></div>
     <select id="setFb" hidden><option value="en">English</option></select>
     <div class="toggle"><div>Auto-send when I stop<small>Off = review the recognized text before sending</small></div><button class="sw" id="setAuto" onclick="this.classList.toggle('on')"></button></div>
     <div class="toggle"><div>Show AI captions live<small>Turn off for a harder listening challenge</small></div><button class="sw" id="setCap" onclick="this.classList.toggle('on')"></button></div>
@@ -9712,106 +9711,30 @@ speak = function(text, persona, idx){
 };
 
 
-/* =========================================================
-   NATURAL VOICE — free, open-source neural speech (Kokoro, 82M) that runs inside the browser.
-   No account, no API key, no cost: the model (about 90 MB) downloads once from a public CDN and is cached by the browser.
-   · PC: on by default (uses the graphics card when available). Phone: offered once, since it's a large download.
-   · Women and men get different natural voices; two people of the same gender get different voices.
-   · Sentences are made one at a time and the next one is prepared while the current one plays.
-   · If the model isn't ready yet, or a sentence takes too long on a slow device, the device voice speaks instead —
-     the meeting never waits on it.
-   ========================================================= */
-const KK_LIB = 'https://cdn.jsdelivr.net/npm/kokoro-js@1.2.1/dist/kokoro.web.js';
-const KK_MODEL = 'onnx-community/Kokoro-82M-v1.0-ONNX';
-const KK_VOICES = { f:['af_heart','af_bella','af_nicole','af_sarah','af_aoede'], m:['am_michael','am_fenrir','am_puck','am_echo','am_eric'] };
-const KK = { st:'idle', p:null, tts:null, ctx:null, src:null, cache:new Map(), q:Promise.resolve(), pct:0, told:false };
-const kkMob = () => document.documentElement.classList.contains('mob');
-function kkPref(){ return LS.get('pactli_nvoice','auto') }
-function kkWanted(){ const v=kkPref(); return v==='on' || (v==='auto' && !kkMob()) }
-function kkCtx(){ try{ if(!KK.ctx) KK.ctx=new (window.AudioContext||window.webkitAudioContext)(); if(KK.ctx.state==='suspended') KK.ctx.resume() }catch(e){} return KK.ctx }
-function kkLoad(){
-  if(KK.p) return KK.p; KK.st='loading'; KK.pct=0;
-  if(!KK.told){ KK.told=true; toast('Loading the natural voice — a one-time download of about 90 MB. The device voice speaks until it\'s ready.') }
-  KK.p=(async()=>{
-    const m=await import(KK_LIB);
-    const prog=d=>{ if(d && d.status==='progress' && d.total){ KK.pct=Math.round(d.loaded/d.total*100); kkChip() } };
-    const gpu=!!navigator.gpu && !kkMob();
-    try{ KK.tts=await m.KokoroTTS.from_pretrained(KK_MODEL, {dtype:gpu?'fp32':'q8', device:gpu?'webgpu':'wasm', progress_callback:prog}) }
-    catch(e){ if(!gpu) throw e; KK.tts=await m.KokoroTTS.from_pretrained(KK_MODEL, {dtype:'q8', device:'wasm', progress_callback:prog}) }
-    KK.st='ready'; kkChip(); toast('Natural voice ready'); return KK.tts;
-  })().catch(e=>{ console.warn('natural voice unavailable', e); KK.st='failed'; KK.p=null; kkChip(); });
-  return KK.p;
-}
-function kkChip(){ const c=$('kkChip'); if(!c) return; const t = KK.st==='loading' ? `Natural voice ${KK.pct||0}%` : KK.st==='ready' ? 'Natural voice' : (KK.st==='failed'||KK.st==='slow') ? 'Device voice' : ''; c.textContent=t; c.hidden=!t || !kkWanted(); c.className='kk-chip '+KK.st }
-function kkVoiceFor(persona, idx){
-  const g = persona && persona.gender==='f' ? 'f' : 'm'; let nth=idx||0;
-  try{ const P=(S&&S.sc&&S.sc.personas)||[]; if(P.length) nth=P.slice(0, idx).filter(p=>(p.gender==='f'?'f':'m')===g).length }catch(e){}
-  if(!persona || !persona.name) return 'af_heart';
-  return KK_VOICES[g][nth % KK_VOICES[g].length];
-}
-/* one sentence at a time, in order (the model runs one job at a time) */
-function kkGen(text, voice, speed){
-  const key=voice+'|'+speed.toFixed(2)+'|'+text; if(KK.cache.has(key)) return KK.cache.get(key);
-  const job=KK.q.then(async()=>{ const a=await KK.tts.generate(text, {voice, speed}); return {data:a.audio, sr:a.sampling_rate||24000} });
-  KK.q=job.catch(()=>{}); KK.cache.set(key, job); if(KK.cache.size>300) KK.cache.delete(KK.cache.keys().next().value);
-  job.catch(()=>KK.cache.delete(key)); return job;
-}
-const kkWait = (p, ms) => Promise.race([p, new Promise(r=>setTimeout(()=>r(null), ms)), new Promise(r=>{ const iv=setInterval(()=>{ if(S && S.skip){ clearInterval(iv); r(null) } }, 40); setTimeout(()=>clearInterval(iv), ms+50) })]);
-let kkSlow=0;
-function kkTooSlow(){ kkSlow++; if(kkSlow>=2 && KK.st==='ready'){ KK.st='slow'; kkChip(); toast('The natural voice is too slow on this device, so the device voice will speak for now.') } }
-function kkPlay(au){ return new Promise(res=>{ try{ const ctx=kkCtx(); const b=ctx.createBuffer(1, au.data.length, au.sr); b.copyToChannel(au.data instanceof Float32Array?au.data:Float32Array.from(au.data), 0);
-  const s=ctx.createBufferSource(); s.buffer=b; s.connect(ctx.destination); KK.src=s; s.onended=()=>{ if(KK.src===s) KK.src=null; res() }; s.start() }catch(e){ res() } }) }
-function kkStop(){ try{ if(KK.src){ KK.src.onended=null; KK.src.stop() } }catch(e){} KK.src=null }
-const _speakDevice = speak;
-speak = function(text, persona, idx){
-  if(!kkWanted()) return _speakDevice.apply(this, arguments);
-  if(KK.st!=='ready'){ if(KK.st==='idle') kkLoad(); return _speakDevice.apply(this, arguments) }
-  if(S && S.skip) return Promise.resolve();
-  persona=persona||{}; const real=!!persona.name, args=arguments;
-  return new Promise(async resolve=>{
-    let pieces=sayPieces(speakable(text));
-    sayTurnN++;
-    if(real && S && !S.slowNow && sayTurnN>2 && pieces.length && pieces[0].t.split(/\s+/).length>3 && Math.random()<.18
-       && !/^(hi|hello|good (morning|afternoon)|thanks|thank you|well|so|okay|ok|right|hmm|look|yes|no|oh|ha|ah|sure|great|honestly|actually|sorry|apologies)\b/i.test(pieces[0].t)){
-      const pool=SAY_FILL[persona.stance]||SAY_FILL.def; pieces[0]={...pieces[0], t:pool[Math.floor(Math.random()*pool.length)]+' '+pieces[0].t.charAt(0).toLowerCase()+pieces[0].t.slice(1)} }
-    const diffRate = S && S.difficulty==='easy' ? .92 : S && S.difficulty==='veryhard' ? 1.06 : 1;
-    const speed = Math.max(.7, Math.min(1.3, +settings.rate * diffRate * (S && S.slowNow ? .85 : 1))), voice=kkVoiceFor(persona, idx);
-    kkCtx();
-    const jobs=pieces.map(()=>null); const get=i=>jobs[i]||(jobs[i]=kkGen(pieces[i].t, voice, speed));
-    const first=await kkWait(get(0), 4500);
-    if(S && S.skip){ resolve(); return }
-    if(!first){ kkTooSlow(); resolve(_speakDevice.apply(this, args)); return }          // too slow on this device: don't keep them waiting
-    for(let i=0;i<pieces.length;i++){
-      if(S && S.skip){ resolve(); return }
-      const au = i===0 ? first : await kkWait(get(i), 3500);
-      if(S && S.skip){ resolve(); return }
-      if(!au){ kkTooSlow(); await _speakDevice(pieces.slice(i).map(x=>x.t).join(' '), persona, idx); resolve(); return }
-      if(i+1<pieces.length) get(i+1);                                     // prepare the next sentence while this one plays
-      await kkPlay(au);
-      if(S && S.skip){ resolve(); return }
-      if(i+1<pieces.length) await new Promise(r=>setTimeout(r, pieces[i].dash ? 120+Math.random()*100 : pieces[i].q ? 320+Math.random()*180 : 180+Math.random()*180));
-    }
-    resolve();
-  });
-};
-/* stop instantly when they skip, repeat, or the meeting ends */
-const _skipSpeech_kk = skipSpeech; skipSpeech = function(){ kkStop(); return _skipSpeech_kk.apply(this, arguments) };
-const _cleanup_kk = cleanup; cleanup = function(){ kkStop(); return _cleanup_kk.apply(this, arguments) };
-const _sayBack_kk = sayBack; sayBack = function(t){ kkStop(); return _sayBack_kk.apply(this, arguments) };
-/* start loading early (when a brief opens), and unlock audio on the tap that starts a meeting */
-const _startMeeting_kk = startMeeting; startMeeting = function(){ kkCtx(); if(kkWanted() && KK.st==='idle') kkLoad(); const r=_startMeeting_kk.apply(this, arguments); kkRoomChip(); return r };
-const _openBriefing_kk = openBriefing; openBriefing = function(){ const r=_openBriefing_kk.apply(this, arguments); kkOffer(); if(kkWanted() && KK.st==='idle') kkLoad(); return r };
-const _lpTry_kk = lpTry; lpTry = function(){ const r=_lpTry_kk.apply(this, arguments); kkOffer(); if(kkWanted() && KK.st==='idle') kkLoad(); return r };
-function kkRoomChip(){ if(!$('kkChip')){ const c=document.createElement('span'); c.id='kkChip'; c.className='kk-chip'; const t=$('rTimer'); if(t) t.insertAdjacentElement('afterend', c) } kkChip() }
-/* phones: offer it once inside the brief card (it's a big download on mobile data) */
-function kkOffer(){
-  if(!kkMob() || kkPref()!=='auto' || LS.get('pactli_nvoice_asked',false)) return; const bb=$('briefBody'); if(!bb || bb.querySelector('.kk-offer')) return;
-  bb.insertAdjacentHTML('afterbegin', `<div class="kk-offer"><b>Try the natural voice</b><span>Much more human-sounding counterparts. One-time download of about 90 MB — best on Wi-Fi.</span><div><button class="btn ghost" onclick="kkDecide(false)">Not now</button><button class="btn gold" onclick="kkDecide(true)">Use natural voice</button></div></div>`) }
-function kkDecide(on){ LS.set('pactli_nvoice_asked', true); LS.set('pactli_nvoice', on?'on':'off'); const o=document.querySelector('.kk-offer'); if(o) o.remove(); if(on){ kkCtx(); kkLoad() } syncNV() }
-/* settings: Voice quality */
-function syncNV(){ const s=$('setNV'); if(s) s.value=kkPref() }
-const _openSettings_kk = openSettings; openSettings = function(){ const r=_openSettings_kk.apply(this, arguments); syncNV(); return r };
-const _saveSettings_kk = saveSettings; saveSettings = function(){ const s=$('setNV'), v=s?s.value:'auto'; LS.set('pactli_nvoice', v); LS.set('pactli_nvoice_asked', true); const r=_saveSettings_kk.apply(this, arguments); if(kkWanted() && KK.st==='idle') kkLoad(); return r };
+/* Auto question marks for spoken input: no need to say "question mark". */
+(function(){
+  const AUX='(?:is|are|was|were|am|do|does|did|can|could|would|will|shall|should|may|might|have|has|had|must|isn\'t|aren\'t|wasn\'t|weren\'t|don\'t|doesn\'t|didn\'t|can\'t|couldn\'t|wouldn\'t|won\'t|shouldn\'t|haven\'t|hasn\'t)';
+  const SUBJ='(?:you|we|i|they|it|this|that|these|those|there|he|she|your|our|the|any|anyone|anything|someone|everyone)';
+  const WH='(?:what|what\'s|how|how\'s|why|when|when\'s|where|where\'s|who|who\'s|whom|whose|which)';
+  const LEAD='(?:(?:so|and|but|ok|okay|well|then|also|um|uh|actually|alright|all right|great|sure|right|now|oh|and so|just|sorry|excuse me|hi|hello|thanks|thank you|yes|yeah|no|fine|good|perfect|got it|i see|in that case|by the way|one more thing|quick question|first|second|finally|lastly)[ ,]+)*';
+  const Q_START=new RegExp('^'+LEAD+'(?:'+WH+'\\b|'+AUX+' '+SUBJ+'\\b|(?:how|what) about\\b|any (?:chance|update|news|idea|thoughts|questions|other)\\b|is there\\b|are there\\b|would it be\\b|i (?:was|am|\'m) wondering\\b|i wonder\\b|do you (?:know|mind|think|have)\\b|could you tell me\\b|may i\\b|shall we\\b|should we\\b|why don\'t we\\b|can i\\b)','i');
+  const Q_TAG=/(?:,?\s(?:right|correct|ok|okay|yes or no|is that (?:right|correct|ok|okay|possible|fine|true)|does that (?:work|make sense|sound good|sound ok|sound okay)|(?:is|are|was|were|do|does|did|can|could|will|would|should|have|has)n't (?:it|you|we|they|that|there|he|she)|(?:is|are|do|does|did|can|could|will|would|should|have|has) (?:it|you|we|they|that|there) not|or not|any thoughts|what do you think|how does that sound|if (?:that\'s|that is) (?:ok|okay|alright|possible)))$/i;
+  function isQ(s){ s=s.trim().replace(/[.!?,]+$/,''); if(!s) return false; const w=s.split(/\s+/).length; return Q_START.test(s) || (w>=3 && Q_TAG.test(s)); }
+  // An unpunctuated run like "that sounds good what is the lead time": break before a clear question.
+  const SPLIT=new RegExp('\\b((?:good|great|fine|perfect|ok|okay|alright|sure|thanks|thank you|understood|noted|got it|i see|makes sense|that\'s fair|fair enough))\\s+(?=(?:so |and |but )?(?:'+WH+'\\b|(?:can|could|would|will|do|does|did|is|are) (?:you|we|i|they|it|there)\\b|(?:how|what) about\\b))','gi');
+  window.qmarkPunct=function(t){
+    t=String(t||'').trim(); if(!t) return t;
+    t=t.replace(SPLIT,'$1. ');
+    const parts=t.match(/[^.!?]+[.!?]*/g)||[t];
+    return parts.map(p=>{ const end=(p.match(/[.!?]+$/)||[''])[0]; let body=p.slice(0,p.length-end.length).trim(); if(!body) return '';
+      body=body.charAt(0).toUpperCase()+body.slice(1);
+      let mark = end.includes('?')||end.includes('!') ? end : (isQ(body)?'?':'.');
+      if(mark==='?') body=body.replace(/([a-z0-9])\s+(right|correct|okay|ok)$/i,'$1, $2');
+      return body+mark }).filter(Boolean).join(' ');
+  };
+  const _clean = typeof cleanSpeech==='function' ? cleanSpeech : null;
+  if(_clean) cleanSpeech = function(t){ let r=_clean(t); if(!r) return r; r=r.replace(/[.]$/,''); return qmarkPunct(r) };
+})();
 
 
 /* =========================================================
