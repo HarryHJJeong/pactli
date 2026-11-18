@@ -1141,6 +1141,48 @@ html.mob .fx-alt,.fx-alt.one{grid-template-columns:1fr}
 .docn-r .say{display:block;margin-top:6px;font-style:italic;color:#3d4440}
 @media print{#docView{display:none!important}}
 
+
+/* ---------- last-meeting recap ---------- */
+.lm{background:var(--panel);border:1px solid var(--line);border-radius:18px;padding:16px 16px 14px;margin:16px 0;font-size:13.5px;line-height:1.5;color:var(--ink);min-width:0}
+.lm-h{display:flex;justify-content:space-between;align-items:flex-start;gap:10px}
+.lm-h small{display:block;color:var(--muted);font-size:12px}.lm-h b{display:block;font-size:16.5px;letter-spacing:-.01em;margin-top:1px;overflow-wrap:anywhere}
+.lm-p{display:inline-block;font-size:11px;font-weight:700;border-radius:6px;padding:2px 7px;white-space:nowrap;flex-shrink:0;vertical-align:1px}
+.lm-p.ok{background:#dcebd5;color:#2f6a45}.lm-p.wa{background:#f1e7d3;color:#8a572c}.lm-p.mu{background:#ecebe5;color:#6b716d}.lm-p.bad{background:#f6e3df;color:#9b3b2f}
+.lm-s{border-top:1px solid var(--line);margin-top:12px;padding-top:10px}
+.lm-s h5,.lm-pick h5{margin:0 0 6px;font-size:12px;font-weight:700;color:var(--muted)}
+.lm-r{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:4px 0;min-width:0}
+.lm-r>span:first-child{min-width:0;overflow-wrap:anywhere}.lm-r>span:last-child{text-align:right;flex-shrink:0}
+.lm-r small{display:block;color:var(--muted);font-size:11.5px}
+.lm-o{padding:2px 0 4px}.lm-o .lm-r{padding:2px 0}
+.lm-gap{display:flex;justify-content:space-between;gap:10px;font-size:12px;color:var(--muted);background:#faf5ea;border-radius:8px;padding:5px 9px;margin-top:3px}
+.lm-gap b{color:var(--ink);font-weight:700}
+.lm-i{display:flex;gap:8px;align-items:flex-start;padding:3px 0}
+.lm-i i{font-style:normal;flex-shrink:0;width:16px;text-align:center;color:var(--dim);font-size:10px;line-height:20px}
+.lm-i.k i{color:#2f6a45;font-size:13px}.lm-i.w i{color:#8a572c;font-weight:900;font-size:13px}
+.lm-i a{color:var(--green);text-decoration:underline;text-underline-offset:2px;cursor:pointer}
+.lm-m{padding:4px 0 6px;min-width:0;overflow:hidden}.lm-m q{display:block;font-size:14px;color:var(--ink);white-space:normal;overflow-wrap:anywhere;max-width:100%}.lm-m q::before{content:'“'}.lm-m q::after{content:'”'}
+.lm-m small{color:var(--muted);font-size:11.5px}
+.lm-pick{margin-top:12px;background:var(--soft);border-radius:12px;padding:10px 12px}.lm-pick p{margin:0;color:var(--ink2)}
+.lm-room .lm-pick{margin-top:10px}
+.lm-b{display:flex;gap:8px;margin-top:14px;flex-wrap:wrap}.lm-b .btn{flex:1;justify-content:center;min-width:120px}
+.lm-mini{margin:0 0 18px;padding:14px}.lm-mini .lm-h b{font-size:15px}
+.lm-line{display:flex;align-items:center;gap:8px;width:100%;margin:8px 0 4px;padding:8px 11px;border:1px solid var(--line);border-radius:10px;background:var(--bg);font:inherit;font-size:12.5px;color:var(--ink2);cursor:pointer;text-align:left}
+.lm-line span{font-weight:700;color:var(--green)}.lm-line i{margin-left:auto;font-style:normal;color:var(--dim)}
+#rcView{position:fixed;inset:0;z-index:290;display:none}#rcView.on{display:block}
+.lmv-dim{position:absolute;inset:0;background:rgba(30,40,35,.38)}
+.lmv-box{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:min(560px,calc(100% - 24px));max-height:calc(100% - 40px);background:var(--bg);border-radius:20px;display:flex;flex-direction:column;overflow:hidden}
+html.mob .lmv-box{top:auto;bottom:0;transform:translateX(-50%);width:100%;max-height:92%;border-radius:22px 22px 0 0}
+.lmv-bar{display:flex;align-items:center;gap:10px;padding:12px 14px;background:var(--deep);color:#fff;flex-shrink:0}
+.lmv-bar b{flex:1;min-width:0;font-size:14.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.lmv-copy{padding:7px 12px;font-size:12.5px;color:#fff;border-color:rgba(255,255,255,.35);background:transparent}
+.lmv-body{overflow:auto;padding:4px 14px 18px;padding-bottom:max(18px,env(safe-area-inset-bottom))}
+.lmv-body .lm{margin:12px 0 0}
+.lmt{padding-top:10px}
+.lmt-l{padding:8px 0;border-bottom:1px solid var(--line)}.lmt-l:last-child{border:0}
+.lmt-l small{color:var(--muted);font-size:11.5px;font-weight:600}.lmt-l p{margin:2px 0 0;font-size:14px;color:var(--ink)}
+.lmt-l.me small{color:var(--green)}
+@media print{#rcView{display:none!important}}
+
 </style>
 </head>
 <body>
@@ -8074,6 +8116,150 @@ function docPane(f){
 }
 const _renderReport2 = renderReport;
 renderReport = function(r){ const out=_renderReport2.apply(this, arguments); try{ if(r && r.fb && r.fb.docNotes && r.fb.docNotes.length && !document.querySelector('#repBody .docp')){ const fx=document.querySelector('#repBody .fxp')||document.querySelector('#repBody .pane.full'); const h=docPane(r.fb); if(fx) fx.insertAdjacentHTML('beforebegin', h); else $('repBody').insertAdjacentHTML('beforeend', h) } }catch(e){} return out };
+
+
+/* =========================================================
+   LAST-MEETING RECAP — one card that shows where things stand after a meeting.
+   Built from the engine state and the transcript (rule-based). A snapshot is saved with the case when a meeting ends;
+   the card adds what changed since (emails, documents). Shown on the setup screen, the email thread, in the meeting
+   (Recap tab) and on the campaign page. The full transcript can be copied in one tap.
+   ========================================================= */
+const RC_PROMISE = /\b(?:I(?:'ll| will)|we(?:'ll| will)|let me)\s+(?:send|share|email|e-mail|forward|circulate|prepare|follow up|get back|check|confirm|call|update|draft|put together|look into|come back)\b[^.?!]{0,90}/i;
+const RC_MOOD = {warm:['Warm','ok'], neutral:['Neutral','mu'], cold:['Guarded','wa'], angry:['Frustrated','bad']};
+const RC_STANCE = {ally:'On your side', lead:'Decision maker', skeptic:'Skeptical', blocker:'Blocker'};
+function rcTerms(sc, st){
+  return (sc.issues||[]).filter(is=>!is.never).map(is=>{
+    const S_=st.issues[is.id]||{}, a=st.agreed[is.id], mine=(st.offers[is.id]||[]).slice(-1)[0];
+    if(a!=null) return {id:is.id, label:is.label, status:'agreed', text:fmtVal(is,a), v:a};
+    if(S_.raised || mine!=null) return {id:is.id, label:is.label, status:'open', theirs:fmtVal(is,S_.pos), tv:S_.pos, mine:mine!=null?fmtVal(is,mine):'', mv:mine};
+    return {id:is.id, label:is.label, status:'tba'};
+  });
+}
+function rcFound(sc, st){ return (sc.hidden||[]).filter(h=>st.revealed&&st.revealed[h.id]&&h.recap).map(h=>h.recap) }
+function rcPeople(sc, st){ return (sc.personas||[]).map((p,i)=>({name:p.name, role:p.role, mood:moodOf(st,i), stance:p.stance||''})) }
+function rcMoments(sc, log){
+  const them=log.filter(l=>!l.me), me=log.filter(l=>l.me), out=[];
+  const rev=(sc.hidden||[]).map(h=>String(h.reveal||'').slice(0,40)).filter(Boolean);
+  const a = them.find(l=>rev.some(r=>l.text.includes(r))) || them.find(l=>/\b(because|concern|worr|the (real )?problem|we need|our priority|honest)\w*/i.test(l.text) && l.text.length>40);
+  if(a) out.push(a);
+  const b = [...me].reverse().find(l=>/\b(agree[ds]?|deal|confirm|in exchange|if you|we can offer|works for us|go with)\b/i.test(l.text) && l.text.split(/\s+/).length>5);
+  if(b) out.push(b);
+  return out.slice(0,2).map(l=>({who:l.speaker, me:!!l.me, text:l.text, t:l.t||0}));
+}
+function rcOpener(terms, found){
+  const ag=terms.filter(t=>t.status==='agreed'), op=terms.filter(t=>t.status==='open');
+  const lst=a=>a.length<2?a[0]:a.slice(0,-1).join(', ')+' and '+a[a.length-1];
+  if(ag.length && op.length) return `Last time we agreed on ${lst(ag.slice(0,2).map(t=>t.label.replace(/^the /,'')+' at '+t.text))}. The open point is ${op[0].label} — could we start there?`;
+  if(op.length) return `Last time we left ${lst(op.slice(0,2).map(t=>t.label))} open. Could we pick up from there?`;
+  if(ag.length) return `Last time we agreed on ${lst(ag.slice(0,2).map(t=>t.label.replace(/^the /,'')+' at '+t.text))}. I'd like to confirm the next steps today.`;
+  if(found.length) return `Thanks for making time again. Last time you mentioned that ${found[0].replace(/^the /,'the ')} — I've given that some thought.`;
+  return 'Thanks for making time again. Could we pick up where we left off?';
+}
+function rcSnap(){
+  if(!S || !S.sc || !S.log) return null; const sc=S.sc, st=S.eng||rehydrate(newEngineState(sc),sc), log=S.log.filter(l=>l.text);
+  if(log.filter(l=>l.me).length<1) return null;
+  const terms=rcTerms(sc, st), found=rcFound(sc, st);
+  const promises=log.filter(l=>l.me).map(l=>{ const m=l.text.match(RC_PROMISE); return m?m[0].replace(/\s+$/,'').replace(/^let me/i,'I\'ll'):null }).filter(Boolean).slice(-3);
+  return {at:Date.now(), title:S.title, dur:S.start?Math.round((Date.now()-S.start)/1000):0, diff:S.difficulty, terms, found, people:rcPeople(sc, st),
+    promises, moments:rcMoments(sc, log), log:log.map(l=>({w:l.speaker, me:!!l.me, t:l.t||0, x:l.text})), opener:rcOpener(terms, found)};
+}
+/* save the snapshot with the case as the meeting ends */
+const _caseAfterMeeting_rc = caseAfterMeeting;
+caseAfterMeeting = async function(){
+  try{ if(S && S.caseId){ const snap=rcSnap(); if(snap){ const c=getCase(S.caseId); if(c){ c.recaps=(c.recaps||[]).concat([snap]).slice(-4); putCase(c) } } } }catch(e){}
+  return _caseAfterMeeting_rc.apply(this, arguments);
+};
+/* older cases without a snapshot: rebuild what we can from the saved state and transcript */
+function rcLegacy(c, sc){
+  if(!c || !c.lastMeeting || !c.state) return null; const st=caseState(c, sc);
+  const log=String(c.lastMeeting).split('\n').map(l=>{ const m=l.match(/^([^:]{1,40}):\s(.*)$/); return m?{w:m[1]==='LEARNER'?myName():m[1], me:m[1]==='LEARNER', t:0, x:m[2]}:null }).filter(Boolean);
+  const terms=rcTerms(sc, st), found=rcFound(sc, st);
+  return {at:c.updated||Date.now(), title:sc.title, dur:0, diff:c.difficulty, terms, found, people:rcPeople(sc, st), promises:[], moments:rcMoments(sc, log.map(l=>({speaker:l.w, me:l.me, text:l.x, t:0}))), log, opener:rcOpener(terms, found), legacy:true};
+}
+/* which recap belongs to a scenario: its own last meeting, or — for a campaign episode not yet played — the previous episode */
+function rcFor(id){
+  const sc0=allSc().find(s=>s.id===id); if(!sc0) return null;
+  const own=getCase(id,false), r=own && ((own.recaps||[]).slice(-1)[0] || rcLegacy(own, sc0));
+  if(r) return {r, caseId:id, sc:sc0, prev:false};
+  if(sc0.campaign){ try{ const c=campGet(sc0.campaign.id); for(let n=sc0.campaign.ep-1;n>=0;n--){ const pid=campSid(c,n), pc=getCase(pid,false), ps=allSc().find(s=>s.id===pid); const pr=pc && ps && ((pc.recaps||[]).slice(-1)[0] || rcLegacy(pc, ps)); if(pr) return {r:pr, caseId:pid, sc:ps, prev:true, ep:n} } }catch(e){} }
+  return null;
+}
+/* what changed after the meeting */
+function rcSince(R){
+  const c=getCase(R.caseId,false), out=[]; if(!c) return {items:out, terms:R.r.terms};
+  const after=(c.emails||[]).filter(e=>e.t>R.r.at), mine=after.filter(e=>e.me);
+  R.r.promises.forEach(p=>out.push({ok:mine.length>0, text:`You said: “${p}”`+(mine.length?' — you followed up by email':' — no email sent yet')}));
+  if(!R.r.promises.length && mine.length) out.push({ok:true, text:`You sent ${mine.length} email${mine.length>1?'s':''} after the meeting`});
+  let terms=R.r.terms;
+  try{ const st=caseState(c, R.sc), now=rcTerms(R.sc, st);
+    terms=now.map(t=>{ const o=R.r.terms.find(x=>x.id===t.id); const ch=o && (o.status!==t.status || o.text!==t.text || o.theirs!==t.theirs); if(ch && after.length) t.byMail=true; return t });
+    now.filter(t=>t.byMail).forEach(t=>out.push({ok:true, text:`By email: ${t.label} is now ${t.status==='agreed'?t.text+' (agreed)':(t.theirs||'open')}`})) }catch(e){}
+  try{ const d=typeof docLatest==='function' && docLatest(c); if(d){ const nm=d.kind==='quote'?'Quotation':'Agreement';
+    out.push(d.counterAt?{ok:true, text:`${nm} v${d.ver} is signed by both sides`, doc:d.id}:d.signedAt?{ok:true, text:`You signed ${nm} v${d.ver} — waiting for their countersignature`, doc:d.id}:{warn:true, text:d.kind==='quote'?`Quotation v${d.ver} is waiting for your reply`:`${nm} v${d.ver} is waiting for your signature`, doc:d.id}) } }catch(e){}
+  return {items:out, terms};
+}
+const rcMinute = s => Math.floor((s||0)/60)+':'+String((s||0)%60).padStart(2,'0');
+const rcDay = t => new Date(t).toLocaleDateString('en-GB',{day:'numeric',month:'short'});
+function rcCard(id, mode){
+  const R=rcFor(id); if(!R) return ''; mode=mode||'full'; const r=R.r, S2=rcSince(R), terms=S2.terms;
+  const open=terms.filter(t=>t.status==='open').length, agreed=terms.filter(t=>t.status==='agreed').length;
+  const pill = !terms.length ? '' : open ? `<span class="lm-p wa">${open} point${open>1?'s':''} open</span>` : agreed===terms.length ? '<span class="lm-p ok">All agreed</span>' : agreed ? `<span class="lm-p ok">${agreed} agreed</span>` : '<span class="lm-p mu">Not started</span>';
+  const head = `<div class="lm-h"><div><small>${R.prev?`Previous episode · `:'Last meeting · '}${rcDay(r.at)}${r.dur?' · '+Math.max(1,Math.round(r.dur/60))+' min':''}${r.diff?' · '+esc(dlabel(r.diff)):''}</small><b>${esc(r.title||R.sc.title)}</b></div>${pill}</div>`;
+  const termRow = t => t.status==='agreed' ? `<div class="lm-r"><span>${esc(docHead(t.label))}</span><span><b>${esc(t.text)}</b> <span class="lm-p ok">Agreed</span>${t.byMail?' <span class="lm-p mu">by email</span>':''}</span></div>`
+    : t.status==='open' ? `<div class="lm-o"><div class="lm-r"><span>${esc(docHead(t.label))}</span><span class="lm-p wa">Open</span></div>${t.mine?`<div class="lm-gap"><span>You: <b>${esc(t.mine)}</b></span><span>${R.sc.personas[0]?esc(firstName(R.sc.personas[0].name)):'They'}: <b>${esc(t.theirs)}</b></span></div>`:`<div class="lm-gap"><span>Their position: <b>${esc(t.theirs)}</b></span><span>You haven't made an offer</span></div>`}</div>`
+    : `<div class="lm-r"><span>${esc(docHead(t.label))}</span><span class="lm-p mu">Not discussed</span></div>`;
+  const sec = (h, body) => body ? `<div class="lm-s"><h5>${h}</h5>${body}</div>` : '';
+  const terms_ = terms.length ? sec('Terms', terms.map(termRow).join('')) : '';
+  const found_ = r.found.length ? sec('What you found out', r.found.map(f=>`<div class="lm-i"><i>●</i><span>${esc(cap1(f))}</span></div>`).join('')) : '';
+  const people_ = sec('People', r.people.map(p=>{ const m=RC_MOOD[p.mood]||RC_MOOD.neutral, st=RC_STANCE[p.stance]; return `<div class="lm-r"><span>${esc(p.name)}<small>${esc(String(p.role).split(',')[0])}</small></span><span class="lm-p ${p.stance==='ally'&&p.mood!=='cold'&&p.mood!=='angry'?'ok':m[1]}">${p.stance==='ally'&&p.mood!=='cold'&&p.mood!=='angry'?st:m[0]}</span></div>` }).join(''));
+  const since_ = S2.items.length ? sec('Since the meeting', S2.items.map(x=>`<div class="lm-i ${x.warn?'w':x.ok?'k':''}"><i>${x.warn?'!':x.ok?'✓':'•'}</i><span>${x.doc?`<a onclick="openDoc('${esc(R.caseId)}','${esc(x.doc)}')">${esc(x.text)}</a>`:esc(x.text)}</span></div>`).join('')) : '';
+  const moments_ = r.moments.length ? sec('Key moments', r.moments.map(m=>`<div class="lm-m"><q>${esc(m.text)}</q><small>${esc(m.me?'You':m.who)}${m.t?' · '+rcMinute(m.t):''}</small></div>`).join('')) : '';
+  const opener_ = `<div class="lm-pick"><h5>Pick up from here</h5><p>“${esc(rcOpener(terms, r.found))}”</p></div>`;
+  const btns = (start) => `<div class="lm-b"><button class="btn ghost" onclick="rcTranscript('${esc(R.caseId)}')">Full transcript</button>${start}</div>`;
+  if(mode==='mini') return `<div class="lm lm-mini">${head}${terms_}${since_}<div class="lm-b"><button class="btn ghost" onclick="rcOpen('${esc(id)}')">Open recap</button><button class="btn ghost" onclick="rcTranscript('${esc(R.caseId)}')">Transcript</button></div></div>`;
+  if(mode==='room') return `<div class="lm lm-room">${head}${opener_}${terms_}${found_}${since_}${people_}${moments_}${btns('')}</div>`;
+  const start = mode==='setup' ? `<button class="btn gold" onclick="rcStart()">Start next meeting</button>` : mode==='sheet' && R.sc ? `<button class="btn gold" onclick="rcClose();${R.sc.campaign?`campOpenEp(${(allSc().find(s=>s.id===id)||R.sc).campaign.ep})`:`openSetup('${esc(id)}')`}">Start next meeting</button>` : '';
+  return `<div class="lm">${head}${terms_}${found_}${people_}${since_}${moments_}${opener_}${btns(start)}</div>`;
+}
+function rcStart(){ if(!$('fName').value.trim()){ $('fName').focus(); toast('Add your name first.'); return } startMeeting() }
+
+/* overlay: recap sheet and transcript */
+function rcEnsure(){ if($('rcView')) return; const d=document.createElement('div'); d.id='rcView'; d.innerHTML='<div class="lmv-dim" onclick="rcClose()"></div><div class="lmv-box"><div class="lmv-bar"><b id="rcvT"></b><span id="rcvX"></span><button class="dv-x lmv-x" onclick="rcClose()" aria-label="Close">×</button></div><div class="lmv-body" id="rcvB"></div></div>'; document.body.appendChild(d) }
+function rcClose(){ const v=$('rcView'); if(v) v.classList.remove('on') }
+function rcOpen(id){ rcEnsure(); $('rcvT').textContent='Meeting recap'; $('rcvX').innerHTML=''; $('rcvB').innerHTML=rcCard(id,'sheet')||'<div class="empty">No meeting yet.</div>'; $('rcView').classList.add('on'); $('rcvB').scrollTop=0 }
+function rcLog(caseId){ const c=getCase(caseId,false), s=allSc().find(x=>x.id===caseId); const r=c&&((c.recaps||[]).slice(-1)[0] || (s&&rcLegacy(c,s))); return r }
+function rcText(caseId){ const r=rcLog(caseId); if(!r) return ''; const mm=s=>{ s=s||0; return Math.floor(s/60)+':'+String(s%60).padStart(2,'0') };
+  return `${r.title} — ${new Date(r.at).toLocaleString('en-GB',{day:'numeric',month:'short',year:'numeric',hour:'2-digit',minute:'2-digit'})}\n\n` + r.log.map(l=>`${r.legacy?'':'['+mm(l.t)+'] '}${l.me?l.w+' (you)':l.w}: ${l.x}`).join('\n') }
+function rcTranscript(caseId){ rcEnsure(); const r=rcLog(caseId); if(!r){ toast('No transcript yet.'); return }
+  $('rcvT').textContent='Transcript · '+(r.title||''); $('rcvX').innerHTML=`<button class="btn ghost lmv-copy" onclick="rcCopy('${esc(caseId)}')">Copy all</button>`;
+  $('rcvB').innerHTML=`<div class="lmt">${r.log.map(l=>`<div class="lmt-l ${l.me?'me':''}"><small>${esc(l.me?'You':l.w)}${r.legacy?'':' · '+Math.floor((l.t||0)/60)+':'+String((l.t||0)%60).padStart(2,'0')}</small><p>${esc(l.x)}</p></div>`).join('')}</div>`;
+  $('rcView').classList.add('on'); $('rcvB').scrollTop=0 }
+async function rcCopy(caseId){ const t=rcText(caseId); let ok=false;
+  try{ if(navigator.clipboard && window.isSecureContext){ await navigator.clipboard.writeText(t); ok=true } }catch(e){}
+  if(!ok){ const a=document.createElement('textarea'); a.value=t; a.setAttribute('readonly',''); a.style.cssText='position:fixed;top:0;left:0;opacity:0'; document.body.appendChild(a); a.select(); a.setSelectionRange(0,t.length); try{ ok=document.execCommand('copy') }catch(e){} a.remove() }
+  toast(ok?'Transcript copied':'Copy failed — select the text and copy it manually.') }
+
+/* 1. setup screen */
+const _openSetup_rc = openSetup;
+openSetup = function(id){ const r=_openSetup_rc.apply(this, arguments); try{ let w=$('sRecap'); if(!w){ w=document.createElement('div'); w.id='sRecap'; $('sDesc').insertAdjacentElement('afterend', w) } w.innerHTML = sc ? rcCard(sc.id,'setup') : '' }catch(e){} return r };
+/* 2. email thread side panel: the recap replaces "Agreed so far" */
+const _openThread_rc = openThread;
+openThread = function(id){ const r=_openThread_rc.apply(this, arguments); try{ const sd=$('thSide'); const h=rcCard(id,'mini'); if(sd && h){ sd.querySelectorAll('label').forEach(l=>{ if(l.textContent==='Agreed so far'){ const u=l.nextElementSibling; if(u) u.remove(); l.remove() } }); sd.insertAdjacentHTML('afterbegin', h) } }catch(e){} return r };
+/* 3. in the meeting: a Recap tab */
+function rcRoomTab(){ const tabs=document.querySelector('.side .tabs'); if(!tabs || tabs.querySelector('[data-rc]')) return; const b=document.createElement('button'); b.dataset.rc='1'; b.textContent='Recap'; b.onclick=function(){ sideTab(3,this) }; tabs.appendChild(b);
+  const p=document.createElement('div'); p.className='agenda'; p.id='recapPane'; $('emailPane').insertAdjacentElement('afterend', p) }
+const _sideTab_rc = sideTab;
+sideTab = function(i, btn){ rcRoomTab(); if(i===3){ document.querySelectorAll('.tabs button').forEach(b=>b.classList.remove('on')); btn.classList.add('on'); $('feed').style.display='none'; $('agenda').classList.remove('on'); $('emailPane').classList.remove('on'); $('recapPane').classList.add('on'); $('recapPane').innerHTML = S&&S.caseId ? (rcCard(S.caseId,'room')||'<div class="empty">This is your first meeting in this case — the recap appears after it ends.</div>') : ''; return }
+  const p=$('recapPane'); if(p) p.classList.remove('on'); return _sideTab_rc.apply(this, arguments) };
+const _startMeeting_rc = startMeeting;
+startMeeting = function(){ rcRoomTab(); const b=document.querySelector('.side .tabs [data-rc]'); if(b) b.style.display = rcFor(sc&&sc.id) ? '' : 'none'; return _startMeeting_rc.apply(this, arguments) };
+/* 4. campaign page: one line per played episode, tap for the full recap */
+const _renderCampaign_rc = renderCampaign;
+renderCampaign = function(){ const r=_renderCampaign_rc.apply(this, arguments); try{ const c=campActive(); if(!c) return r;
+  document.querySelectorAll('#campBody .cp-ep').forEach((el,n)=>{ const id=campSid(c,n), cs=getCase(id,false), rr=cs&&(cs.recaps||[]).slice(-1)[0]; if(!rr || el.querySelector('.lm-line')) return;
+    const ag=rr.terms.filter(t=>t.status==='agreed').length, op=rr.terms.filter(t=>t.status==='open').length;
+    const bits=[ag?`${ag} agreed`:'', op?`${op} open`:'', rr.found.length?`${rr.found.length} found out`:''].filter(Boolean).join(' · ') || `${rr.log.filter(l=>l.me).length} things you said`;
+    const p=el.querySelector('.cp-b>p'); if(p) p.insertAdjacentHTML('afterend', `<button class="lm-line" onclick="rcOpen('${esc(id)}')"><span>Recap</span>${esc(bits)}<i>›</i></button>`) }) }catch(e){} return r };
 
 </script>
 </body>
