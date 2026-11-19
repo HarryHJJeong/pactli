@@ -1759,6 +1759,17 @@ html.mob #trial .lt-member{text-align:center}
 .kk-offer{display:grid;gap:4px;background:#f3f8ec;border:1px solid #c7d9b8;border-radius:14px;padding:12px 14px;margin-bottom:12px;font-size:13.5px;line-height:1.5;color:#3b4a35}
 .kk-offer b{color:#293e36;font-size:14.5px}.kk-offer div{display:flex;gap:8px;margin-top:6px}.kk-offer .btn{flex:1;justify-content:center}
 
+.asw-g{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:22px}
+.asw-h{font-size:13px;font-weight:700;margin:4px 0 10px;color:var(--ink2)}
+.asw-h.y{color:#3d6b4f}.asw-h.n{color:#9a4b3a}
+.asw-i{border-left:3px solid var(--line);padding:8px 0 10px 12px;margin-bottom:10px}
+.asw-i.y{border-color:#7aa58a}.asw-i.n{border-color:#d29a86}
+.asw-t{display:flex;justify-content:space-between;gap:10px;align-items:baseline}
+.asw-t span{font-weight:700;font-size:13px;color:var(--dim)}
+.asw-i p{margin:4px 0 0;font-size:13.5px;line-height:1.55;color:var(--ink2)}
+.asw-tip{margin-top:6px;font-size:13px;line-height:1.5;background:var(--bg2,#f4f6f3);padding:7px 10px;border-radius:6px}
+@media(max-width:760px){.asw-g{grid-template-columns:minmax(0,1fr);gap:8px}}
+
 .lg-back{display:inline-block;margin-bottom:22px;font-size:13.5px;font-weight:600;color:var(--muted);cursor:pointer}.lg-back:hover{color:var(--ink)}
 html:has(#landing.on){background:#f7f5ee}
 </style>
@@ -8247,7 +8258,7 @@ function campHarvest(c, n, rec){
     if(has('summary')) L.flags.summaryOk=true; if(has('misquote')) L.flags.misquote=true;
     carry.push({good:has('summary')?1:has('misquote')?-1:0, text: has('summary')?'Final terms confirmed accurately.':has('misquote')?'Your summary of the final terms contained an error.':'The final terms were never confirmed out loud.'});
   }
-  L.history=L.history.filter(h=>h.ep!==n); L.history.push({ep:n, trust:L.trust, score:fb.overall||0, level:fb.level||'', met:(fb.goals||[]).filter(g=>g.status==='met').length, goals:(fb.goals||[]).length, date:Date.now()});
+  L.history=L.history.filter(h=>h.ep!==n); L.history.push({ep:n, trust:L.trust, score:fb.overall||0, level:fb.level||'', met:(fb.goals||[]).filter(g=>g.status==='met').length, goals:(fb.goals||[]).length, date:Date.now(), skills:fb.scores||null, str:(fb.strengths||[]).slice(0,4), imp:(fb.improvements||[]).slice(0,5)});
   L.history.sort((a,b)=>a.ep-b.ep);
   return carry;
 }
@@ -8443,6 +8454,7 @@ function renderArc(arc){
     <div class="kpi"><small>Risk exposure</small><b>${O.risk}</b><span>${O.risk<=30?'Well protected':O.risk<=50?'Some gaps':'Exposed'}</span></div>
     <div class="kpi"><small>Avg. episode score</small><b>${O.avg}</b><span>${arc.eps.filter(e=>e.done).length} of 6 episodes</span></div>
   </div>
+  ${typeof arcSW==='function'?arcSW(arc):''}
   <div class="rgrid">
     <div class="pane full"><h3>Trust with ${esc(arc.contact.split(' ')[0])}, episode by episode</h3>${campCurve(arc)}
       <table class="bptbl" style="margin-top:8px"><thead><tr><th>Episode</th><th>Score</th><th>Objectives</th><th>Trust after</th><th>Follow-up</th></tr></thead><tbody>${arc.eps.map((e,i)=>{ const h=(arc.history||[]).find(x=>x.ep===i); return `<tr><td><b>${i+1}. ${esc(e.t)}</b></td><td>${e.done?e.score:'—'}</td><td>${h?h.met+' / '+h.goals:'—'}</td><td>${h?h.trust:'—'}</td><td class="${e.bridged==='kept'?'r-in':e.bridged==='skipped'?'r-out':'r-open'}">${e.bridged==='kept'?'✓ sent':e.bridged==='skipped'?'✕ skipped':'—'}</td></tr>` }).join('')}</tbody></table></div>
@@ -9714,27 +9726,97 @@ speak = function(text, persona, idx){
 /* Auto question marks for spoken input: no need to say "question mark". */
 (function(){
   const AUX='(?:is|are|was|were|am|do|does|did|can|could|would|will|shall|should|may|might|have|has|had|must|isn\'t|aren\'t|wasn\'t|weren\'t|don\'t|doesn\'t|didn\'t|can\'t|couldn\'t|wouldn\'t|won\'t|shouldn\'t|haven\'t|hasn\'t)';
-  const SUBJ='(?:you|we|i|they|it|this|that|these|those|there|he|she|your|our|the|any|anyone|anything|someone|everyone)';
+  const SUBJ='(?:you|we|i|they|it|this|that|these|those|there|he|she|your|our|my|their|his|her|its|the|a|an|any|anyone|anything|someone|something|everyone|everything|all|both|either|each|mr|ms)';
   const WH='(?:what|what\'s|how|how\'s|why|when|when\'s|where|where\'s|who|who\'s|whom|whose|which)';
   const LEAD='(?:(?:so|and|but|ok|okay|well|then|also|um|uh|actually|alright|all right|great|sure|right|now|oh|and so|just|sorry|excuse me|hi|hello|thanks|thank you|yes|yeah|no|fine|good|perfect|got it|i see|in that case|by the way|one more thing|quick question|first|second|finally|lastly)[ ,]+)*';
-  const Q_START=new RegExp('^'+LEAD+'(?:'+WH+'\\b|'+AUX+' '+SUBJ+'\\b|(?:how|what) about\\b|any (?:chance|update|news|idea|thoughts|questions|other)\\b|is there\\b|are there\\b|would it be\\b|i (?:was|am|\'m) wondering\\b|i wonder\\b|do you (?:know|mind|think|have)\\b|could you tell me\\b|may i\\b|shall we\\b|should we\\b|why don\'t we\\b|can i\\b)','i');
-  const Q_TAG=/(?:,?\s(?:right|correct|ok|okay|yes or no|is that (?:right|correct|ok|okay|possible|fine|true)|does that (?:work|make sense|sound good|sound ok|sound okay)|(?:is|are|was|were|do|does|did|can|could|will|would|should|have|has)n't (?:it|you|we|they|that|there|he|she)|(?:is|are|do|does|did|can|could|will|would|should|have|has) (?:it|you|we|they|that|there) not|or not|any thoughts|what do you think|how does that sound|if (?:that\'s|that is) (?:ok|okay|alright|possible)))$/i;
-  function isQ(s){ s=s.trim().replace(/[.!?,]+$/,''); if(!s) return false; const w=s.split(/\s+/).length; return Q_START.test(s) || (w>=3 && Q_TAG.test(s)); }
+  const Q_START=new RegExp('^'+LEAD+'(?:'+WH+'\\b|'+AUX+' '+SUBJ+'\\b|(?:how|what) about\\b|any (?:chance|update|news|idea|thoughts|questions|other)\\b|is there\\b|are there\\b|would it be\\b|i (?:was|am|\'m) wondering\\b|i wonder\\b|do you (?:know|mind|think|have)\\b|could you tell me\\b|may i\\b|shall we\\b|should we\\b|why don\'t we\\b|can i\\b|(?:you|we|they) (?:have|got|need|want|ready|free|available|okay|ok|good|sure|happy|able|done|finished|interested|coming)\\b(?=.*\\b(?:any|yet|already|enough|for (?:that|this|it)|with (?:that|this|it))\\b)|anything else\\b|anyone else\\b|really\\b$|seriously\\b$|sound good\\b|sounds good\\b(?= to you)|mind if\\b|care to\\b|got a (?:minute|second|moment)\\b|ready to\\b|which one\\b|how come\\b)','i');
+  const Q_TAG=/(?:,?\s(?:right|correct|ok|okay|yes or no|is that (?:right|correct|ok|okay|possible|fine|true)|does that (?:work|make sense|sound good|sound ok|sound okay)|(?:is|are|was|were|do|does|did|can|could|will|would|should|have|has)n't (?:it|you|we|they|that|there|he|she)|(?:is|are|do|does|did|can|could|will|would|should|have|has) (?:it|you|we|they|that|there) not|or not|any thoughts|what do you think|how does that sound|if (?:that\'s|that is) (?:ok|okay|alright|possible)))(?:\s(?:for|with|to|on) (?:you|everyone|your team|your side|your end|both of us|you guys))?$/i;
+  // "What I mean is…", "How we handle it is…" are statements, not questions
+  const WH_STMT=new RegExp('^'+LEAD+'(?:what|how|why|when|where|who|which)\\s+(?:i|we|you|they|he|she|it|this|that|the|our|your|my)\\s+(?!(?:is|are|was|were|do|does|did|can|could|would|will|should|have|has)\\b)\\w+','i');
+  const SUBORD=/^(?:when|if|once|before|after|while|because|since|as soon as|unless|whether|although|though)\b/i;
+  // a question in the middle of an unpunctuated run: "we need 500 units can you deliver by March"
+  const NOSPLIT=/\b(?:if|whether|what|how|why|when|where|who|which|that|know|sure|tell|ask|asked|wonder|wondering|understand|see|mean|show|explain|decide|remember|forget|guess|than|and|or|but|so|to|of|about|me|let|think)$/i;
+  const MIDQ=new RegExp('\\s((?:can|could|would|will|do|does|did|should|shall|have|may)\\s(?:you|we|i)\\b|(?:what|how|why|when|where|who|which)\\s(?:is|are|was|were|do|does|did|can|could|would|will|should)\\s(?:you|we|they|it|this|that|the|our|your|there)\\b|(?:does|do|would|will|is|did) (?:that|this|it) (?:work|sound|make sense|suit|help|look)\\b)','gi');
+  function midSplit(t){
+    if(SUBORD.test(t) || Q_START.test(t)) return t;
+    return t.replace(MIDQ,(m,q,off,all)=>{ const before=all.slice(0,off).trim(); const w=before.split(/\s+/);
+      if(w.length<3 || /[.!?,]$/.test(before) || NOSPLIT.test(before)) return m; return '. '+q });
+  }
+  // "James what is your timeline" — a name, then the question
+  const NAMEQ=new RegExp('^(?!(?:i|we|you|they|he|she|it|that|this|know|see|tell|ask|wonder|explain|show|is|and|or|but|of|let|check|understand|remember|guess)\\b)[a-z]+,?\\s+'+WH+'\\s+(?:is|are|was|were|do|does|did|can|could|would|will|should)\\b','i');
+  function isQ(s){ s=s.trim().replace(/[.!?,]+$/,''); if(!s) return false; const w=s.split(/\s+/).length; if(SUBORD.test(s) && new RegExp('\\b(?:can|could|would|will|do|did|should|shall) (?:you|we)\\b','i').test(s.replace(/^\S+\s+\S+/,''))) return true; if(NAMEQ.test(s)) return true; if(WH_STMT.test(s) && !Q_TAG.test(s)) return false; return Q_START.test(s) || (w>=3 && Q_TAG.test(s)); }
   // An unpunctuated run like "that sounds good what is the lead time": break before a clear question.
   const SPLIT=new RegExp('\\b((?:good|great|fine|perfect|ok|okay|alright|sure|thanks|thank you|understood|noted|got it|i see|makes sense|that\'s fair|fair enough))\\s+(?=(?:so |and |but )?(?:'+WH+'\\b|(?:can|could|would|will|do|does|did|is|are) (?:you|we|i|they|it|there)\\b|(?:how|what) about\\b))','gi');
   window.qmarkPunct=function(t){
     t=String(t||'').trim(); if(!t) return t;
-    t=t.replace(SPLIT,'$1. ');
+    t=t.replace(SPLIT,(m,a,off,all)=>/\b(?:not|n't|'m|am|be|i'm|is|was|very|so|too)\s*$/i.test(all.slice(0,off))?m:a+'. '); t=midSplit(t);
     const parts=t.match(/[^.!?]+[.!?]*/g)||[t];
     return parts.map(p=>{ const end=(p.match(/[.!?]+$/)||[''])[0]; let body=p.slice(0,p.length-end.length).trim(); if(!body) return '';
       body=body.charAt(0).toUpperCase()+body.slice(1);
       let mark = end.includes('?')||end.includes('!') ? end : (isQ(body)?'?':'.');
-      if(mark==='?') body=body.replace(/([a-z0-9])\s+(right|correct|okay|ok)$/i,'$1, $2');
+      if(mark==='?' && NAMEQ.test(body)) body=body.replace(/^([A-Za-z]+),?\s+/,'$1, ');
+      if(mark==='?') body=body.replace(/\b(\w+)\s+(right|correct|okay|ok)$/i,(m,a,b)=>/^(is|that|it|this|be|sounds?|looks?|seems?|all|you|me|was|are|alright)$/i.test(a)?m:a+', '+b);
       return body+mark }).filter(Boolean).join(' ');
   };
   const _clean = typeof cleanSpeech==='function' ? cleanSpeech : null;
   if(_clean) cleanSpeech = function(t){ let r=_clean(t); if(!r) return r; r=r.replace(/[.]$/,''); return qmarkPunct(r) };
 })();
+
+
+/* Arc Report: where you were strong, where you were weak — rule-based, from the six episodes */
+const ARC_DIM = {
+  'Fluency & flow':            {s:'You kept talking smoothly, with full answers and few fillers.', w:'Your answers were often short or broken up by fillers and pauses.', tip:'Answer in two or three sentences: point, reason, example. Replace "um" with a short pause.'},
+  'Grammar & accuracy':        {s:'Your sentences were accurate — the other side never had to guess what you meant.', w:'Grammar slips came back across meetings and made some points less clear.', tip:'Check the rewrites in each episode report and say the corrected sentence out loud three times.'},
+  'Vocabulary & register':     {s:'You used business vocabulary and the right level of formality.', w:'Your wording was often too casual or too general for a client meeting.', tip:'Swap general words for business ones: "get" → "receive", "talk about" → "discuss", "OK" → "That works for us".'},
+  'Clarity & structure':       {s:'You organized the meetings: agenda, signposting and clear wrap-ups.', w:'The meetings had little structure — no agenda, few signposts, unclear endings.', tip:'Open with "I\'d like to cover three things today…" and close with "So, to confirm, we\'ve agreed to…".'},
+  'Persuasion & negotiation':  {s:'You backed your positions with reasons and traded concessions instead of giving them away.', w:'You conceded without getting something back, or stated positions without reasons.', tip:'Use "If you can…, then we can…" — never give a concession for free.'},
+  'Listening & responsiveness':{s:'You asked questions and built on what the other side said.', w:'You asked few questions and often moved on without picking up what they said.', tip:'Ask one open question per topic ("What matters most to you here?") and repeat back what you heard.'}
+};
+function arcNorm(t){ return String(t||'').toLowerCase().replace(/["“”'‘’].*$/,'').replace(/[^a-z ]/g,' ').replace(/\s+/g,' ').trim().split(' ').slice(0,6).join(' ') }
+function arcSW(arc){
+  const H=(arc.history||[]).filter(h=>h&&h.skills);
+  const S=[], W=[];
+  /* 1. language skills across the episodes */
+  let dims=[];
+  if(H.length){
+    dims=Object.keys(ARC_DIM).map(k=>{ const v=H.map(h=>h.skills[k]).filter(x=>typeof x==='number'); if(!v.length) return null;
+      const avg=Math.round(v.reduce((a,b)=>a+b,0)/v.length), first=v[0], last=v[v.length-1];
+      return {k, avg, trend: v.length>=3 ? last-first : 0, n:v.length} }).filter(Boolean).sort((a,b)=>b.avg-a.avg);
+    const top=dims.filter(d=>d.avg>=68).slice(0,2), low=dims.slice().reverse().filter(d=>d.avg<72 && !top.includes(d)).slice(0,2);
+    if(!top.length && dims.length) top.push(dims[0]);
+    top.forEach(d=>S.push({h:d.k, b:ARC_DIM[d.k].s+(d.trend>=8?` It also improved over the campaign (+${d.trend}).`:''), n:d.avg}));
+    low.forEach(d=>W.push({h:d.k, b:ARC_DIM[d.k].w+(d.trend>=8?` It did get better toward the end (+${d.trend}).`:d.trend<=-8?` It got weaker in the later meetings (${d.trend}).`:''), tip:ARC_DIM[d.k].tip, n:d.avg}));
+  }
+  /* 2. the deal itself */
+  const it=(arc.items||[]).filter(i=>i.src==='you'), good=it.filter(i=>i.score>=.9), out=it.filter(i=>!i.ok);
+  if(good.length) S.push({h:'Getting good terms', b:`You reached your target on ${good.length} point${good.length>1?'s':''}: ${good.slice(0,3).map(i=>i.label).join(', ')}.`});
+  if(out.length) W.push({h:'Staying inside your mandate', b:`You agreed ${out.length} point${out.length>1?'s':''} outside your limit: ${out.slice(0,3).map(i=>i.label).join(', ')}.`, tip:'Before each meeting, check your limit. When they push past it, say "That\'s beyond what I can approve — let me take it back to my team."'});
+  const P=arc.promises||[], kept=P.filter(p=>p.kept===true).length, broke=P.filter(p=>p.kept===false).length;
+  if(kept>=2 && !broke) S.push({h:'Keeping promises', b:`You followed up on all ${kept} things you promised. That is what built trust between meetings.`});
+  if(broke) W.push({h:'Following up', b:`${broke} promise${broke>1?'s were':' was'} never followed up. The other side remembers.`, tip:'Write the follow-up email right after each meeting, while you still remember what you promised.'});
+  const hist=arc.history||[];
+  if(hist.length>=2){ const t0=hist[0].trust, t1=hist[hist.length-1].trust;
+    if(t1-t0>=10) S.push({h:'Building the relationship', b:`Trust rose from ${t0} to ${t1} over the campaign.`});
+    else if(t0-t1>=10) W.push({h:'Building the relationship', b:`Trust fell from ${t0} to ${t1} over the campaign.`, tip:'Small talk, thanks and "I understand your position" cost nothing — use them before you push back.'}); }
+  if((arc.needs||0)>=4) S.push({h:'Finding their real needs', b:`You uncovered ${arc.needs} of their 5 underlying needs.`});
+  else if(hist.length>=3 && (arc.needs||0)<=1) W.push({h:'Finding their real needs', b:`You uncovered only ${arc.needs||0} of their 5 underlying needs, so you negotiated without knowing what they really wanted.`, tip:'Ask why: "What\'s behind that?", "What would make this a success for you?"'});
+  if((arc.leaks||[]).length) W.push({h:'Protecting your position', b:`You revealed pressure on your own side (“${arc.leaks[0].text}”).`, tip:'Keep deadlines, targets and internal pressure to yourself — talk about value instead.'});
+  /* 3. habits that came back in more than one meeting */
+  const seen={}; hist.forEach(h=>(h.imp||[]).forEach(t=>{ const k=arcNorm(t); if(k.length<8) return; (seen[k]=seen[k]||{t,eps:new Set()}).eps.add(h.ep) }));
+  const rec=Object.values(seen).filter(x=>x.eps.size>=2).sort((a,b)=>b.eps.size-a.eps.size).slice(0,3);
+  /* best and weakest meeting */
+  const sc=hist.filter(h=>typeof h.score==='number');
+  const best=sc.length>=2?sc.reduce((a,b)=>b.score>a.score?b:a):null, worst=sc.length>=2?sc.reduce((a,b)=>b.score<a.score?b:a):null;
+  if(!S.length && !W.length && !rec.length) return '';
+  const card=(x,cls)=>`<div class="asw-i ${cls}"><div class="asw-t"><b>${esc(cap1(x.h))}</b>${x.n!=null?`<span>${x.n}</span>`:''}</div><p>${esc(x.b)}</p>${x.tip?`<div class="asw-tip"><b>Try this:</b> ${esc(x.tip)}</div>`:''}</div>`;
+  return `<div class="pane full asw"><h3>Your strengths and weak spots</h3>
+    <div class="asw-g"><div><h4 class="asw-h y">Where you were strong</h4>${S.slice(0,4).map(x=>card(x,'y')).join('')||'<div class="hint">No clear strengths yet — the weak spots on the right are the place to start.</div>'}</div>
+    <div><h4 class="asw-h n">Where to improve</h4>${W.slice(0,4).map(x=>card(x,'n')).join('')||'<div class="hint">✓ No clear weak spots across the campaign.</div>'}</div></div>
+    ${rec.length?`<h4 class="asw-h" style="margin-top:18px">Came up in more than one meeting</h4><ul class="pts">${rec.map(r=>`<li>${esc(r.t)} <span style="color:var(--dim)">· Episodes ${[...r.eps].sort().map(e=>e+1).join(', ')}</span></li>`).join('')}</ul>`:''}
+    ${best&&worst&&best!==worst?`<div class="hint" style="margin-top:14px">Your best meeting was Episode ${best.ep+1} · ${esc(CAMP_EPS[best.ep].t)} (${best.score}). The hardest was Episode ${worst.ep+1} · ${esc(CAMP_EPS[worst.ep].t)} (${worst.score}).</div>`:''}
+    ${!H.length&&hist.length?'<div class="hint" style="margin-top:10px">Language skill details are shown for campaigns played from now on.</div>':''}
+  </div>`;
+}
 
 
 /* =========================================================
