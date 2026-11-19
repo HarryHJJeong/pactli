@@ -1769,6 +1769,29 @@ html.mob #trial .lt-member{text-align:center}
 .asw-i p{margin:4px 0 0;font-size:13.5px;line-height:1.55;color:var(--ink2)}
 .asw-tip{margin-top:6px;font-size:13px;line-height:1.5;background:var(--bg2,#f4f6f3);padding:7px 10px;border-radius:6px}
 @media(max-width:760px){.asw-g{grid-template-columns:minmax(0,1fr);gap:8px}}
+.arc-cards{display:none}
+@media(max-width:760px){
+  table.bptbl.arc-tbl{display:none!important}
+  .arc-cards{display:block;margin-top:8px}
+  .ac{border:1px solid var(--line);border-radius:12px;padding:12px 14px;margin-bottom:8px;background:var(--bg2,#f6f7f4)}
+  .ac.off{opacity:.55}
+  .ac-top{display:flex;justify-content:space-between;align-items:baseline;gap:10px}
+  .ac-p{font-weight:700;font-size:14px;line-height:1.4;min-width:0}
+  .ac-s{font-size:20px;font-weight:700;color:#455d50;flex:none}
+  .ac-m{display:flex;flex-wrap:wrap;gap:4px 14px;margin-top:6px;font-size:12.5px;color:var(--dim)}
+  .ac-m b{color:var(--ink);font-weight:700}
+  .ac-y{color:#3d6b4f;font-weight:600}.ac-n{color:#9a4b3a;font-weight:600}
+  .ac-eh{font-size:12.5px;font-weight:700;color:var(--dim);margin:16px 0 8px}
+  .ac-eh:first-child{margin-top:4px}
+  .ai{border-left:3px solid #7aa58a;padding:6px 0 6px 12px;margin-bottom:12px}
+  .ai.bad{border-color:#d29a86}
+  .ai-p{font-size:13px;color:var(--ink2)}
+  .ai-r{font-size:17px;font-weight:700;color:#3d6b4f;line-height:1.35;margin-top:2px;overflow-wrap:anywhere}
+  .ai.bad .ai-r{color:#9a4b3a}
+  .ai-m{font-size:12px;color:var(--dim);margin-top:3px}
+}
+.bgoals.arc-pl li.met{display:flex}
+@media(max-width:760px){.bgoals.arc-pl li>div span{display:block;font-size:12px;margin-top:2px}}
 
 .lg-back{display:inline-block;margin-bottom:22px;font-size:13.5px;font-weight:600;color:var(--muted);cursor:pointer}.lg-back:hover{color:var(--ink)}
 html:has(#landing.on){background:#f7f5ee}
@@ -8457,13 +8480,13 @@ function renderArc(arc){
   ${typeof arcSW==='function'?arcSW(arc):''}
   <div class="rgrid">
     <div class="pane full"><h3>Trust with ${esc(arc.contact.split(' ')[0])}, episode by episode</h3>${campCurve(arc)}
-      <table class="bptbl" style="margin-top:8px"><thead><tr><th>Episode</th><th>Score</th><th>Objectives</th><th>Trust after</th><th>Follow-up</th></tr></thead><tbody>${arc.eps.map((e,i)=>{ const h=(arc.history||[]).find(x=>x.ep===i); return `<tr><td><b>${i+1}. ${esc(e.t)}</b></td><td>${e.done?e.score:'—'}</td><td>${h?h.met+' / '+h.goals:'—'}</td><td>${h?h.trust:'—'}</td><td class="${e.bridged==='kept'?'r-in':e.bridged==='skipped'?'r-out':'r-open'}">${e.bridged==='kept'?'✓ sent':e.bridged==='skipped'?'✕ skipped':'—'}</td></tr>` }).join('')}</tbody></table></div>
+      ${arcEpCards(arc)}<table class="bptbl arc-tbl" style="margin-top:8px"><thead><tr><th>Episode</th><th>Score</th><th>Objectives</th><th>Trust after</th><th>Follow-up</th></tr></thead><tbody>${arc.eps.map((e,i)=>{ const h=(arc.history||[]).find(x=>x.ep===i); return `<tr><td><b>${i+1}. ${esc(e.t)}</b></td><td>${e.done?e.score:'—'}</td><td>${h?h.met+' / '+h.goals:'—'}</td><td>${h?h.trust:'—'}</td><td class="${e.bridged==='kept'?'r-in':e.bridged==='skipped'?'r-out':'r-open'}">${e.bridged==='kept'?'✓ sent':e.bridged==='skipped'?'✕ skipped':'—'}</td></tr>` }).join('')}</tbody></table></div>
     <div class="pane"><h3>What carried forward</h3>${chain.length?chain.map(x=>{ const [c,i]=dot(x.good); return `<div class="gl"><span class="dot ${c}">${i}</span><div>${esc(x.text)}</div></div>` }).join(''):'<div class="hint">Nothing recorded.</div>'}</div>
     <div class="pane"><h3>Risk exposure</h3>${O.risks.length?`<ul class="pts">${O.risks.map(r=>`<li>${esc(r)}</li>`).join('')}</ul>`:'<div class="hint">✓ No open risks — the contract is well protected.</div>'}
       <h3 style="margin-top:20px">Relationship</h3>${campBar('Trust',arc.trust)}${campBar('Rapport',arc.rapport)}${campBar('Credibility',arc.cred)}<div class="hint">Needs uncovered ${arc.needs} / 5 · goodwill ${arc.goodwill||0}</div></div>
-    <div class="pane full"><h3>Every number you negotiated</h3>
-      <table class="bptbl"><thead><tr><th>Episode</th><th>Point</th><th>Result</th><th>How</th><th>Against your mandate</th></tr></thead><tbody>${(arc.items||[]).slice().sort((a,b)=>a.ep-b.ep).map(t=>`<tr><td>Ep ${t.ep+1}</td><td><b>${esc(cap1(t.label))}</b></td><td class="${t.ok?'r-in':'r-out'}">${esc(t.text)}</td><td class="r-open">${t.src==='you'?'negotiated by you':t.src==='team'?'agreed by your team':'settled by default'}</td><td>${t.score>=.9?'At or beyond target':t.score>=.4?'Between limit and target':t.score>=0?'At your limit':'Outside your limit'}</td></tr>`).join('')||'<tr><td colspan="5" class="r-open">No terms were agreed.</td></tr>'}</tbody></table></div>
-    ${(arc.promises||[]).length?`<div class="pane full"><h3>Promise log</h3><ul class="bgoals">${arc.promises.map(p=>`<li class="${p.kept===true?'met':p.kept===false?'':'partial'}"><i>${p.kept===true?'✓':p.kept===false?'✕':'~'}</i>“${esc(p.text)}” <span style="color:var(--dim)">· Episode ${p.ep+1} · ${p.kept===true?'kept':p.kept===false?'not followed up':'open'}</span></li>`).join('')}</ul></div>`:''}
+    <div class="pane full"><h3>Every number you negotiated</h3>${arcItemCards(arc)}
+      <table class="bptbl arc-tbl"><thead><tr><th>Episode</th><th>Point</th><th>Result</th><th>How</th><th>Against your mandate</th></tr></thead><tbody>${(arc.items||[]).slice().sort((a,b)=>a.ep-b.ep).map(t=>`<tr><td>Ep ${t.ep+1}</td><td><b>${esc(cap1(t.label))}</b></td><td class="${t.ok?'r-in':'r-out'}">${esc(t.text)}</td><td class="r-open">${t.src==='you'?'negotiated by you':t.src==='team'?'agreed by your team':'settled by default'}</td><td>${t.score>=.9?'At or beyond target':t.score>=.4?'Between limit and target':t.score>=0?'At your limit':'Outside your limit'}</td></tr>`).join('')||'<tr><td colspan="5" class="r-open">No terms were agreed.</td></tr>'}</tbody></table></div>
+    ${(arc.promises||[]).length?`<div class="pane full"><h3>Promise log</h3><ul class="bgoals arc-pl">${arc.promises.map(p=>`<li class="${p.kept===true?'met':p.kept===false?'':'partial'}"><i>${p.kept===true?'✓':p.kept===false?'✕':'~'}</i><div>“${esc(p.text)}” <span style="color:var(--dim)">· Episode ${p.ep+1} · ${p.kept===true?'kept':p.kept===false?'not followed up':'open'}</span></div></li>`).join('')}</ul></div>`:''}
   </div>
   <div class="noprint" style="display:flex;gap:12px;padding:10px 0 60px;flex-wrap:wrap">
     <button class="btn gold" onclick="openCampaign()">Back to the campaign</button>
@@ -9816,6 +9839,23 @@ function arcSW(arc){
     ${best&&worst&&best!==worst?`<div class="hint" style="margin-top:14px">Your best meeting was Episode ${best.ep+1} · ${esc(CAMP_EPS[best.ep].t)} (${best.score}). The hardest was Episode ${worst.ep+1} · ${esc(CAMP_EPS[worst.ep].t)} (${worst.score}).</div>`:''}
     ${!H.length&&hist.length?'<div class="hint" style="margin-top:10px">Language skill details are shown for campaigns played from now on.</div>':''}
   </div>`;
+}
+/* phone layout: the two Arc Report tables become cards */
+function arcEpCards(arc){
+  return `<div class="arc-cards">${arc.eps.map((e,i)=>{ const h=(arc.history||[]).find(x=>x.ep===i);
+    const fu=e.bridged==='kept'?['y','Follow-up sent']:e.bridged==='skipped'?['n','Follow-up skipped']:null;
+    return `<div class="ac ${e.done?'':'off'}"><div class="ac-top"><span class="ac-p">Episode ${i+1} · ${esc(e.t)}</span><b class="ac-s">${e.done?e.score:'—'}</b></div>
+      ${e.done?`<div class="ac-m"><span>Objectives <b>${h?h.met+' / '+h.goals:'—'}</b></span><span>Trust after <b>${h?h.trust:'—'}</b></span>${fu?`<span class="ac-${fu[0]}">${fu[0]==='y'?'✓':'✕'} ${fu[1]}</span>`:''}</div>`:'<div class="ac-m"><span>Not played</span></div>'}</div>` }).join('')}</div>`;
+}
+function arcItemCards(arc){
+  const items=(arc.items||[]).slice().sort((a,b)=>a.ep-b.ep);
+  if(!items.length) return '<div class="arc-cards"><div class="hint">No terms were agreed.</div></div>';
+  const how=t=>t.src==='you'?'Negotiated by you':t.src==='team'?'Agreed by your team':'Settled by default';
+  const vs=t=>t.score>=.9?'At or beyond target':t.score>=.4?'Between limit and target':t.score>=0?'At your limit':'Outside your limit';
+  let out='', last=-1;
+  items.forEach(t=>{ if(t.ep!==last){ last=t.ep; out+=`<div class="ac-eh">Episode ${t.ep+1} · ${esc((CAMP_EPS[t.ep]||{}).t||'')}</div>` }
+    out+=`<div class="ai ${t.ok?'':'bad'}"><div class="ai-p">${esc(cap1(t.label))}</div><div class="ai-r">${esc(cap1(t.text))}</div><div class="ai-m">${how(t)} · ${vs(t)}</div></div>` });
+  return `<div class="arc-cards">${out}</div>`;
 }
 
 
