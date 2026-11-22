@@ -1787,7 +1787,6 @@ html.mob .lp-vplay{width:72px;height:72px}html.mob .lp-vplay span{left:28px;top:
 /* hero: copy and buttons, then the intro video right below; the old demo panel is retired */
 #landing .lp-hero{grid-template-columns:minmax(0,1fr)!important;gap:0!important;padding-bottom:96px}
 #landing .lp-hero .lp-intro{max-width:780px}
-#landing .lp-meet{display:none!important}
 .lp-heroVid{margin-top:44px}
 .lp-heroVid .lp-vid{margin:0;max-width:1120px}
 .lp-vcap{margin-top:14px;font-size:14px;color:var(--mute,#7a857f)}
@@ -1795,6 +1794,27 @@ html.mob .lp-heroVid{margin-top:30px}
 html.mob #landing .lp-hero{padding-bottom:56px}
 #landing .lp-hero .lp-heroVid{margin-top:52px}
 html.mob #landing .lp-hero .lp-heroVid{margin-top:30px}
+
+/* the live meeting demo sits right under the intro video */
+#landing .lp-hero .lp-meet{margin-top:40px;max-width:640px;width:100%}
+html.mob #landing .lp-hero .lp-meet{margin-top:28px;max-width:none}
+
+/* key visual: Worqend-style green band with tilted rounded squares, running from the hero into the intro video */
+#landing .lp-hero{position:relative}
+#landing .lp-kv{position:absolute;left:50%;top:0;transform:translateX(-50%);width:100vw;height:var(--kvH,720px);background:#2b3a32;overflow:hidden;z-index:0;pointer-events:none}
+#landing .lp-kvp{position:absolute;right:-160px;top:-140px;width:1250px;height:1150px;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='132' height='132'%3E%3Crect x='14' y='14' width='104' height='104' rx='28' fill='none' stroke='rgba(169,207,107,.20)' stroke-width='3.2'/%3E%3C/svg%3E");background-size:132px 132px;transform:rotate(-12deg);-webkit-mask-image:radial-gradient(ellipse at 75% 40%,#000 25%,transparent 70%);mask-image:radial-gradient(ellipse at 75% 40%,#000 25%,transparent 70%)}
+#landing .lp-hero>*:not(.lp-kv){position:relative;z-index:1}
+#landing .lp-hero h1{color:#fff}
+#landing .lp-hero h1 .lp-soft{color:#cfe39a!important}
+#landing .lp-hero .lp-ko{color:#d7e3cf!important}
+#landing .lp-hero .lp-trynote{color:#a8b9a9!important}
+#landing .lp-hero .lp-cta .lp-try{background:#cfe39a!important;color:#1d2a22!important;border-color:#cfe39a!important}
+#landing .lp-hero .lp-cta .lp-try:hover{background:#dcedb0!important}
+#landing .lp-hero .lp-cta .lp-s{background:transparent!important;color:#fff!important;border-color:rgba(255,255,255,.45)!important}
+#landing .lp-hero .lp-cta .lp-s:hover{border-color:#fff!important}
+#landing .lp-hero .lp-dot{background:#2f4a3c!important}
+html.mob #landing .lp-kvp{right:-260px;top:-60px;width:760px;height:900px;background-size:96px 96px}
+html.mob #landing .lp-kvp{right:-200px;top:-40px;width:620px;height:760px;background-size:64px 64px}
 
 .asw-g{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:22px}
 .asw-h{font-size:13px;font-weight:700;margin:4px 0 10px;color:var(--ink2)}
@@ -1853,6 +1873,7 @@ html:has(#landing.on){background:#f7f5ee}
   <div class="lp-r"><a class="lp-btn lp-s lp-login" onclick="lpLogin()">Sign in</a><a class="lp-btn lp-p lp-req" onclick="lpSignup()">Sign up</a></div></nav>
 
 <header class="lp-hero">
+  <div class="lp-kv" id="lpKv" aria-hidden="true"><div class="lp-kvp"></div></div>
   <div class="lp-intro">
     <h1><span class="lp-w">Rehearse the meeting</span> <span class="lp-w lp-soft">before it costs you the deal.</span></h1>
     <p class="lp-ko lp-kr lp-w">실제 고객사 미팅처럼 반박하고, 숨기고, 기억하는 상대와 <br>영어로 말하며 협상해 보세요.</p>
@@ -10240,6 +10261,11 @@ function lpVidEnd(){ const b=$('lpVidBox'); if(b) b.classList.remove('on') }
   const g=go; go=function(){ stop(); return g.apply(this,arguments) };
   const t=lpTry; lpTry=function(){ stop(); return t.apply(this,arguments) };
   document.addEventListener('visibilitychange',()=>{ if(document.hidden) stop() }); })();
+
+/* key visual band: green from the top of the hero to the middle of the intro video */
+function lpKv(){ const kv=$('lpKv'), v=$('lpVid'); if(!kv||!v) return; const h=kv.parentElement.getBoundingClientRect(), r=v.getBoundingClientRect(); if(!r.height) return; kv.style.setProperty('--kvH', Math.round(r.top-h.top+r.height*.42)+'px') }
+addEventListener('resize',lpKv); addEventListener('load',lpKv); setTimeout(lpKv,50); setTimeout(lpKv,600);
+(function(){ const g=go; go=function(){ const r=g.apply(this,arguments); setTimeout(lpKv,30); setTimeout(lpKv,500); return r } })();
 
 </script>
 </body>
