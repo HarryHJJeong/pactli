@@ -3555,7 +3555,7 @@ function initRec(){
     if(recOn){
       recRestarts++;
       if(recRestarts>6){ stopMic(true); return }           // nothing heard for a long time → finish
-      setTimeout(()=>{ if(recOn){ try{ r.start() }catch(err){} } }, recRestarts>1?350:60);
+      setTimeout(()=>{ if(recOn){ try{ r.start() }catch(err){} } }, recRestarts>2?200:30);
       return;
     }
     finishSpeech();
@@ -9852,14 +9852,18 @@ function vcPlay(g){
   const SPLIT=new RegExp('\\b((?:good|great|fine|perfect|ok|okay|alright|sure|thanks|thank you|understood|noted|got it|i see|makes sense|that\'s fair|fair enough))\\s+(?=(?:so |and |but )?(?:'+WH+'\\b|(?:can|could|would|will|do|does|did|is|are) (?:you|we|i|they|it|there)\\b|(?:how|what) about\\b))','gi');
   window.qmarkPunct=function(t){
     t=String(t||'').trim(); if(!t) return t;
-    t=t.replace(SPLIT,(m,a,off,all)=>/\b(?:not|n't|'m|am|be|i'm|is|was|very|so|too)\s*$/i.test(all.slice(0,off))?m:a+'. '); t=midSplit(t);
-    const parts=t.match(/[^.!?]+[.!?]*/g)||[t];
+    // keep decimals, times and abbreviations whole: 2.5, 5.3, $3.5 million, U.S., e.g., Mr. — never split there
+    const KEEP='\uE000';
+    t=t.replace(/(\d)\.(\d)/g,'$1'+KEEP+'$2').replace(/\b(mr|mrs|ms|dr|vs|etc|no|approx|inc|ltd|co|corp|st|jr|sr)\.(?=\s)/gi,'$1'+KEEP)
+       .replace(/\b([a-z])\.([a-z])\./gi,'$1'+KEEP+'$2'+KEEP);
+    t=t.replace(SPLIT,(m,a,off,all)=>/\b(?:not|n't|'m|am|be|i'm|is|was|very|so|too)\s*$/i.test(all.slice(0,off))?m:a+'\uE001 '); t=midSplit(t);
+    const parts=t.match(/[^.!?\uE001]+[.!?\uE001]*/g)||[t];
     return parts.map(p=>{ const end=(p.match(/[.!?]+$/)||[''])[0]; let body=p.slice(0,p.length-end.length).trim(); if(!body) return '';
       body=body.charAt(0).toUpperCase()+body.slice(1);
-      let mark = end.includes('?')||end.includes('!') ? end : (isQ(body)?'?':'.');
+      let mark = end.includes('\uE001') ? '.' : end.includes('?')||end.includes('!') ? end : (isQ(body)?'?':'.');
       if(mark==='?' && NAMEQ.test(body)) body=body.replace(/^([A-Za-z]+),?\s+/,'$1, ');
       if(mark==='?') body=body.replace(/\b(\w+)\s+(right|correct|okay|ok)$/i,(m,a,b)=>/^(is|that|it|this|be|sounds?|looks?|seems?|all|you|me|was|are|alright)$/i.test(a)?m:a+', '+b);
-      return body+mark }).filter(Boolean).join(' ');
+      return body+mark }).filter(Boolean).join(' ').replace(/\uE000/g,'.');
   };
   const _clean = typeof cleanSpeech==='function' ? cleanSpeech : null;
   if(_clean) cleanSpeech = function(t){ let r=_clean(t); if(!r) return r; r=r.replace(/[.]$/,''); return qmarkPunct(r) };
