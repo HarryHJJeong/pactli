@@ -1767,6 +1767,23 @@ html.mob .trybr-btns .btn{flex:none;min-width:0}
 @media(min-width:761px){.trybr-btns{display:flex}}
 @media(max-width:340px){.trybr-btns .btn{font-size:14px}.trybr-btns .btn.ghost{padding-left:14px;padding-right:14px}}
 
+/* intro video */
+.lp-vsec{padding-top:88px}
+.lp-vsec .lp-sh p{margin:14px 0 0;color:var(--lp-mut,#5d6862)}
+.lp-vid{position:relative;max-width:1040px;margin:34px 0 0;border-radius:18px;overflow:hidden;background:#22302a;box-shadow:0 24px 60px rgba(30,45,38,.18),0 2px 6px rgba(30,45,38,.08);aspect-ratio:16/9}
+.lp-vid video{display:block;cursor:pointer;width:100%;height:100%;object-fit:cover;background:#22302a}
+.lp-vplay{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);margin:0;padding:0;width:92px;height:92px;border-radius:50%;border:0;background:rgba(34,48,42,.86);cursor:pointer;box-shadow:0 10px 30px rgba(0,0,0,.25);transition:transform .25s,background .25s}
+.lp-vplay:hover{transform:translate(-50%,-50%) scale(1.06);background:#22302a}
+.lp-vplay span{position:absolute;left:36px;top:29px;border-style:solid;border-width:17px 0 17px 28px;border-color:transparent transparent transparent #fff}
+.lp-vid.on .lp-vplay{opacity:0;pointer-events:none}
+.lp-watch{display:inline-flex;align-items:center;gap:9px;margin-top:16px;font-size:14px;font-weight:600;color:#2f4a3c;cursor:pointer}
+.lp-watch:hover{text-decoration:underline}
+.lp-wp{width:22px;height:22px;border-radius:50%;background:#22302a;position:relative;flex:none}
+.lp-wp:after{content:"";position:absolute;left:8px;top:6px;border-style:solid;border-width:5px 0 5px 8px;border-color:transparent transparent transparent #fff}
+html.mob .lp-vsec{padding-top:56px}
+html.mob .lp-vid{border-radius:14px;margin-top:20px}
+html.mob .lp-vplay{width:72px;height:72px}html.mob .lp-vplay span{left:28px;top:22px;border-width:14px 0 14px 23px}
+
 .asw-g{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:22px}
 .asw-h{font-size:13px;font-weight:700;margin:4px 0 10px;color:var(--ink2)}
 .asw-h.y{color:#3d6b4f}.asw-h.n{color:#9a4b3a}
@@ -1828,6 +1845,7 @@ html:has(#landing.on){background:#f7f5ee}
     <h1><span class="lp-w">Rehearse the meeting</span> <span class="lp-w lp-soft">before it costs you the deal.</span></h1>
     <p class="lp-ko lp-kr lp-w">실제 고객사 미팅처럼 반박하고, 숨기고, 기억하는 상대와 <br>영어로 말하며 협상해 보세요.</p>
     <div class="lp-cta lp-w"><a class="lp-btn lp-p lp-try" onclick="lpTry()"><span class="lp-dot"></span>Try a 3-minute meeting</a><a class="lp-btn lp-s" onclick="lpSignup()">Sign up</a></div>
+    <a class="lp-watch lp-w" onclick="lpTo('lpVid');setTimeout(lpVidPlay,700)"><span class="lp-wp"></span>Watch the 45-second intro</a>
     <p class="lp-trynote lp-w lp-kr">로그인 없이 바로 · 마이크 또는 타이핑 · 끝나면 간단한 리포트 카드</p>
   </div>
   <div class="lp-meet" id="lpMeet">
@@ -1857,6 +1875,12 @@ html:has(#landing.on){background:#f7f5ee}
     <div><h3>They react</h3><p class="lp-kr">변명하면 차가워지고, 맞교환을 제안하면 움직입니다.</p></div>
     <div><h3>They remember</h3><p class="lp-kr">합의한 숫자는 이메일과 계약서까지 따라옵니다.</p></div>
   </div>
+</div></section>
+
+<section id="lpVid" class="lp-vsec"><div class="lp-wrap">
+  <div class="lp-sh"><h2>See it in 45 seconds</h2><p class="lp-kr">브리프, 미팅, 리포트, 계약서 수정과 서명까지 한 번에 보세요.</p></div>
+  <div class="lp-vid" id="lpVidBox"><video id="lpVideo" src="pactliz-intro.mp4" poster="pactliz-intro.jpg" preload="none" playsinline controlslist="nodownload" onclick="if(!this.controls)lpVidPlay()" onplay="lpVidOn()" onended="lpVidEnd()"></video>
+    <button class="lp-vplay" type="button" onclick="lpVidPlay()" aria-label="Play the 45-second intro video"><span></span></button></div>
 </div></section>
 
 <section id="lpHow"><div class="lp-wrap">
@@ -8691,7 +8715,7 @@ caseAfterMeeting = async function(){
 
 /* 2. replies: requested changes are answered, and a new version comes back when the terms moved */
 function docPara(body, para){ const i=body.lastIndexOf('\n\n'); return i<0 ? body+'\n\n'+para : body.slice(0,i)+'\n\n'+para+body.slice(i) }
-function docLead(body, para){ return body.replace(/^(Hi [^\n]*\n\n)/, `$1${para}\n\n`) }
+function docLead(body, para){ return body.replace(/^(Hi [^\n]*\n\n)/, m=>m+para+'\n\n') }   // a function, so "$1,850" in the text stays as written
 const docSnap = (sc, st) => JSON.stringify(docTerms(sc, st).map(x=>[x.id, x.status, x.v]));
 const _emailReplyDemo = emailReplyDemo;
 emailReplyDemo = function(c, mail){
@@ -8898,6 +8922,12 @@ function docPane(f){
 }
 const _renderReport2 = renderReport;
 renderReport = function(r){ const out=_renderReport2.apply(this, arguments); try{ if(r && r.fb && r.fb.docNotes && r.fb.docNotes.length && !document.querySelector('#repBody .docp')){ const fx=document.querySelector('#repBody .fxp')||document.querySelector('#repBody .pane.full'); const h=docPane(r.fb); if(fx) fx.insertAdjacentHTML('beforebegin', h); else $('repBody').insertAdjacentHTML('beforeend', h) } }catch(e){} return out };
+
+/* reply box: the greeting hint uses the real contact and the learner's own name (it used to say "Hi Sofia … Jiwoo" everywhere) */
+function cBodyHint(){ const to=$('cTo'), b=$('cBody'); if(!to||!b) return; const o=to.selectedOptions&&to.selectedOptions[0]; const nm=firstName(((o&&o.textContent)||'').replace(/\s*[(,·].*$/,'').trim()) ;
+  b.placeholder=`Hi ${nm==='there'?'there':nm},\n\nThank you for your email. …\n\nBest regards,\n${myName()==='there'?'':myName()}`; }
+(function(){ const o=openThread; openThread=function(){ const r=o.apply(this,arguments); try{ cBodyHint() }catch(e){} return r };
+  document.addEventListener('change',e=>{ if(e.target&&e.target.id==='cTo') cBodyHint() }); try{ cBodyHint() }catch(e){} })();
 
 
 /* =========================================================
@@ -10191,6 +10221,15 @@ lmSync = function(){
 };
 (function(){ let q=false; const run=()=>{ q=false; try{ lmSync() }catch(e){} };
   new MutationObserver(()=>{ if(!q){ q=true; requestAnimationFrame(run) } }).observe(document.body, {subtree:true, attributes:true, attributeFilter:['class']}) })();
+
+/* intro video on the landing page */
+function lpVidPlay(){ const v=$('lpVideo'); if(!v) return; v.muted=false; const p=v.play(); if(p&&p.catch) p.catch(()=>{ v.muted=true; v.play().catch(()=>{}) }) }
+function lpVidOn(){ const b=$('lpVidBox'), v=$('lpVideo'); if(b) b.classList.add('on'); if(v) v.controls=true }
+function lpVidEnd(){ const b=$('lpVidBox'); if(b) b.classList.remove('on') }
+(function(){ const stop=()=>{ const v=$('lpVideo'); if(v && !v.paused) v.pause() };
+  const g=go; go=function(){ stop(); return g.apply(this,arguments) };
+  const t=lpTry; lpTry=function(){ stop(); return t.apply(this,arguments) };
+  document.addEventListener('visibilitychange',()=>{ if(document.hidden) stop() }); })();
 
 </script>
 </body>
