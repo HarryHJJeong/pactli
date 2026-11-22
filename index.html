@@ -1784,6 +1784,18 @@ html.mob .lp-vsec{padding-top:56px}
 html.mob .lp-vid{border-radius:14px;margin-top:20px}
 html.mob .lp-vplay{width:72px;height:72px}html.mob .lp-vplay span{left:28px;top:22px;border-width:14px 0 14px 23px}
 
+/* hero: copy and buttons, then the intro video right below; the old demo panel is retired */
+#landing .lp-hero{grid-template-columns:minmax(0,1fr)!important;gap:0!important;padding-bottom:96px}
+#landing .lp-hero .lp-intro{max-width:780px}
+#landing .lp-meet{display:none!important}
+.lp-heroVid{margin-top:44px}
+.lp-heroVid .lp-vid{margin:0;max-width:1120px}
+.lp-vcap{margin-top:14px;font-size:14px;color:var(--mute,#7a857f)}
+html.mob .lp-heroVid{margin-top:30px}
+html.mob #landing .lp-hero{padding-bottom:56px}
+#landing .lp-hero .lp-heroVid{margin-top:52px}
+html.mob #landing .lp-hero .lp-heroVid{margin-top:30px}
+
 .asw-g{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:22px}
 .asw-h{font-size:13px;font-weight:700;margin:4px 0 10px;color:var(--ink2)}
 .asw-h.y{color:#3d6b4f}.asw-h.n{color:#9a4b3a}
@@ -1845,9 +1857,11 @@ html:has(#landing.on){background:#f7f5ee}
     <h1><span class="lp-w">Rehearse the meeting</span> <span class="lp-w lp-soft">before it costs you the deal.</span></h1>
     <p class="lp-ko lp-kr lp-w">실제 고객사 미팅처럼 반박하고, 숨기고, 기억하는 상대와 <br>영어로 말하며 협상해 보세요.</p>
     <div class="lp-cta lp-w"><a class="lp-btn lp-p lp-try" onclick="lpTry()"><span class="lp-dot"></span>Try a 3-minute meeting</a><a class="lp-btn lp-s" onclick="lpSignup()">Sign up</a></div>
-    <a class="lp-watch lp-w" onclick="lpTo('lpVid');setTimeout(lpVidPlay,700)"><span class="lp-wp"></span>Watch the 45-second intro</a>
     <p class="lp-trynote lp-w lp-kr">로그인 없이 바로 · 마이크 또는 타이핑 · 끝나면 간단한 리포트 카드</p>
   </div>
+  <div class="lp-heroVid" id="lpVid"><div class="lp-vid" id="lpVidBox"><video id="lpVideo" src="pactliz-intro.mp4" poster="pactliz-intro.jpg" preload="none" playsinline controlslist="nodownload" onclick="if(!this.controls)lpVidPlay()" onplay="lpVidOn()" onended="lpVidEnd()"></video>
+    <button class="lp-vplay" type="button" onclick="lpVidPlay()" aria-label="Play the 45-second intro video"><span></span></button></div>
+    <div class="lp-vcap lp-kr">45초 소개 영상 · 브리프, 미팅, 리포트, 계약서 수정과 서명까지</div></div>
   <div class="lp-meet" id="lpMeet">
     <div class="lp-mt"><div><b>The Price Push</b> <span>· Halcyon Retail</span></div><span class="lp-rec">Live · <i id="lpClock">06:30</i></span></div>
     <div class="lp-ppl"><div class="lp-pp" data-p="0"><div class="lp-a">SM</div>Sofia Martinez<small>Procurement</small></div><div class="lp-pp" data-p="1"><div class="lp-a" style="background:#e2ecff;color:#2c4a7a">JW</div>James Whitfield<small>Head of Ops</small></div><div class="lp-pp lp-me" data-p="2"><div class="lp-a">H</div>You<small>Account lead</small></div></div>
@@ -1877,11 +1891,7 @@ html:has(#landing.on){background:#f7f5ee}
   </div>
 </div></section>
 
-<section id="lpVid" class="lp-vsec"><div class="lp-wrap">
-  <div class="lp-sh"><h2>See it in 45 seconds</h2><p class="lp-kr">브리프, 미팅, 리포트, 계약서 수정과 서명까지 한 번에 보세요.</p></div>
-  <div class="lp-vid" id="lpVidBox"><video id="lpVideo" src="pactliz-intro.mp4" poster="pactliz-intro.jpg" preload="none" playsinline controlslist="nodownload" onclick="if(!this.controls)lpVidPlay()" onplay="lpVidOn()" onended="lpVidEnd()"></video>
-    <button class="lp-vplay" type="button" onclick="lpVidPlay()" aria-label="Play the 45-second intro video"><span></span></button></div>
-</div></section>
+
 
 <section id="lpHow"><div class="lp-wrap">
   <div class="lp-sh"><h2>How it works</h2></div>
