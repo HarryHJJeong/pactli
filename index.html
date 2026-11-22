@@ -9719,6 +9719,10 @@ function speakable(t){
     .replace(/\bvs\.?\s/gi,'versus ').replace(/\be\.g\.\s?/gi,'for example, ').replace(/\bi\.e\.\s?/gi,'that is, ').replace(/\betc\./gi,'and so on.')
     .replace(/\bMG\b/g,'M G').replace(/\bSLA\b/g,'S L A').replace(/\bNDA\b/g,'N D A').replace(/\bKPI(s?)\b/g,'K P I$1').replace(/\bROI\b/g,'R O I').replace(/\bEOD\b/g,'end of day')
     .replace(/(\d)\s?[–-]\s?(\d)/g,'$1 to $2')
+    .replace(/\bQ&A\b/g,'Q and A').replace(/\s&\s/g,' and ').replace(/\bB2B\b/g,'B to B').replace(/\bB2C\b/g,'B to C').replace(/\b24\/7\b/g,'twenty-four seven')
+    .replace(/\bw\/\s?/g,'with ').replace(/\bapprox\.\s?/gi,'approximately ').replace(/\bmin\.\s/g,'minimum ').replace(/\bmax\.\s/g,'maximum ')
+    .replace(/\bUSD\s?(\d)/g,'$1').replace(/(\d[\d,.]*)\s?USD\b/g,'$1 dollars').replace(/\b(\d+)\s?yrs?\b/g,'$1 years').replace(/\b(\d+)\s?mos?\b/g,'$1 months')
+    .replace(/\bASAP\b/g,'A S A P').replace(/\bFYI\b/g,'F Y I').replace(/\bETA\b/g,'E T A').replace(/\bPO\b/g,'P O').replace(/\bRFP\b/g,'R F P').replace(/\bSaaS\b/g,'sass')
     .replace(/\s+\/\s+/g,' or ')
     .replace(/[“”"]/g,'');
 }
@@ -9733,37 +9737,37 @@ const SAY_FILL = {
   lead:['Right,','Okay,','So,','Look,'], ally:['Well,','Hmm,','Yeah,','Oh,'], skeptic:['Hmm,','Well,','Look,','Okay,'], def:['Well,','So,','Hmm,','Right,']
 };
 let sayTurnN=0;
+/* Delivery: back to the original pace — one utterance per ~160 characters, no extra pauses between
+   sentences, no "thinking" beat, no speed jitter. Fillers stay (spoken only). Kept: gender-matched voices, pitch for
+   unmatched voices, and numbers/shorthand said the way people say them. */
+function sayChunks(text){
+  return (String(text).match(/[^.!?]+[.!?]*["”']?\s*/g)||[String(text)]).reduce((a,s)=>{ if(a.length&&(a[a.length-1]+s).length<160) a[a.length-1]+=s; else a.push(s); return a },[]).map(s=>s.trim()).filter(Boolean);
+}
 speak = function(text, persona, idx){
   return new Promise(resolve=>{
     if(!('speechSynthesis' in window)){ resolve(); return }
-    persona=persona||{}; const real=!!persona.name, v=pickVoice(persona, idx);
-    let pieces=sayPieces(speakable(text));
-    // an occasional natural filler at the start of a turn (not on the very first line, not on short or opening lines)
+    persona=persona||{}; const v=pickVoice(persona, idx);
+    let said=speakable(text);
+    // an occasional natural filler at the start of a turn ("Well,", "Hmm,", "Right,") — audio only, no extra pause
     sayTurnN++;
-    if(real && S && !S.slowNow && sayTurnN>2 && pieces.length && pieces[0].t.split(/\s+/).length>3 && Math.random()<.22
-       && !/^(hi|hello|good (morning|afternoon)|thanks|thank you|well|so|okay|ok|right|hmm|look|yes|no|oh|ha|ah|sure|great|honestly|actually|sorry|apologies)\b/i.test(pieces[0].t)){
+    if(persona.name && S && !S.slowNow && sayTurnN>2 && said.split(/\s+/).length>3 && Math.random()<.22
+       && !/^(hi|hello|good (morning|afternoon)|thanks|thank you|well|so|okay|ok|right|hmm|look|yes|no|oh|ha|ah|sure|great|honestly|actually|sorry|apologies)\b/i.test(said)){
       const pool=SAY_FILL[persona.stance]||SAY_FILL.def, f=pool[Math.floor(Math.random()*pool.length)];
-      pieces[0]={...pieces[0], t:f+' '+pieces[0].t.charAt(0).toLowerCase()+pieces[0].t.slice(1)};
+      said=f+' '+said.charAt(0).toLowerCase()+said.slice(1);
     }
+    const parts=sayChunks(said); let i=0;
     const diffRate = S && S.difficulty==='easy' ? .9 : S && S.difficulty==='veryhard' ? 1.08 : 1;
-    const baseRate = +settings.rate * diffRate * (S && S.slowNow ? .85 : 1), basePitch = voicePitch(v, persona);
-    const jit = (a)=> real ? (1 + (Math.random()*2-1)*a) : 1;
-    let i=0;
+    const rate = +settings.rate * diffRate * (S && S.slowNow ? .85 : 1), pitch = voicePitch(v, persona);
     const next=()=>{
       if(S && S.skip){ resolve(); return }
-      if(i>=pieces.length){ resolve(); return }
-      const pc=pieces[i++], u=new SpeechSynthesisUtterance(pc.t);
-      if(v) u.voice=v; u.lang = v?v.lang:'en-US';
-      u.rate = Math.max(.5, baseRate * jit(.045) * (pc.t.length<18 ? 1.04 : 1));
-      u.pitch = Math.min(2, Math.max(.1, basePitch * jit(.035) * (pc.q ? 1.03 : 1)));
-      let done=false; const go=()=>{ if(done) return; done=true; clearTimeout(wd);
-        const gap = !real ? 120 : pc.dash ? 140+Math.random()*120 : pc.q ? 380+Math.random()*220 : 220+Math.random()*230;
-        if(i>=pieces.length) next(); else setTimeout(next, gap) };
+      if(i>=parts.length){ resolve(); return }
+      const u=new SpeechSynthesisUtterance(parts[i++]);
+      if(v) u.voice=v; u.lang = v?v.lang:'en-US'; u.rate=rate; u.pitch=pitch;
+      let done=false; const go=()=>{ if(done) return; done=true; clearTimeout(wd); next() };
       const wd=setTimeout(go, 2500 + u.text.length*95/(u.rate||1)); // Chrome sometimes never fires onend
       u.onend=go; u.onerror=go; speechSynthesis.speak(u);
     };
-    // a short "thinking" beat before a reply, like a person drawing breath
-    if(real && S && !S.skip) setTimeout(next, 120+Math.random()*260); else next();
+    next();
   });
 };
 
@@ -9790,7 +9794,7 @@ pickVoice = function(persona, idx){
   }
   return _pickVoice0(persona, idx);
 };
-voicePitch = function(v, persona){ const m = persona && persona.gender==='m'; if(v && v._g) return m ? .95 : 1.02; return m ? .72 : 1.16 };
+voicePitch = function(v, persona){ const m = persona && persona.gender==='m'; if(v && v._g) return m ? .92 : 1.05; return m ? .72 : 1.16 };
 
 function vcFill(){
   const box=$('vcBox'); if(!box) return;
