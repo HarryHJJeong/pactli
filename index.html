@@ -1795,6 +1795,13 @@ html.mob #trial .lt-member{text-align:center}
 .cc-m{display:none}
 @media(max-width:760px){.cc-pc{display:none}.cc-m{display:block;margin:4px -4px 0}}
 
+.vc-box{margin:14px 0 4px}
+.vc-r{display:grid;grid-template-columns:62px minmax(0,1fr) 44px;gap:8px;align-items:center;margin-top:8px}
+.vc-r span{font-size:13px;font-weight:600;color:var(--ink2)}
+.vc-r select{min-width:0;width:100%}
+.vc-p{padding:0;height:40px;min-width:44px}
+.vc-note{display:block;margin-top:8px;font-size:12px;line-height:1.5;color:var(--dim)}
+
 .lg-back{display:inline-block;margin-bottom:22px;font-size:13.5px;font-weight:600;color:var(--muted);cursor:pointer}.lg-back:hover{color:var(--ink)}
 html:has(#landing.on){background:#f7f5ee}
 </style>
@@ -9751,6 +9758,60 @@ speak = function(text, persona, idx){
     if(real && S && !S.skip) setTimeout(next, 120+Math.random()*260); else next();
   });
 };
+
+/* =========================================================
+   VOICE CHECK — Settings lets each device choose its own women's and men's voice
+   (Android and Samsung browsers often name voices without a gender, so the automatic
+   match can't tell them apart). Saved per device. "Automatic" keeps the guess.
+   ========================================================= */
+const _voiceGender0 = voiceGender;
+voiceGender = function(v){
+  const n=(v.name+' '+(v.voiceURI||'')).toLowerCase();
+  if(/smtf\d|[-_ ]f\d{2}\b|#female|female_/.test(n)) return 'f';   // Samsung TTS: en-US-SMTf00 / SMTm00
+  if(/smtm\d|[-_ ]m\d{2}\b|#male|male_/.test(n)) return 'm';
+  return _voiceGender0(v);
+};
+function vKey(v){ return (v.voiceURI||v.name)+'|'+v.lang }
+function vPicks(){ return LS.get('pactli_voicepick',{})||{} }
+const _pickVoice0 = pickVoice;
+pickVoice = function(persona, idx){
+  const g = persona && persona.gender==='f' ? 'f' : 'm', P=vPicks();
+  if(P[g] && voices.length){
+    const v=voices.find(x=>vKey(x)===P[g]);
+    if(v){ const o=g==='f'?'m':'f'; v._g = (P[o] && P[o]===P[g]) ? null : g; return v }  // same voice for both → pitch makes the difference
+  }
+  return _pickVoice0(persona, idx);
+};
+voicePitch = function(v, persona){ const m = persona && persona.gender==='m'; if(v && v._g) return m ? .95 : 1.02; return m ? .72 : 1.16 };
+
+function vcFill(){
+  const box=$('vcBox'); if(!box) return;
+  const all=('speechSynthesis' in window)?speechSynthesis.getVoices().filter(v=>/^en/i.test(v.lang)):[];
+  const P=vPicks(), lab=v=>`${v.name.replace(/^Microsoft |^Google /,'')} (${v.lang.replace('_','-')})`;
+  const auto={f:_pickVoice0({gender:'f'},0), m:_pickVoice0({gender:'m'},0)};
+  ['f','m'].forEach(g=>{ const s=$('vc_'+g); if(!s) return;
+    const a=auto[g]; s.innerHTML=`<option value="">Automatic${a?' — '+esc(lab(a)):''}</option>`+all.map(v=>`<option value="${esc(vKey(v))}">${esc(lab(v))}${voiceGender(v)?' · '+(voiceGender(v)==='f'?'female':'male'):''}</option>`).join('');
+    s.value=P[g]&&all.some(v=>vKey(v)===P[g])?P[g]:'' });
+  const f=all.filter(v=>voiceGender(v)==='f').length, m=all.filter(v=>voiceGender(v)==='m').length;
+  $('vcNote').textContent = !all.length ? 'This browser has no English voices yet. Open Settings again in a moment.'
+    : all.length===1 ? 'This device has only one English voice, so men speak with a lower pitch. Choose a different browser (Chrome or Edge) for more voices.'
+    : `${all.length} English voices on this device (${f} female, ${m} male, ${all.length-f-m} unknown). If a voice sounds wrong, pick it here and press play.`;
+}
+function vcPlay(g){
+  const s=$('vc_'+g), keep=LS.get('pactli_voicepick',{})||{}, tmp=Object.assign({},keep); tmp[g]=s.value||undefined;
+  LS.set('pactli_voicepick',tmp); try{ speechSynthesis.cancel(); speak(g==='f'?"Hi, I'm Rachel. Shall we go through the numbers?":"Hi, I'm Daniel. Shall we go through the numbers?",{gender:g,name:'x'},0) }catch(e){}
+  LS.set('pactli_voicepick',keep);
+}
+(function(){
+  const row=document.querySelector('#settings #setFb'); if(!row) return;
+  row.insertAdjacentHTML('beforebegin',`<div id="vcBox" class="vc-box"><label>Counterpart voices on this device</label>
+    <div class="vc-r"><span>Women</span><select id="vc_f"></select><button class="btn ghost vc-p" type="button" onclick="vcPlay('f')" aria-label="Play women's voice">▶</button></div>
+    <div class="vc-r"><span>Men</span><select id="vc_m"></select><button class="btn ghost vc-p" type="button" onclick="vcPlay('m')" aria-label="Play men's voice">▶</button></div>
+    <small id="vcNote" class="vc-note"></small></div>`);
+  const o=openSettings; openSettings=function(){ const r=o.apply(this,arguments); vcFill(); return r };
+  const sv=saveSettings; saveSettings=function(){ const P={}; ['f','m'].forEach(g=>{ const s=$('vc_'+g); if(s&&s.value) P[g]=s.value }); LS.set('pactli_voicepick',P); return sv.apply(this,arguments) };
+  if('speechSynthesis' in window) speechSynthesis.addEventListener && speechSynthesis.addEventListener('voiceschanged',()=>{ if($('settings')&&$('settings').classList.contains('on')) vcFill() });
+})();
 
 
 /* Auto question marks for spoken input: no need to say "question mark". */
