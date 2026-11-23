@@ -1823,6 +1823,8 @@ html.mob #landing .lp-kvp{right:-200px;top:-40px;width:620px;height:760px;backgr
 .lp-vid.on:not(.snd) .lp-vsnd{display:inline-flex}
 html.mob .lp-vsnd{right:10px;bottom:10px;font-size:12.5px;padding:8px 12px 8px 10px}
 
+.type-q{display:none;margin-top:6px;font-size:12.5px;color:#8a5f16;background:#fbf3df;border-radius:8px;padding:6px 10px}
+.sg-src{display:block;font-size:11.5px;font-weight:600;margin-top:3px}.sg-src.ok{color:#3d6b4f}.sg-src.new{color:#8a5f16}.sg-src.open{color:#9a4b3a}
 /* campaign · drop the deal */
 #dropModal .drop-box{position:relative;background:var(--card,#fffefb);border-radius:20px;max-width:620px;width:100%;padding:28px 28px 22px;box-shadow:0 30px 80px rgba(10,25,18,.35);max-height:calc(100dvh - 40px);overflow-y:auto}
 #dropModal .drop-box h3{margin:0;font-size:22px;letter-spacing:-.015em;padding-right:36px}
@@ -4108,6 +4110,7 @@ function corrPre(sc, st, whole, turnOffers){
   if(ex && ex.type==='confirm'){
     const is = (sc.issues||[]).find(i=>i.id===ex.issue); if(!is){ st.expect=null; return null }
     if(turnOffers.some(o=>o.issue.id===is.id)) return null;                                   // a number came back, the wrapper handles it
+    if(turnOffers.some(o=>o.issue.id!==is.id) || (issuesMentioned(sc, whole.low).length && !issuesMentioned(sc, whole.low).some(i=>(i.id||i)===is.id))){ st.expect=null; return null }   // they answered about a different point: not a yes to the read-back
     const yes = (whole.accept || /\b(yes|yeah|yep|right|correct|exactly|that'?s (right|correct|it)|you heard (me )?(right|correctly)|confirmed?|indeed)\b/.test(whole.low)) && !/^\s*(no|nope|not)\b/.test(whole.low) && !whole.correct;
     if(yes){ st.expect = null; st.flags['cf_'+is.id+'_'+ex.value] = 1; return {issue:is.id, lines: evaluateOffer(sc, st, {issue:is, v:ex.value}, whole, whole.low)} }
     if(/^\s*(no|nope|not)\b/.test(whole.low) || whole.correct || whole.reject){ st.expect = {type:'number', issue:is.id}; return {issue:is.id, lines:[ln(is.owner||0, fresh(st,'rbAsk',[`Sorry about that. What figure did you say for ${is.label}?`,`My mistake. Could you give me the number for ${is.label} again?`]))]} }
@@ -4747,7 +4750,12 @@ function engineTurn(sc, st, text, channel){
     // offers / numbers
     const offers = bindOffers(sc, st, a, sl).filter(o=>!handledIssues.has(o.issue.id));
     if(offers.length){
-      offers.forEach(o=>{ handledIssues.add(o.issue.id); offersMade++; if(o.alts && o.alts.length){ add(30, negAmbig(st, o.issue, [o.v].concat(o.alts))); return } add(30, evaluateOffer(sc, st, o, Object.assign({},a,{reason:whole.reason,evidence:whole.evidence,cond:whole.cond||a.cond}), whole.low)) });
+      const pkgRes = offers.map(o=>{ handledIssues.add(o.issue.id); offersMade++; if(o.alts && o.alts.length) return {o, lines:negAmbig(st, o.issue, [o.v].concat(o.alts)), ne:st.events.length, took:false, amb:true};
+        const had=st.agreed[o.issue.id]!=null, ne=st.events.length, pos0=st.issues[o.issue.id]?st.issues[o.issue.id].pos:null;
+        const lines=evaluateOffer(sc, st, o, Object.assign({},a,{reason:whole.reason,evidence:whole.evidence,cond:whole.cond||a.cond}), whole.low);
+        return {o, lines, ne, pos0, took: !had && st.agreed[o.issue.id]!=null} });
+      if(offers.length>=2 && (whole.cond||a.cond) && pkgRes.some(r=>r.took) && pkgRes.some(r=>!r.took&&!r.amb)) pkgHold(st, pkgRes.filter(r=>!r.amb));
+      pkgRes.forEach(r=>add(30, r.lines));
       if(offers.length>=2 && (whole.cond||whole.propose)) { st.flags.package=true; ev(st,'package','Proposed a package across several issues.',1) }
       return;
     }
@@ -6409,7 +6417,7 @@ function cardReportHTML(r, mode){
   const f=r.fb||{}, m=r.metrics||{}, pc=mode==='pc';
   const fill = m.fTotal ? Object.entries(m.fillers||{}).sort((a,b)=>b[1]-a[1]).slice(0,2).map(([k,v])=>`"${k}" ×${v}`).join(', ') : 'none heard';
   const kpis = [['Length', fmt(m.duration||0), (m.turns||0)+' turns'], ['Speaking share', (m.share??'–')+'%', m.share<30?'speak up more':m.share>65?'leave them room':'good balance'], ['Pace', m.wpm??'–', m.wpm?(m.wpm<100?'words a minute, a little slow':m.wpm>170?'words a minute, a little fast':'words a minute, comfortable'):'typed'], ['Average turn', m.avgLen??'–', 'words, longest '+(m.longest??'–')], ['Fillers', m.fTotal??0, fill]];
-  const evalS = f.rubric ? rcSec('Evaluation', [['Content / Relevance','Relevant content that addresses the issue'],['Logic / Development','Reasons and examples that hold together'],['Delivery','Expressions, grammar and fluency']].map(([k,d])=>rcBar(k, f.rubric[k], d)).join('')) : '';
+  const evalS = f.rubric ? rcSec('Speaking evaluation', [['Content / Relevance','Relevant content that addresses the issue'],['Logic / Development','Reasons and examples that hold together'],['Delivery','Expressions, grammar and fluency']].map(([k,d])=>rcBar(k, f.rubric[k], d)).join('')) : '';
   const skills = Object.keys(f.scores||{}).length ? rcSec('Skills', Object.entries(f.scores).map(([k,v])=>rcBar(k,v)).join('')) : '';
   const goals = (f.goals||[]).length ? rcSec('Objectives', `<div class="rc-goals">${f.goals.map(g=>`<div class="rc-row">${rcDot(g.status==='met'?1:g.status==='partial'?0:-1)}<div>${esc(g.goal)}${g.note?`<small>${esc(g.note)}</small>`:''}</div></div>`).join('')}</div>`) : '';
   const worked = (f.strengths||[]).length ? rcSec('What worked', `<ul class="rc-list">${f.strengths.map(s=>`<li>${esc(s)}</li>`).join('')}</ul>`) : '';
@@ -6496,7 +6504,7 @@ function renderReport(r){
   const playBtn = t=>`<button class="play" onclick='sayBack(${JSON.stringify(t).replace(/'/g,"&#39;")})' title="Listen"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg></button>`;
   $('repBody').innerHTML = `
   <div class="rep-head">
-    <div class="ring"><svg width="150" height="150"><circle cx="75" cy="75" r="66" fill="none" stroke="#e6eee7" stroke-width="7"/><circle cx="75" cy="75" r="66" fill="none" stroke="url(#g)" stroke-width="7" stroke-linecap="round" stroke-dasharray="${C}" stroke-dashoffset="${off}"/><defs><linearGradient id="g"><stop offset="0" stop-color="#7fa08b"/><stop offset="1" stop-color="#455d50"/></linearGradient></defs></svg><b>${f.overall??'–'}<small>OVERALL</small></b></div>
+    <div class="ring"><svg width="150" height="150"><circle cx="75" cy="75" r="66" fill="none" stroke="#e6eee7" stroke-width="7"/><circle cx="75" cy="75" r="66" fill="none" stroke="url(#g)" stroke-width="7" stroke-linecap="round" stroke-dasharray="${C}" stroke-dashoffset="${off}"/><defs><linearGradient id="g"><stop offset="0" stop-color="#7fa08b"/><stop offset="1" stop-color="#455d50"/></linearGradient></defs></svg><b>${f.overall??'–'}<small>MEETING SCORE</small></b></div>
     <div><span class="level">${esc(f.level||'')}</span><h1>${esc(f.headline||r.title)}</h1><p>${esc(f.summary||'')}</p></div>
     <div style="text-align:right;color:var(--dim);font-size:12.5px;line-height:1.8">${esc(r.title)}<br>${esc(dlabel(r.difficulty))} · ${new Date(r.date).toLocaleString()}<br>${esc(r.name)} · ${esc(r.role)}</div>
   </div>
@@ -6509,7 +6517,7 @@ function renderReport(r){
   </div>
   <div class="rgrid">
     ${r.camp?renderCampPane(r.camp):''}
-    ${f.rubric?`<div class="pane"><h3>Evaluation · ${f.rubric.Overall}/100</h3>${[['Content / Relevance','Relevant content that directly addresses the issue'],['Logic / Development','Reasonable arguments with adequate reasons and examples'],['Delivery','Expressions, grammar & usage, fluency']].map(([k,d])=>`<div class="bar"><div><span>${esc(k)}<small style="display:block;color:var(--dim);font-size:11px;font-weight:400">${d}</small></span><b>${f.rubric[k]}</b></div><i><u style="width:${f.rubric[k]}%"></u></i></div>`).join('')}</div>`:''}
+    ${f.rubric?`<div class="pane"><h3>Speaking evaluation · ${f.rubric.Overall}/100</h3><div class="hint" style="margin:-4px 0 12px">Content, logic and delivery only. Your meeting score (${f.overall}) also counts objectives, the deal and how you handled them, so the two can differ.</div>${[['Content / Relevance','Relevant content that directly addresses the issue'],['Logic / Development','Reasonable arguments with adequate reasons and examples'],['Delivery','Expressions, grammar & usage, fluency']].map(([k,d])=>`<div class="bar"><div><span>${esc(k)}<small style="display:block;color:var(--dim);font-size:11px;font-weight:400">${d}</small></span><b>${f.rubric[k]}</b></div><i><u style="width:${f.rubric[k]}%"></u></i></div>`).join('')}</div>`:''}
     <div class="pane"><h3>Skill breakdown</h3>${Object.entries(f.scores||{}).map(([k,v])=>`<div class="bar"><div><span>${esc(k)}</span><b>${v}</b></div><i><u style="width:${v}%"></u></i></div>`).join('')}</div>
     <div class="pane"><h3>Objectives</h3>${(f.goals||[]).map(g=>{const [c,i]=st(g.status);return `<div class="gl"><span class="dot ${c}">${i}</span><div>${esc(g.goal)}<small>${esc(g.note)}</small></div></div>`}).join('')}</div>
     ${r.brief?renderBriefReport(r.brief):''}
@@ -6535,7 +6543,7 @@ function sayBack(t){ speechSynthesis.cancel(); speak(t,{gender:'f'},0) }
    and turned into practice: listen, say it again, save it, review it before the next meeting.
    Rule-based only. Patterns drawn from common errors in real class transcripts (Harry's Talking Class).
    ========================================================= */
-const FIX_ING = v => /ie$/.test(v) ? v.slice(0,-2)+'ying' : /[^aeiou]e$/.test(v) && !/(be|see)$/.test(v) ? v.slice(0,-1)+'ing' : /^(get|put|set|run|sit|stop|plan|shop)$/.test(v) ? v+v.slice(-1)+'ing' : v+'ing';
+const FIX_ING = v => /ie$/.test(v) ? v.slice(0,-2)+'ying' : /[^aeiou]e$/.test(v) && !/(be|see)$/.test(v) ? v.slice(0,-1)+'ing' : /^(get|put|set|run|sit|stop|plan|shop|cut|swap|ship|chat|drop|begin|forget|commit|admit|submit|permit|omit|regret|prefer|refer|transfer|occur|upset|outrun)$/.test(v) ? v+v.slice(-1)+'ing' : v+'ing';
 const FIX_SUBJ = a => /^we/i.test(a) ? 'we' : 'I';
 /* extra language rules, same shape as LANG: [pattern, replacement, why, (unused), 'err' = grammar | 'reg' = word choice / register] */
 const FIX_LANG = [
@@ -6599,7 +6607,7 @@ const FIX_NUANCE = [
    polite:t=>`I think there may have been a misunderstanding${FIX_NUM(t)?`, I said ${FIX_NUM(t)}`:''}.`, firm:t=>`Let me correct that${FIX_NUM(t)?`: I said ${FIX_NUM(t)}`:''}.`},
   {id:'bareno', re:/^no[.!]?$/i, why:'A bare "No" sounds abrupt. Add how you feel about it, or what would work.',
    polite:()=>"I'm afraid that won't work for us.", firm:()=>"No, that doesn't work for us."},
-  {id:'must', re:/\byou (must|have to|need to) (\w+)/i, why:'"You must" sounds like an order. Put the need on your side.',
+  {id:'must', re:/\byou (must|have to|need to) (\w+)/i, ok:(t)=>!/\?\s*$/.test(t) && !/\b(do|does|did|will|would|when|what|how|why|whether|if)\b[^.?!]{0,14}\byou (need|have) to\b/i.test(t), why:'"You must" sounds like an order. Put the need on your side.',
    polite:(t,m)=>t.replace(m[0], "we'd need you to "+m[2]).replace(/^we/,'We'), firm:(t,m)=>t.replace(m[0], "you'll need to "+m[2]).replace(/^you/,'You')},
   {id:'agreeq', re:/(?:^|[,.]\s*|\b(?:so|then)\s+)we agree (with|on|at) ([^?]+?)\s*\?\s*$/i, ok:(t)=>!/\b(could|can|shall|should|would|do|will) we agree\b/i.test(t), why:'"We agree with 475k?" sounds unsure. Close the point clearly.',
    polite:(t,m)=>`So, do we have a deal at ${m[2].replace(/[.?!]+$/,'')}?`, firm:(t,m)=>`So we're agreed at ${m[2].replace(/[.?!]+$/,'')}.`},
@@ -6770,7 +6778,7 @@ const LVL_RULES = [
   [/\b(that'?s|it'?s) a good idea\b/i, ["that has real merit",'C1'], ["I can see that working",'B2+'], 'Precise praise that sounds measured.'],
   [/^(to sum up|in conclusion|so in summary),? /i, ["So, to recap where we've landed: ",'C1'], ["Let me pull this together: ",'C1'], 'Natural spoken framing for a summary.'],
   [/\bthe (main |big |biggest )?problem is\b/i, ["the sticking point for us is",'C1'], ["what's holding us back is",'B2+'], 'Negotiation vocabulary for what blocks agreement.'],
-  [/^if you (\w+)/i, [(m,v)=>"If you could see your way to "+FIX_ING(v.toLowerCase()),'C2'], ["Provided you $1",'C1'], 'A conditional that sounds like an offer, not a demand.'],
+  [/^if you (?:(?:can|could|will|would|are able to) )?(?!could see your way)(\w+)(.*)$/i, [(m,v,rest)=>"If you could see your way to "+FIX_ING(v.toLowerCase())+rest.replace(/\bwe can\b/i,'we could').replace(/\b(we will|we'll)\b/i,'we would'),'C2'], [m=>"Provided you"+m.slice(6),'C1'], 'A conditional that sounds like an offer, not a demand.'],   // the modal is skipped: "if you can commit" → "committing", never "caning"
   [/\bwe want (a|some) (discount|better price|lower price)\b/i, ["we'd be looking for a more competitive rate",'C1'], ["we'd need the numbers to work harder for us",'C2'], 'Asks for a better price without sounding blunt.'],
   [/^(sorry,? )?i (don'?t|do not) understand\b/i, ["Sorry, I'm not sure I follow",'C1'], ["Could you unpack that a little?",'C1'], 'Polite and precise about what you need.'],
   [/^(can|could) you explain( (it|that|this))?\b/i, ["Could you walk me through that",'C1'], ["Could you elaborate on that",'C1'], 'Invites a step-by-step explanation.'],
@@ -8356,9 +8364,9 @@ function campHarvest(c, n, rec){
     if(over){ L.flags.overstep=(L.flags.overstep||0)+over; L.cred=campClamp(L.cred-5*over,0,100); carry.push({good:-1, text:`You agreed ${over} point${over>1?'s':''} outside your authority without checking with your team.`}) }
     L.flags.clause = !!(L.terms.change && L.terms.change.v<=.5+1e-9);
     const mine=Object.values(L.terms).filter(t=>t.src==='you'), left=Object.values(L.terms).filter(t=>t.src==='default'&&t.id!=='change');
-    carry.push({good:mine.length>=3?1:0, text:`Signed: ${mine.length} point${mine.length===1?'':'s'} negotiated by you${left.length?`, ${left.length} settled afterwards near their position`:''}.`});
+    carry.push({good:mine.length>=3?1:0, text:`Term sheet: ${mine.length} point${mine.length===1?'':'s'} negotiated by you${left.length?`, ${left.length} settled afterwards near their position`:''}.`});
     const bad=Object.values(L.terms).filter(t=>t.src==='you'&&!t.ok); if(bad.length) carry.push({good:-1, text:`Outside your limit: ${bad.map(t=>t.label).join(', ')}.`});
-    carry.push({good:0, text:`Price adjustment in the signed contract: ${L.terms.change?L.terms.change.text:'—'}.`});
+    carry.push({good:0, text:`Price adjustment in the agreed terms: ${L.terms.change?L.terms.change.text:'—'}. The contract itself is signed separately, from the email.`});
   }
   if(n===2){
     agreedHere.forEach(is=>put(is, st.agreed[is.id], 'you'));
@@ -8507,7 +8515,7 @@ function renderCampaign(){
           <div class="cp-kv"><span>Goodwill</span><b>${L.goodwill||0}</b></div>
           <label style="margin-top:16px">Needs map · ${Object.keys(L.needs).length} / 5</label>
           <ul class="bfind">${needs.map(h=>L.needs[h.id]?`<li class="got">✓ <b>${esc(h.hint)}</b> <span>${esc(h.recap)}</span></li>`:`<li class="lock">🔒 ${esc(h.hint)}</li>`).join('')}</ul>
-          ${terms.length?`<label style="margin-top:16px">Term sheet</label><table class="bptbl"><tbody>${terms.map(t=>`<tr><td>${esc(cap1(t.label))}</td><td class="${t.ok?'r-in':'r-out'}">${esc(t.text)}</td><td class="r-open" style="white-space:nowrap">${t.src==='you'?'you':t.src==='team'?'team':'default'}</td></tr>`).join('')}</tbody></table>`:''}
+          ${terms.length?`<label style="margin-top:16px">Term sheet</label><table class="bptbl"><tbody>${terms.map(t=>`<tr><td>${esc(cap1(t.label))}</td><td class="${t.ok?'r-in':'r-out'}">${esc(t.text)}</td><td class="r-open" style="white-space:nowrap">${t.src==='you'?'you':t.src==='team'?'team':t.src==='signed'?'signed':'default'}</td></tr>`).join('')}</tbody></table>`:''}
           ${(L.promises||[]).length?`<label style="margin-top:16px">Promise log</label><ul class="bgoals">${L.promises.map(p=>`<li class="${p.kept===true?'met':p.kept===false?'':'partial'}"><i>${p.kept===true?'✓':p.kept===false?'✕':'~'}</i>“${esc(p.text)}” <span style="color:var(--dim)">· Ep ${p.ep+1}</span></li>`).join('')}</ul>`:''}
           ${(L.small&&(L.small.facts.length||L.small.heard))?`<label style="margin-top:16px">Small talk</label><div class="hint" style="margin:0;font-size:13px;color:var(--ink2)">${L.small.facts.length?`${esc(X.C.first)} remembers: ${esc(L.small.facts.map(f=>f.x||f.place||f.id).join(' · '))}.`:''} ${L.small.heard?`You know about: ${esc({runner:'the 10K',parent:"their daughter's football",renovator:'the kitchen renovation',dog:'the puppy',cook:'the cooking class',mover:'the move'}[stLife(campBuild(c,Math.min(c.ep,5))||{personas:[{name:X.C.name}]},0).L.id]||'their story')}. Ask how it is going.`:''}</div>`:''}
           ${(L.leaks||[]).length?`<div class="cp-note" style="margin-top:14px">They heard you say: “${esc(L.leaks.map(x=>x.text).join('”, “'))}”.</div>`:''}
@@ -8591,7 +8599,7 @@ function renderArc(arc){
     <div class="kpi"><small>Risk exposure</small><b>${O.risk}</b><span>${O.risk<=30?'Well protected':O.risk<=50?'Some gaps':'Exposed'}</span></div>
     <div class="kpi"><small>Avg. episode score</small><b>${O.avg}</b><span>${arc.eps.filter(e=>e.done).length} of 6 episodes</span></div>
   </div>
-  ${typeof arcDropHTML==='function'?arcDropHTML(arc,campGet(arc.id)):''}${typeof arcSW==='function'?arcSW(arc):''}
+  ${typeof arcWhyHTML==='function'?arcWhyHTML(arc,campGet(arc.id)):''}${typeof arcDropHTML==='function'?arcDropHTML(arc,campGet(arc.id)):''}${typeof arcSW==='function'?arcSW(arc):''}
   <div class="rgrid">
     <div class="pane full"><h3>Trust with ${esc(arc.contact.split(' ')[0])}, episode by episode</h3>${campCurve(arc)}
       ${arcEpCards(arc)}<table class="bptbl arc-tbl" style="margin-top:8px"><thead><tr><th>Episode</th><th>Score</th><th>Objectives</th><th>Trust after</th><th>Follow-up</th></tr></thead><tbody>${arc.eps.map((e,i)=>{ const h=(arc.history||[]).find(x=>x.ep===i); return `<tr><td><b>${i+1}. ${esc(e.t)}</b></td><td>${e.done?e.score:'—'}</td><td>${h?h.met+' / '+h.goals:'—'}</td><td>${h?h.trust:'—'}</td><td class="${e.bridged==='kept'?'r-in':e.bridged==='skipped'?'r-out':'r-open'}">${e.bridged==='kept'?'✓ sent':e.bridged==='skipped'?'✕ skipped':'—'}</td></tr>` }).join('')}</tbody></table></div>
@@ -8599,7 +8607,7 @@ function renderArc(arc){
     <div class="pane"><h3>Risk exposure</h3>${O.risks.length?`<ul class="pts">${O.risks.map(r=>`<li>${esc(r)}</li>`).join('')}</ul>`:'<div class="hint">✓ No open risks, the contract is well protected.</div>'}
       <h3 style="margin-top:20px">Relationship</h3>${campBar('Trust',arc.trust)}${campBar('Rapport',arc.rapport)}${campBar('Credibility',arc.cred)}<div class="hint">Needs uncovered ${arc.needs} / 5 · goodwill ${arc.goodwill||0}</div></div>
     <div class="pane full"><h3>Every number you negotiated</h3>${arcItemCards(arc)}
-      <table class="bptbl arc-tbl"><thead><tr><th>Episode</th><th>Point</th><th>Result</th><th>How</th><th>Against your mandate</th></tr></thead><tbody>${(arc.items||[]).slice().sort((a,b)=>a.ep-b.ep).map(t=>`<tr><td>Ep ${t.ep+1}</td><td><b>${esc(cap1(t.label))}</b></td><td class="${t.ok?'r-in':'r-out'}">${esc(t.text)}</td><td class="r-open">${t.src==='you'?'negotiated by you':t.src==='team'?'agreed by your team':'settled by default'}</td><td>${t.score>=.9?'At or beyond target':t.score>=.4?'Between limit and target':t.score>=0?'At your limit':'Outside your limit'}</td></tr>`).join('')||'<tr><td colspan="5" class="r-open">No terms were agreed.</td></tr>'}</tbody></table></div>
+      <table class="bptbl arc-tbl"><thead><tr><th>Episode</th><th>Point</th><th>Result</th><th>How</th><th>Against your mandate</th></tr></thead><tbody>${(arc.items||[]).slice().sort((a,b)=>a.ep-b.ep).map(t=>`<tr><td>Ep ${t.ep+1}</td><td><b>${esc(cap1(t.label))}</b></td><td class="${t.ok?'r-in':'r-out'}">${esc(t.text)}</td><td class="r-open">${t.src==='you'?'negotiated by you':t.src==='team'?'agreed by your team':t.src==='signed'?'accepted by signing':'settled by default'}</td><td>${t.score>=.9?'At or beyond target':t.score>=.4?'Between limit and target':t.score>=0?'At your limit':'Outside your limit'}</td></tr>`).join('')||'<tr><td colspan="5" class="r-open">No terms were agreed.</td></tr>'}</tbody></table></div>
     ${(arc.promises||[]).length?`<div class="pane full"><h3>Promise log</h3><ul class="bgoals arc-pl">${arc.promises.map(p=>`<li class="${p.kept===true?'met':p.kept===false?'':'partial'}"><i>${p.kept===true?'✓':p.kept===false?'✕':'~'}</i><div>“${esc(p.text)}” <span style="color:var(--dim)">· Episode ${p.ep+1} · ${p.kept===true?'kept':p.kept===false?'not followed up':'open'}</span></div></li>`).join('')}</ul></div>`:''}
   </div>
   <div class="noprint" style="display:flex;gap:12px;padding:10px 0 60px;flex-wrap:wrap">
@@ -8761,6 +8769,9 @@ function docBuild(cs, sc, st, opts){
     prevId: prev?prev.id:null, myRole: sc.role||'', changes:[], signedAt:null, counterAt:null};
 }
 const docGet = (cs, id) => (cs.docs||[]).find(d=>d.id===id);
+/* one contract status, used on the attachment chip, the viewer and the campaign ledger */
+const DOC_STATE_LABEL={pending:'Pending signature', changes:'Changes requested', countersign:'Signed by you, awaiting countersignature', signed:'Signed', superseded:'Superseded by a newer version', quote:'Quotation'};
+function docState(cs, d){ if(!d) return 'none'; if(d.counterAt) return 'signed'; if(d.signedAt) return 'countersign'; const latest=docLatest(cs||{}); if(latest && latest.id!==d.id) return 'superseded'; if((d.changes||[]).length) return 'changes'; return d.kind==='quote'?'quote':'pending' }
 const docLatest = cs => (cs.docs||[]).filter(d=>d.series==='main').slice(-1)[0] || null;
 function docAttach(cs, mail, doc){ cs.docs=(cs.docs||[]).concat([doc]); mail.att=(mail.att||[]).concat([doc.id]) }
 
@@ -8839,7 +8850,7 @@ emailReplyDemo = function(c, mail){
 function docChips(e){
   if(!e.att || !e.att.length) return ''; const cs=getCase(curCase||(S&&S.caseId),false); if(!cs) return '';
   return `<div class="att">${e.att.map(id=>{ const d=docGet(cs,id); if(!d) return ''; const latest=docLatest(cs);
-    const tag = d.counterAt ? ['Signed by both','ok'] : d.signedAt ? ['You signed','ok'] : (latest && latest.id!==d.id) ? ['Superseded','old'] : d.kind==='quote' ? ['Quotation','q'] : ['Needs your signature','s'];
+    const st0=docState(cs,d), tag = st0==='signed' ? ['Signed','ok'] : st0==='countersign' ? ['Signed by you · awaiting countersignature','ok'] : st0==='superseded' ? ['Superseded','old'] : st0==='changes' ? ['Changes requested','q'] : d.kind==='quote' ? ['Quotation','q'] : ['Pending signature','s'];
     return `<button class="att-chip ${tag[1]==='s'?'new':''}" onclick="openDoc('${esc(cs.id)}','${esc(d.id)}')"><span class="fi ${d.kind==='quote'?'q':'c'}">PDF</span><span class="att-t"><b>${esc(d.file)}</b><small>${d.kind==='quote'?'Quotation':'Agreement'} · version ${d.ver} · ${d.items.length} terms</small></span><span class="att-tag ${tag[1]}">${tag[0]}</span></button>` }).join('')}</div>`;
 }
 
@@ -8863,7 +8874,7 @@ function dvClause(d, it, i){
 }
 function dvRender(){
   const cs=getCase(dvCase,false), d=cs&&docGet(cs,dvDoc); if(!d) return; const latest=docLatest(cs), live=latest.id===d.id && !d.signedAt;
-  $('dvFile').textContent=d.file; $('dvSub').textContent=(d.kind==='quote'?'Quotation':'Agreement')+' · version '+d.ver+(d.counterAt?' · signed by both':d.signedAt?' · signed by you':latest.id!==d.id?' · superseded by a newer version':'');
+  $('dvFile').textContent=d.file; $('dvSub').textContent=(d.kind==='quote'?'Quotation':'Agreement')+' · version '+d.ver+' · '+DOC_STATE_LABEL[docState(getCase(dvCase,false),d)];
   const liveTap = !d.signedAt && !d.counterAt && latest.id===d.id;
   const extra = d.trap && d.trap.extra ? `<div class="dv-cl${liveTap?' tap" onclick="dvChange(\'_renew\')':''}"><h5>${d.items.length+3}. Term and renewal</h5><p>${d.items.length+3}.1 This Agreement ${esc(d.trap.text)}.</p></div>` : '';
   const pendX = dvPending.find(x=>x.id==='_renew');
@@ -8935,8 +8946,10 @@ let dvPad=null;
 function dvSignSheet(){
   const cs=getCase(dvCase,false), d=docGet(cs,dvDoc), prev=d.prevId&&docGet(cs,d.prevId);
   const rows=d.items.map(it=>{ const p=prev&&prev.items.find(x=>x.id===it.id); const ch=p && (p.text!==it.text || p.status!==it.status);
-    return `<div><span>${esc(docHead(it.label))}</span><b class="${it.status==='tba'?'tba':''}">${esc(it.text)}${it.status==='proposed'?' <em>(proposed)</em>':''}${ch?' <i class="chg">changed</i>':''}</b></div>` }).join('') + (d.trap&&d.trap.extra?`<div><span>Renewal</span><b>automatic, 12 months</b></div>`:'');
-  dvPop(`<h3>Sign the agreement</h3><div class="dv-s">These are the terms as written in this document. Check them against what you agreed before you sign, signing makes them binding.</div>
+    const src = it.status==='agreed' ? '<small class="sg-src ok">Agreed in your meeting</small>' : it.status==='proposed' ? '<small class="sg-src new">Their proposal · signing accepts it</small>' : '<small class="sg-src open">Not agreed · stays open</small>';
+    return `<div><span>${esc(docHead(it.label))}</span><b class="${it.status==='tba'?'tba':''}">${esc(it.text)}${ch?' <i class="chg">changed</i>':''}${src}</b></div>` }).join('') + (d.trap&&d.trap.extra?`<div><span>Renewal</span><b>automatic, 12 months</b></div>`:'');
+  const nNew=d.items.filter(it=>it.status==='proposed').length;
+  dvPop(`<h3>Sign the agreement</h3><div class="dv-s">These are the terms as written in this document. Check them against what you agreed before you sign. Signing makes them binding${nNew?`, including ${nNew} proposal${nNew>1?'s':''} you have not agreed in a meeting`:''}.</div>
     <div class="dv-sum">${rows}</div>
     <div class="dv-pad"><canvas id="dvCanvas" width="600" height="200"></canvas><button class="dv-clr" onclick="dvClear()">Clear</button><div class="dv-ln"></div><small>${esc(myName())} · ${esc(d.me)} · ${dvDate(Date.now())}</small></div>
     <label class="dv-chk"><input type="checkbox" id="dvOk"> I have read the agreement and I'm authorized to sign for ${esc(d.me)}.</label>
@@ -10032,7 +10045,7 @@ function arcEpCards(arc){
 function arcItemCards(arc){
   const items=(arc.items||[]).slice().sort((a,b)=>a.ep-b.ep);
   if(!items.length) return '<div class="arc-cards"><div class="hint">No terms were agreed.</div></div>';
-  const how=t=>t.src==='you'?'Negotiated by you':t.src==='team'?'Agreed by your team':'Settled by default';
+  const how=t=>t.src==='you'?'Negotiated by you':t.src==='team'?'Agreed by your team':t.src==='signed'?'Accepted by signing':'Settled by default';
   const vs=t=>t.score>=.9?'At or beyond target':t.score>=.4?'Between limit and target':t.score>=0?'At your limit':'Outside your limit';
   let out='', last=-1;
   items.forEach(t=>{ if(t.ep!==last){ last=t.ep; out+=`<div class="ac-eh">Episode ${t.ep+1} · ${esc((CAMP_EPS[t.ep]||{}).t||'')}</div>` }
@@ -10311,6 +10324,169 @@ renderMails = function(){
 };
 /* if the page was closed while their reply was due, deliver it now */
 setTimeout(()=>{ try{ Object.values(campAll()).forEach(c=>{ if(dropPhase(c)==='waiting' && Date.now()-c.drop.at>5000) dropFirstReply(c.id) }) }catch(e){} }, 1500);
+
+
+/* =========================================================
+   PACKAGES (QA 2026-11-23 #1)
+   "If you can commit to 1,800 seats and three years, we can offer $350,000" is one offer.
+   When they like only part of it, that part is NOT agreed: it stays on the table as part of the
+   package (their position moves to it), and the ledger only records it once the learner accepts it
+   on its own, or the whole package closes. Saved states without st.pkg keep working.
+   ========================================================= */
+/* "not on its own", "only as part of the package", "all or nothing": the learner keeps the package together */
+const PKG_NO=/\b((don'?t|do not|won'?t|will not|can'?t|cannot|not)\b[^.]{0,40}\b(on its own|by itself|alone|separately|in isolation)|only (works |makes sense )?(as part of|together with|with the|if)|whole package|full package|all or nothing|package deal)\b/;
+function pkgHold(st, res){
+  const liked=res.filter(r=>r.took), other=res.filter(r=>!r.took);
+  liked.forEach(r=>{
+    const id=r.o.issue.id; delete st.agreed[id]; if(st.issues[id] && r.pos0!=null) st.issues[id].pos=r.pos0;   // their position goes back: the part is only on offer inside the package
+    st.events.splice(r.ne);   // drop the "Agreed …" events this part added
+    const fv=fmtVal(r.o.issue, r.o.v), lead=r.o.issue.owner||0;
+    r.lines=[ln(lead, fresh(st,'pkgPart',[`${cap1(fv)} could work for us, but only as part of the whole package.`,`${cap1(fv)} is something we could do, as part of the full deal.`]))];
+  });
+  st.pkg={ids:res.map(r=>r.o.issue.id), liked:liked.map(r=>r.o.issue.id), vals:Object.fromEntries(res.map(r=>[r.o.issue.id,r.o.v])), open:other.map(r=>r.o.issue.id), turn:st.turn};
+  ev(st,'pkgpart',`Package offer: they liked ${liked.map(r=>r.o.issue.label).join(', ')} but not ${other.map(r=>r.o.issue.label).join(', ')}. Nothing agreed yet.`,0);
+}
+/* accepting a part on its own, later, makes it agreed; "not on its own" keeps it open */
+const _evaluateOfferP = evaluateOffer;
+evaluateOffer = function(sc, st, offer, a, sentLow){
+  const P=st.pkg, id=offer.issue.id;
+  if(P && P.liked.includes(id) && st.agreed[id]==null && Math.abs(offer.v-(P.vals[id]))<1e-9 && (a.accept || /\b(agree|accept|fine|works|deal|go with|happy with)\b/.test(sentLow)) && !a.reject && !PKG_NO.test(sentLow)){
+    st.agreed[id]=offer.v; P.liked=P.liked.filter(x=>x!==id); if(!P.liked.length && !P.open.length) st.pkg=null;
+    ev(st,'agree',`Agreed ${offer.issue.label}: ${fmtVal(offer.issue,offer.v)} (taken out of the package).`,1);
+    return [ln(offer.issue.owner||0, fresh(st,'pkgTake',[`Good. Then ${fmtVal(offer.issue,offer.v)} is agreed.`,`Great, ${fmtVal(offer.issue,offer.v)} it is.`]))];
+  }
+  const out=_evaluateOfferP.apply(this, arguments);
+  if(P && st.agreed[id]!=null){ P.open=P.open.filter(x=>x!==id); P.liked=P.liked.filter(x=>x!==id); if(!P.open.length && !P.liked.length) st.pkg=null }
+  return out;
+};
+const _engineReplyP = engineReply;
+engineReply = function(sc, st, text, o){
+  const P=st&&st.pkg;
+  if(P && P.liked.length && PKG_NO.test(text.toLowerCase()) && !/\d/.test(text.replace(/\b(three|two|one|3|2|1)[- ]year/gi,''))){
+    const is=(sc.issues||[]).find(x=>x.id===P.liked[0]), op=(P.open||[]).map(i=>(sc.issues||[]).find(x=>x.id===i)).filter(Boolean);
+    st.turn=(st.turn||0)+1;
+    ev(st,'pkghold',`Kept the package together: ${is?is.label:'that point'} is not agreed on its own.`,1);
+    return {turns:[{speaker:0, p:is&&is.owner||0, text:`Understood. ${cap1(is?fmtVal(is,P.vals[is.id]):'That')} only as part of the package, then. ${op.length?`So let's look at ${op.map(x=>x.label).join(' and ')} again.`:''}`.trim()}], end:false};
+  }
+  return _engineReplyP.apply(this, arguments);
+};
+
+
+/* =========================================================
+   QA 2026-11-23 #3, typed input and two conversational gaps
+   ========================================================= */
+
+/* Enter while the counterpart is still speaking: the text used to be cleared and silently dropped
+   (userSays returns while S.busy). Now it stays in the box, a note says it will go out when they
+   finish, and it is sent automatically then. Editing or clearing the box cancels the queue. */
+let typedQ=null;
+function typedNote(t){ let n=$('typeQ'); if(!n){ const i=$('typeIn'); if(!i) return; n=document.createElement('div'); n.id='typeQ'; n.className='type-q'; i.insertAdjacentElement('afterend', n) } n.textContent=t||''; n.style.display=t?'block':'none' }
+const _sendTypedQ = sendTyped;
+sendTyped = function(){
+  const v=($('typeIn').value||'').trim(); if(!v) return;
+  if(S && !S.ended && S.busy){
+    typedQ=v; typedNote('Waiting for them to finish. Your message will be sent then.');
+    const tick=()=>{ if(typedQ==null) return; const cur=($('typeIn').value||'').trim();
+      if(cur!==typedQ){ typedQ=null; typedNote(''); return }                 // edited: the learner takes it back
+      if(!S || S.ended){ typedQ=null; typedNote(''); return }
+      if(S.busy){ setTimeout(tick,200); return }
+      typedQ=null; typedNote(''); _sendTypedQ() };
+    setTimeout(tick,200); return;
+  }
+  typedQ=null; typedNote(''); return _sendTypedQ.apply(this, arguments);
+};
+
+/* "Hi Daniel, thanks for meeting." in reply to their small-talk opener got "Oh, really?".
+   A greeting or thanks that does not answer gets a greeting back, then the question again. */
+const _engineReplyQ = engineReply;
+engineReply = function(sc, st, text, o){
+  const low=String(text||'').toLowerCase().trim();
+  const greetOnly = /^(hi|hello|hey|good (morning|afternoon|evening))\b[^.?!]{0,30}[.!,]?\s*((thanks|thank you)( so much)? for (meeting|making the time|having me|your time|the time|coming|seeing me)[^.?!]{0,30}[.!]?)?\s*$/.test(low)
+                 || /^(thanks|thank you)( so much)? for (meeting|making the time|having me|your time|the time|coming|seeing me)[^.?!]{0,30}[.!]?\s*$/.test(low);
+  if(greetOnly && st && st.turn<=3 && !(o&&o.channel==='email')){
+    const q=(typeof st3LastQ==='function'&&st3LastQ())||'';
+    st.turn=(st.turn||0)+1;
+    const back=/thank/.test(low) ? fresh(st,'gthx',["My pleasure. Good to see you.","Of course, thanks for coming.","Not at all, glad we could make it work."]) : fresh(st,'ghi',["Good to see you.","Nice to see you again."]);
+    return {turns:[{speaker:0,p:0,text: q ? `${back} So, ${q.charAt(0).toLowerCase()+q.slice(1)}` : back}], end:false};
+  }
+  /* "So what's next?" used to get "I'm not sure how to answer that". Point to what is still open, or to the paperwork. */
+  if(/\b(so,? )?(what'?s|what is|what are) (the )?next( steps?)?\b|\bwhere do we go from here\b|\bhow (do|should) we proceed\b/.test(low) && sc && (sc.issues||[]).length && !(o&&o.channel==='email')){
+    const open=(sc.issues||[]).filter(is=>st.agreed[is.id]==null && !is.never).slice(0,2);
+    st.turn=(st.turn||0)+1;
+    const t = open.length ? `Before we talk next steps, we still need to settle ${open.map(i=>i.label).join(' and ')}. Shall we look at ${open[0].label} now?`
+                          : "I think we've covered everything. Could you send me a short summary of what we agreed? Then I'll take it to my team and we can get the paperwork started.";
+    if(open.length) st.focus=open[0].id;
+    return {turns:[{speaker:0,p:open.length?(open[0].owner||0):0,text:t}], end:false};
+  }
+  return _engineReplyQ.apply(this, arguments);
+};
+
+/* =========================================================
+   QA 2026-11-23 #2, contract status in the campaign, and why an outcome happened
+   ========================================================= */
+/* the campaign's main agreement: the latest one across its episodes */
+function campContract(c){
+  let best=null, bc=null;
+  (c&&c.eps||[]).forEach((e,n)=>{ const cs=getCase(campSid(c,n),false); const d=cs&&docLatest(cs); if(d && (!best || d.t0>=best.t0 || n>=best._n)){ best=Object.assign({_n:n},d); bc=cs } });
+  if(!best) return {state:'none', label:'No contract sent yet'};
+  const st=docState(bc, docGet(bc,best.id)); return {state:st, label:DOC_STATE_LABEL[st]||st, file:best.file, ver:best.ver, sid:bc.id, id:best.id};
+}
+/* "CURRENT SIGNED TERMS" in later briefs only when the contract really was signed */
+const _campTermDocQ = campTermDoc;
+campTermDoc = function(L, title){
+  let t=title; try{ const c=campActive(); if(t && /SIGNED/.test(t) && c && !['signed','countersign'].includes(campContract(c).state)) t=t.replace(/SIGNED TERMS/,'AGREED TERMS (the agreement was not signed in the app; both sides work to these terms)') }catch(e){}
+  return _campTermDocQ.call(this, L, t);
+};
+/* signing makes what was signed binding: the ledger follows the contract */
+const _dvSignQ = dvSign;
+dvSign = async function(){
+  const cs0=getCase(dvCase,false), d0=cs0&&docGet(cs0,dvDoc);
+  const r=await _dvSignQ.apply(this, arguments);
+  try{
+    const d=d0 && docGet(getCase(cs0.id,false), d0.id); if(!d || !d.signedAt) return r;
+    const c=Object.values(campAll()).find(x=>x.eps && x.eps.some((e,n)=>campSid(x,n)===cs0.id)); if(!c || !c.L || !c.L.terms) return r;
+    const changed=[], sc=allSc().find(x=>x.id===cs0.id), n=c.eps.findIndex((e,k)=>campSid(c,k)===cs0.id);
+    const setT=(id,v)=>{ const is=sc&&(sc.issues||[]).find(i=>i.id===id); if(!is||!c.L.terms[id]) return; const s=campItemScore(is,v), ok= is.unit==='option' ? v<=.5+1e-9 : !(is.limit!=null && (isUnl(is,v) || better(is, v, is.limit)));
+      const t={id, label:is.label, v, text:fmtVal(is,v), src:'signed', ep:n, score:+s.toFixed(2), w:is.weight||1, ok};
+      c.L.items=(c.L.items||[]).filter(i=>!(i.ep===n&&i.id===id)); c.L.items.push(t); c.L.terms[id]=t; changed.push(is.label) };
+    (d.notes||[]).forEach(nt=>{ const it=d.items.find(i=>i.label===nt.label);
+      if(nt.kind==='proposed' && it && it.v!=null) setT(it.id, it.v);
+      if(nt.kind==='trap' && d.trap && !d.trap.extra) setT(d.trap.id, d.trap.v) });
+    c.L.signed={file:d.file, ver:d.ver, at:d.signedAt, accepted:changed};
+    if(changed.length) (c.L.chain=c.L.chain||[]).push({ep:1, good:0, text:`Signed ${d.file} v${d.ver}: accepted their proposal on ${changed.join(', ')} by signing.`});
+    campPut(c);
+  }catch(e){ console.warn(e) }
+  return r;
+};
+/* the outcome text never claims a signature the learner did not give, and the Arc Report says why */
+const _campOutcomeQ = campOutcome;
+campOutcome = function(c){
+  const O=_campOutcomeQ.apply(this, arguments); if(!c) return O;
+  const K=campContract(c), signed=['signed','countersign'].includes(K.state);
+  if(!signed && O.text) O.text=O.text.replace(/^The contract is signed, but/,'The deal goes ahead, but').replace(/^You have a signature, but/,'You have a deal, but');
+  O.contract=K;
+  const L=c.L||{}, broken=(L.promises||[]).filter(p=>p.kept===false).length, why=[];
+  const relParts=`trust ${L.trust==null?50:L.trust} (70%), rapport ${L.rapport} (15%), credibility ${L.cred} (15%)${L.goodwill?`, goodwill +${2*L.goodwill}`:''}${broken?`, ${broken} missed follow-up${broken>1?'s':''} −${4*broken}`:''}`;
+  const rule={collapse: c.status==='walked' ? `You walked away (deal value ${O.dv}, relationship ${O.rel}).` : `Relationship ${O.rel} is below 35 and deal value ${O.dv} is below 55.`,
+              partner:`Deal value ${O.dv} ≥ 75, relationship ${O.rel} ≥ 62 and risk ${O.risk} < 30.`, bitter:`Deal value ${O.dv} ≥ 68 but relationship ${O.rel} < 48.`,
+              solid:`Deal value ${O.dv} ≥ 50, relationship ${O.rel} ≥ 50 and risk ${O.risk} ≤ 50.`, fragile:`None of the stronger outcomes applied (deal value ${O.dv}, relationship ${O.rel}, risk ${O.risk}).`, walk:`You walked away from weak terms (deal value ${O.dv}, relationship ${O.rel}).`}[O.key];
+  if(rule) why.push(rule);
+  why.push(`Relationship ${O.rel} = ${relParts}.`);
+  const terms=Object.values(L.terms||{}); const bySrc=k=>terms.filter(t=>t.src===k).length;
+  if(terms.length) why.push(`Deal value ${O.dv} comes from ${terms.length} terms: ${bySrc('you')} negotiated by you, ${bySrc('signed')?bySrc('signed')+' accepted by signing, ':''}${bySrc('team')} agreed by your team, ${bySrc('default')} settled after the meeting near their position.`);
+  why.push(`Contract: ${K.label}${K.file?` (${K.file}${K.ver?' v'+K.ver:''})`:''}.`);
+  O.why=why; return O;
+};
+function arcWhyHTML(arc, c){ const O=arc.outcome; if(!O||!O.why) return '';
+  return `<div class="pane full"><h3>Why ${esc(O.title)}</h3><ul class="pts">${O.why.map(x=>`<li>${esc(x)}</li>`).join('')}</ul></div>` }
+/* the campaign ledger shows the contract status under the term sheet */
+const _renderCampaignQ = renderCampaign;
+renderCampaign = function(){
+  _renderCampaignQ.apply(this, arguments);
+  try{ const c=campActive(), el=$('campBody'); if(!c||!el) return; const K=campContract(c); if(K.state==='none') return;
+    const lab=[...el.querySelectorAll('.cp-ledger label')].find(l=>/Term sheet/.test(l.textContent)); if(!lab) return;
+    lab.insertAdjacentHTML('afterend', `<div class="cp-kv" style="margin:6px 0 8px"><span>Contract</span><b class="${K.state==='signed'||K.state==='countersign'?'r-in':'r-open'}" style="cursor:pointer" onclick="openDoc('${esc(K.sid)}','${esc(K.id)}')">${esc(K.label)}</b></div>`) }catch(e){}
+};
 
 
 /* =========================================================
