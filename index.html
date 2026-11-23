@@ -1823,6 +1823,33 @@ html.mob #landing .lp-kvp{right:-200px;top:-40px;width:620px;height:760px;backgr
 .lp-vid.on:not(.snd) .lp-vsnd{display:inline-flex}
 html.mob .lp-vsnd{right:10px;bottom:10px;font-size:12.5px;padding:8px 12px 8px 10px}
 
+/* campaign · drop the deal */
+#dropModal .drop-box{position:relative;background:var(--card,#fffefb);border-radius:20px;max-width:620px;width:100%;padding:28px 28px 22px;box-shadow:0 30px 80px rgba(10,25,18,.35);max-height:calc(100dvh - 40px);overflow-y:auto}
+#dropModal .drop-box h3{margin:0;font-size:22px;letter-spacing:-.015em;padding-right:36px}
+#dropModal .x{position:absolute;right:16px;top:16px;width:36px;height:36px;border-radius:50%;border:1px solid var(--line,#e5e1d6);background:#fff;font-size:15px;cursor:pointer}
+#dropModal label{display:block;font-size:12px;font-weight:700;letter-spacing:.04em;color:var(--dim)}
+.drop-rs{display:flex;flex-wrap:wrap;gap:8px;margin-top:8px}
+.drop-rs .chip{border:1.5px solid var(--line,#e5e1d6);background:#fff;border-radius:999px;padding:8px 13px;font-size:13.5px;color:var(--ink2);cursor:pointer;text-align:left}
+.drop-rs .chip.on{background:#2f4a3c;border-color:#2f4a3c;color:#fff}
+#dropModal textarea{width:100%;margin-top:8px;border:1.5px solid var(--line,#e5e1d6);border-radius:12px;padding:12px 14px;font:inherit;font-size:14.5px;line-height:1.5;resize:vertical;min-height:150px;background:#fffefb}
+.drop-btns{display:flex;flex-wrap:wrap;gap:10px;margin-top:16px;justify-content:flex-end}
+.pill.warn{background:#f6ecd6;color:#8a5f16}
+.drop-hold{margin-top:26px;border:1.5px solid #e9c46a;background:#fffaf0}
+.drop-hh{display:flex;align-items:center;gap:10px;flex-wrap:wrap}.drop-hh b{font-size:15px}
+.drop-hold p{margin:8px 0 0;font-size:14px;color:var(--ink2)}
+.drop-hold .drop-btns{justify-content:flex-start}
+.drop-bar{margin:18px 0 6px;border:1.5px solid #e9c46a;background:#fffaf0;border-radius:14px;padding:14px 16px;font-size:14px;color:var(--ink2)}
+.drop-bar .drop-btns{justify-content:flex-start;margin-top:12px}
+.drop-arc .drop-v{display:flex;align-items:baseline;gap:12px;margin-top:4px}
+.drop-arc .drop-v b{font-size:22px;letter-spacing:-.015em}.drop-arc .drop-v span{font-size:14px;font-weight:700;color:var(--dim)}
+.drop-arc .drop-v.y b{color:#3d6b4f}.drop-arc .drop-v.m b{color:#8a5f16}.drop-arc .drop-v.n b{color:#9a4b3a}
+.drop-arc .drop-t{margin:8px 0 0;font-size:14.5px;line-height:1.55;color:var(--ink2)}
+.drop-facts{display:flex;flex-wrap:wrap;gap:6px 8px;margin-top:10px}
+.drop-facts span{font-size:12.5px;background:#f1efe8;border-radius:8px;padding:5px 9px;color:var(--ink2)}
+.drop-facts span.r{background:#f6ecd6;color:#8a5f16}
+html.mob #dropModal .drop-box{padding:22px 18px 18px;border-radius:18px}
+html.mob .drop-btns .btn{flex:1 1 auto}
+
 .asw-g{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:22px}
 .asw-h{font-size:13px;font-weight:700;margin:4px 0 10px;color:var(--ink2)}
 .asw-h.y{color:#3d6b4f}.asw-h.n{color:#9a4b3a}
@@ -8555,7 +8582,7 @@ function renderArc(arc){
   return `
   <div class="rep-head">
     <div class="ring"><svg width="150" height="150"><circle cx="75" cy="75" r="66" fill="none" stroke="#e6eee7" stroke-width="7"/><circle cx="75" cy="75" r="66" fill="none" stroke="#455d50" stroke-width="7" stroke-linecap="round" stroke-dasharray="${C}" stroke-dashoffset="${off}"/></svg><b>${O.overall}<small>ARC</small></b></div>
-    <div><span class="level">${arc.status==='walked'?'Ended by walk-away':'Campaign complete'}</span><h1>${esc(O.title)}</h1><p>${esc(O.text)}</p></div>
+    <div><span class="level">${arc.status==='walked'?((campGet(arc.id)||{}).drop&&(campGet(arc.id)||{}).drop.phase==='final'?'Ended: you dropped the deal':'Ended by walk-away'):'Campaign complete'}</span><h1>${esc(O.title)}</h1><p>${esc(O.text)}</p></div>
     <div style="text-align:right;color:var(--dim);font-size:12.5px;line-height:1.8">${esc(arc.them)} · ${esc(arc.contact)}<br>${esc(arc.role)}<br>${esc(arc.field)} · ${arc.side==='provider'?'Provider':'Buyer'} · ${esc(dlabel(arc.difficulty))}</div>
   </div>
   <div class="kpis" style="grid-template-columns:repeat(4,1fr)">
@@ -8564,7 +8591,7 @@ function renderArc(arc){
     <div class="kpi"><small>Risk exposure</small><b>${O.risk}</b><span>${O.risk<=30?'Well protected':O.risk<=50?'Some gaps':'Exposed'}</span></div>
     <div class="kpi"><small>Avg. episode score</small><b>${O.avg}</b><span>${arc.eps.filter(e=>e.done).length} of 6 episodes</span></div>
   </div>
-  ${typeof arcSW==='function'?arcSW(arc):''}
+  ${typeof arcDropHTML==='function'?arcDropHTML(arc,campGet(arc.id)):''}${typeof arcSW==='function'?arcSW(arc):''}
   <div class="rgrid">
     <div class="pane full"><h3>Trust with ${esc(arc.contact.split(' ')[0])}, episode by episode</h3>${campCurve(arc)}
       ${arcEpCards(arc)}<table class="bptbl arc-tbl" style="margin-top:8px"><thead><tr><th>Episode</th><th>Score</th><th>Objectives</th><th>Trust after</th><th>Follow-up</th></tr></thead><tbody>${arc.eps.map((e,i)=>{ const h=(arc.history||[]).find(x=>x.ep===i); return `<tr><td><b>${i+1}. ${esc(e.t)}</b></td><td>${e.done?e.score:'—'}</td><td>${h?h.met+' / '+h.goals:'—'}</td><td>${h?h.trust:'—'}</td><td class="${e.bridged==='kept'?'r-in':e.bridged==='skipped'?'r-out':'r-open'}">${e.bridged==='kept'?'✓ sent':e.bridged==='skipped'?'✕ skipped':'—'}</td></tr>` }).join('')}</tbody></table></div>
@@ -10012,6 +10039,278 @@ function arcItemCards(arc){
     out+=`<div class="ai ${t.ok?'':'bad'}"><div class="ai-p">${esc(cap1(t.label))}</div><div class="ai-r">${esc(cap1(t.text))}</div><div class="ai-m">${how(t)} · ${vs(t)}</div></div>` });
   return `<div class="arc-cards">${out}</div>`;
 }
+
+
+/* =========================================================
+   CAMPAIGN · DROP THE DEAL
+   1. The learner drops the deal (reasons + their own email).
+   2. The counterpart writes back: owns what the record supports, pushes back on what it doesn't,
+      asks what would have to change and makes an offer.
+   3. Up to three rounds of email talks; the offer improves when the learner is specific and conditional.
+   4. Resume the deal, or drop it for good. A final drop ends the campaign: the Arc Report scores the
+      episodes played so far and judges whether the drop was well-judged or premature.
+   Rule-based throughout.
+   ========================================================= */
+const DROP_R = {
+  moved:  {label:'They keep changing what we agreed', keys:/\b(chang|moved?|goal ?posts?|different|not what we (agreed|discussed)|hidden|slipped|draft|contract|clause|version|went back)/i},
+  tone:   {label:'Their tone is disrespectful or hostile', keys:/\b(tone|respect|rude|hostile|aggressive|attitude|pressur|threat|dismiss|talk(ed)? down|condescend)/i},
+  demands:{label:'Their demands are unreasonable', keys:/\b(demand|unreasonable|discount|penalt|price|terms?|too (low|high|much)|cap|volume|payment|ask(ing|ed)? for)/i},
+  broken: {label:'They did not keep their commitments', keys:/\b(commit|promis|kept|keep|deliver|deadline|late|broke|never (sent|came|arrived)|follow(ed)? up)/i},
+  slow:   {label:'Decisions take too long', keys:/\b(slow|delay|wait|decision|timeline|weeks|months|approval|sign-?off)/i},
+  alt:    {label:'We have a better alternative', keys:/\b(alternative|another (supplier|partner|vendor|customer|provider)|elsewhere|competitor|better (offer|deal|option))/i}
+};
+const DROP_OFF = [
+  'put every agreed term in writing, with no change unless you sign it off first',
+  'give you a named senior contact who answers within one business day',
+  'offer a goodwill credit of 3% on the first year'
+];
+const dropPhase = c => c && c.drop ? c.drop.phase : '';
+const dropOpen  = c => ['waiting','talks'].includes(dropPhase(c));
+function dropLastEp(c){ let n=0; c.eps.forEach((e,i)=>{ if(e.in) n=i }); return n }
+function dropSid(c){ return campSid(c, c.drop && c.drop.ep!=null ? c.drop.ep : dropLastEp(c)) }
+function dropSc(c){ const sid=dropSid(c); return allSc().find(s=>s.id===sid) || null }
+function dropWho(sc){ return sc ? Math.min((sc.campaign&&sc.campaign.contact)||0, sc.personas.length-1) : 0 }
+
+/* what the record actually shows about the other side's behavior */
+function dropEvidence(c){
+  const L=c.L||{}, items=L.items||[], hist=L.history||[];
+  let hidden=0, hiddenLabel='';
+  c.eps.forEach((e,n)=>{ const cs=getCase(campSid(c,n),false); (cs&&cs.docs||[]).forEach(d=>{ if(d.trap){ hidden++; if(!hiddenLabel) hiddenLabel=d.trap.label||'' } }) });
+  const outside=items.filter(i=>!i.ok && i.src!=='you'), trust=L.trust==null?50:L.trust, tmin=Math.min(trust, ...hist.map(h=>h.trust==null?100:h.trust));
+  const shock=!!(c.eps[3]&&c.eps[3].done);
+  let dv=50; try{ dv=campOutcome(c).dv }catch(e){}
+  const ev={
+    moved:  hidden ? .95 : outside.length ? .4 : .12,
+    tone:   tmin<35 ? .9 : tmin<45 ? .65 : shock ? .45 : .15,
+    demands:outside.length ? .85 : shock ? .55 : .22,
+    broken: hidden ? .75 : .15,
+    slow:   L.flags&&L.flags.unresolved ? .55 : .3,
+    alt:    dv<45 ? .8 : dv<60 ? .5 : .3
+  };
+  const prov=Math.round(100*Math.max(ev.moved*.95, ev.tone, ev.demands*.9, ev.broken*.85, ev.alt*.7));
+  return {ev, prov, hidden, hiddenLabel, outside:outside.map(i=>i.label), trust, tmin, dv};
+}
+
+/* ---------- 1. the drop sheet ---------- */
+function dropStart(){
+  const c=campActive(); if(!c) return; const X=campCtx(c);
+  if(dropOpen(c)){ openThread(dropSid(c)); return }
+  if(!c.eps[0].done){ toast('Play the first meeting before you decide to drop the deal.'); return }
+  const m=$('dropModal') || document.body.appendChild(Object.assign(document.createElement('div'),{id:'dropModal',className:'modal'}));
+  const tpl=`Hi ${X.C.first},\n\nI'm writing to let you know that we have decided not to continue with the deal at this point.\n\n…\n\nBest regards,\n${myName()}`;
+  m.innerHTML=`<div class="drop-box"><button class="x" onclick="dropClose()" aria-label="Close">✕</button>
+    <h3>Drop the deal with ${esc(X.them)}?</h3>
+    <p class="hint" style="margin:6px 0 16px">${esc(X.C.first)} will write back before anything is final. You can still resume the deal, or drop it for good.</p>
+    <label>Why are you dropping it?</label>
+    <div class="drop-rs">${Object.entries(DROP_R).map(([k,r])=>`<button type="button" class="chip" data-k="${k}" onclick="this.classList.toggle('on')">${esc(r.label)}</button>`).join('')}</div>
+    <label style="margin-top:16px">Your email to ${esc(X.C.name)}</label>
+    <textarea id="dropMsg" rows="8" placeholder="${esc(tpl)}"></textarea>
+    <div class="hint" style="margin-top:6px">Say clearly what went wrong. Specific reasons get a better answer.</div>
+    <div class="drop-btns"><button class="btn ghost" onclick="dropClose()">Cancel</button><button class="btn danger" onclick="dropSend()">Send and put the deal on hold</button></div></div>`;
+  m.classList.add('on');
+}
+function dropClose(){ const m=$('dropModal'); if(m) m.classList.remove('on') }
+function dropSend(){
+  const c=campActive(); if(!c) return; const X=campCtx(c);
+  const reasons=[...document.querySelectorAll('#dropModal .drop-rs .chip.on')].map(b=>b.dataset.k), body=$('dropMsg').value.trim();
+  if(!reasons.length){ toast('Pick at least one reason.'); return }
+  if(body.split(/\s+/).length<12){ toast('Write a short email that explains your decision.'); return }
+  const ep=dropLastEp(c), sid=campSid(c,ep); const cs=getCase(sid); if(!cs){ toast('This episode has no email thread yet.'); return }
+  const evd=dropEvidence(c);
+  c.drop={phase:'waiting', ep, at:Date.now(), afterEp:c.eps.filter(e=>e.done).length, reasons, ev:evd, rounds:0, offer:'none', hostile:0, specific:0, mails:0};
+  campPut(c);
+  cs.emails.push({id:'e'+Date.now(), me:true, from:myName(), to:[X.C.name], subject:`Our partnership with ${X.me}`, body, t:Date.now(), check:emailCheck(`Our partnership with ${X.me}`, body), drop:true});
+  putCase(cs); dropClose();
+  dropTone(c, body);
+  setTimeout(()=>dropFirstReply(c.id), 3200+Math.random()*1800);
+  toast(`Deal on hold. ${X.C.first} is writing back…`, 3600); renderCampaign();
+}
+function dropTone(c, body){
+  const hostile=/\b(ridiculous|stupid|joke|waste of (my|our) time|incompetent|liars?|lied|shameful|disgrac|pathetic|clowns?)\b/i.test(body) || (body.match(/!/g)||[]).length>=3 || /\b[A-Z]{5,}\b/.test(body.replace(/\b(USD|EUR|KRW|SLA|NDA|MSA|PDF|CEO|CFO|COO)\b/g,''));
+  const spec=Object.entries(DROP_R).filter(([k,r])=>r.keys.test(body)).length + (/\d/.test(body)?1:0);
+  if(hostile) c.drop.hostile++; c.drop.specific=Math.max(c.drop.specific, spec); campPut(c);
+  return {hostile, spec};
+}
+
+/* ---------- 2. their first reply ---------- */
+function dropFirstReply(cid){
+  const c=campGet(cid); if(!c || dropPhase(c)!=='waiting') return; const X=campCtx(c), sc=dropSc(c), cs=getCase(dropSid(c),false); if(!sc||!cs) return;
+  const D=c.drop, ev=D.ev.ev, p=[];
+  p.push(D.ev.trust<45 ? "Thank you for being direct. I can't say your email was a complete surprise, and I'd rather talk about it openly." : "Your email came as a real surprise, and I'm sorry to read it.");
+  const say={
+    moved:  ev.moved>=.5 ? `You're right that our draft did not match what we agreed${D.ev.hiddenLabel?` on ${D.ev.hiddenLabel}`:''}. That was our mistake, and I understand why it damaged your confidence.` : "I'm not aware of any change to what we agreed. If something in our documents looks different to you, please point me to it and I'll check it today.",
+    tone:   ev.tone>=.5 ? "I also recognize that some of our conversations became tense, especially when the pressure was on. That is not how I want us to work together." : "I'm sorry if our tone came across badly. That was never the intention, and I'd like to understand which moment you mean.",
+    demands:ev.demands>=.5 ? `On the terms, I accept that some of what we asked for${D.ev.outside.length?`, especially on ${D.ev.outside[0]},`:''} went further than is fair for you.` : "On the terms, I believe what we've asked for is in line with the market, but I'm open to talking it through.",
+    broken: ev.broken>=.5 ? "And yes, we did not handle the paperwork the way we said we would." : "I wasn't aware that we had missed a commitment. Could you tell me which one you mean?",
+    slow:   ev.slow>=.5 ? "I understand the process has felt slow. I'll take ownership of getting decisions made faster on our side." : "Some of the timing depends on approvals on both sides, but I'll see what we can speed up.",
+    alt:    "If you have a better alternative, I respect that. I would still ask for the chance to respond to it before you decide."
+  };
+  D.reasons.forEach(k=>p.push(say[k]));
+  const strongCase=D.ev.prov>=55;
+  D.offer = strongCase ? 'fair' : 'weak';
+  p.push(strongCase ? `To make this right, we can ${DROP_OFF[0]}, and ${DROP_OFF[1]}.` : `What I can offer straight away is to ${DROP_OFF[1]}.`);
+  p.push(`Before you make a final decision, could you tell me exactly what would need to change for you to continue? I'd much rather fix this than lose the partnership.`);
+  if(D.hostile) p.splice(1,0,"I can hear you're frustrated. I'd ask that we keep this constructive, so we can actually solve it.");
+  const m=mkMail(sc, dropWho(sc), 'Re: '+`Our partnership with ${X.me}`, p, c.difficulty); m.drop=true;
+  cs.emails.push(m); cs.unread=(cs.unread||0)+1; putCase(cs);
+  D.phase='talks'; D.mails++; campPut(c);
+  if($('thread')&&$('thread').classList.contains('on')&&curCase===cs.id) renderMails(); else toast(`New email from ${X.C.first}: she wants to talk before you decide.`.replace(/she wants/, X.C.gender==='m'?'he wants':'she wants'), 4200);
+  if($('campaign')&&$('campaign').classList.contains('on')) renderCampaign();
+}
+
+/* ---------- 3. the talks ---------- */
+/* read the learner's condition back to them: "if you confirm that our payment terms stay at 60 days" → "your payment terms stay at 60 days." */
+function dropEcho(body){
+  const m=body.replace(/\n+/g,' ').match(/\b(?:if you(?: can| could| would)?|provided (?:that )?you(?: can)?|on condition that you|as long as you)\s+([^.?!]{8,200})/i); if(!m) return '';
+  let t=m[1].replace(/^(confirm|agree|guarantee|commit|promise)\s+(in writing\s+)?(to\s+)?(that\s+)?/i,'').replace(/^(can|will|could)\s+/i,'').trim();
+  const sw={we:'you',us:'you',our:'your',ours:'yours',"we're":"you're","we'll":"you'll","we've":"you've",i:'you',my:'your',me:'you'};
+  t=t.replace(/\b(we|us|our|ours|we're|we'll|we've|i|my|me)\b/gi,w=>sw[w.toLowerCase()]||w);
+  if(t.split(/\s+/).length<3) return '';
+  t=t.replace(/^that\s+/i,'');
+  return /^(restore|send|give|change|fix|correct|put|keep|provide|deliver|lower|reduce|extend|sign|honou?r|match|cut|offer|move|update|pay|add|remove|drop|cover|share|accept|return|assign|make|stick|go back|bring|revise|amend|hold|waive|include|confirm)\b/i.test(t) ? 'we will '+t+'.' : 'we confirm that '+t+'.';
+}
+function dropReplyMail(cs, mail){
+  const c=Object.values(campAll()).find(x=>dropPhase(x)==='talks' && dropSid(x)===cs.id); if(!c) return null;
+  const X=campCtx(c), sc=dropSc(c), D=c.drop, body=stripFrame(mail.body||'');
+  const t=dropTone(c, body), cond=/\b(if you|provided (that|you)|on condition|as long as|only if|we (would|could|will) (be willing to |be happy to )?(continue|consider|stay|move forward|go ahead))\b/i.test(body),
+        writing=/\b(in writing|written|confirm|sign(ed)?[- ]?off|contract|amend)/i.test(body), polite=/\b(thank|appreciate|understand|sorry|happy to|glad)\b/i.test(body),
+        cont=/\b(we('d| would| will)? (like to )?(continue|resume|go ahead|move forward|proceed))\b/i.test(body) && !/\b(not|don't|won't|no longer)\b[^.]{0,20}\b(continue|resume|go ahead|proceed)/i.test(body),
+        end=/\b(final (decision|answer)|end (the|our) (deal|partnership|discussions?)|terminat|walk(ing)? away|not (going to |be able to )?(continue|proceed))\b/i.test(body);
+  D.rounds++; const p=[];
+  if(cont && !end){ p.push("That's very good to hear, thank you."); p.push(D.offer==='strong' ? "Everything I offered stands, and I'll send the written confirmation today. Let's pick up where we left off." : `We'll ${DROP_OFF[0]}. Let's pick up where we left off.`); if(D.offer!=='strong') D.offer='fair' }
+  else if(end){ p.push("I'm sorry to hear that, but thank you for telling me clearly."); p.push(D.offer==='strong' ? "Our offer stands if you change your mind." : "If anything changes on your side, my door stays open.") }
+  else if(t.hostile){ p.push("I hear your frustration. I'd ask that we keep this constructive, though, because I do want to solve it."); p.push(`What I can offer is to ${DROP_OFF[D.offer==='fair'?0:1]}. Is there a specific point that would make the difference for you?`) }
+  else if(t.spec>=1 && (cond||writing)){ D.offer='strong'; p.push(polite ? "Thank you for being so clear. That helps a lot." : "Thank you for being clear.");
+    const ask=dropEcho(body); if(ask) p.push(`We can commit to that: ${ask}`);
+    p.push(`On top of that, we will ${DROP_OFF[0]}, ${DROP_OFF[1]}, and ${DROP_OFF[2]}.`); p.push("I'll confirm it all in writing today. If that works for you, shall we pick up where we left off?") }
+  else if(t.spec>=1){ if(D.offer==='weak') D.offer='fair'; p.push("That helps me understand where we went wrong.");
+    p.push(`We can ${DROP_OFF[0]}, and ${DROP_OFF[1]}. Would that be enough for you to continue? If not, tell me what's missing.`) }
+  else { p.push("I want to fix this, but I need to understand exactly what has to change."); p.push("Which points matter most to you? If you can name them, I'll come back with something concrete.") }
+  if(D.rounds>=3 && D.offer!=='strong' && !cont && !end) p.push("I think we've both said what we can for now. The offer stands, and the decision is yours.");
+  campPut(c);
+  const m=mkMail(sc, dropWho(sc), 'Re: '+String(mail.subject||`Our partnership with ${X.me}`).replace(/^(re:\s*)+/i,''), p, c.difficulty); m.drop=true;
+  return [m];
+}
+const _emailReplyDemoD = emailReplyDemo;
+emailReplyDemo = function(c, mail){ try{ const r=dropReplyMail(c, mail); if(r) return r }catch(e){ console.warn(e) } return _emailReplyDemoD.call(this, c, mail) };
+if(typeof aiEmails==='function'){ const _ai=aiEmails; aiEmails=async function(c, ins){ try{ const last=[...c.emails].reverse().find(e=>e.me); const r=last&&dropReplyMail(c,last); if(r) return r }catch(e){} return _ai.apply(this, arguments) } }
+
+/* ---------- 4. the decision ---------- */
+function dropResume(){
+  const c=campActive(); if(!c||dropPhase(c)!=='talks') return; const X=campCtx(c), D=c.drop;
+  if(!confirm(`Resume the deal with ${X.them}?\n\nThe campaign continues from where you left off.`)) return;
+  const L=c.L; const gain={strong:4, fair:0, weak:-4, none:-6}[D.offer]||0;
+  L.trust=campClamp((L.trust==null?50:L.trust)+gain-4*D.hostile, 0, 100); if(D.offer==='strong') L.goodwill=(L.goodwill||0)+1;
+  L.flags=L.flags||{}; L.flags.dropped=(L.flags.dropped||0)+1;
+  D.phase='resumed'; D.resumedAt=Date.now(); D.judge=dropJudge(c); campPut(c);
+  const cs=getCase(dropSid(c),false), sc=dropSc(c);
+  if(cs&&sc){ const m=mkMail(sc, dropWho(sc), 'Re: '+`Our partnership with ${X.me}`, ["Thank you for giving us another chance.", D.offer==='strong'?"As promised, everything we agreed is now confirmed in writing. Let's make the rest of this go well.":"Let's make the rest of this go well."], c.difficulty); m.drop=true; cs.emails.push(m); putCase(cs) }
+  toast('Deal resumed. The next episode is open.', 3200); renderCampaign();
+}
+function dropFinal(){
+  const c=campActive(); if(!c||!dropOpen(c)) return; const X=campCtx(c);
+  if(!confirm(`Drop the deal with ${X.them} for good?\n\nThe campaign ends here. The Arc Report scores the meetings you played and judges your decision.`)) return;
+  const D=c.drop; D.phase='final'; D.finalAt=Date.now(); D.judge=dropJudge(c);
+  c.status='walked'; c.walkedAt=c.ep; campPut(c); campFinish(c);
+}
+
+/* ---------- 5. was it the right call? ---------- */
+function dropJudge(c){
+  const D=c.drop, E=D.ev, ev=E.ev, pro=[], con=[], tips=[];
+  const support=D.reasons.reduce((a,k)=>a+(ev[k]||0),0)/Math.max(1,D.reasons.length);
+  let s=50 + (E.prov-50)*.35 + (support-.5)*28;
+  if(E.prov>=60) pro.push('The record backs you up: the other side really did cross a line.');
+  else if(E.prov<40) con.push('Little in the record shows the other side behaving badly.');
+  D.reasons.forEach(k=>{ const v=ev[k]||0, lab=DROP_R[k].label.toLowerCase();
+    if(v>=.7) pro.push({moved:`They did change agreed terms in writing${E.hiddenLabel?` (${E.hiddenLabel})`:''}.`, tone:'Trust had collapsed and the meetings had turned hostile.', demands:`Their terms went beyond your mandate${E.outside.length?` (${E.outside.slice(0,2).join(', ')})`:''}.`, broken:'They broke a commitment you could point to.', slow:'Decisions really were stuck.', alt:'The terms on the table were worse than your alternative.'}[k]);
+    else if(v<.35) con.push(`“${cap1(lab)}” is not supported by what happened in the meetings.`) });
+  if(D.rounds>=1){ s+=10; pro.push('You gave them a chance to answer before deciding.') } else if(D.phase==='final'){ s-=14; con.push('You dropped the deal without answering their reply.') }
+  if(D.specific>=2){ s+=6; pro.push('You named concrete problems, not just a feeling.') } else { s-=6; con.push('Your emails stayed vague about what exactly went wrong.') }
+  if(D.hostile){ s-=8*Math.min(2,D.hostile); con.push('Your tone made it harder for them to fix things.') }
+  const off={strong:-24, fair:-8, weak:6, none:4}[D.offer]||0;
+  if(D.phase!=='resumed'){ s+=off;
+    if(D.offer==='strong') con.push('They offered to fix exactly what you raised, in writing, and you still walked away.');
+    else if(D.offer==='weak') pro.push('Their answer did not address your concerns.') }
+  if(E.dv<45 && (D.reasons.includes('alt') || D.afterEp>=3)){ s+=8; pro.push('The deal value was below what you could get elsewhere.') } else if(E.dv>=70){ s-=8; con.push('You were walking away from strong terms.') }
+  const fixable=D.reasons.every(k=>['moved','broken','slow'].includes(k));
+  if(D.phase!=='resumed' && (D.offer==='strong' || (D.offer==='fair' && fixable))){ s-=20; con.push('Their offer answered the problems you raised. Taking it in writing would have kept the deal and protected you.') }
+  if(D.afterEp<=1 && E.prov<50){ s-=8; con.push('You dropped it very early, before the relationship had a chance to settle.') }
+  s=Math.round(campClamp(s,0,100));
+  if(D.phase==='resumed'){
+    const t = D.offer==='strong' ? 'You used the threat of dropping the deal to get firm commitments, then came back to the table.' : 'You came back to the table without getting much in return.';
+    if(D.offer!=='strong') tips.push('Before resuming, ask for the fix in writing: "We will continue if you confirm, in writing, that…"');
+    return {score:s, resumed:true, verdict: D.offer==='strong' ? 'Used well' : 'Came back cheaply', text:t, pro, con, tips};
+  }
+  if(D.rounds<1) tips.push('Read their reply and answer it once before you decide. Their offer is information.');
+  if(D.specific<2) tips.push('Name the exact problem: "On the volume clause, your draft says 4,500. We agreed 5,000."');
+  if(D.offer!=='strong') tips.push('Make it conditional: "We would continue if you confirm X in writing by Friday."');
+  if(D.hostile) tips.push('Stay firm but calm. Describe what happened, not who they are.');
+  const verdict = s>=65 ? 'Well-judged exit' : s>=40 ? 'Defensible, but costly' : 'Premature exit';
+  const text = s>=65 ? 'The other side had given you real reasons to leave, you raised them clearly, and their answer did not fix them. Walking away was the right call.'
+             : s>=40 ? 'There were real problems, but the deal might have been saved. You left value on the table by not pushing harder for a fix first.'
+             : 'The record does not show enough to justify leaving, or they offered to fix what you raised. This looks like a decision made too fast.';
+  return {score:s, verdict, text, pro, con, tips};
+}
+
+/* the Arc Report: a dropped campaign is judged on the meetings played and on the decision */
+const _campOutcomeD = campOutcome;
+campOutcome = function(c){
+  const O=_campOutcomeD.apply(this, arguments);
+  if(c && c.status==='walked' && c.drop && c.drop.phase==='final'){
+    const J=c.drop.judge || dropJudge(c);
+    O.drop=J; O.key = J.score>=65 ? 'walk' : J.score>=40 ? 'hardexit' : 'premature';
+    O.title = J.score>=65 ? 'Smart Walk-away' : J.score>=40 ? 'Hard Exit' : 'Premature Exit';
+    O.text = J.text; O.overall=Math.round(campClamp(.5*O.avg+.5*J.score,0,100));
+  } else if(c && c.drop && c.drop.phase==='resumed'){ O.drop=c.drop.judge || dropJudge(c) }
+  return O;
+};
+function arcDropHTML(arc, c){
+  const O=arc.outcome, J=O&&O.drop; if(!J || !c || !c.drop) return '';
+  const D=c.drop, lab=k=>DROP_R[k]?DROP_R[k].label:k, offer={strong:'Full fix, in writing',fair:'Partial fix',weak:'Little on offer',none:'No offer'}[D.offer]||'';
+  const tone=J.score>=65||J.verdict==='Used well'?'y':J.score>=40?'m':'n';
+  return `<div class="pane full drop-arc"><h3>${J.resumed?'The drop and the return':'Your decision to drop the deal'}</h3>
+    <div class="drop-v ${tone}"><b>${esc(J.verdict)}</b><span>${J.score} / 100</span></div>
+    <p class="drop-t">${esc(J.text)}</p>
+    <div class="drop-facts"><span>Dropped after Episode ${D.afterEp}</span><span>${D.rounds} email ${D.rounds===1?'round':'rounds'}</span><span>Their offer: ${esc(offer)}</span></div>
+    <div class="drop-facts">${D.reasons.map(k=>`<span class="r">${esc(lab(k))}</span>`).join('')}</div>
+    <div class="asw-g" style="margin-top:14px"><div><h4 class="asw-h y">What supports it</h4>${J.pro.length?`<ul class="pts">${J.pro.map(x=>`<li>${esc(x)}</li>`).join('')}</ul>`:'<div class="hint">Nothing clear.</div>'}</div>
+      <div><h4 class="asw-h n">What counts against it</h4>${J.con.length?`<ul class="pts">${J.con.map(x=>`<li>${esc(x)}</li>`).join('')}</ul>`:'<div class="hint">Nothing clear.</div>'}</div></div>
+    ${J.tips.length?`<div class="asw-tip" style="margin-top:12px"><b>Next time:</b> ${J.tips.map(esc).join(' ')}</div>`:''}
+    ${!J.resumed?'<div class="hint" style="margin-top:10px">Only the meetings before the drop are scored. Episodes you did not reach are not counted against you.</div>':''}
+  </div>`;
+}
+
+/* ---------- campaign screen: the button, the on-hold banner, blocked episodes ---------- */
+const _renderCampaignD = renderCampaign;
+renderCampaign = function(){
+  _renderCampaignD.apply(this, arguments);
+  const c=campActive(), el=$('campBody'); if(!c||!el) return; const X=campCtx(c); if(!X) return;
+  const foot=el.querySelector('.cp-foot'), finished=c.eps[5].done;
+  if(foot){ const w=[...foot.querySelectorAll('button')].find(b=>/Walk away/.test(b.textContent)); if(w) w.remove();
+    if(!finished && c.eps[0].done && !dropOpen(c)) foot.insertAdjacentHTML('afterbegin', `<button class="btn danger" onclick="dropStart()">Drop the deal</button>`) }
+  if(dropOpen(c)){
+    const D=c.drop, waiting=D.phase==='waiting';
+    const box=`<div class="pane drop-hold"><div class="drop-hh"><span class="pill warn">Deal on hold</span><b>You told ${esc(X.C.first)} you are dropping the deal.</b></div>
+      <p>${waiting?`${esc(X.C.first)} is writing back…`:`${esc(X.C.first)} wants to talk before you decide. Reply by email, then choose.`}</p>
+      <div class="drop-btns"><button class="btn ghost" onclick="openThread('${esc(dropSid(c))}')">✉ Open the emails</button>${waiting?'':`<button class="btn gold" onclick="dropResume()">Resume the deal</button><button class="btn danger" onclick="dropFinal()">Drop for good</button>`}</div></div>`;
+    const grid=el.querySelector('.cp-grid>div'); if(grid) grid.insertAdjacentHTML('afterbegin', box);
+    el.querySelectorAll('.cp-ep .btn.gold').forEach(b=>{ b.disabled=true; b.title='Resume or drop the deal first' });
+  }
+};
+const _campOpenEpD = campOpenEp;
+campOpenEp = function(n){ const c=campActive(); if(c && dropOpen(c)){ toast('The deal is on hold. Resume it or drop it for good first.', 3200); openThread(dropSid(c)); return } return _campOpenEpD.apply(this, arguments) };
+
+/* the thread: a decision bar under the talks */
+const _renderMailsD = renderMails;
+renderMails = function(){
+  _renderMailsD.apply(this, arguments);
+  const c=Object.values(campAll()).find(x=>dropOpen(x) && dropSid(x)===curCase); if(!c) return;
+  const X=campCtx(c), waiting=c.drop.phase==='waiting';
+  $('thMails').insertAdjacentHTML('beforeend', `<div class="drop-bar"><div><span class="pill warn">Deal on hold</span> ${waiting?`${esc(X.C.first)} is writing back…`:'Reply to keep talking, or decide now.'}</div>
+    ${waiting?'':`<div class="drop-btns"><button class="btn gold" onclick="dropResume();renderMails()">Resume the deal</button><button class="btn danger" onclick="dropFinal()">Drop for good</button></div>`}</div>`);
+};
+/* if the page was closed while their reply was due, deliver it now */
+setTimeout(()=>{ try{ Object.values(campAll()).forEach(c=>{ if(dropPhase(c)==='waiting' && Date.now()-c.drop.at>5000) dropFirstReply(c.id) }) }catch(e){} }, 1500);
 
 
 /* =========================================================
