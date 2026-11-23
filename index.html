@@ -6889,10 +6889,12 @@ function histRemove(rowId){ repDel(rowId); histPatch(a=>a.filter(x=>x.rowId!==ro
 /* ---------- history: one card per campaign, its episodes inside ---------- */
 const histOpen = new Set();
 function campRowAdd(record, rowId){ try{ const m=record&&record.camp; if(!m||!m.id||!rowId) return; const c=campGet(m.id); if(!c||!c.eps[m.ep]) return; const e=c.eps[m.ep]; e.rows=(e.rows||[]).filter(x=>x!==rowId).concat([rowId]).slice(-12); campPut(c) }catch(e){} }
+/* episode titles were saved as "The Closing, Korvex…" before the app stopped using dashes; newer ones read "The Closing, Korvex…". Match both. */
+function histKey(t){ return String(t||'').replace(/\s*(?:\u2014|,)\s+/,'|').trim() }
 function histGroups(h){
   let camps=[]; try{ camps=Object.values(campAll()).sort((a,b)=>(a.created||0)-(b.created||0)) }catch(e){}
   const meta=camps.map(c=>{ let X=null; try{ X=campCtx(c) }catch(e){} if(!X) return null; const titles={}, ids={};
-    c.eps.forEach((e,n)=>{ (e.rows||[]).forEach(id=>{ ids[id]=n }); if(e.in){ try{ const s=campBuild(c,n); if(s) titles[s.title]=n }catch(_){} } });
+    c.eps.forEach((e,n)=>{ (e.rows||[]).forEach(id=>{ ids[id]=n }); if(e.in){ try{ const s=campBuild(c,n); if(s) titles[histKey(s.title)]=n }catch(_){} } });
     return {c, X, titles, ids, rows:[]} }).filter(Boolean);
   const solo=[];
   h.forEach(r=>{ let m=meta.find(x=>x.ids[r.rowId]!=null), n;
@@ -6900,7 +6902,7 @@ function histGroups(h){
     else if(/^Campaign — /.test(r.scenario||'')){          // the Arc Report saved when a campaign ends belongs inside its campaign
       const t=+new Date(r.date), cands=meta.filter(x=>(x.c.arcRow===r.rowId) || (String(r.scenario).indexOf('Campaign — '+x.X.them+' (')===0 && (x.c.created||0)<=t && (x.c.status==='done'||x.c.status==='walked')));
       m=cands.find(x=>x.c.arcRow===r.rowId) || cands[cands.length-1]; n=99; if(m){ m.rows.push(Object.assign({ep:99, arc:true}, r)); return } }
-    else { const t=+new Date(r.date), cands=meta.filter(x=>x.titles[r.scenario]!=null && (x.c.created||0)<=t); m=cands[cands.length-1]; if(m) n=m.titles[r.scenario] }
+    else { const t=+new Date(r.date), cands=meta.filter(x=>x.titles[histKey(r.scenario)]!=null && (x.c.created||0)<=t); m=cands[cands.length-1]; if(m) n=m.titles[histKey(r.scenario)] }
     if(m) m.rows.push(Object.assign({ep:n}, r)); else solo.push(r) });
   return {groups:meta.filter(m=>m.rows.length), solo};
 }
@@ -7250,7 +7252,7 @@ const ADM_EP = ['First Meeting','The Term Sheet','The Problem','The Shock','The 
 const admOpen = new Set();
 function admGroups(list){
   const solo=[], tagged={}, loose=[], asc=list.slice().sort((a,b)=>+new Date(a.date)-+new Date(b.date));
-  const parse = r => { const m=String(r.scenario||'').match(/^(First Meeting|The Term Sheet|The Problem|The Shock|The Renegotiation|The Closing), (.+)$/), a=String(r.scenario||'').match(/^Campaign — (.+?) \((.+)\)$/);
+  const parse = r => { const m=String(r.scenario||'').match(/^(First Meeting|The Term Sheet|The Problem|The Shock|The Renegotiation|The Closing)(?:\s\u2014|,) (.+)$/), a=String(r.scenario||'').match(/^Campaign — (.+?) \((.+)\)$/);
     return m ? {them:m[2], ep:ADM_EP.indexOf(m[1]), arc:false, byEvent:/^The (Problem|Shock)$/.test(m[1])} : a ? {them:a[1], ep:99, arc:true, ending:a[2]} : null };   // Episodes 3 and 4 are titled by what happened, not by the company
   // 1. reports that know their campaign
   asc.forEach(r=>{ const c=r.camp; if(c && c.id){ const k=r.userId+'|'+c.id, g=tagged[k]=tagged[k]||{cid:c.id, userId:r.userId, name:r.name, them:'', role:'', field:'', rows:[]};
