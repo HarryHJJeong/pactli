@@ -1823,6 +1823,18 @@ html.mob #landing .lp-kvp{right:-200px;top:-40px;width:620px;height:760px;backgr
 .lp-vid.on:not(.snd) .lp-vsnd{display:inline-flex}
 html.mob .lp-vsnd{right:10px;bottom:10px;font-size:12.5px;padding:8px 12px 8px 10px}
 
+/* key visual sizing (2026-11-25): bigger on PC, smaller on mobile */
+.login-art:before{width:clamp(440px,36vw,640px);height:auto;aspect-ratio:532/454;right:-110px;top:6%}
+.hero:after{width:320px;height:auto;aspect-ratio:532/454;bottom:-64px;right:2%}
+#landing .lp-kvp{width:1400px;height:1250px;background-size:150px 150px}
+html.mob .login-art:before{width:170px;right:-38px;top:16px}
+html.mob .hero:after{width:150px;right:-12px;bottom:-28px}
+html.mob #landing .lp-kvp{right:-190px;top:-30px;width:560px;height:700px;background-size:52px 52px}
+@media (max-width:760px){
+  .login-art:before{width:170px;right:-38px;top:16px}
+  .hero:after{width:150px;right:-12px;bottom:-28px}
+}
+
 .type-q{display:none;margin-top:6px;font-size:12.5px;color:#8a5f16;background:#fbf3df;border-radius:8px;padding:6px 10px}
 .sg-src{display:block;font-size:11.5px;font-weight:600;margin-top:3px}.sg-src.ok{color:#3d6b4f}.sg-src.new{color:#8a5f16}.sg-src.open{color:#9a4b3a}
 /* campaign · drop the deal */
