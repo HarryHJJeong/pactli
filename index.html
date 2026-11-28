@@ -1835,6 +1835,10 @@ html.mob #landing .lp-kvp{right:-190px;top:-30px;width:560px;height:700px;backgr
   .hero:after{width:150px;right:-12px;bottom:-28px}
 }
 
+/* contract term tooltips (vocab.js) */
+abbr.gl{text-decoration:underline dotted rgba(47,74,60,.55);text-underline-offset:3px;cursor:help}
+abbr.gl:focus{outline:2px solid var(--green);outline-offset:2px;border-radius:3px}
+
 .type-q{display:none;margin-top:6px;font-size:12.5px;color:#8a5f16;background:#fbf3df;border-radius:8px;padding:6px 10px}
 .sg-src{display:block;font-size:11.5px;font-weight:600;margin-top:3px}.sg-src.ok{color:#3d6b4f}.sg-src.new{color:#8a5f16}.sg-src.open{color:#9a4b3a}
 /* campaign · drop the deal */
@@ -10766,7 +10770,7 @@ function semSandbox(sc, st, txt, o, inner){
   return {clone, r, newly: clone ? Object.keys(clone.agreed).filter(k=>st.agreed[k]==null) : []};
 }
 function semWhoPhrase(c){ const t=(c.approval&&c.approval.txt)||c.t, m=t.match(SEM_WHO);
-  if(!m){ const b=t.match(/\b(board|cfo|ceo|finance|legal|management|committee|manager)(?:'s)? (?:approval|sign-?off)\b/i); return b ? 'your '+(b[1].length<=3?b[1].toUpperCase():b[1].toLowerCase())+"'s approval" : 'the approval you mentioned' } const w=m[1]; const up = w.length<=4 ? w.toUpperCase() : w; return (/^our\b/i.test(m[0]) ? 'your ' : /^your\b/i.test(m[0]) ? 'our ' : 'the ')+up+"'s approval" }
+  if(!m){ const b=t.match(/\b(board|cfo|ceo|finance|legal|management|committee|manager)(?:'s)? (?:approval|sign-?off)\b/i); return b ? 'your '+(b[1].length<=3?b[1].toUpperCase():b[1].toLowerCase())+"'s approval" : 'the approval you mentioned' } const w=m[1]; const up = w.length<=4 ? w.toUpperCase() : w; return (/^(?:our|my)\b/i.test(m[0]) ? 'your ' : /^your\b/i.test(m[0]) ? 'our ' : 'the ')+up+"'s approval" }
 
 /* ---------- conversation helpers: the next open point, short acknowledgments ---------- */
 const SEM_ACK = /^(?:ok(?:ay)?|sure|right|i see|got it|noted|understood|fine|alright|all right|yes|yeah|yep|hmm+|um+|uh+|let me think|let me see|give me a (?:second|moment|minute)|thanks?|thank you|thanks for (?:the|your) (?:update|email|reply|time)|i understand|makes sense|good|great|perfect|cool|i hear you|fair enough)\b[\w\s,.!']{0,30}$/i;
@@ -11133,6 +11137,151 @@ engineReply = function(sc, st, text, o){
   const merged = []; turns.forEach(tu=>{ const l = merged[merged.length-1]; if(l && l.p===tu.p) l.text += ' '+tu.text; else merged.push(Object.assign({}, tu)) });
   return Object.assign({}, r, {turns:merged.slice(0,3)});
 };
+
+/* =========================================================
+   VOCAB BANK (from Harry's own Business English Vocabs notes, 2026-11)
+   Reviewed, corrected and rewritten in our own words. Five uses:
+   1. the engine understands these expressions (approval, firm, provisional, ballpark)
+   2. counterparts use a few of them naturally
+   3. Level-up feedback suggests them
+   4. contract terms get plain-English tooltips in the agreement viewer
+   5. the report credits them when the learner uses them (through LVL_LIB)
+   ========================================================= */
+const VOC_RUNBY = /\b(?:run|running|ran) (?:it|this|that|these|those|the \w+(?: \w+)?|everything) (?:past|by) (?:my|our|the) (cfo|ceo|boss|manager|director|board|team|legal(?: team)?|finance(?: team)?|management|leadership|head office|vp|partners?)\b/i;
+const VOC_FIRM = /\b(?:we|i) (?:can(?:not|'t)|won't|will not|are not going to|aren't going to) budge(?: on (?:that|this|it|the \w+))?\b|\b(?:that|this|it) (?:does not|doesn't|won't|will not) fly(?: with (?:us|me|our \w+))?\b|\b(?:a|the|our) hill (?:we(?:'re| are) (?:willing|prepared|ready) to die on|to die on)\b|\bwe(?:'re| are) adamant (?:about|that|on)\b/i;
+const VOC_PROVISIONAL = /\btentative(?:ly)?\b|\bas an interim (?:measure|solution|arrangement|step)\b|\boff the cuff\b|\bballpark(?: figure| number)?(?: of| is| would be|,)\s*(?:around |about |roughly )?\$?\d|\b(?:around|roughly|about) \$?\d[\d,.]*\s*(?:k|thousand|million)?,? ballpark\b/i;
+const VOC_BALLPARK_Q = /\b(?:give (?:me|us) )?(?:a |the )?ballpark(?: figure| number| range)?\b.*\?|\bwhat(?:'s| is) the ballpark\b|\bwhat (?:sort|kind) of ballpark\b/i;
+
+/* 1. understanding: extend the shared parser, keep its state rules */
+if(typeof semClause==='function'){ const _semClauseV = semClause; semClause = function(raw, idx){
+  const c = _semClauseV.apply(this, arguments);
+  try{
+    const low = c.low || String(raw).toLowerCase();
+    const rb = low.match(VOC_RUNBY);
+    if(rb){ c.approval = c.approval || {who:rb[1], txt:c.t}; if(!c.intents.includes('requestApproval')) c.intents.push('requestApproval');
+      if(c.intents.includes('accept') && c.modality==='firm') c.modality = 'conditional';
+      if(c.intents.includes('propose') && !c.ents.some(e=>e.type!=='authority')) c.intents = c.intents.filter(i=>i!=='propose') }
+    if(VOC_FIRM.test(low)){ c.intents = c.intents.filter(i=>i!=='accept'); if(!c.intents.includes('reject')) c.intents.push('reject'); c.lex = Object.assign({}, c.lex||{}, {firm:{m:'vocab'}}); c.modality = 'unable' }
+    if(VOC_PROVISIONAL.test(low) && c.ents.some(e=>['money','pct','duration','payment','quantity'].includes(e.type)) && !c.cond){ c.modality = 'consider'; c.provisional = true }
+    if(VOC_BALLPARK_Q.test(raw)) c.ballparkQ = true;
+  }catch(e){}
+  return c;
+} }
+
+/* answers to "Could you give me a ballpark?" and the counterpart's idioms */
+const VOC_SWAP = [
+  [/^(?:I'm sorry, )?(.{2,40}?) doesn't work for us\.$/i, (m)=>`${cap1(m[1])} doesn't fly with us, I'm afraid.`],
+  [/^That's a long way from where we are, I'm afraid\.$/i, ()=>`Honestly, that doesn't fly with us.`],
+  [/\bwe can(?:'t|not) move (?:on|from) (that|this|it)\b/i, (m,s)=>s.replace(m[0], `we can't budge on ${m[1]}`)],
+  [/^(?:My pleasure|Not at all)[.,] (?:Good to see you|glad we could make it work)\.$/i, ()=>`My pleasure. It's nice to finally put a face to the name.`]
+];
+if(typeof engineReply==='function'){ const _engineReplyV = engineReply; engineReply = function(sc, st, text, o){
+  const r = _engineReplyV.apply(this, arguments);
+  try{
+    if(!st || !sc || (o&&o.sandbox) || !(sc.issues||[]).length || !r || !r.turns) return r;
+    const M = (typeof semMem==='function') ? semMem(st) : (st.sem=st.sem||{});
+    /* ballpark question: give their position as a range-like answer */
+    if(VOC_BALLPARK_Q.test(String(text||'')) && !/\d/.test(String(text||''))){
+      let is = null; try{ is = issuesMentioned(sc, normText(text))[0] }catch(e){}
+      is = is || (typeof semNextIssue==='function' ? semNextIssue(sc, st) : null);
+      const pos = is && (st.issues[is.id]||{}).pos;
+      if(is && pos!=null && is.unit!=='option'){ const fv = fmtVal(is, pos);
+        r.turns = [{speaker:((sc.personas||[])[is.owner||0]||{}).name, p:is.owner||0, text: fresh(st,'vocBp',[`Ballpark, we're looking at around ${fv} on ${is.label}. That's where we'd want to land.`,`As a ballpark, think ${fv} for ${is.label}. There's not much room either side.`])}];
+        if(typeof semLog==='function') semLog(st,'ballpark',{id:is.id},text) }
+    }
+    /* idioms: at most one swap every three turns, so they stay natural */
+    if((st.turn||0) - (M.vocIdiom||-9) >= 3){
+      let done = false;
+      r.turns = r.turns.map(tu=>{ if(done) return tu; const ss = String(tu.text).split(/(?<=[.?!])\s+/);
+        for(let i=0;i<ss.length && !done;i++) for(const [re,fn] of VOC_SWAP){ const m = ss[i].match(re); if(m){ ss[i] = fn(m, ss[i]); done = true; break } }
+        return done ? Object.assign({}, tu, {text:ss.join(' ')}) : tu });
+      if(done) M.vocIdiom = st.turn||0;
+    }
+  }catch(e){}
+  return r;
+} }
+/* "We're in the homestretch" when only one point is left */
+if(typeof semAgendaLine==='function'){ const _semAgendaLineV = semAgendaLine; semAgendaLine = function(sc, st, kind){
+  const A = _semAgendaLineV.apply(this, arguments);
+  try{ const open = (sc.issues||[]).filter(is=>!is.never && st.agreed[is.id]==null).length, agreed = Object.keys(st.agreed||{}).length;
+    if(open===1 && agreed>=2 && !/homestretch/.test(A.t)) A.t = A.t.replace(/^(?:Good|Okay|Right)\.\s*/, '') .replace(/^/, "We're in the homestretch. ") }catch(e){}
+  return A;
+} }
+
+/* 3. Level-up suggestions (correct but plain → C1/C2) */
+if(typeof LVL_RULES!=='undefined') LVL_RULES.push(
+  [/^we (?:can'?t|cannot|won'?t|will not) change (?:our|the|that|this) (?:position|price|offer|number|figure)(?: on (?:the |this |that )?[\w-]+)?[.!]?$/i, ["We can't budge on that.",'C1'], ["That's a hill we're prepared to die on.",'C2'], 'Holds firm with a natural idiom instead of a flat refusal.'],
+  [/^(?:(?:approximately|about|roughly) how much (?:would|will|does|is|do)(?: \w+){0,4}|what is the approximate (?:price|cost|fee|amount)(?: \w+){0,4})\??$/i, ["Could you give me a ballpark figure?",'C1'], ["What sort of ballpark are we talking about?",'C1'], 'Asks for a rough number without pinning them down.'],
+  [/\bi (?:need to|have to|will|'ll|must) (?:ask|check with|talk to|discuss (?:this|it) with) (?:my|our) (manager|boss|team|director|cfo|ceo|board|legal team|finance team)\b/i, ["I'll need to run this by my $1",'C1'], ["let me run this by my $1 and come back to you",'C1'], 'Flags an approval step without sounding unsure.'],
+  [/\bwe (?:will|'ll|should|must) (?:consider|think about) (?:that|this|it)\b/i, ["we'll take that into account",'B2+'], ["we'll factor that in",'C1'], 'Shows you will act on their point, not just think about it.'],
+  [/\bit depends on the (?:situation|case)\b/i, ["it's on a case-by-case basis",'C1'], ["we look at it case by case",'B2+'], 'A precise way to say there is no fixed rule.'],
+  [/\bwe are almost (?:done|finished|there)\b|\bwe'?re almost (?:done|finished|there)\b/i, ["we're in the homestretch",'C1'], ["we're nearly over the line",'C1'], 'Signals momentum near the close.'],
+  [/\b(?:they|these|those) are (?:very |too |completely )?different,? (?:so )?(?:we|you) (?:can'?t|cannot) compare\b|\byou can'?t compare (?:them|these|the two)\b/i, ["that's comparing apples and oranges",'C1'], ["it's not a like-for-like comparison",'C1'], 'Pushes back on an unfair comparison, often a competitor quote.'],
+  [/\b(?:i|we) (?:don'?t|do not|can'?t|cannot) accept (?:that|this|your) (?:reason|explanation|argument|logic)\b/i, ["that doesn't fly with us",'C1'], ["I'm not sure that argument holds up",'C1'], 'Rejects an argument rather than the person.'],
+  [/\bwe need to find (?:a|the) (?:balance|middle ground|compromise)\b/i, ["we need to strike a balance",'C1'], ["let's find a balance that works for both sides",'C1'], 'A collaborative way to move toward a compromise.'],
+  [/\bwe (?:agreed|agree) (?:temporarily|for now)\b/i, ["we've tentatively agreed",'C1'], ["we have an agreement in principle",'C2'], 'Marks the agreement as provisional, clearly.'],
+  [/^sorry (?:to|for) repeat(?:ing)? (?:myself|this|that),? (?:but )?/i, ["At the risk of sounding redundant, ",'C2'], ["Just to reiterate, ",'C1'], 'A polished way to repeat a key point.'],
+  [/^looking back,? /i, ["In retrospect, ",'C1'], ["With hindsight, ",'C1'], 'More precise when reflecting on what happened.'],
+  [/\b(?:skip|skipping) (?:some |important )?steps\b|\bdo (?:it|things) (?:too )?quickly and badly\b/i, ["cut corners",'B2+'], ["take shortcuts on quality",'C1'], 'The idiom native speakers use for doing a rushed job.'],
+  [/\bnice to (?:finally )?meet you (?:in person|face to face|finally)\b/i, ["it's nice to finally put a face to the name",'C1'], ["great to put a face to the name at last",'C1'], 'The natural line after weeks of emails.'],
+  [/\bwe (?:can|could) give (?:you )?(?:something|a little) (?:extra|more) to (?:make|close) the deal\b/i, ["we could sweeten the deal",'C1'], ["we could add something to sweeten the deal",'C1'], 'Offers an extra without cutting the price.'],
+  [/\bwe (?:need to|have to|will) (?:reduce|cut) (?:the )?(?:budget|costs?|spending|scope)\b/i, ["we need to pare back the $1",'C2'], ["we'll have to scale back",'C1'], 'A more exact verb for reducing costs or scope.']
+);
+if(typeof LVL_LIB!=='undefined') LVL_LIB.push(
+  ['Pushing back', 'C1', "We can't budge on that.", "We can't change it.", 'Holding a position on one point.', /\bbudge on\b|\bwon'?t budge\b|\bcan'?t budge\b/],
+  ['Pushing back', 'C1', "That doesn't fly with us.", "We don't accept that.", 'Rejecting an argument or proposal, informal but common.', /doesn'?t fly with/],
+  ['Pushing back', 'C2', "That's a hill we're prepared to die on.", "This is very important to us.", 'Showing a point is non-negotiable.', /hill (?:we'?re|we are) (?:prepared|willing|ready) to die on|hill to die on/],
+  ['Pushing back', 'C1', "That's comparing apples and oranges.", "They are different.", 'Answering an unfair competitor comparison.', /apples (?:and|to) oranges/],
+  ['Probing', 'C1', "Could you give me a ballpark figure?", "About how much?", 'Asking for a rough number.', /\bballpark\b/],
+  ['Probing', 'C1', "Is that on a case-by-case basis?", "Does it depend?", 'Checking whether a rule is fixed.', /case[- ]by[- ]case/],
+  ['Conceding', 'C1', "Let's strike a balance here.", "Let's compromise.", 'Inviting both sides to move.', /strike a balance/],
+  ['Conceding', 'C1', "We could sweeten the deal with free onboarding.", "We can add something.", 'Adding value instead of cutting price.', /sweeten the deal|deal sweetener/],
+  ['Conceding', 'C1', "We'll take that into account.", "We'll think about it.", 'Acknowledging their point with intent to act.', /take (?:that|this|it) into account|take into account/],
+  ['Process', 'C1', "Let me run this by my manager and come back to you.", "I need to ask my boss.", 'Flagging an approval step.', /run (?:it|this|that) by/],
+  ['Process', 'C1', "We've tentatively agreed on three years.", "We agree for now.", 'Marking a provisional agreement.', /tentatively agreed|tentative agreement/],
+  ['Process', 'C1', "As an interim measure, we could…", "For now, we could…", 'Proposing a temporary fix.', /as an interim (?:measure|solution|arrangement)/],
+  ['Process', 'C1', "We're in the homestretch.", "We're almost done.", 'Signaling the close is near.', /\bhomestretch\b/],
+  ['Process', 'C1', "Off the cuff, I'd say around ten weeks.", "Without checking, maybe ten weeks.", 'Giving a rough answer without committing.', /off the cuff/],
+  ['Process', 'C2', "At the risk of sounding redundant, timing is critical.", "Sorry to repeat, timing is important.", 'Repeating a key point politely.', /at the risk of sounding redundant/],
+  ['Process', 'C1', "What are the ramifications if we miss the date?", "What happens if we are late?", 'Asking about consequences.', /\bramifications?\b/],
+  ['Conceding', 'C2', "We could offset the price increase with longer payment terms.", "We give something back for the price.", 'Balancing one concession with another.', /\boffset (?:the|this|that|it)\b/],
+  ['Closing', 'C1', "I'm confident we can reach an amicable solution.", "I think we can agree.", 'A warm, professional close.', /\bamicable\b/]
+);
+
+/* 4. plain-English tooltips for contract terms in the agreement viewer */
+const VOC_GLOSS = [
+  [/\bwaivers?\b/i, 'Waiver: giving up a right you would otherwise have, on purpose and usually in writing.'],
+  [/\bnon-?compete\b/i, 'Non-compete: a promise not to work for or start a competing business for a set time.'],
+  [/\bvoid\b/i, 'Void: has no legal effect, as if it never existed.'],
+  [/\bretroactive(?:ly)?\b/i, 'Retroactive: applies to a period that has already started or passed.'],
+  [/\bindemni(?:fy|fies|ty|fication)\b/i, 'Indemnify: to cover the other side\'s losses if certain things go wrong.'],
+  [/\bliab(?:le|ility)\b/i, 'Liability: legal responsibility to pay for loss or damage. A cap limits how much.'],
+  [/\bforce majeure\b/i, 'Force majeure: events outside anyone\'s control, such as natural disasters, that excuse a delay.'],
+  [/\bauto(?:matic)?[- ]?renew(?:al|s)?\b/i, 'Auto-renewal: the contract continues for another term unless someone cancels in time.'],
+  [/\bterminat(?:e|ion) for convenience\b/i, 'Termination for convenience: ending the contract without needing a reason, usually with notice.'],
+  [/\bin arrears\b/i, 'In arrears: paid after the period it covers, not before.'],
+  [/\bin advance\b/i, 'In advance: paid before the period it covers.'],
+  [/\bnet[- ]?\d{2}\b/i, 'Net 30/60: the invoice must be paid within that many days.'],
+  [/\bgoverning law\b/i, 'Governing law: which country\'s or state\'s law is used to read the contract.'],
+  [/\binterim\b/i, 'Interim: temporary, for the period until a final arrangement is in place.'],
+  [/\bservice credits?\b/i, 'Service credits: a discount owed when the service misses the agreed level.'],
+  [/\bminimum guarantee\b|\bMG\b/, 'Minimum guarantee: the least the licensee pays, whatever the actual sales.'],
+  [/\broyalt(?:y|ies)\b/i, 'Royalty: a payment for using rights, usually a percentage of sales.']
+];
+function vocGloss(root){
+  if(!root || root.dataset.gl) return; root.dataset.gl = '1';
+  const w = document.createTreeWalker(root, NodeFilter.SHOW_TEXT, {acceptNode:n=>n.parentNode && !/^(SCRIPT|STYLE|TEXTAREA|INPUT|BUTTON|ABBR|LABEL)$/.test(n.parentNode.nodeName) && n.nodeValue.trim().length>3 ? NodeFilter.FILTER_ACCEPT : NodeFilter.FILTER_REJECT});
+  const nodes = []; while(w.nextNode()) nodes.push(w.currentNode);
+  const used = new Set();
+  nodes.forEach(n0=>{ let n = n0, guard = 0;
+    while(n && guard++<12){ let best = null;
+      for(const [re,def] of VOC_GLOSS){ if(used.has(def)) continue; const m = n.nodeValue.match(re); if(m && (!best || m.index<best.m.index)) best = {m, def} }
+      if(!best) break;
+      const a = document.createElement('abbr'); a.className = 'gl'; a.title = best.def; a.tabIndex = 0; a.textContent = best.m[0];
+      a.onclick = e=>{ e.stopPropagation(); if(typeof toast==='function') toast(best.def) };
+      const after = n.splitText(best.m.index); after.nodeValue = after.nodeValue.slice(best.m[0].length); n.parentNode.insertBefore(a, after); used.add(best.def); n = after } });
+}
+if(typeof dvRender==='function'){ const _dvRenderV = dvRender; dvRender = function(){ const r = _dvRenderV.apply(this, arguments); try{ const st = document.getElementById('dvStage'); if(st){ delete st.dataset.gl; vocGloss(st) } }catch(e){} return r } }
 
 
 /* =========================================================
