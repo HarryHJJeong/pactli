@@ -11283,6 +11283,249 @@ function vocGloss(root){
 }
 if(typeof dvRender==='function'){ const _dvRenderV = dvRender; dvRender = function(){ const r = _dvRenderV.apply(this, arguments); try{ const st = document.getElementById('dvStage'); if(st){ delete st.dataset.gl; vocGloss(st) } }catch(e){} return r } }
 
+/* =========================================================
+   ENGINE EVOLUTION 2: contract-formation rules, fuzzy terms,
+   Incoterms reasoning, buyer-stage behavior, deal health.
+   Principles only, written in our own words:
+   · CISG (UN Convention on Contracts for the International Sale of Goods):
+     offers must be definite; rejection ends an offer; a firm offer with a
+     fixed time cannot be withdrawn; an acceptance that changes a material
+     term is a counter-offer, a minor change is not; silence is not acceptance.
+   · Documentary-credit practice: "about/approximately" allows roughly ±10%,
+     "on or about" a date roughly ±5 days; "as soon as possible" is not a date.
+   · Incoterms: who arranges freight and insurance, and where risk passes.
+   · B2B buying: what a buyer asks depends on the stage and the person's role.
+   Runs outside the original engine and changes state only through rules here.
+   Flags: localStorage pactli_sem_flags {cisg, fuzzy, inco, stage, health: 0 to disable}.
+   ========================================================= */
+const TR_ON = k => (typeof semOn==='function' ? semOn(k) : true);
+
+/* ---------- 1. CISG: offer lifecycle and material changes ---------- */
+const TR_FIRM = /\b(?:firm offer|irrevocable|(?:valid|open|good|holds?|stands?) (?:until|till|through|for (?:\d+|one|two|three|five|seven|ten|fourteen|thirty) (?:days?|weeks?))|this offer (?:is valid|expires|remains open))\b/i;
+const TR_UNTIL = /\b(?:until|till|through)\s+((?:next |this )?(?:monday|tuesday|wednesday|thursday|friday|saturday|sunday)|(?:january|february|march|april|may|june|july|august|september|october|november|december)\s+\d{1,2}|(?:the )?end of (?:the )?(?:week|month|quarter))\b|\bfor (\d+|one|two|three|five|seven|ten|fourteen|thirty) (days?|weeks?)\b/i;
+const TR_MATERIAL = /\b(?:price|fee|rate|cost|discount|payment|pay|invoice terms|net\s?\d+|quantity|volume|units?|seats?|quality|spec(?:ification)?s?|delivery|ship(?:ment|ping)?|deadline|go-?live|date|term|years?|months?|liability|indemn\w*|warranty|guarantee|dispute|arbitration|jurisdiction|governing law|penalt\w*|credits?|exclusiv\w*|renewal|termination)\b/i;
+const TR_MINOR = /\b(?:format|word (?:file|document|version)|pdf|wording|typo|spelling|logo|letterhead|signature block|contact (?:details|person)|address|cc|copy (?:to|of)|e-?signature|docusign|invoice (?:to|address)|purchase order number|po number|reference number|naming|title|heading)\b/i;
+const TR_MOD = /^(.*?\b(?:accept|agree(?: to)?|works for us|deal|go with)\b(?:[^,]|,(?=\d))*?)(?:,\s*|\s+)(?:but|with|provided(?: that)?|as long as|on condition that|on the condition that|if)\s+(.+)$/i;
+
+function trOfferBook(st){ const M = semMem(st); M.offers = M.offers || {}; return M.offers }
+if(typeof engineReply==='function'){ const _engineReplyT = engineReply; engineReply = function(sc, st, text, o){
+  o = o||{};
+  if(o.sandbox || !st || !sc || sc.presentation || !(sc.issues||[]).length || typeof semParse!=='function' || (typeof SEM_MODE!=='undefined' && SEM_MODE==='off')) return _engineReplyT.apply(this, arguments);
+  const M = semMem(st), book = trOfferBook(st), G = [], after = [];
+  let txt = String(text||''), P; try{ P = semParse(txt) }catch(e){ return _engineReplyT.apply(this, arguments) }
+  const keep = [];
+  const theirs0 = st.expect && st.expect.type==='offer' ? {id:st.expect.issue, v:st.expect.value} : null;
+  P.clauses.forEach((c,k)=>{
+    /* firm offers: remember them; withdrawing one is not allowed */
+    if(TR_ON('cisg') && TR_FIRM.test(c.t)){ const b = semBind(sc, st, c.t); const bAll = b.length ? b : P.clauses.flatMap(x=>semBind(sc, st, x.t)); const tgt = bAll.length ? bAll : (M.last && M.last.turn>=(st.turn||0)-1 ? M.last.items.map(x=>({issue:semIss(sc,x.id), v:x.v})) : []);
+      tgt.forEach(x=>{ if(x.issue){ const u = c.t.match(TR_UNTIL); book[x.issue.id] = {by:'you', v:x.v, state:'irrevocable', until:u?(u[1]||(u[2]+' '+u[3])):null, turn:st.turn||0} } });
+      if(tgt.length) semLog(st,'cisg-firm',{n:tgt.length},c.t) }
+    if(TR_ON('cisg') && c.intents.includes('withdraw')){ const is = semIssueOf(sc, st, c.t) || (()=>{ const f = Object.entries(book).find(([,b])=>b.state==='irrevocable'); return f ? semIss(sc,f[0]) : null })();
+      const b = is && book[is.id];
+      if(b && b.state==='irrevocable' && b.by==='you'){ semLog(st,'cisg-irrevocable',{id:is.id},c.t);
+        G.push(semTurn(sc, is.owner||0, fresh(st,'trIrr',[`Hold on. You told us ${fmtVal(is,b.v)} on ${is.label} was a firm offer${b.until?` until ${b.until}`:''}. We'd like to hold you to that.`,`That was a firm offer${b.until?`, open until ${b.until}`:''}. We relied on it, so we expect ${fmtVal(is,b.v)} on ${is.label} to stand.`])));
+        try{ ev(st,'firmBreak',`Tried to withdraw a firm offer on ${is.label}.`,-1); feel(st, is.owner||0, -6, -4) }catch(e){}
+        return }
+    }
+    /* an acceptance that changes a material term is a counter-offer; a minor change is not */
+    const mm = TR_ON('cisg') && c.intents.includes('accept') && !c.cond && c.t.match(TR_MOD);
+    if(mm){ const mod = mm[2].replace(/[.?!]+$/,'');
+      if(TR_MINOR.test(mod) && !TR_MATERIAL.test(mod.replace(TR_MINOR,''))){ keep.push(semEnd(mm[1])); const vb = mod.replace(/^(?:you |we |please |could you |can you )+/i,''); after.push(/^(?:send|add|use|change|update|include|cc|put|make|copy|fix|correct|attach|share|issue|address)\b/i.test(vb) ? `And yes, we can ${vb}. That doesn't change the deal.` : fresh(st,'trMinor',[`And the ${vb.replace(/^(?:a |an |the )/i,'')} is fine. That doesn't change the deal.`,`That small change is fine on our side.`])); semLog(st,'cisg-minor',{mod},c.t); return }
+      if(TR_MATERIAL.test(mod) || semBind(sc, st, 'We propose '+mod).length){
+        semLog(st,'cisg-material',{mod},c.t);
+        let ms = []; try{ ms = issuesMentioned(sc, normText(mod)) }catch(e){}
+        const lbl = ms[0] ? ms[0].label : 'the terms';
+        G.push(semTurn(sc, ms[0]?ms[0].owner||0:0, fresh(st,'trMat',[`Just so we're clear, changing ${lbl} makes that a counter-offer rather than an acceptance, so nothing is agreed yet.`,`Since you're changing ${lbl}, I'll treat that as a counter-proposal, not an acceptance.`])));
+        keep.push(semEnd('We propose '+mod)); return }
+    }
+    /* "We accept ..." followed by a clause that changes a term */
+    if(TR_ON('cisg') && c.intents.includes('accept') && !c.cond && P.clauses[k+1] && P.clauses[k+1].intents.includes('propose') && semBind(sc, st, P.clauses[k+1].t).length && !semBind(sc, st, c.t).some(x=>semBind(sc,st,P.clauses[k+1].t).some(y=>y.issue.id===x.issue.id))){
+      const nx = P.clauses[k+1], b2 = semBind(sc, st, nx.t)[0];
+      if(theirs0 && b2 && b2.issue.id!==theirs0.id){ /* a different term: accept stands, the rest is a new proposal */ keep.push(semEnd(c.t)); return }
+      semLog(st,'cisg-material',{mod:nx.t},c.t);
+      G.push(semTurn(sc, b2.issue.owner||0, `Since you're changing ${b2.issue.label}, that's a counter-proposal rather than an acceptance.`)); return }
+    /* accepting an offer of theirs that you already turned down */
+    if(TR_ON('cisg') && c.intents.includes('accept') && (M.rejected||[]).length){
+      const b = semBind(sc, st, c.t)[0]; const earlier = /\b(?:earlier|previous|original|first|last|that) (?:offer|number|price|figure|proposal)\b/i.test(c.t);
+      const rj = M.rejected.slice().reverse().find(r=>r.by==='you' && ((b && r.id===b.issue.id && Math.abs(r.v-b.v)<1e-6) || (earlier && !b)));
+      if(rj && !(theirs0 && theirs0.id===rj.id && Math.abs(theirs0.v-rj.v)<1e-6)){ const is = semIss(sc, rj.id);
+        semLog(st,'cisg-revive',{id:rj.id, v:rj.v},c.t);
+        after.unshift(fresh(st,'trRev',[`Strictly speaking, that offer ended when you turned it down.`,`Note that ${fmtVal(is,rj.v)} came off the table when you rejected it.`]));
+        keep.push(semEnd(b ? c.t : `We accept ${fmtVal(is,rj.v)}.`)); return }
+    }
+    keep.push(c.t);
+  });
+  const t2 = keep.join(' ').trim();
+  let r;
+  if(t2) r = _engineReplyT.call(this, sc, st, t2===txt.trim()?text:t2, o);
+  else { st.turn = (st.turn||0)+1; r = {turns:[], end:false} }
+  if(t2 !== txt.trim() && st.learnerTurns && st.learnerTurns.length) st.learnerTurns[st.learnerTurns.length-1].t = txt;
+  let turns = (r && r.turns ? r.turns.slice() : []);
+  /* their counter-offer: remember it, so a later rejection ends it */
+  if(st.expect && st.expect.type==='offer') book['their:'+st.expect.issue] = {by:'them', v:st.expect.value, state:'active', turn:st.turn||0};
+  if(G.length){ turns = G.concat(turns.filter(tu=>!G.some(g=>g.text===tu.text))) }
+  if(after.length){ const tail = after.join(' '); if(turns.length) turns[turns.length-1] = Object.assign({}, turns[turns.length-1], {text: /Strictly speaking|came off the table/.test(tail) ? tail+' '+turns[turns.length-1].text : turns[turns.length-1].text+' '+tail}); else turns.push(semTurn(sc,0,tail)) }
+  return Object.assign({}, r, {turns:turns.slice(0,3)});
+} }
+
+/* ---------- 2. fuzzy terms and trade-correspondence formulas ---------- */
+const TR_APPROX = /\b(?:about|approximately|approx\.?|around|roughly|in the region of|in the neighborhood of|circa|some)\s+\$?\d/i;
+const TR_ONABOUT = /\bon or about\b/i;
+const TR_VAGUE_TIME = /\b(?:as soon as possible|asap|at the earliest(?: opportunity)?|promptly|immediately|right away|in due course|shortly|soon)\b/i;
+const TR_TIME_CTX = /\b(?:deliver\w*|ship\w*|go(?:ing)? live|go-?live|launch\w*|ready|implement\w*|start\w*|complete\w*|dispatch\w*|send (?:the )?goods)\b/i;
+const TR_INDICATIVE = /\bsubject to (?:our |final |prior )?(?:final )?confirmation\b|\bsubject to (?:prior )?sale\b|\bwithout engagement\b|\bnon-?binding\b|\bfor (?:your )?(?:reference|information) only\b|\bindicative (?:price|quote|quotation|offer|figure)\b|\bbudgetary (?:price|quote)\b/i;
+if(typeof semClause==='function'){ const _semClauseT = semClause; semClause = function(raw, idx){
+  const c = _semClauseT.apply(this, arguments);
+  try{
+    const hasNum = c.ents.some(e=>['money','pct','duration','payment','quantity'].includes(e.type));
+    if(TR_ON('fuzzy') && TR_INDICATIVE.test(c.t)){ c.indicative = true; c.cond = null; if(c.intents.includes('accept')) c.intents = c.intents.filter(i=>i!=='accept'); if(hasNum){ c.modality = 'consider'; c.provisional = true } }
+    if(TR_ON('fuzzy') && hasNum && (TR_APPROX.test(c.t) || TR_ONABOUT.test(c.t)) && (c.intents.includes('propose') || c.intents.includes('commit')) && !c.cond){ c.approx = TR_ONABOUT.test(c.t) ? 'date' : 'amount'; c.modality = 'consider' }
+    if(TR_ON('fuzzy') && TR_VAGUE_TIME.test(c.t) && TR_TIME_CTX.test(c.t) && !c.ents.some(e=>e.type==='duration'||e.type==='deadline') && !/\?\s*$/.test(c.t)) c.vagueTime = (c.t.match(TR_VAGUE_TIME)||['as soon as possible'])[0].toLowerCase();
+    if(/\bwe are pleased to (?:accept|confirm)\b|\bwe hereby (?:accept|confirm)\b/i.test(c.t) && !c.intents.includes('accept')) c.intents.push('accept');
+    if(/\bwe regret (?:to inform you )?that we (?:cannot|are unable to)\b|\bwe regret to (?:inform you|say) that\b/i.test(c.t) && !c.intents.includes('reject')){ c.intents = c.intents.filter(i=>i!=='accept'); c.intents.push('reject') }
+  }catch(e){}
+  return c;
+} }
+if(typeof semModal==='function'){ const _semModalT = semModal; semModal = function(sc, st, M, c){
+  try{
+    const b = semBind(sc, st, c.t)[0];
+    if(b && c.approx){ const is = b.issue, v = b.v; M.await = {type:'modal', id:is.id, v, turn:st.turn||0}; semLog(st,'fuzzy-approx',{id:is.id, v},c.t);
+      if(c.approx==='date') return [semTurn(sc, is.owner||0, `"On or about" leaves a few days either way. For the agreement we need one firm date. Can you confirm ${fmtVal(is,v)}?`)];
+      const lo = fmtVal(is, is.unit==='pct'?Math.round(v*0.9*10)/10:Math.round(v*0.9)), hi = fmtVal(is, is.unit==='pct'?Math.round(v*1.1*10)/10:Math.round(v*1.1));
+      return [semTurn(sc, is.owner||0, fresh(st,'trApx',[`"Approximately" could mean anything from ${lo} to ${hi}. We need an exact figure for ${is.label}. Shall we say ${fmtVal(is,v)}?`,`Around ${fmtVal(is,v)} is a range, not a number. Can you confirm exactly ${fmtVal(is,v)} for ${is.label}?`]))] }
+    if(b && c.indicative){ const is = b.issue; M.await = {type:'modal', id:is.id, v:b.v, turn:st.turn||0}; semLog(st,'fuzzy-indicative',{id:is.id},c.t);
+      return [semTurn(sc, is.owner||0, fresh(st,'trInd',[`Understood, so ${fmtVal(is,b.v)} is an indicative figure, not a firm offer yet. Let me know when you can confirm it.`,`Thanks. Since that's subject to your confirmation, I'll note ${fmtVal(is,b.v)} as indicative for now. Can you make it firm?`]))] }
+  }catch(e){}
+  return _semModalT.apply(this, arguments);
+} }
+
+/* ---------- 3. Incoterms 2020: rules the counterpart can reason with ---------- */
+const TR_INCO = {
+  EXW:{n:'Ex Works', freight:'buyer', ins:'buyer', exp:'buyer', imp:'buyer', risk:"when the goods are made available at the seller's premises", sea:false},
+  FCA:{n:'Free Carrier', freight:'buyer', ins:'buyer', exp:'seller', imp:'buyer', risk:"when the goods are handed to the buyer's carrier", sea:false},
+  FAS:{n:'Free Alongside Ship', freight:'buyer', ins:'buyer', exp:'seller', imp:'buyer', risk:'when the goods are placed alongside the ship at the port of shipment', sea:true},
+  FOB:{n:'Free On Board', freight:'buyer', ins:'buyer', exp:'seller', imp:'buyer', risk:'when the goods are loaded on board the ship at the port of shipment', sea:true},
+  CFR:{n:'Cost and Freight', freight:'seller', ins:'buyer', exp:'seller', imp:'buyer', risk:'when the goods are loaded on board at the port of shipment, even though the seller pays the freight', sea:true},
+  CIF:{n:'Cost, Insurance and Freight', freight:'seller', ins:'seller', exp:'seller', imp:'buyer', risk:'when the goods are loaded on board at the port of shipment; the seller buys minimum insurance cover', sea:true},
+  CPT:{n:'Carriage Paid To', freight:'seller', ins:'buyer', exp:'seller', imp:'buyer', risk:'when the goods are handed to the first carrier', sea:false},
+  CIP:{n:'Carriage and Insurance Paid To', freight:'seller', ins:'seller', exp:'seller', imp:'buyer', risk:'when the goods are handed to the first carrier; the seller buys broad (all-risks) insurance cover', sea:false},
+  DAP:{n:'Delivered At Place', freight:'seller', ins:'seller', exp:'seller', imp:'buyer', risk:'when the goods arrive at the named place, ready for unloading', sea:false},
+  DPU:{n:'Delivered at Place Unloaded', freight:'seller', ins:'seller', exp:'seller', imp:'buyer', risk:'when the goods are unloaded at the named place', sea:false},
+  DDP:{n:'Delivered Duty Paid', freight:'seller', ins:'seller', exp:'seller', imp:'seller', risk:'when the goods arrive at the named place, cleared for import with duties paid', sea:false}
+};
+const TR_INCO_RE = /\b(EXW|FCA|FAS|FOB|CFR|CIF|CPT|CIP|DAP|DPU|DDP)\b/;
+const TR_INCO_RANK = {EXW:0, FCA:1, FAS:1, FOB:2, CFR:3, CPT:3, CIF:4, CIP:4, DAP:5, DPU:5, DDP:6};
+function trIncoAnswer(t){
+  const m = t.match(TR_INCO_RE); if(!m) return null; const k = m[1], I = TR_INCO[k], low = t.toLowerCase();
+  const who = x => x==='seller' ? 'the seller' : 'the buyer';
+  if(/\b(?:air ?freight|by air|container|truck|rail|courier)\b/.test(low) && I.sea) return `${k} is meant for sea or inland waterway shipments. For containers or air freight, ${k==='FOB'?'FCA':k==='CIF'?'CIP':k==='CFR'?'CPT':'FCA'} is the better fit.`;
+  if(/insur/.test(low)) return `Under ${k}, ${who(I.ins)} ${I.ins==='seller'?'buys':'arranges'} the insurance${k==='CIF'?', and only minimum cover is required':k==='CIP'?', with broad all-risks cover':''}.`;
+  if(/freight|carriage|shipping cost|transport|who ships|main carriage/.test(low)) return `Under ${k}, ${who(I.freight)} pays for the main carriage.`;
+  if(/risk|damage|lost|loss|responsib/.test(low)) return `Under ${k}, risk passes to the buyer ${I.risk}.`;
+  if(/import|duty|duties|customs|clearance|tax/.test(low)) return I.exp===I.imp ? `Under ${k}, ${who(I.exp)} handles both export and import clearance${I.imp==='seller'?' and pays the import duties':' and pays any duties'}.` : `Under ${k}, ${who(I.exp)} handles export clearance, and ${who(I.imp)} handles import clearance and pays the duties.`;
+  if(/container|air|truck|rail|courier/.test(low) && I.sea) return `${k} is meant for sea or inland waterway shipments. For containers or air freight, ${k==='FOB'?'FCA':k==='CIF'?'CIP':k==='CFR'?'CPT':'FCA'} is the better fit.`;
+  return `${k} means ${I.n}. ${cap1(who(I.freight))} pays the main freight, ${who(I.ins)} covers insurance, and risk passes ${I.risk}.`;
+}
+function trIncoConflict(t){
+  const m = t.match(TR_INCO_RE); if(!m) return null; const k = m[1], I = TR_INCO[k], low = t.toLowerCase();
+  if(I.ins==='buyer' && /\b(?:including|incl\.?|with|plus|and (?:we|you|the seller) (?:will |would )?(?:arrange|cover|pay for|provide))\s+(?:the |full |marine |cargo )?insurance\b/.test(low)) return `${k} doesn't include insurance from the seller. If the seller is to insure the goods, CIF or CIP would be the right term.`;
+  if(I.freight==='buyer' && /\b(?:including|incl\.?|with|plus)\s+(?:the |ocean |sea |air )?freight\b|\bfreight (?:is )?included\b/.test(low)) return `Under ${k}, the buyer normally pays the main freight. If freight is included, CFR, CIF, CPT or CIP describes that better.`;
+  if(k==='DDP' && /\b(?:we|you|the buyer|buyer)\b.{0,30}\b(?:pay|cover|handle)\b.{0,20}\b(?:duties|import)\b/.test(low)) return `With DDP the seller pays import duties. If the buyer handles import clearance, DAP fits better.`;
+  if(k==='EXW' && /\b(?:we|you|the seller|seller)\b.{0,30}\b(?:export clearance|clear (?:the goods )?for export)\b/.test(low)) return `Under EXW the buyer handles export clearance. If the seller does it, FCA is the cleaner choice.`;
+  if(I.sea && /\b(?:by air|air ?freight|by truck|by rail|courier|containers?)\b/.test(low)) return `${k} is designed for sea shipments loaded on board. For ${/air/.test(low)?'air freight':'containers'}, ${k==='CIF'?'CIP':k==='CFR'?'CPT':'FCA'} is the usual recommendation.`;
+  return null;
+}
+if(typeof engineReply==='function'){ const _engineReplyI = engineReply; engineReply = function(sc, st, text, o){
+  const r = _engineReplyI.apply(this, arguments);
+  try{
+    if(!TR_ON('inco') || !st || (o&&o.sandbox) || !r || !r.turns) return r;
+    const t = String(text||''), M = semMem(st);
+    if(!TR_INCO_RE.test(t)) return r;
+    const isQ = /\?\s*$/.test(t.trim()) || /^(?:who|what|when|where|how|which|does|do|is|are|can|could)\b/i.test(t.trim());
+    let line = isQ ? trIncoAnswer(t) : trIncoConflict(t);
+    /* price coherence: a "bigger" term should not be cheaper */
+    M.inco = M.inco || {};
+    const k = (t.match(TR_INCO_RE)||[])[1], money = (semEntities(t).find(e=>e.type==='money')||{}).v;
+    if(k && money && !isQ){ M.inco[k] = money;
+      const worse = Object.entries(M.inco).find(([k2,v2])=>k2!==k && ((TR_INCO_RANK[k]>TR_INCO_RANK[k2] && money<v2) || (TR_INCO_RANK[k]<TR_INCO_RANK[k2] && money>v2)));
+      if(worse && !line){ const [hi,lo] = TR_INCO_RANK[k]>TR_INCO_RANK[worse[0]] ? [k,worse[0]] : [worse[0],k];
+        line = `Wait, your ${hi} price is lower than your ${lo} price. ${hi} includes more of the cost and risk, so that doesn't add up. Which figure is right?` } }
+    if(line){ semLog(st,'inco',{k},t); const p = (r.turns[0]||{}).p||0;
+      const generic = (st._tr||[]).some(x=>/^F:/.test(x)) || r.turns.every(tu=>!/\d/.test(tu.text) && String(tu.text).length<=90);
+      r.turns = isQ ? [semTurn(sc, p, line)].concat(r.turns.filter(tu=>/\d/.test(tu.text)).slice(0,1)) : (generic ? [semTurn(sc, p, line)] : r.turns.concat([semTurn(sc, p, line)]).slice(0,3)) }
+  }catch(e){}
+  return r;
+} }
+
+/* vague timing: "as soon as possible" is not a date */
+if(typeof engineReply==='function'){ const _engineReplyV2 = engineReply; engineReply = function(sc, st, text, o){
+  const r = _engineReplyV2.apply(this, arguments);
+  try{
+    if(!TR_ON('fuzzy') || !st || (o&&o.sandbox) || !r || !r.turns) return r;
+    const P = semParse(String(text||'')); const c = P.clauses.find(x=>x.vagueTime);
+    if(c && !r.turns.some(tu=>/\b(?:date|when|weeks?|days?)\b.*\?/i.test(tu.text))){ semLog(st,'fuzzy-time',{},c.t);
+      const generic = (st._tr||[]).some(x=>/^F:/.test(x)) || r.turns.every(tu=>!/\d/.test(tu.text) && String(tu.text).length<=90);
+      r.turns = (generic ? [] : r.turns).concat([semTurn(sc, (r.turns[0]||{}).p||0, fresh(st,'trAsap',[`"${cap1(c.vagueTime)}" isn't something we can put in an agreement. What date can you actually commit to?`,`I'll need a firm date rather than "${c.vagueTime}". When exactly?`]))]).slice(0,3) }
+  }catch(e){}
+  return r;
+} }
+
+/* ---------- 4. buyer stage and role: what the counterpart raises when the reply has no question ---------- */
+const TR_ROLE_Q = [
+  [/cfo|financ|controller|account/i, ['What return should we expect in the first year?','How would the payments fall across the year?','What does the total cost look like over three years?']],
+  [/legal|counsel|lawyer|compliance/i, ['How do you handle liability if something goes wrong?','What happens if either side wants to exit early?','Where would disputes be settled?']],
+  [/it\b|cto|cio|tech|engineer|security|data/i, ['How do you handle data security?','How long does integration usually take?','What does support look like after go-live?']],
+  [/procure|purchas|buyer|sourcing/i, ['How does your price compare with the market?','What would a longer commitment get us?','Is there flexibility on payment terms?']],
+  [/operat|logistic|supply|warehouse|plant|production/i, ['What happens if delivery slips?','How would the rollout affect our day-to-day work?','Who do we call when something breaks?']],
+  [/market|sales|commercial|brand|growth/i, ['How will we measure whether this works?','How quickly can we see results?','What have similar clients achieved?']],
+  [/ceo|founder|director|head|vp|chief|owner|president/i, ['What would make this a clear win for both sides?','What is the biggest risk you see?','Why should we choose you over the alternatives?']]
+];
+function trStage(sc, st){
+  const iss = (sc.issues||[]).filter(i=>!i.never), ag = Object.keys(st.agreed||{}).length;
+  if(!ag && (st.turn||0)<=4) return 'early';
+  return ag>=Math.ceil(iss.length/2) ? 'late' : 'mid';
+}
+if(typeof semAgendaLine==='function'){ const _semAgendaLineT = semAgendaLine; semAgendaLine = function(sc, st, kind){
+  const A = _semAgendaLineT.apply(this, arguments);
+  try{
+    if(!TR_ON('stage')) return A;
+    const M = semMem(st); M.stageAsk = M.stageAsk || 0;
+    /* every second agenda line, a stage- and role-specific question instead of the next issue */
+    if((M.stageAsk++ % 2)===1 && /(?:Where do you stand|What can you do|position on)/.test(A.t)){
+      const ps = sc.personas||[], stage = trStage(sc, st);
+      const pick = stage==='early' ? 0 : stage==='mid' ? 1 : 2;
+      for(let i=0;i<ps.length;i++){ const per = ps[i], row = TR_ROLE_Q.find(([re])=>re.test(per.role||'')); if(!row) continue;
+        const q = row[1][pick]; if((M.said||[]).includes(q.toLowerCase().replace(/[^a-z0-9 ]+/g,'').trim())) continue;
+        semLog(st,'stage-q',{stage, role:per.role},q);
+        return {p:i, t: A.t.split(/(?<=[.!])\s+/)[0].match(/^(Good|Okay|Right|Take your time|No rush|Sure, take a moment|You're welcome|Of course|Happy to help)\.?$/) ? A.t.split(/(?<=[.!])\s+/)[0]+' '+q : q} }
+    }
+  }catch(e){}
+  return A;
+} }
+
+/* ---------- 5. deal health: one score from what actually happened ---------- */
+function trDealHealth(sc, st){
+  if(!st || !sc || !(sc.issues||[]).length) return null;
+  const ev0 = st.events||[], good = ev0.filter(e=>e.good>0).length, bad = ev0.filter(e=>e.good<0).length;
+  const lt = (st.learnerTurns||[]).map(x=>x.t||''), qs = lt.filter(t=>/\?/.test(t)).length;
+  const iss = (sc.issues||[]).filter(i=>!i.never), agreed = iss.filter(i=>st.agreed[i.id]!=null).length;
+  const emo = Object.values(st.emo||{}); const trust = emo.length ? emo.reduce((a,e)=>a+(e.trust!=null?e.trust:50),0)/emo.length : 50;
+  const M = st.sem||{}, log = M.log||[];
+  const risky = log.filter(e=>/withdraw-agreed|cisg-irrevocable|firmBreak/.test(e.kind)).length;
+  const s = Math.round(Math.max(0, Math.min(100, 35 + (iss.length?30*agreed/iss.length:0) + Math.min(12, qs*3) + Math.min(15, good*2) - Math.min(20, bad*3) + (trust-50)*0.3 - risky*8)));
+  const why = [];
+  if(agreed) why.push(`${agreed} of ${iss.length} points agreed`);
+  if(qs) why.push(`${qs} question${qs>1?'s':''} asked`);
+  if(bad) why.push(`${bad} weak move${bad>1?'s':''}`);
+  if(risky) why.push('a commitment taken back');
+  return {score:s, label: s>=75?'Strong':s>=55?'Healthy':s>=40?'Fragile':'At risk', why:why.join(' · ')};
+}
+if(typeof engineAnalyze==='function'){ const _engineAnalyzeT = engineAnalyze; engineAnalyze = function(m, sc, st){ const f = _engineAnalyzeT.apply(this, arguments); try{ if(TR_ON('health')) f.dealHealth = trDealHealth(sc, st) }catch(e){} return f } }
+if(typeof renderReport==='function'){ const _renderReportT = renderReport; renderReport = function(r){ const out = _renderReportT.apply(this, arguments);
+  try{ const h = r && r.fb && r.fb.dealHealth; const k = document.querySelector('#repBody .kpis');
+    if(h && k && !k.querySelector('.kpi-health')) k.insertAdjacentHTML('beforeend', `<div class="kpi kpi-health"><small>Deal health</small><b>${h.score}</b><span>${esc(h.label)}${h.why?` · ${esc(h.why)}`:''}</span></div>`) }catch(e){}
+  return out } }
+
 
 /* =========================================================
    LANDING PAGE, shown before login. PC and mobile follow the app's own view switch (html.mob).
